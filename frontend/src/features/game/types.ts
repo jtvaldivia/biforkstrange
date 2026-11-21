@@ -8,6 +8,13 @@ export type Ficha = {
   isco: string;
   nivel: string;
   empleador: string;
+  empresa: string;
+  rubro: string;
+  antiguedad: number;
+  colchon_meses: number;
+  salud: number;
+  habilidad: number;
+  reputacion: number;
   sueldo: number;
   ingreso_mes: number;
   ahorros: number;
@@ -39,6 +46,9 @@ export type Opcion = {
   delta_ingreso: number;
   delta_animo: number;
   gemelos: number;
+  descripcion: string;
+  tipo: "base" | "oportunidad" | "trabajo" | "crecer" | "vida" | "riesgo";
+  efectos: { texto: string; tono: "mas" | "menos" | "neutro" }[];
   extra: { afinidad?: number; logra?: number; ia_origen?: number; ia_destino?: number };
 };
 
@@ -46,6 +56,7 @@ export type Turno = {
   decision: string;
   nombre: string;
   eventos: string[];
+  logros: string[];
   yo: Ficha;
   sombra: Ficha;
   nube_eventos: Record<string, number>;
@@ -56,6 +67,7 @@ export type Partida = {
   yo: Ficha;
   sombra: Ficha;
   historial: Turno[];
+  logros: string[];
   menu: Opcion[];
 };
 

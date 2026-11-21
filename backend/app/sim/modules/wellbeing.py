@@ -8,6 +8,7 @@ from app.sim.state import CES, EMP
 
 def energia(e, i, ctx, ev):
     pf, u = ctx.perfil, lambda k: ctx.suerte.u(e.t, k)  # noqa: E731
+    acc = P.ACCIONES
     trabaja = e.horas > 0
     demanda = (
         P.ENERGIA_HORA * np.maximum(e.horas - 44, 0)
@@ -15,10 +16,12 @@ def energia(e, i, ctx, ev):
         + 8.0 * (ev["reconv_ok"] | ev["reconv_no"])
         + 4.0 * ((e.nivel >= 3) & (e.sit == EMP))
         + P.CUIDADO[pf.sexo] * (e.edad_hijo <= 4)
+        + acc["curso_energia"] * i.capacita + acc["red_energia"] * i.networking + acc["pituto_energia"] * i.pituto
     )
-    recursos = 6.0 * (trabaja & (e.horas <= 40)) + 25.0 * ev["pausa"]
+    recursos = 6.0 * (trabaja & (e.horas <= 40)) + 25.0 * ev["pausa"] + acc["cuidarte_energia"] * i.cuida + acc["gente_energia"] * i.tu_gente
     sens = max(0.5, 1 + P.B_BURNOUT_N * pf.z("N"))
-    delta = -demanda * sens + recursos * (1 + 0.2 * pf.z("E")) + P.ENERGIA_REVERSION * (70 - e.energia)
+    base = 70 - P.ATRIBUTOS["energia_salud"] * np.maximum(80 - e.salud, 0)   # con mala salud te recuperas menos
+    delta = -demanda * sens + recursos * (1 + 0.2 * pf.z("E")) + P.ENERGIA_REVERSION * (base - e.energia)
     e.energia = np.clip(e.energia + delta, 0, 100)
 
     umbral, p = P.BURNOUT
@@ -27,7 +30,8 @@ def energia(e, i, ctx, ev):
     e.ingreso = np.where(rechazo, np.maximum(e.ingreso - 2 * e.sueldo / 12, 0), e.ingreso)
     e.energia = np.where(quema, 55.0, e.energia)
     e.burnout_prev = quema
-    e.social = np.where(trabaja, 100 * P.SOCIAL_HORA ** np.maximum(e.horas - 45, 0), 100.0)
+    e.social = np.clip(np.where(trabaja, 100 * P.SOCIAL_HORA ** np.maximum(e.horas - 45, 0), 100.0)
+                       + acc["gente_social"] * i.tu_gente - acc["pituto_social"] * i.pituto, 0, 120)
     ev.update(burnout=quema, licencia_rechazada=rechazo)
 
 
@@ -38,6 +42,7 @@ def animo(e, i, ctx, ev):
         + o["despido"] * ev["despido"] + o["sabatico"] * ev["pausa"] + o["titulo"] * ev["titulo"] + o["hijo"] * ev["hijo"]
         + o["cierre"] * ev["cierra_emp"] + P.ANIMO_REEMPLEO * (ev["encuentra"] | ev["reempleo_mismo_anio"])
         + P.ANIMO_PAREJA * ev["pareja_nueva"] + P.ANIMO_SEPARACION * ev["separacion"]
+        + P.ACCIONES["gente_animo"] * i.tu_gente - 5.0 * ev["problema_salud"] - 2.0 * ev["postula_no"] + 2.0 * ev["oferta_aceptada"]
     )
     e.animo_trans = 0.5 * e.animo_trans + evento
     e.animo_pers = np.minimum(e.animo_pers + o["ascenso"] * ev["ascenso"], 9.0)

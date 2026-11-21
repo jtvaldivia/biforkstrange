@@ -4,11 +4,11 @@
  */
 import { useState } from "react";
 import {
-  BigNumber, Button, DecisionArt, DecisionList, Heading, IndicatorGrid, LifePathHero, LinesChart, Meta, Narrative, NightBand, Panel,
-  Pill, RangeCompare, Row, Screen, ScreenFooter, ScreenHeader, Segmented, SlowReveal, Stack, SunCard, Tag, Text,
+  BigNumber, Button, DecisionArt, DecisionList, Heading, Indicator, LifePathHero, LinesChart, Meta, Narrative, NightBand, Panel,
+  Pill, Row, Screen, ScreenFooter, ScreenHeader, Segmented, SlowReveal, Stack, SunCard, Tag, Text,
   type DecisionTag,
 } from "@/shared/ui";
-import { arte, indicadores, nivelIA, plata, porc, rangoIngreso, resumenFicha } from "./formato";
+import { arte, atributos, cargo, indicadores, nivelIA, plata, resumenFicha } from "./formato";
 import { PERFIL_EJEMPLO } from "./perfilEjemplo";
 import type { EscenarioIA, Ficha, Opcion, Perfil } from "./types";
 import { useGame } from "./useGame";
@@ -56,11 +56,11 @@ function Inicio({ juego }: { juego: Juego }) {
       <LifePathHero />
       <Stack gap={12}>
         <Heading level={1}>Vive tu vida laboral antes de vivirla.</Heading>
-        <Text>Cada año eliges tú. Antes de vivirlo ves qué pasaría con cada camino en mil futuros posibles.</Text>
+        <Text>Cada año te tocan unas pocas jugadas: una oferta, un ascenso, un curso, tu gente. Eliges una y ves qué te pasa.</Text>
       </Stack>
       <Row gap={6}>
         <Tag>Una decisión por año</Tag>
-        <Tag>1.000 futuros por opción</Tag>
+        <Tag>Ofertas, ascensos y logros</Tag>
         <Tag>Datos de Chile</Tag>
       </Row>
       <Panel>
@@ -123,86 +123,86 @@ function Inicio({ juego }: { juego: Juego }) {
   );
 }
 
+/* Atributos del gemelo: ocho barras; con `antes` muestra cuánto cambió cada una */
+function Atributos({ ficha, antes, label }: { ficha: Ficha; antes?: Ficha; label: string }) {
+  const previos = antes ? atributos(antes) : undefined;
+  return (
+    <div className="vd-inds" role="group" aria-label={label}>
+      {atributos(ficha).map((a, i) => (
+        <Indicator key={a.clave} indicator={a.color} label={a.nombre} value={a.valor} previous={previos?.[i].valor} />
+      ))}
+    </div>
+  );
+}
+
+function Trabajo({ f }: { f: Ficha }) {
+  const tipo: Record<string, string> = { startup: "Startup", pyme: "Pyme", grande: "Empresa grande", estado: "Estado" };
+  return (
+    <Panel>
+      <Stack gap={6}>
+        <Meta>{f.situacion === "con empleo" ? "Tu pega" : "Tu situación"}</Meta>
+        {f.situacion === "con empleo" ? (
+          <>
+            <Heading level={3} as="h2">{`${cargo(f)} · ${f.nivel}`}</Heading>
+            <Text size="sm">{`En ${f.empresa} desde hace ${Math.round(f.antiguedad)} ${Math.round(f.antiguedad) === 1 ? "año" : "años"}. ${f.rubro}.`}</Text>
+          </>
+        ) : (
+          <Heading level={3} as="h2">{f.situacion === "emprendiendo" ? "Con tu emprendimiento" : "Sin trabajo, buscando"}</Heading>
+        )}
+      </Stack>
+      <Row gap={6}>
+        {f.situacion === "con empleo" && <Tag tone="accent">{`${plata(f.sueldo)} al mes`}</Tag>}
+        {f.situacion === "con empleo" && <Tag>{tipo[f.empleador] ?? f.empleador}</Tag>}
+        <Tag tone={f.ahorros < 0 ? "minus" : "default"}>{f.ahorros < 0 ? `Deuda ${plata(-f.ahorros)}` : `Ahorros ${plata(f.ahorros)}`}</Tag>
+        <Tag>{`${f.pareja ? "Con pareja" : "Sin pareja"} · ${f.hijos} ${f.hijos === 1 ? "hijo" : "hijos"}`}</Tag>
+        <Tag tone={f.ia >= 0.65 ? "minus" : "default"}>{`IA: exposición ${nivelIA(f.ia)}`}</Tag>
+        {f.estudia > 0 && <Tag tone="sol">Estudiando magíster</Tag>}
+        {f.postgrado && <Tag>Magíster</Tag>}
+      </Row>
+    </Panel>
+  );
+}
+
 /* 2 · Decisión del año */
-function etiquetas(o: Opcion): DecisionTag[] {
-  const t: DecisionTag[] = [{ label: `${plata(o.ingreso[1])} al mes` }];
-  if (o.decision !== "seguir") {
-    if (o.p_mejor >= o.p_peor && o.p_mejor > 0.02) t.push({ label: `Ganas más en ${porc(o.p_mejor)}`, tone: "accent" });
-    else if (o.p_peor > 0.02) t.push({ label: `Ganas menos en ${porc(o.p_peor)}`, tone: "minus" });
-  }
-  if (o.p_deuda >= 0.2) t.push({ label: `Deuda ${porc(o.p_deuda)}`, tone: "minus" });
-  if (o.p_cesantia >= 0.3) t.push({ label: `Sin pega ${porc(o.p_cesantia)}`, tone: "minus" });
-  if (o.energia_min < 45) t.push({ label: `Energía baja a ${Math.round(o.energia_min)}`, tone: "minus" });
-  if (o.p_burnout >= 0.05) t.push({ label: `Agotamiento ${porc(o.p_burnout)}`, tone: "minus" });
+const TONO = { mas: "accent", menos: "minus", neutro: "default" } as const;
+
+function etiquetas(o: Opcion, popular: boolean): DecisionTag[] {
+  const t: DecisionTag[] = [];
+  if (o.tipo === "oportunidad") t.push({ label: "Solo este año", tone: "sol" });
+  if (popular) t.push({ label: "Lo que haría la mayoría", tone: "sol" });
+  for (const e of o.efectos) t.push({ label: e.texto, tone: TONO[e.tono] });
   return t;
 }
 
-function subtitulo(o: Opcion): string {
-  const gemelos = `Lo elegiría el ${porc(o.gemelos)} de tus gemelos`;
-  if (o.extra.afinidad !== undefined && o.extra.logra !== undefined && o.extra.ia_destino !== undefined)
-    return `Afinidad ${porc(o.extra.afinidad)}, lo logras con ${porc(o.extra.logra)}. IA ${nivelIA(o.extra.ia_destino)}. ${gemelos}.`;
-  return `${gemelos}.`;
-}
-
-function Decision({ juego, sueldo0 }: { juego: Juego; sueldo0: number }) {
-  const { yo, menu, perfil, historial } = juego.partida!;
+function Decision({ juego }: { juego: Juego }) {
+  const { yo, menu, perfil, historial, logros } = juego.partida!;
   const [elegida, setElegida] = useState<string | null>(null);
-  const seguir = menu.find((o) => o.decision === "seguir") ?? menu[0];
-  const op = menu.find((o) => o.decision === elegida);
-  const techo = 1.15 * Math.max(...menu.map((o) => o.ingreso[2]));
+  const popular = menu.reduce((a, b) => (b.gemelos > a.gemelos ? b : a)).decision;
 
   return (
     <Screen>
-      <ScreenHeader left={<Pill>{`${yo.anio} · ${yo.edad} años`}</Pill>} right={<Meta>{`Año ${historial.length + 1}`}</Meta>} />
-      <Stack>
-        <Heading level={1}>{`${perfil.nombre}, ¿qué haces este año?`}</Heading>
-        <Text>{resumenFicha(yo)}</Text>
-      </Stack>
-      <IndicatorGrid values={indicadores(yo, sueldo0)} label="Cómo estás hoy" />
-      <Row gap={6}>
-        <Tag>{perfil.arquetipo}</Tag>
-        <Tag tone={yo.ia >= 0.65 ? "minus" : "default"}>{`Exposición a IA ${nivelIA(yo.ia)}`}</Tag>
-        <Tag>{`${Math.round(yo.contactos)} contactos`}</Tag>
-        {yo.estudia > 0 && <Tag tone="sol">Estudiando magíster</Tag>}
-      </Row>
-      <Stack gap={4}>
-        <Heading level={3} as="h2">
-          Tus caminos
-        </Heading>
-        <Text size="sm">Cada uno se simuló 1.000 veces a 5 años, con la misma suerte. El monto es el ingreso mensual típico.</Text>
-      </Stack>
+      <ScreenHeader left={<Pill>{`${yo.anio} · ${yo.edad} años`}</Pill>} right={<Meta>{`Año ${historial.length + 1} · ${logros.length} logros`}</Meta>} />
+      <Heading level={1}>{`${perfil.nombre}, ¿qué haces este año?`}</Heading>
+      <Trabajo f={yo} />
+      <Atributos ficha={yo} label="Tus atributos hoy" />
+      <Heading level={3} as="h2">{`Tu jugada de ${yo.anio}`}</Heading>
       <DecisionList
-        label="Decisión del año"
+        label="Jugada del año"
         value={elegida}
         onChange={setElegida}
-        options={menu.map((o) => ({ id: o.decision, art: <DecisionArt kind={arte(o.decision)} />, title: o.nombre, subtitle: subtitulo(o), tags: etiquetas(o) }))}
+        options={menu.map((o) => ({
+          id: o.decision,
+          art: <DecisionArt kind={arte(o.decision)} />,
+          title: o.nombre,
+          subtitle: o.descripcion,
+          tags: etiquetas(o, o.decision === popular && menu.length > 1),
+        }))}
       />
-      {op && op.decision !== "seguir" && (
-        <Stack as="section" gap={10}>
-          <Heading level={3} as="h2">
-            Seguir igual contra este camino
-          </Heading>
-            <Stack gap={6}>
-              <span className="vd-camino">
-                <Tag tone="accent">A</Tag>Seguir igual
-              </span>
-              <span className="vd-camino">
-                <Tag>B</Tag>
-                {op.nombre}
-              </span>
-            </Stack>
-            <RangeCompare indicator="dinero" label="Ingreso mensual a 5 años: caso malo, típico y bueno" a={rangoIngreso(seguir, techo)} b={rangoIngreso(op, techo)} />
-            <Text size="sm">
-              {`A: ${plata(seguir.ingreso[0])} a ${plata(seguir.ingreso[2])}. B: ${plata(op.ingreso[0])} a ${plata(op.ingreso[2])}. `}
-              {`Ahorros a 5 años: ${plata(seguir.ahorros[1])} contra ${plata(op.ahorros[1])}. Con la misma suerte, B gana más en ${porc(op.p_mejor)} de los futuros y menos en ${porc(op.p_peor)}.`}
-            </Text>
-        </Stack>
-      )}
       {juego.error && <Text size="sm">⚠ {juego.error}</Text>}
       <ScreenFooter>
         <Stack gap={10}>
           <Button disabled={!elegida || juego.cargando} onClick={() => elegida && juego.decidir(elegida)}>
-            {juego.cargando ? "Viviendo el año…" : elegida ? "Vivir este año" : "Elige un camino"}
+            {juego.cargando ? "Viviendo el año…" : elegida ? "Vivir este año" : "Elige tu jugada"}
           </Button>
           {historial.length > 0 && (
             <Button variant="quiet" onClick={juego.terminar}>
@@ -216,19 +216,18 @@ function Decision({ juego, sueldo0 }: { juego: Juego; sueldo0: number }) {
 }
 
 /* 3 · Lo que pasó */
-function Resultado({ juego, sueldo0, antes }: { juego: Juego; sueldo0: number; antes: Ficha }) {
+function Resultado({ juego, antes }: { juego: Juego; antes: Ficha }) {
   const { historial } = juego.partida!;
   const t = historial[historial.length - 1];
-  const duro = t.yo.situacion === "sin trabajo" || t.eventos.some((e) => /despidieron|agotaste|separaste|endeudarte|cerró/.test(e));
-  const n = t.nube_eventos;
+  const duro = t.yo.situacion === "sin trabajo" || t.eventos.some((e) => /despidieron|agotaste|separaste|endeudarte|cerró|pasó la cuenta/.test(e));
   const dif = t.yo.ahorros - t.sombra.ahorros;
 
   return (
     <Screen tone={duro ? "noche" : "dia"} key={historial.length}>
       <ScreenHeader left={<Pill tone="sol">{`${t.yo.anio - 1} · ${t.yo.edad - 1} años`}</Pill>} right={<Meta>Lo que pasó</Meta>} />
       <Stack gap={6}>
-        <Meta>Elegiste</Meta>
-        <Heading level={1}>{t.nombre.replace("→ ", "Pasar a ")}</Heading>
+        <Meta>Tu jugada</Meta>
+        <Heading level={1}>{t.nombre}</Heading>
       </Stack>
       <Stack gap={10}>
         {t.eventos.map((e, i) => (
@@ -237,8 +236,14 @@ function Resultado({ juego, sueldo0, antes }: { juego: Juego; sueldo0: number; a
           </SlowReveal>
         ))}
       </Stack>
-      <IndicatorGrid values={indicadores(t.yo, sueldo0)} previous={indicadores(antes, sueldo0)} label="Cómo cambió tu año" />
-      <Text size="sm">{resumenFicha(t.yo)}</Text>
+      {t.logros.length > 0 && (
+        <SunCard>
+          <Meta>{t.logros.length === 1 ? "Logro desbloqueado" : "Logros desbloqueados"}</Meta>
+          <Heading level={2} as="h2">{t.logros.join(" · ")}</Heading>
+        </SunCard>
+      )}
+      <Trabajo f={t.yo} />
+      <Atributos ficha={t.yo} antes={antes} label="Cómo cambiaron tus atributos" />
       <NightBand>
         <Stack gap={6}>
           <Meta>Tu sombra</Meta>
@@ -248,12 +253,9 @@ function Resultado({ juego, sueldo0, antes }: { juego: Juego; sueldo0: number; a
           </Text>
         </Stack>
       </NightBand>
-      {n.despido + n.cambio + n.ascenso + n.burnout > 0 && <Text size="sm">
-        {`En los 1.000 futuros de este año: despido ${porc(n.despido)}, cambio de pega ${porc(n.cambio)}, ascenso ${porc(n.ascenso)}, agotamiento ${porc(n.burnout)}.`}
-      </Text>}
       <ScreenFooter>
         <Stack gap={10}>
-          <Button onClick={juego.seguir}>{t.yo.edad >= 50 ? "Ver el final" : `Decidir ${t.yo.anio}`}</Button>
+          <Button onClick={juego.seguir}>{t.yo.edad >= 50 ? "Ver el final" : `Jugar ${t.yo.anio}`}</Button>
           <Button variant="quiet" onClick={juego.terminar}>
             Terminar la partida
           </Button>
@@ -265,7 +267,7 @@ function Resultado({ juego, sueldo0, antes }: { juego: Juego; sueldo0: number; a
 
 /* 4 · Fin de la partida */
 function Resumen({ juego, sueldo0, inicial }: { juego: Juego; sueldo0: number; inicial: Ficha }) {
-  const { historial, yo, sombra } = juego.partida!;
+  const { historial, yo, sombra, logros } = juego.partida!;
   const fichas = [inicial, ...historial.map((t) => t.yo)];
   const inds = fichas.map((f) => indicadores(f, sueldo0));
   const mios = indicadores(yo, sueldo0);
@@ -288,6 +290,20 @@ function Resumen({ juego, sueldo0, inicial }: { juego: Juego; sueldo0: number; i
           {felicidad > felicidadSombra ? "Tus decisiones sumaron." : felicidad < felicidadSombra ? "Sin moverte te habría ido mejor." : "Quedaron iguales."}
         </Text>
       </SunCard>
+      <Stack as="section" gap={10}>
+        <Heading level={3} as="h2">{`Logros: ${logros.length}`}</Heading>
+        {logros.length > 0 ? (
+          <Row gap={6}>
+            {logros.map((l) => (
+              <Tag key={l} tone="sol">
+                {l}
+              </Tag>
+            ))}
+          </Row>
+        ) : (
+          <Text size="sm">Ninguno todavía. Prueba otra vida.</Text>
+        )}
+      </Stack>
       {anios >= 1 && (
         <Stack as="section" gap={10}>
           <Heading level={3} as="h2">
@@ -306,7 +322,7 @@ function Resumen({ juego, sueldo0, inicial }: { juego: Juego; sueldo0: number; i
           <Heading level={3} as="h2">
             Tú contra tu sombra
           </Heading>
-          <Text size="sm">Misma persona y misma suerte. La única diferencia son tus decisiones.</Text>
+          <Text size="sm">Misma persona y misma suerte. La única diferencia son tus jugadas. Cada barra muestra cuánto le sacaste o te sacó.</Text>
         </Stack>
         <Stack gap={6}>
           <span className="vd-camino">
@@ -318,16 +334,16 @@ function Resumen({ juego, sueldo0, inicial }: { juego: Juego; sueldo0: number; i
             {resumenFicha(sombra)}
           </span>
         </Stack>
-        <IndicatorGrid values={mios} previous={suyos} label="Tus indicadores contra los de tu sombra" />
+        <Atributos ficha={yo} antes={sombra} label="Tus atributos contra los de tu sombra" />
       </Stack>
       <Stack as="section" gap={10}>
         <Heading level={3} as="h2">
-          Lo que decidiste
+          Lo que jugaste
         </Heading>
         <Stack gap={12}>
           {historial.map((t) => (
             <Stack key={t.yo.anio} gap={2}>
-              <Meta>{`${t.yo.anio - 1} · ${t.yo.edad - 1} años · ${t.nombre.replace("→ ", "Pasar a ")}`}</Meta>
+              <Meta>{`${t.yo.anio - 1} · ${t.yo.edad - 1} años · ${t.nombre}`}</Meta>
               <Text size="sm">{t.eventos.join(" ")}</Text>
             </Stack>
           ))}
@@ -335,7 +351,7 @@ function Resumen({ juego, sueldo0, inicial }: { juego: Juego; sueldo0: number; i
       </Stack>
       <Stack gap={10}>
         <Button onClick={juego.repetir} disabled={juego.cargando}>
-          Misma suerte, otras decisiones
+          Misma suerte, otras jugadas
         </Button>
         <Button variant="white" onClick={juego.reiniciar}>
           Empezar otra vida
@@ -352,7 +368,7 @@ export function GamePage() {
 
   const sueldo0 = Math.max(inicial.sueldo || inicial.ingreso_mes || 1_000_000, 1);
   const h = partida.historial;
-  if (fase === "resultado" && h.length > 0) return <Resultado juego={juego} sueldo0={sueldo0} antes={h.length > 1 ? h[h.length - 2].yo : inicial} />;
+  if (fase === "resultado" && h.length > 0) return <Resultado juego={juego} antes={h.length > 1 ? h[h.length - 2].yo : inicial} />;
   if (fase === "resumen") return <Resumen juego={juego} sueldo0={sueldo0} inicial={inicial} />;
-  return <Decision key={h.length} juego={juego} sueldo0={sueldo0} />;
+  return <Decision key={h.length} juego={juego} />;
 }

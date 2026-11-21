@@ -14,4 +14,5 @@ def factor_red(contactos: np.ndarray) -> np.ndarray:
 def red(e, i, ctx, ev):
     g = P.RED_GANA
     e.contactos = e.contactos + g["anual"] * (e.sit == EMP) + g["emprende"] * (e.sit == EMPR) + g["titulo"] * ev["titulo"]
+    e.contactos = e.contactos + P.ACCIONES["red_contactos"] * i.networking + P.ACCIONES["pituto_contactos"] * i.pituto
     e.contactos = np.where((e.sit == CES) & (e.anios_ces >= 1), e.contactos * (1 - P.RED_PIERDE), e.contactos)

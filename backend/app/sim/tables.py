@@ -41,6 +41,9 @@ class Tablas:
         dirig = np.where(self.es_directivo[None, :], self.T, 0)
         self.jefatura_dest = np.where(dirig.max(1) > 0, dirig.argmax(1), -1)
         self.mult_rubro = t["ine"]["MULT_SALIDA_POR_RUBRO"]
+        from app.sim.companies import RUBROS
+
+        self.mult_rubro_idx = np.array([self.mult_rubro.get(r, 1.0) for r in RUBROS])
         self._hijo = t["ine"]["P_HIJO_ANUAL_MUJER_por_edad"]
         self._perfil_edu = {}
         for edu, d in t["esi_edad_educacion"].items():

@@ -10,6 +10,7 @@ export const PERFIL_EJEMPLO: Perfil = {
   situacion: "trabajando",
   carrera: "Ingeniería Comercial",
   institucion: "universidad",
+  empresa: "un banco grande",
   tipo_empleador: "grande",
   rubro: "Finanzas y seguros",
   nivel: "semi senior",

@@ -77,11 +77,31 @@ def test_ia_rapida_sube_despidos_en_ocupacion_expuesta():
 
 
 def test_menu_y_gemelos():
-    ops = menu(Estado.desde_perfil(PERFIL), PERFIL, horizonte=3, n=400, seed=1)
+    ops = menu(Estado.desde_perfil(PERFIL), PERFIL, horizonte=3, n=400, seed=1, todas=True)
     claves = [o.decision for o in ops]
     assert claves[0] == "seguir" and "sabatico" in claves and any(c.startswith("reconvertir:") for c in claves)
     assert abs(sum(o.gemelos for o in ops) - 1) < 1e-9
     assert all(o.ingreso[0] <= o.ingreso[1] <= o.ingreso[2] for o in ops)
+
+
+def test_mano_del_anio_es_corta_y_trae_oportunidades():
+    vistas = set()
+    for seed in range(12):
+        ops = menu(Estado.desde_perfil(PERFIL), PERFIL, horizonte=2, n=200, seed=seed)
+        assert ops[0].decision == "seguir" and 3 <= len(ops) <= 5
+        assert len({o.decision for o in ops}) == len(ops)
+        vistas |= {o.decision for o in ops}
+    assert {"aceptar_oferta", "postular_ascenso"} & vistas and len(vistas) >= 8
+
+
+def test_aceptar_oferta_cambia_de_empresa_y_sube_sueldo():
+    seed = next(s for s in range(50) if any(o.decision == "aceptar_oferta" for o in menu(Estado.desde_perfil(PERFIL), PERFIL, 1, 100, s)))
+    g = Partida(PERFIL, seed=seed, n=200)
+    antes = g.yo.sueldo[0]
+    t = g.decidir("aceptar_oferta")
+    assert t["yo"]["empresa"] and t["yo"]["empresa"] != "tu empresa actual"
+    assert g.yo.ev["oferta_aceptada"][0] and g.yo.sueldo[0] > antes
+    assert t["sombra"]["empresa"] in ("un banco grande", "")   # la sombra no se cambia por su cuenta
 
 
 def test_comparar_planes_pareado():

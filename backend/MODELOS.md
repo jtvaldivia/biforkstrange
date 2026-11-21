@@ -40,13 +40,16 @@ El perfil es un JSON en formato `bifurca.perfil`. Los perfiles personales van en
 | Vida familiar | Pareja, separación, hijos y su efecto en el trabajo y el gasto | `modules/family.py` | INE (fecundidad por edad), EPS, COES |
 | Bienestar | Energía (esfuerzo y recuperación), licencias por agotamiento, ánimo y tiempo con tu gente | `modules/wellbeing.py` | ELSOC, ENUT 2023, SUSESO |
 | Red de contactos | Más contactos traen más ofertas y acortan la búsqueda; la red crece al cambiar de trabajo y se enfría sin trabajar | `modules/network.py` | Solo la dirección del efecto (Rajkumar et al. 2022) |
+| Atributos | Habilidades, reputación y salud: suben y bajan con lo que haces y mueven ofertas, ascensos, despido y energía | `modules/attributes.py` | Solo la dirección (OMS/OIT para jornadas largas) |
+| Empresas | Cada empleo tiene nombre: empresas grandes y startups chilenas reales, pymes genéricas y servicios públicos, por rubro | `companies.py` | Catálogo armado a mano |
+| Oportunidades y logros | Ofertas con nombre y cupos de ascenso que duran un año; logros que se desbloquean | `hand.py`, `modules/labor.py`, `game.py` | Supuestos de juego |
 | Personalidad | Riesgo, ambición y Big Five mueven las tasas de los otros módulos | `profile.py`, `params.py` (`B_*`) | Caliendo et al. 2014, Mueller y Plug 2006 |
 | Decisiones de los gemelos | Qué elegiría "gente como tú": logit sobre la frecuencia real de cada decisión, la personalidad y el resultado esperado de cada opción | `choice.py` | EPS, INE, ESI para las frecuencias base |
 
 ## Cómo se juega un año
 
-1. El motor arma el menú: por cada decisión posible corre 1.000 futuros a 5 años con la misma suerte y resume ingreso (caso malo, típico y bueno), cesantía, ánimo, energía, ahorros y deuda.
-2. Compara cada opción contra "seguir igual", futuro por futuro, y calcula cuántos gemelos como tú la elegirían.
+1. El juego reparte la mano del año (`hand.py`): "seguir", las oportunidades que el año trae (una oferta de una empresa con nombre, un cupo de ascenso) y dos o tres acciones elegidas según cómo está el gemelo. Son 4 o 5 cartas. `--todas` en la terminal muestra la lista completa.
+2. Por cada carta el motor corre 1.000 futuros a 5 años con la misma suerte y la compara contra "seguir igual": plata a todo el horizonte, atributos al cierre del año y cuántos gemelos como tú la elegirían.
 3. Eliges. De los 1.000 futuros de ese año, uno es el que te tocó y la partida sigue desde ahí.
 4. En paralelo vive tu sombra: el gemelo que nunca cambia nada y recibe tu misma suerte. Al final se comparan.
 
@@ -54,7 +57,7 @@ El perfil es un JSON en formato `bifurca.perfil`. Los perfiles personales van en
 
 ## Qué tan sólido es
 
-`make supuestos` lista los 92 parámetros: 15 son datos leídos de una fuente, 16 son cálculos propios sobre una fuente y 61 son supuestos del equipo. Los supuestos pesan sobre todo en:
+`make supuestos` lista los 96 grupos de parámetros: 15 son datos leídos de una fuente, 16 son cálculos propios sobre una fuente y 65 son supuestos del equipo. Los atributos nuevos (habilidades, reputación, salud), las acciones livianas y las cartas de oportunidad son supuestos de juego. Los supuestos pesan sobre todo en:
 
 - **IA:** la brecha de 19% es dato, pero cómo crece en el tiempo y cómo se reparte por nivel es supuesto. Con los pesos actuales el efecto se concentra en juniors.
 - **Reconversión:** la afinidad sale de JobHop; la probabilidad de lograr el cambio y el castigo de sueldo son supuestos.

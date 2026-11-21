@@ -62,13 +62,15 @@ def opciones_para(yo: Estado) -> list[str]:
     return out
 
 
-def proyectar(yo: Estado, perfil: Perfil, plan: list[str], n: int, seed: int, escenario: str) -> dict[str, np.ndarray]:
-    """Corre un plan desde `yo` y devuelve resultados por universo."""
+def proyectar(yo: Estado, perfil: Perfil, plan: list[str], n: int, seed: int, escenario: str, turno: bool = False) -> dict[str, np.ndarray]:
+    """Corre un plan desde `yo` y devuelve resultados por universo. Con `turno`, el primer año es el del jugador."""
     ctx = Ctx(perfil, Suerte(seed, n), escenario)
     e = yo.replicar(n)
     ing, animo, ces, burn, deuda, emin = [], [], np.zeros(n, bool), np.zeros(n, bool), np.zeros(n, bool), np.full(n, 100.0)
-    for d in plan:
-        e = paso(e, d, ctx)
+    primero = None
+    for k, d in enumerate(plan):
+        e = paso(e, d, ctx, jugador=turno and k == 0)
+        primero = primero or e
         ing.append(e.ingreso)
         animo.append(e.animo)
         ces |= e.meses_ces >= 3
@@ -76,7 +78,7 @@ def proyectar(yo: Estado, perfil: Perfil, plan: list[str], n: int, seed: int, es
         deuda |= e.ahorros < 0
         emin = np.minimum(emin, e.energia)
     return {"ingreso": np.mean(ing, 0), "animo": np.mean(animo, 0), "cesantia": ces, "burnout": burn, "deuda": deuda,
-            "energia_min": emin, "ahorros": e.ahorros, "final": e}
+            "energia_min": emin, "ahorros": e.ahorros, "final": e, "primero": primero}
 
 
 @dataclass
@@ -95,6 +97,9 @@ class Opcion:
     delta_ingreso: float = 0.0    # diferencia mediana de ingreso mensual contra 'seguir'
     delta_animo: float = 0.0
     gemelos: float = 0.0          # fracción de gemelos como tú que elegiría esto
+    descripcion: str = ""
+    tipo: str = "trabajo"         # base | oportunidad | trabajo | crecer | vida | riesgo
+    efectos: list = field(default_factory=list)   # [{texto, tono}] contra 'seguir', para mostrar en la carta
     extra: dict = field(default_factory=dict)
 
 
@@ -106,20 +111,70 @@ def nombre_decision(decision: str) -> str:
     return CATALOGO[clave].nombre
 
 
-def menu(yo: Estado, perfil: Perfil, horizonte: int = 5, n: int = 1000, seed: int = 7, escenario: str = "base") -> list[Opcion]:
+_EXITO = {"pedir_aumento": "aumento", "postular_ascenso": "postula_ok", "reconvertir": "reconv_ok", "buscar_pega": "cambio", "tener_hijo": "hijo"}
+_SI_RESULTA = {"pedir_aumento": "Si resulta: +6% de sueldo", "postular_ascenso": "Si resulta: subes de nivel y +8% de sueldo",
+               "buscar_pega": "Si resulta: mejor sueldo, partes de cero"}
+_ATRIBUTOS = [("energia", "Energía", 4), ("animo", "Ánimo", 2), ("salud", "Salud", 2), ("habilidad", "Habilidades", 2),
+              ("reputacion", "Reputación", 2), ("contactos", "Contactos", 3), ("social", "Tiempo con tu gente", 4)]
+
+
+def _plata(x: float) -> str:
+    a = abs(x)
+    return f"${a / 1e6:.1f} M".replace(".", ",") if a >= 1e6 else f"${a / 1e3:.0f} mil"
+
+
+def _efectos(dec: str, r: dict, base: dict, sueldo: float) -> list[dict]:
+    """Qué cambia con esta carta frente a 'seguir': plata a todo el horizonte, atributos al cierre del primer año."""
+    out = []
+    clave = dec.split(":")[0]
+    if clave in _EXITO:
+        out.append({"texto": f"Resulta en {100 * r['primero'].ev[_EXITO[clave]].mean():.0f}% de los futuros", "tono": "neutro"})
+    if clave in _SI_RESULTA:
+        out.append({"texto": _SI_RESULTA[clave], "tono": "mas"})
+    d = float(np.median(r["ingreso"] - base["ingreso"]))
+    if abs(d) >= 0.02 * sueldo:
+        out.append({"texto": f"{'+' if d > 0 else '−'}{_plata(d)} al mes", "tono": "mas" if d > 0 else "menos"})
+    d = float(np.median(r["ahorros"] - base["ahorros"]))
+    if abs(d) >= 1.5 * sueldo:
+        out.append({"texto": f"Ahorros {'+' if d > 0 else '−'}{_plata(d)}", "tono": "mas" if d > 0 else "menos"})
+    attrs = []
+    for campo, etiqueta, minimo in _ATRIBUTOS:
+        d = float(np.median(getattr(r["primero"], campo)) - np.median(getattr(base["primero"], campo)))
+        if abs(d) >= minimo:
+            attrs.append((abs(d) / minimo, {"texto": f"{etiqueta} {'+' if d > 0 else '−'}{abs(d):.0f}", "tono": "mas" if d > 0 else "menos"}))
+    out += [x for _, x in sorted(attrs, key=lambda t: -t[0])[:3]]
+    for campo, etiqueta in (("deuda", "Riesgo de deuda"), ("cesantia", "Riesgo de quedar sin pega"), ("burnout", "Riesgo de agotamiento")):
+        p, p0 = float(r[campo].mean()), float(base[campo].mean())
+        if p - p0 >= 0.08:
+            out.append({"texto": f"{etiqueta} {100 * p:.0f}%", "tono": "menos"})
+    return out[:6]
+
+
+def menu(yo: Estado, perfil: Perfil, horizonte: int = 5, n: int = 1000, seed: int = 7, escenario: str = "base",
+         todas: bool = False) -> list[Opcion]:
+    """Las cartas del año con su proyección. Con `todas`, la lista completa de decisiones (para análisis)."""
     from app.sim.choice import repartir_gemelos
+    from app.sim.hand import mano
 
     tb = tablas()
-    base = proyectar(yo, perfil, ["seguir"] * horizonte, n, seed, escenario)
+    if todas:
+        cartas = [{"decision": d, "nombre": nombre_decision(d), "descripcion": CATALOGO[d.split(":")[0]].descripcion,
+                   "tipo": CATALOGO[d.split(":")[0]].grupo} for d in opciones_para(yo)]
+    else:
+        cartas = mano(yo, perfil, Ctx(perfil, Suerte(seed, n), escenario))
+    sueldo = float(max(yo.sueldo[0], 1))
+    base = proyectar(yo, perfil, ["seguir"] * horizonte, n, seed, escenario, turno=True)
     out = []
-    for dec in opciones_para(yo):
-        r = base if dec == "seguir" else proyectar(yo, perfil, [dec] + ["seguir"] * (horizonte - 1), n, seed, escenario)
+    for c in cartas:
+        dec = c["decision"]
+        r = base if dec == "seguir" else proyectar(yo, perfil, [dec] + ["seguir"] * (horizonte - 1), n, seed, escenario, turno=True)
         op = Opcion(
-            decision=dec, nombre=nombre_decision(dec), ingreso=pct(r["ingreso"]), p_cesantia=float(r["cesantia"].mean()),
-            animo=float(np.median(r["animo"])), energia_min=float(np.median(r["energia_min"])), p_burnout=float(r["burnout"].mean()),
-            ahorros=pct(r["ahorros"]), p_deuda=float(r["deuda"].mean()),
+            decision=dec, nombre=c["nombre"], descripcion=c["descripcion"], tipo=c["tipo"], ingreso=pct(r["ingreso"]),
+            p_cesantia=float(r["cesantia"].mean()), animo=float(np.median(r["animo"])), energia_min=float(np.median(r["energia_min"])),
+            p_burnout=float(r["burnout"].mean()), ahorros=pct(r["ahorros"]), p_deuda=float(r["deuda"].mean()),
             p_mejor=float((r["ingreso"] > base["ingreso"] * 1.005).mean()), p_peor=float((r["ingreso"] < base["ingreso"] * 0.995).mean()),
             delta_ingreso=float(np.median(r["ingreso"] - base["ingreso"])), delta_animo=float(np.median(r["animo"] - base["animo"])),
+            efectos=[] if dec == "seguir" else _efectos(dec, r, base, sueldo),
         )
         if dec.startswith("reconvertir:"):
             d = tb.idx[dec.split(":")[1]]

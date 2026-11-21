@@ -4,6 +4,7 @@ exposición a IA de la ocupación, las trayectorias de JobHop y la red de contac
 
 import numpy as np
 
+from app.sim.companies import elegir_empresa, otro_rubro
 from app.sim.modules.network import factor_red
 from app.sim.params import P
 from app.sim.profile import TAMANOS
@@ -15,9 +16,32 @@ def factores_ia(e, ctx) -> tuple[np.ndarray, np.ndarray]:
     """(multiplicador de ofertas, multiplicador de despido) por exposición a IA de la ocupación."""
     g = ctx.ia_g(e.anio)
     x = np.maximum(ctx.tb.ia[e.ocup] - 0.5, 0) * 2          # solo pesa la mitad más expuesta
+    x = x * (1 - P.ATRIBUTOS["hab_ia"] * e.habilidad / 100)   # estar al día en tu oficio amortigua el golpe
     oferta = np.clip(1 - P.IA_BRECHA * g * x * np.array(P.IA_PESO_OFERTA)[e.nivel], 0.3, 1.0)
     despido = 1 + P.IA_BRECHA * g * x * np.array(P.IA_PESO_DESPIDO)[e.nivel]
     return oferta, despido
+
+
+def oferta_del_anio(e, ctx) -> dict[str, np.ndarray]:
+    """La oferta con nombre que el año le trae al gemelo, si la trae. Es la misma para todos los
+    universos (sale de la suerte escalar), así el menú puede mostrarla antes de decidir."""
+    su, c = ctx.suerte, P.CARTAS
+    oferta_ia, _ = factores_ia(e, ctx)
+    por_edad = {"18-29": 1.0, "30-44": 0.8, "45-59": 0.6}[tramo3(e.edad)]
+    p = np.clip(c["oferta"] * factor_red(e.contactos) * oferta_ia * (1 + P.ATRIBUTOS["hab_oferta"] * (e.habilidad - 50)) * por_edad, 0.05, 0.85)
+    existe = (e.sit == EMP) & (e.antig >= 1) & (su.escalar(e.t, "oferta") < p)   # nadie te viene a buscar recién llegado
+    acum = np.cumsum([c["oferta_mezcla"][k] for k in TAMANOS])   # quien te viene a buscar suele ser una empresa conocida
+    tam = np.full(e.n, min(int(np.searchsorted(acum, su.escalar(e.t, "oferta_tam"))), len(TAMANOS) - 1), np.int8)
+    lo, rango = c["oferta_alza"]
+    alza = np.full(e.n, lo + rango * su.escalar(e.t, "oferta_alza") ** 2) + np.where(tam == 0, c["oferta_startup"], 0.0)
+    empresa = elegir_empresa(e.rubro, tam, np.full(e.n, su.escalar(e.t, "oferta_emp")), e.empresa)
+    return {"existe": existe, "tam": tam, "alza": alza, "empresa": empresa}
+
+
+def cupo_del_anio(e, ctx) -> np.ndarray:
+    """Si este año se abre un cupo de ascenso donde trabajas."""
+    antig_min = np.where(e.nivel >= 2, 2, 1)   # a jefatura y gerencia se postula con más tiempo en la empresa
+    return (e.sit == EMP) & (e.nivel < 4) & (e.antig >= antig_min) & (ctx.suerte.escalar(e.t, "cupo") < P.CARTAS["cupo"])
 
 
 def _nuevo_empleo(e, mask, m_nueva, ctx, nombre, ev, voluntario):
@@ -35,6 +59,12 @@ def _nuevo_empleo(e, mask, m_nueva, ctx, nombre, ev, voluntario):
     cambia_tam = mask & (su.u(e.t, nombre + "_tam") >= P.TAM_SE_QUEDA)
     e.tam[cambia_tam] = nuevo_tam[cambia_tam]
 
+    # rubro y empresa con nombre
+    cambia_rubro = mask & (su.u(e.t, nombre + "_rubro") < P.RUBRO_CAMBIA)
+    e.rubro[cambia_rubro] = otro_rubro(su.u(e.t, nombre + "_rubro2"))[cambia_rubro]
+    e.mult_rubro[mask] = tb.mult_rubro_idx[e.rubro[mask]]
+    e.empresa[mask] = elegir_empresa(e.rubro, e.tam, su.u(e.t, nombre + "_emp"), e.empresa)[mask]
+
     # ocupación siguiente según las transiciones observadas en JobHop
     mueve = mask & tb.tiene_destinos[e.ocup] & (su.u(e.t, nombre + "_oc") < tb.p_cambia[e.ocup] * P.CAMBIA_OCUP_DESC)
     ix = np.flatnonzero(mueve)
@@ -43,8 +73,8 @@ def _nuevo_empleo(e, mask, m_nueva, ctx, nombre, ev, voluntario):
         nuevo = (tb.T_acum[viejo] < su.u(e.t, nombre + "_od")[ix, None]).sum(1).clip(max=len(tb.codigos) - 1)
         if voluntario:   # nadie se cambia por gusto a un grupo que paga bastante menos
             nuevo = np.where(tb.rel[nuevo] >= 0.9 * tb.rel[viejo], nuevo, viejo)
+        nuevo = np.where(tb.es_directivo[nuevo] & ~tb.es_directivo[viejo] & (e.nivel[ix] < 2), viejo, nuevo)   # a un cargo directivo se llega con trayectoria
         e.sueldo[ix] *= np.exp(P.OCUP_REL * np.log(tb.rel[nuevo] / tb.rel[viejo]))
-        e.mult_rubro[ix[nuevo != viejo]] = 1.0
         e.ocup[ix] = nuevo
         ev["cambia_ocup"] = ev["cambia_ocup"] | np.isin(np.arange(e.n), ix[nuevo != viejo])
 
@@ -69,27 +99,50 @@ def trabajo(e, i, ctx, ev):
     e.origen_emp[cierra_vol], e.anios_ces[cierra_vol], e.hueco_vol[cierra_vol] = True, 0, False
     e.estudia[i.magister & (e.sit == EMP) & ~e.postgrado & (e.estudia == 0)] = 2
 
+    # oportunidad del año: una empresa te vino a buscar y aceptas
+    of = oferta_del_anio(e, ctx)
+    acepta_carta = i.acepta & of["existe"]
+    e.sueldo[acepta_carta] *= (1 + of["alza"])[acepta_carta]
+    e.m[acepta_carta] += np.log1p(of["alza"])[acepta_carta]
+    e.tam[acepta_carta], e.empresa[acepta_carta], e.antig[acepta_carta] = of["tam"][acepta_carta], of["empresa"][acepta_carta], 0.0
+    e.contactos[acepta_carta] += P.RED_GANA["cambio"]
+
     emp0, ces0, sab0, empr0 = (e.sit == k for k in (EMP, CES, SAB, EMPR))
     ingreso_anual, meses_ces = np.zeros(n), np.zeros(n)
     red = factor_red(e.contactos)
     ia_oferta, ia_despido = factores_ia(e, ctx)
-    h_encontrar = -np.log(1 - P.ENCONTRAR[tr]) * red * ia_oferta
+    h_encontrar = -np.log(1 - P.ENCONTRAR[tr]) * red * ia_oferta * (1 + P.ATRIBUTOS["hab_oferta"] * (e.habilidad - 50))
     ruido = np.exp(P.RUIDO * z("ruido"))
     sueldo_antes = efectivo()
 
     # 2. con empleo: despido, oferta y ascenso compiten; ocurre el primero
+    atr = P.ATRIBUTOS
     mult_tam = np.array([P.MULT_TAM[k] for k in TAMANOS])[e.tam]
     antig = np.where(e.antig < 1, P.ANTIG_NUEVO, np.where(e.antig >= 5, P.ANTIG_VIEJO, 1.0))
     h_d = (P.DESPIDO[tr] * e.mult_rubro * mult_tam * antig * ia_despido * np.exp(P.B_DESP_C * pf.z("C"))
            * np.where(e.energia < 30, 1.3, 1.0) * np.where(e.burnout_prev, 1.3, 1.0))
-    h_o = P.CAMBIO_EMPLEADOR[tr] * P.OFERTA_FACTOR * np.where(i.busca, P.BUSCA_MULT, 1.0) * red * ia_oferta
+    h_d = h_d * np.clip(1 - atr["rep_riesgo"] * (e.reputacion - 50), 0.6, 1.4)
+    por_habilidad = 1 + atr["hab_oferta"] * (e.habilidad - 50)
+    h_o = P.CAMBIO_EMPLEADOR[tr] * P.OFERTA_FACTOR * np.where(i.busca, P.BUSCA_MULT, 1.0) * red * ia_oferta * por_habilidad
+    if ctx.jugador:   # en tu turno solo te cambias si lo eliges: buscando pega o aceptando la oferta del año
+        h_o = np.where(i.busca, h_o, 0.0)
     h_a = (np.array(P.ASCENSO)[e.nivel] * np.where(i.horas >= 50, P.ASC_HORAS, 1.0) * np.exp(P.B_ASC_AMB * pf.ambicion)
-           * np.where(e.postgrado, P.ASC_POSTGRADO, 1.0))
+           * np.where(e.postgrado, P.ASC_POSTGRADO, 1.0) * (1 + atr["hab_ascenso"] * (e.habilidad - 50))
+           * np.where(i.tu_gente, P.ACCIONES["gente_ascenso"], 1.0))
     t_d, t_o, t_a = reloj("t_despido", h_d), reloj("t_oferta", h_o), reloj("t_ascenso", h_a)
     primero = np.minimum(np.minimum(t_d, t_o), t_a)
     despido = emp0 & (t_d < 1) & (t_d == primero)
     oferta = emp0 & (t_o < 1) & (t_o == primero)
     asciende = emp0 & (t_a < 1) & (t_a == primero)
+
+    # cupo de ascenso del año: quien postula se la juega ahí y no espera el ascenso de siempre
+    postula = i.postula & emp0 & cupo_del_anio(e, ctx)
+    p0, p_attr, p_amb = P.CARTAS["postular"]
+    p_post = np.clip(p0 + p_attr * (e.reputacion - 50) + p_attr * (e.habilidad - 50) + p_amb * pf.ambicion, 0.08, 0.85)
+    p_post = p_post * np.array(P.CARTAS["postular_nivel"])[e.nivel]   # mientras más arriba, más difícil
+    gana = postula & ~despido & (u("postula") < p_post)
+    asciende = (asciende & ~postula) | gana
+    t_a = np.where(gana, 0.5, t_a)
 
     m_oferta = P.M_SD * z("m_oferta")
     acepta = oferta & (m_oferta > e.m + np.where(i.busca, P.UMBRAL_ACTIVO, P.UMBRAL_PASIVO))
@@ -103,7 +156,7 @@ def trabajo(e, i, ctx, ev):
     e.ocup[a_jefatura] = tb.jefatura_dest[e.ocup[a_jefatura]]
 
     pide = i.pide & emp0 & ~despido
-    aumento = pide & (u("aumento") < P.AUMENTO_OK[pf.sexo] * np.exp(P.B_AUM_A * pf.z("A")))
+    aumento = pide & (u("aumento") < P.AUMENTO_OK[pf.sexo] * np.exp(P.B_AUM_A * pf.z("A")) * (1 + atr["rep_aumento_p"] * (e.reputacion - 50)))
     e.sueldo[aumento] *= 1 + P.AUMENTO_ALZA
 
     sigue = emp0 & ~despido
@@ -167,7 +220,8 @@ def trabajo(e, i, ctx, ev):
     baja_nivel = logra & (afin < 0.5)
     e.nivel[baja_nivel] = np.maximum(e.nivel[baja_nivel] - 1, 0)
     e.ocup[logra] = dest[logra]
-    e.antig[logra], e.m[logra], e.mult_rubro[logra] = 0.0, 0.0, 1.0
+    e.antig[logra], e.m[logra] = 0.0, 0.0
+    e.empresa[logra] = elegir_empresa(e.rubro, e.tam, u("reconv_emp"), e.empresa)[logra]
     e.contactos[logra] += P.RED_GANA["cambio"]
     entra = logra & (e.sit == CES)
     e.sit[entra] = EMP
@@ -190,9 +244,13 @@ def trabajo(e, i, ctx, ev):
     e.cicatriz *= P.CICATRIZ_DECAE
     e.penal_hijo = np.maximum(e.penal_hijo - P.HIJO_PENAL_MUJER / 2, 0.0)
     e.horas = np.where(emp0, i.horas, np.where(empr0, np.maximum(i.horas, 55.0), 0.0))
+    # trabajos extra: un porcentaje del sueldo si tienes empleo, un ingreso de subsistencia si no
+    acc = P.ACCIONES
+    ingreso_anual += 12 * e.sueldo * np.where(i.pituto & emp0, acc["pituto_ingreso"], np.where(i.pituto & ces0, acc["pituto_cesante"], 0.0))
     e.ingreso, e.meses_ces = ingreso_anual / 12, meses_ces
     ev.update(
         pausa=sab0, emprende=emprende, cierra_emp=cierra | cierra_vol, cambio=acepta, ascenso=asciende, a_jefatura=a_jefatura,
         aumento=aumento, aumento_no=pide & ~aumento, despido=despido, reempleo_mismo_anio=reempleo, encuentra=halla,
         reconv_ok=logra, reconv_no=quiere & ~logra, estudia=estudia, titulo=titulo,
+        oferta_aceptada=acepta_carta, postula_ok=gana, postula_no=postula & ~gana & ~despido,
     )

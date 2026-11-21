@@ -12,6 +12,7 @@ def finanzas(e, i, ctx, ev):
     sin_trabajo = (e.meses_ces >= 6) | ev["pausa"]
     gasto_mes = e.gasto * np.where(sin_trabajo, P.AJUSTE_CRISIS, 1.0) + float(P.COSTO_HIJO) * e.hijos
     costos = ev["estudia"] * P.MAG_ARANCEL + (ev["reconv_ok"] | ev["reconv_no"]) * P.RECONV_COSTO + ev["emprende"] * P.EMP_CAPITAL
+    costos = costos + P.ACCIONES["curso_costo"] * i.capacita + P.ACCIONES["cuidarte_costo"] * i.cuida
     interes = np.where(e.ahorros >= 0, P.INTERES_AHORRO, P.INTERES_DEUDA) * e.ahorros
     e.ahorros = e.ahorros + 12 * e.ingreso - 12 * gasto_mes - costos + interes
     ev["deuda"] = e.ahorros < 0

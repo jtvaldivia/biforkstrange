@@ -14,7 +14,7 @@ def _base(clave: str, n_reconv: int, yo: Estado, perfil: Perfil) -> float:
     if clave == "tener_hijo":
         edad = yo.edad if perfil.sexo == "m" else yo.edad - 2
         return max(tablas().p_hijo(edad) * P.HIJO_PAREJA[0], 0.002)
-    b = P.GEMELOS_BASE[clave]
+    b = P.GEMELOS_BASE.get(clave, 0.05)
     if isinstance(b, dict):
         b = b[tramo3(yo.edad)]
     return b / n_reconv if clave == "reconvertir" else b

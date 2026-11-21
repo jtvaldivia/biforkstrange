@@ -21,8 +21,9 @@ def turno(body: TurnoIn) -> dict:
         raise HTTPException(422, str(err)) from err
     return {
         "perfil": {"nombre": perfil.nombre, "arquetipo": perfil.arquetipo, "ocupacion": perfil.ocupacion, "supuestos": perfil.supuestos},
-        "yo": ficha(g.yo),
-        "sombra": ficha(g.sombra),
+        "yo": ficha(g.yo, perfil),
+        "sombra": ficha(g.sombra, perfil),
         "historial": g.historial,
+        "logros": g.logros,
         "menu": [asdict(o) for o in g.menu()],
     }

@@ -1,12 +1,15 @@
 """Motor de microsimulación de paso anual. Un `paso` aplica una decisión a todos los
 universos y corre los módulos en orden fijo."""
 
+from dataclasses import replace
+
 import numpy as np
 
 from app.sim.context import Ctx
 from app.sim.decisions import intencion, normalizar
 from app.sim.luck import Suerte
 from app.sim.metrics import resumen_anual
+from app.sim.modules.attributes import atributos
 from app.sim.modules.family import familia
 from app.sim.modules.finance import finanzas
 from app.sim.modules.labor import trabajo
@@ -15,12 +18,14 @@ from app.sim.modules.wellbeing import animo, energia
 from app.sim.profile import Perfil
 from app.sim.state import Estado, Eventos
 
-MODULOS = (familia, trabajo, energia, finanzas, animo, red)
+MODULOS = (familia, trabajo, atributos, energia, finanzas, animo, red)
 
 
-def paso(e: Estado, decision: str, ctx: Ctx) -> Estado:
-    """Avanza un año. No modifica el estado de entrada."""
+def paso(e: Estado, decision: str, ctx: Ctx, jugador: bool = False) -> Estado:
+    """Avanza un año. No modifica el estado de entrada. Con `jugador`, es el año en que decide una
+    persona: no cambia de trabajo por su cuenta, solo si lo elige."""
     clave, destino = normalizar(decision)
+    ctx = replace(ctx, jugador=jugador)
     e = e.copia()
     ev = Eventos(e.n)
     i = intencion(e, clave, destino)

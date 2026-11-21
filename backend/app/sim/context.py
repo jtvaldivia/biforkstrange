@@ -14,6 +14,7 @@ class Ctx:
     perfil: Perfil
     suerte: Suerte
     escenario_ia: str = "base"
+    jugador: bool = False   # True en el año que decide el jugador: solo cambia de trabajo si lo elige
 
     @property
     def tb(self) -> Tablas:

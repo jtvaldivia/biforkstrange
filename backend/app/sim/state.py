@@ -4,6 +4,7 @@ from dataclasses import dataclass, field, fields
 
 import numpy as np
 
+from app.sim.companies import RUBRO_DEFECTO, RUBROS
 from app.sim.profile import TAMANOS, Perfil
 from app.sim.tables import tablas
 
@@ -38,6 +39,11 @@ class Estado:
     m: np.ndarray          # premio salarial del empleador (log)
     cicatriz: np.ndarray   # castigo temporal tras la cesantía (log)
     mult_rubro: np.ndarray
+    rubro: np.ndarray      # índice en companies.RUBROS
+    empresa: np.ndarray    # índice en companies.NOMBRES (0 = la empresa del perfil)
+    habilidad: np.ndarray  # 0..100: qué tan al día estás en tu oficio
+    reputacion: np.ndarray # 0..100: cómo te ven donde trabajas
+    salud: np.ndarray      # 0..100
     anios_ces: np.ndarray
     hueco_vol: np.ndarray  # viene de una pausa elegida
     origen_emp: np.ndarray # viene de cerrar un emprendimiento
@@ -75,6 +81,9 @@ class Estado:
             sit=f(EMP if p.situacion == "trabajando" else CES, np.int8), ocup=f(tb.idx[p.ocupacion], np.int16),
             tam=f(TAMANOS.index(p.tipo_empleador), np.int8), nivel=f(p.nivel, np.int8), antig=f(p.antiguedad),
             sueldo=f(p.sueldo), m=f(0.0), cicatriz=f(0.0), mult_rubro=f(tb.mult_rubro.get(p.rubro, 1.0)),
+            rubro=f(RUBROS.index(p.rubro if p.rubro in RUBROS else RUBRO_DEFECTO), np.int8), empresa=f(0, np.int16),
+            habilidad=f(min(35.0 + 10 * p.nivel + (5 if p.edu == "postgrado" else 0), 100.0)), reputacion=f(40.0 + 8 * p.nivel),
+            salud=f(max(82.0 - 0.3 * (p.edad - 25), 50.0)),
             anios_ces=f(0, np.int16), hueco_vol=f(False, bool), origen_emp=f(False, bool), emp_anios=f(0, np.int16),
             emp_q=f(0.0), postgrado=f(p.edu == "postgrado", bool), estudia=f(0, np.int8), penal_hijo=f(0.0),
             horas=f(44.0), energia=f(70.0), animo=f(66.0), animo_pers=f(0.0), animo_trans=f(0.0),

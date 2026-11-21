@@ -40,6 +40,7 @@ class Perfil:
     edu: str = "universitaria"           # media | tecnica | universitaria | postgrado
     ocupacion: str = "242"               # código ISCO-08 de 3 dígitos
     rubro: str = ""
+    empresa: str = ""                    # nombre del empleador actual
     tipo_empleador: str = "pyme"
     nivel: int = 1
     antiguedad: float = 2.0
@@ -92,7 +93,7 @@ class Perfil:
         return cls(
             nombre=d.get("nombre") or "Gemelo", edad=int(d.get("edad") or 25), sexo="m" if str(d.get("sexo", "h")).lower().startswith("m") else "h",
             situacion="buscando" if str(d.get("situacion", "trabajando")).lower() in ("buscando", "cesante") else "trabajando",
-            edu=edu, ocupacion=ocup, rubro=rubro, tipo_empleador=tipo, nivel=nivel,
+            edu=edu, ocupacion=ocup, rubro=rubro, empresa=str(d.get("empresa") or ""), tipo_empleador=tipo, nivel=nivel,
             antiguedad=float(d.get("antiguedad") if d.get("antiguedad") is not None else 2.0), sueldo=sueldo,
             ahorros=float(ahorros), deuda_estudios=float(d.get("deuda_estudios") or 0), hijos=int(d.get("hijos") or 0),
             pareja=bool(d.get("pareja")), contactos=float(d.get("contactos") or P.RED_REF),

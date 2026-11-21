@@ -76,31 +76,32 @@ def mostrar_perfil(pf: Perfil, a) -> None:
 
 
 def mostrar_ficha(f: dict, etiqueta: str = "") -> None:
-    trabajo = f"{f['ocupacion']} ({f['nivel']}, {f['empleador']}) · {plata(f['sueldo'])}/mes" if f["situacion"] == "con empleo" else f["situacion"]
+    trabajo = f"{f['ocupacion'].split(' (')[0]}, {f['nivel']} en {f['empresa']} ({f['empleador']}) · {plata(f['sueldo'])}/mes" if f["situacion"] == "con empleo" else f["situacion"]
     print(f"  {etiqueta}{f['edad']} años · {trabajo}")
     print(f"  {' ' * len(etiqueta)}ahorros {plata(f['ahorros'])} · energía {f['energia']:.0f} · ánimo {f['animo']:.0f} · "
-          f"{'con pareja' if f['pareja'] else 'sin pareja'}, {f['hijos']} hijos · {f['contactos']:.0f} contactos"
+          f"salud {f['salud']:.0f} · habilidades {f['habilidad']:.0f} · reputación {f['reputacion']:.0f} · {f['contactos']:.0f} contactos · "
+          f"{'con pareja' if f['pareja'] else 'sin pareja'}, {f['hijos']} hijos"
           + (" · magíster" if f["postgrado"] else " · estudiando magíster" if f["estudia"] else ""))
 
 
 def mostrar_menu(ops, horizonte: int) -> None:
-    titulo(f"Qué pasaría si... (1.000 futuros por opción, misma suerte; resultados a {horizonte} años)")
-    print(f"{DIM}  Ingreso = promedio mensual del período, del caso malo (p10) al bueno (p90). 'Cesante' = 3 meses o más sin trabajo en algún año. 'E. mín' = energía más baja del período.")
-    print(f"  'Contra seguir' = en cuántos futuros ganas más o menos que si no cambias nada. 'Gemelos' = cuántos como tú lo elegirían.{FIN}")
-    print(f"\n  {'#':>2}  {'Decisión':<46} {'Ingreso mensual':<25} {'Cesante':>7} {'Ánimo':>5} {'E. mín':>7} {'Ahorros':>9} {'Deuda':>5}  {'Contra seguir':<16} {'Gemelos':>7}")
+    titulo(f"Tus cartas de este año (1.000 futuros por carta, misma suerte; plata a {horizonte} años, atributos al cierre del año)")
     for k, o in enumerate(ops, 1):
-        ing = f"{plata(o.ingreso[0])} · {B}{plata(o.ingreso[1])}{FIN} · {plata(o.ingreso[2])}"
-        pad = 25 + (len(B) + len(FIN))
-        vs = "—" if o.decision == "seguir" else f"+{porc(o.p_mejor)} / -{porc(o.p_peor)}"
-        print(f"  {k:>2}  {o.nombre[:46]:<46} {ing:<{pad}} {porc(o.p_cesantia):>7} {o.animo:>5.0f} {o.energia_min:>7.0f} {plata(o.ahorros[1]):>9} {porc(o.p_deuda):>5}  {vs:<16} {porc(o.gemelos):>7}")
-        if o.extra:
-            print(f"{DIM}      afinidad con tu ocupación {porc(o.extra['afinidad'])} · lo logras este año con probabilidad {porc(o.extra['logra'])} · exposición a IA: {nivel_ia(o.extra['ia_origen'])} → {nivel_ia(o.extra['ia_destino'])}{FIN}")
+        marca = " ★ oportunidad" if o.tipo == "oportunidad" else ""
+        print(f"\n  {B}{k}. {o.nombre}{FIN}{marca}  {DIM}· lo elegiría el {porc(o.gemelos)} de tus gemelos{FIN}")
+        print(f"     {o.descripcion}")
+        efectos = " · ".join(e["texto"] for e in o.efectos) or "Tu año base"
+        print(f"     {efectos}")
+        print(f"{DIM}     ingreso {plata(o.ingreso[0])} · {plata(o.ingreso[1])} · {plata(o.ingreso[2])} | cesante {porc(o.p_cesantia)} | deuda {porc(o.p_deuda)} | "
+              f"energía mín. {o.energia_min:.0f} | ahorros {plata(o.ahorros[1])} | contra seguir +{porc(o.p_mejor)} / -{porc(o.p_peor)}{FIN}")
 
 
 def mostrar_turno(t: dict) -> None:
     titulo(f"Elegiste: {t['nombre']}")
     for linea in t["eventos"]:
         print(f"  • {linea}")
+    for logro in t["logros"]:
+        print(f"  ★ Logro: {logro}")
     mostrar_ficha(t["yo"], "Tú:      ")
     mostrar_ficha(t["sombra"], "Sombra:  ")
     n = t["nube_eventos"]
@@ -129,8 +130,8 @@ def cmd_menu(a) -> None:
     g = Partida.reproducir(pf, _lista(a.historia), seed=a.seed, n=a.n, escenario=a.ia, horizonte=a.horizonte)
     if g.historial:
         titulo("Estado tras tu historia")
-        mostrar_ficha(ficha(g.yo))
-    mostrar_menu(g.menu(), a.horizonte)
+        mostrar_ficha(ficha(g.yo, pf))
+    mostrar_menu(g.menu(todas=a.todas), a.horizonte)
 
 
 def _lista(texto: str | None) -> list[str]:
@@ -153,8 +154,8 @@ def cmd_jugar(a) -> None:
     guion = _lista(a.auto)
     while g.yo.edad < a.hasta:
         titulo(f"━━ {g.yo.anio} · {g.yo.edad} años ━━")
-        mostrar_ficha(ficha(g.yo))
-        ops = g.menu()
+        mostrar_ficha(ficha(g.yo, pf))
+        ops = g.menu(todas=a.todas)
         mostrar_menu(ops, a.horizonte)
         if a.auto is not None:
             if not guion:
@@ -176,7 +177,7 @@ def cmd_jugar(a) -> None:
         except ValueError as err:
             print(f"  {err}")
     if g.historial:
-        yo, so = ficha(g.yo), ficha(g.sombra)
+        yo, so = ficha(g.yo, pf), ficha(g.sombra, pf)
         titulo(f"Balance a los {yo['edad']} años: tú contra tu sombra (misma suerte, sin cambiar nada)")
         print(f"  Decisiones: {', '.join(t['decision'] for t in g.historial)}")
         mostrar_ficha(yo, "Tú:      ")
@@ -285,12 +286,14 @@ def main() -> None:
     comun(sub.add_parser("perfil", help="muestra cómo se leyó tu perfil")).set_defaults(fn=cmd_perfil)
     p = comun(sub.add_parser("menu", help="las opciones de este año y qué pasaría con cada una"))
     p.add_argument("--historia", help="decisiones ya tomadas, p. ej. 'seguir*2,magister'")
+    p.add_argument("--todas", action="store_true", help="muestra todas las decisiones posibles, no solo las cartas del año")
     p.add_argument("--horizonte", type=int, default=5)
     p.set_defaults(fn=cmd_menu)
     p = comun(sub.add_parser("jugar", help="partida interactiva, una decisión por año"))
     p.add_argument("--horizonte", type=int, default=5)
     p.add_argument("--hasta", type=int, default=50, help="edad final")
     p.add_argument("--auto", help="juega solo con estas decisiones, p. ej. 'trabajar_mas*2,magister'")
+    p.add_argument("--todas", action="store_true", help="muestra todas las decisiones posibles, no solo las cartas del año")
     p.set_defaults(fn=cmd_jugar)
     p = comun(sub.add_parser("comparar", help="planes completos con la misma suerte"))
     p.add_argument("--plan", action="append", help="'nombre=decisión,decisión*3'; el primero es la referencia")

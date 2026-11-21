@@ -20,6 +20,10 @@ class Suerte:
     def z(self, t: int, nombre: str) -> np.ndarray:
         return self._rng(t, nombre).standard_normal(self.n)
 
+    def escalar(self, t: int, nombre: str) -> float:
+        """Un solo número para todos los universos: lo que el mundo te ofrece ese año (cartas de oportunidad)."""
+        return float(self._rng(t, "escalar_" + nombre).random())
+
     def indice(self, t: int) -> int:
         """Cuál de los universos es el que 'te tocó' este año."""
         return int(self._rng(t, "realizado").integers(self.n))
