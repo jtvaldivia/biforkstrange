@@ -2,7 +2,7 @@
 
 El motor vive en `backend/app/sim/`. Es una microsimulación de paso anual: el estado del gemelo se copia en N universos (1.000 por defecto), cada año se aplica una decisión y los módulos corren en orden fijo. No usa LLM.
 
-**Regla:** todo parámetro sale de un dato. Los 64 parámetros de `sim/params.py` son 55 datos (leídos o estimados de una fuente) y 9 derivados (una operación escrita sobre datos). No hay supuestos del equipo: lo que no tiene dato no está en el modelo. `make supuestos` los lista con su fuente y su país.
+**Regla:** todo parámetro sale de un dato. Los 68 parámetros de `sim/params.py` son 57 datos (leídos o estimados de una fuente) y 11 derivados (una operación escrita sobre datos). No hay supuestos del equipo: lo que no tiene dato no está en el modelo. `make supuestos` los lista con su fuente y su país.
 
 ## Probarlo en la terminal
 
