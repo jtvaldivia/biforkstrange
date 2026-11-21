@@ -10,7 +10,6 @@ from app.sim.tables import tramo3
 _TEXTO = {
     "aceptar_oferta": "Se acepta el {p} de las ofertas (EE.UU.)",
     "buscar_pega": "Busca otra pega el {p} de los asalariados (EE.UU.)",
-    "volver_empleo": "El {p} cierra su negocio el primer año",
 }
 
 
@@ -22,11 +21,15 @@ def texto_frecuencia(decision: str, f: float | None) -> str:
 
 
 def frecuencia(decision: str, yo: Estado, perfil: Perfil) -> float | None:
-    clave = decision.split(":")[0]
+    clave, _, arg = decision.partition(":")
+    if clave == "emprender":
+        f = P.EMP_ENTRADA[arg or "cuenta_propia"][tramo3(yo.edad)]
+        f *= (1 + P.B_EMP_ENTRADA["O"]) ** perfil.z("O") * (1 + P.B_EMP_ENTRADA["E"]) ** perfil.z("E")   # Caliendo et al. 2014
+        return float(f)
+    if clave == "volver_empleo":
+        return None   # la carta ya dice cuánto cierra
     f = P.FRECUENCIA.get(clave)
     if f is None:
         return None
     f = f[tramo3(yo.edad)] if isinstance(f, dict) else f
-    if clave == "emprender":   # personalidad: Caliendo, Fossen y Kritikos 2014
-        f *= (1 + P.B_EMP_ENTRADA["O"]) ** perfil.z("O") * (1 + P.B_EMP_ENTRADA["E"]) ** perfil.z("E")
     return float(f)

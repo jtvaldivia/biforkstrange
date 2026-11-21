@@ -45,8 +45,9 @@ def oferta_del_anio(e, ctx) -> dict[str, np.ndarray]:
     universos (sale de la suerte escalar), así el menú puede mostrarla antes de decidir."""
     su = ctx.suerte
     lam = tasa_ofertas(e.edad) * factor_ia(e, ctx)
-    existe = (e.sit == EMP) & (su.escalar(e.t, "oferta") < 1 - np.exp(-lam))
     rel = np.full(e.n, float(oferta_rel(np.array([su.escalar(e.t, "oferta_rel")]))[0]))
+    # solo llega a la mesa la oferta que superaría tu sueldo de reserva (SCE); las demás se rechazan sin pensarlo
+    existe = (e.sit == EMP) & (su.escalar(e.t, "oferta") < 1 - np.exp(-lam)) & (rel > P.UMBRAL["no_busca"])
     tam = _tipo_destino(e.tam, np.full(e.n, su.escalar(e.t, "oferta_se_queda")), np.full(e.n, su.escalar(e.t, "oferta_tam")))
     empresa = elegir_empresa(e.rubro, tam, np.full(e.n, su.escalar(e.t, "oferta_emp")), e.empresa)
     return {"existe": existe, "rel": rel, "tam": tam, "empresa": empresa}
@@ -78,6 +79,8 @@ def _nuevo_empleo(e, mask, rel, ctx, nombre, ev):
         exp_perdida = np.minimum(e.exp_ocup[ix], P.OCUP_EXP_TOPE) * P.OCUP_EXPERIENCIA
         e.sueldo[ix] *= np.where(cambia, np.exp(P.OCUP_REL * np.log(tb.rel[nuevo] / tb.rel[viejo]) - exp_perdida), 1.0)
         e.exp_ocup[ix] = np.where(cambia, 0.0, e.exp_ocup[ix])
+        otro_grupo = cambia & (np.array([c[0] for c in tb.codigos])[nuevo] != np.array([c[0] for c in tb.codigos])[viejo])
+        e.nivel[ix[otro_grupo]] = 0   # en otro gran grupo de ocupación partes desde abajo en la escalera de ascensos
         e.ocup[ix] = nuevo
         ev["cambia_ocup"] = ev["cambia_ocup"] | np.isin(np.arange(e.n), ix[cambia])
 
@@ -102,12 +105,15 @@ def trabajo(e, i, ctx, ev):
     e.sit[emprende] = EMPR
     e.emp_anios[emprende] = 0
     e.emp_q[emprende] = z("emp_q")[emprende]
+    e.emp_tipo[emprende] = max(i.destino, 0)   # 0 por tu cuenta, 1 con empleados
+    e.emp_ref[emprende] = e.sueldo[emprende] * np.exp(-e.cicatriz[emprende])
+    e.emp_giro[emprende] = su.escalar(e.t, "mano_giro")   # el mismo sorteo que nombra la carta
     cierra_vol = i.volver & (e.sit == EMPR)
     e.sit[cierra_vol] = CES
     e.anios_ces[cierra_vol], e.hueco_vol[cierra_vol] = 0, True   # dejar lo propio cuenta como salida voluntaria
     empieza_mag = i.magister & (e.sit == EMP)
     if empieza_mag.any():
-        uni = tb.universidades[i.universidad]
+        uni = tb.universidades[i.destino]
         e.estudia[empieza_mag] = e.mag_total[empieza_mag] = uni["anios"]
         e.mag_sel[empieza_mag], e.mag_arancel[empieza_mag] = uni["selectiva"], uni["arancel"]
 
@@ -124,7 +130,7 @@ def trabajo(e, i, ctx, ev):
     h_o = tasa_ofertas(e.edad) * np.where(i.busca, P.BUSCA_MULT, 1.0) * ia
     if ctx.jugador:   # en tu turno solo te cambias si lo eliges: buscando o aceptando la oferta del año
         h_o = np.where(i.busca, h_o, 0.0)
-    h_a = np.array(P.ASCENSO)[e.nivel]
+    h_a = np.where(acepta, 0.0, np.array(P.ASCENSO)[e.nivel])   # recién llegado a la empresa nueva, no te ascienden ese año
     t_d, t_o, t_a = reloj("t_despido", h_d), reloj("t_oferta", h_o), reloj("t_ascenso", h_a)
     primero = np.minimum(np.minimum(t_d, t_o), t_a)
     despido = emp0 & (t_d < 1) & (t_d == primero)
@@ -174,11 +180,16 @@ def trabajo(e, i, ctx, ev):
     e.sit[sab0] = CES
     e.hueco_vol[sab0], e.anios_ces[sab0] = True, 0
 
-    # 5. emprendimiento: ingreso relativo al asalariado comparable (ESI) y cierre (EPS)
-    rel_emp = P.EMP_INGRESO.get(pf.edu, P.EMP_INGRESO["media"])
-    ing_emp = e.sueldo * rel_emp * np.exp(P.EMP_SD_Q * e.emp_q + P.EMP_SD_T * z("emp_t"))
+    # 5. emprendimiento: ingreso relativo al asalariado comparable (ESI) y cierre por tipo y año (EPS)
+    con_empleados = e.emp_tipo == 1
+    rel_emp = np.where(con_empleados, P.EMP_INGRESO_EMPLEADOR.get(pf.edu, P.EMP_INGRESO_EMPLEADOR["media"]),
+                       P.EMP_INGRESO.get(pf.edu, P.EMP_INGRESO["media"]))
+    sd_q = np.where(con_empleados, P.EMP_SD_Q["empleador"], P.EMP_SD_Q["cuenta_propia"])
+    ing_emp = e.emp_ref * rel_emp * np.exp(sd_q * e.emp_q + P.EMP_SD_T * z("emp_t"))
     ingreso_anual[empr0] = (12 * ing_emp)[empr0]
-    salida = np.array(P.EMP_SALIDA)[np.minimum(e.emp_anios, 2)] * np.exp(P.B_EMP_SALIDA_A * pf.z("A"))
+    anio = np.minimum(e.emp_anios, 2)
+    salida = np.where(con_empleados, np.array(P.EMP_SALIDA["empleador"])[anio], np.array(P.EMP_SALIDA["cuenta_propia"])[anio])
+    salida = salida * np.exp(P.B_EMP_SALIDA_A * pf.z("A"))
     cierra = empr0 & (u("emp_cierra") < salida)
     e.sit[cierra] = CES
     e.anios_ces[cierra], e.hueco_vol[cierra] = 0, True
@@ -200,7 +211,9 @@ def trabajo(e, i, ctx, ev):
     trabaja = e.sit == EMP
     esperado_asc = np.array(P.ASCENSO)[e.nivel] * P.ASC_ALZA
     reajuste = P.REAJUSTE[0] + P.REAJUSTE[1] * NormalDist().inv_cdf(min(max(su.escalar(e.t, "reajuste"), 1e-6), 1 - 1e-6))   # común a todos
-    e.sueldo *= np.exp(tb.crecimiento_edad(pf.edu, e.edad) - esperado_asc + reajuste)
+    crece = np.exp(tb.crecimiento_edad(pf.edu, e.edad) - esperado_asc + reajuste)
+    e.sueldo *= crece
+    e.emp_ref *= crece   # el asalariado con que se compara el negocio también envejece
     e.antig = np.where(trabaja, e.antig + 1, 0.0)
     e.exp_ocup = np.where(trabaja, e.exp_ocup + 1, e.exp_ocup)
     e.cicatriz *= P.CICATRIZ_DECAE
@@ -208,6 +221,6 @@ def trabajo(e, i, ctx, ev):
     e.horas = np.where(emp0 & (e.sit == EMP), i.horas, np.where(e.sit == EMP, P.HORAS_BASE, 0.0))
     e.ingreso, e.meses_ces = ingreso_anual / 12, meses_ces
     ev.update(
-        pausa=sab0, emprende=emprende, cierra_emp=cierra | cierra_vol, cambio=cambio, oferta_aceptada=acepta, ascenso=asciende,
+        pausa=sab0, emprende=emprende, cierra_emp=cierra | cierra_vol, cierra_voluntario=cierra_vol, cambio=cambio, oferta_aceptada=acepta, ascenso=asciende,
         despido=despido, reempleo_mismo_anio=reempleo, encuentra=halla, estudia=estudia, titulo=titulo, curso=curso,
     )

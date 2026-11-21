@@ -8,7 +8,7 @@ import {
   Pill, Row, Screen, ScreenFooter, ScreenHeader, Segmented, SlowReveal, Stack, SunCard, Tag, Text,
   type DecisionTag,
 } from "@/shared/ui";
-import { arte, atributos, cargo, indicadores, nivelIA, plata, resumenFicha } from "./formato";
+import { anios, arte, atributos, cargo, hijos, indicadores, nivelIA, plata, resumenFicha } from "./formato";
 import { PERFIL_EJEMPLO } from "./perfilEjemplo";
 import type { Ficha, Opcion, Perfil } from "./types";
 import { useGame } from "./useGame";
@@ -52,7 +52,7 @@ function Inicio({ juego }: { juego: Juego }) {
   return (
     <Screen>
       <ScreenHeader left={<Pill>Simulador de vida</Pill>} right={<Meta>BiforkStrange</Meta>} />
-      <LifePathHero />
+      <LifePathHero today="Tú, hoy" chosen="Otra pega" alternatives={["Magíster", "Emprender"]} past={["Colegio", "Estudios"]} />
       <Stack gap={12}>
         <Heading level={1}>Vive tu vida laboral antes de vivirla.</Heading>
         <Text>Cada año te tocan dos o tres cartas: seguir como vas u otra jugada. Todo lo que pasa sale de datos chilenos.</Text>
@@ -128,18 +128,18 @@ function Trabajo({ f }: { f: Ficha }) {
         {f.situacion === "con empleo" ? (
           <>
             <Heading level={3} as="h2">{`${cargo(f)} · ${f.nivel}`}</Heading>
-            <Text size="sm">{`En ${f.empresa} desde hace ${Math.round(f.antiguedad)} ${Math.round(f.antiguedad) === 1 ? "año" : "años"}. ${f.rubro}.`}</Text>
+            <Text size="sm">{`En ${f.empresa} ${Math.round(f.antiguedad) === 0 ? "desde este año" : `desde hace ${anios(f.antiguedad)}`}. ${f.rubro}.`}</Text>
           </>
         ) : (
           <Heading level={3} as="h2">{f.situacion === "emprendiendo" ? "Con tu emprendimiento" : "Sin trabajo, buscando"}</Heading>
         )}
       </Stack>
       <Row gap={6}>
-        {f.situacion === "con empleo" && <Tag tone="accent">{`${plata(f.sueldo)} al mes`}</Tag>}
+        {f.situacion !== "sin trabajo" && f.sueldo > 0 && <Tag tone="accent">{`${plata(f.sueldo)} al mes`}</Tag>}
         {f.situacion === "con empleo" && <Tag>{tipo[f.empleador] ?? f.empleador}</Tag>}
         <Tag tone={f.ahorros < 0 ? "minus" : "default"}>{f.ahorros < 0 ? `Deuda ${plata(-f.ahorros)}` : `Ahorros ${plata(f.ahorros)}`}</Tag>
-        <Tag>{`${f.pareja ? "Con pareja" : "Sin pareja"} · ${f.hijos} ${f.hijos === 1 ? "hijo" : "hijos"}`}</Tag>
-        {f.situacion === "con empleo" && <Tag>{`${Math.round(f.exp_ocupacion)} años en tu ocupación`}</Tag>}
+        <Tag>{`${f.pareja ? "Con pareja" : "Sin pareja"} · ${hijos(f.hijos)}`}</Tag>
+        {f.situacion === "con empleo" && <Tag>{`${anios(f.exp_ocupacion)} en tu ocupación`}</Tag>}
         {f.depresion && <Tag tone="minus">Síntomas depresivos</Tag>}
         <Tag tone={f.ia >= 0.65 ? "minus" : "default"}>{`IA: exposición ${nivelIA(f.ia)}`}</Tag>
         {f.estudia > 0 && <Tag tone="sol">Estudiando magíster</Tag>}
@@ -292,6 +292,7 @@ function Resumen({ juego, sueldo0, inicial }: { juego: Juego; sueldo0: number; i
           Cómo terminas
         </Heading>
         <Trabajo f={yo} />
+        <Text size="sm">Cada barra muestra cuánto cambió desde que empezaste la partida.</Text>
         <Atributos ficha={yo} antes={inicial} label="Tus atributos al final contra cómo partiste" />
       </Stack>
       <Stack as="section" gap={10}>

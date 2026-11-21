@@ -78,8 +78,8 @@ def mostrar_ficha(f: dict, etiqueta: str = "") -> None:
     trabajo = f"{f['ocupacion'].split(' (')[0]}, {f['nivel']} en {f['empresa']} ({f['empleador']}) · {plata(f['sueldo'])}/mes" if f["situacion"] == "con empleo" else f["situacion"]
     print(f"  {etiqueta}{f['edad']} años · {trabajo}")
     print(f"  {' ' * len(etiqueta)}ahorros {plata(f['ahorros'])} · satisfacción {f['animo']:.0f} · salud {f['salud']:.0f} · tiempo con tu gente {f['social']:.0f}"
-          + (" · síntomas depresivos" if f["depresion"] else "") + f" · {f['exp_ocupacion']:.0f} años en tu ocupación · "
-          f"{'con pareja' if f['pareja'] else 'sin pareja'}, {f['hijos']} hijos"
+          + (" · síntomas depresivos" if f["depresion"] else "") + f" · {f['exp_ocupacion']:.0f} {'año' if round(f['exp_ocupacion']) == 1 else 'años'} en tu ocupación · "
+          f"{'con pareja' if f['pareja'] else 'sin pareja'}, {f['hijos']} {'hijo' if f['hijos'] == 1 else 'hijos'}"
           + (" · magíster" if f["postgrado"] else " · estudiando magíster" if f["estudia"] else ""))
 
 
@@ -172,7 +172,7 @@ def cmd_jugar(a) -> None:
     if g.historial:
         yo, so = ficha(g.yo, pf), ficha(g.sombra, pf)
         titulo(f"Balance a los {yo['edad']} años: tú contra tu sombra (misma suerte, sin cambiar nada)")
-        print(f"  Decisiones: {', '.join(t['decision'] for t in g.historial)}")
+        print(f"  Decisiones: {', '.join(t['nombre'] for t in g.historial)}")
         mostrar_ficha(yo, "Tú:      ")
         mostrar_ficha(so, "Sombra:  ")
         print(f"  Diferencia: sueldo {plata(yo['sueldo'] - so['sueldo'])}/mes · ahorros {plata(yo['ahorros'] - so['ahorros'])} · satisfacción {yo['animo'] - so['animo']:+.0f}")

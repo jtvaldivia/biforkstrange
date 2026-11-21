@@ -75,10 +75,18 @@ PARAMS: dict[str, Par] = {
                                           "selectiva = más de la mitad de sus estudiantes en el 30% superior de la PAES 2024 y 2025 (regla de DIPRES 2026 replicada con datos de DEMRE)"),
     # --- emprender
     "EMP_INGRESO": Par({"media": 0.632, "tecnica": 0.648, "universitaria": 0.579, "postgrado": 0.657}, D,
-                       ESI + ": ingreso de cuenta propia sobre asalariado comparable"),
-    "EMP_SD_Q": Par(0.562, R, ESI + ": dispersión persistente entre negocios (residuo de cuenta propia menos el de asalariados)"),
+                       ESI + ": ingreso de cuenta propia sobre asalariado comparable (con controles)"),
+    "EMP_INGRESO_EMPLEADOR": Par({"media": 1.415, "tecnica": 1.327, "universitaria": 1.254, "postgrado": 1.288}, D,
+                                 "INE, ESI 2023-2025: mediana del ingreso de empleadores sobre la de asalariados privados con la misma educación, 25-64 años, 30-80 horas (scripts/modelo/emprender_esi.py); solo negocios que siguen abiertos"),
+    "EMP_SD_Q": Par({"cuenta_propia": 0.562, "empleador": 0.548}, R,
+                    ESI + ": dispersión persistente entre negocios (residuo de cada tipo menos el de asalariados; empleador con educación universitaria)"),
     "EMP_SD_T": Par(0.468, R, ESI + ": variación de un año a otro del mismo negocio"),
-    "EMP_SALIDA": Par([0.313, 0.175, 0.095], D, EPS + ": cierre en el año 1, en el año 2 y por año entre el 3 y el 5 (Kaplan-Meier: 31% al año, 43% a dos, 58% a cinco)"),
+    "EMP_SOBREVIVE": Par({"cuenta_propia": [1.0, 0.713, 0.609, 0.556, 0.481, 0.468], "empleador": [1.0, 0.599, 0.426, 0.387, 0.328, 0.263]}, D,
+                         EPS + ": negocios que siguen abiertos al año 0 a 5 (Kaplan-Meier por tipo)"),
+    "EMP_SALIDA": Par({"cuenta_propia": [0.287, 0.146, 0.088], "empleador": [0.401, 0.289, 0.161]}, R,
+                      EPS + ": cierre en el año 1, en el año 2 (1 - S24/S12) y por año desde el 3 (riesgo anual de los años 2 a 5)"),
+    "EMP_ENTRADA": Par({"cuenta_propia": {"18-29": 0.0153, "30-44": 0.0109, "45-59": 0.0073}, "empleador": {"18-29": 0.0026, "30-44": 0.0025, "45-59": 0.0019}}, D,
+                       EPS + ": asalariados que pasan cada año a trabajar por su cuenta (total menos empleadores) o a ser empleadores"),
     "B_EMP_SALIDA_A": Par(0.105, D, "Caliendo, Fossen y Kritikos 2014: amabilidad y salida del emprendimiento, +11% por desviación estándar", "Alemania"),
     "B_EMP_ENTRADA": Par({"O": 0.117, "E": 0.052}, D, "Caliendo, Fossen y Kritikos 2014: entrada a independiente +12,4% por DE de apertura y +5,3% por DE de extraversión", "Alemania"),
     # --- familia
@@ -113,8 +121,8 @@ PARAMS: dict[str, Par] = {
     # --- frecuencia con que la gente toma cada decisión (lo que muestra 'gente como tú')
     "FRECUENCIA": Par({
         "buscar_pega": 0.148, "magister": 0.0345,
-        "sabatico": {"18-29": 0.0037, "30-44": 0.0017, "45-59": 0.0014}, "emprender": {"18-29": 0.0179, "30-44": 0.0134, "45-59": 0.0092},
-        "aceptar_oferta": 0.162, "volver_empleo": 0.284,
+        "sabatico": {"18-29": 0.0037, "30-44": 0.0017, "45-59": 0.0014},
+        "aceptar_oferta": 0.162,
     }, D, "Buscar: SCE (EE.UU.); trabajar 50+ horas: ESI; postgrado: ELSOC; pausa y emprender: EPS; aceptar oferta: SCE; cerrar negocio: EPS"),
 }
 

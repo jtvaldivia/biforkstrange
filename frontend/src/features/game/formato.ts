@@ -42,9 +42,15 @@ export function atributos(f: Ficha): Atributo[] {
 
 export const cargo = (f: Ficha) => f.ocupacion.split(" (")[0];
 
+export const anios = (x: number) => {
+  const n = Math.round(x);
+  return `${n} ${n === 1 ? "año" : "años"}`;
+};
+export const hijos = (n: number) => `${n} ${n === 1 ? "hijo" : "hijos"}`;
+
 export function resumenFicha(f: Ficha): string {
   const trabajo = f.situacion === "con empleo" ? `${cargo(f)} · ${f.nivel} en ${f.empresa} · ${plata(f.sueldo)} al mes` : `Estás ${f.situacion}`;
-  return `${trabajo}. Ahorros ${plata(f.ahorros)}. ${f.pareja ? "Con pareja" : "Sin pareja"}, ${f.hijos} ${f.hijos === 1 ? "hijo" : "hijos"}.`;
+  return `${trabajo}. Ahorros ${plata(f.ahorros)}. ${f.pareja ? "Con pareja" : "Sin pareja"}, ${hijos(f.hijos)}.`;
 }
 
 export const nivelIA = (p: number) => (p >= 0.85 ? "muy alta" : p >= 0.65 ? "alta" : p >= 0.35 ? "media" : "baja");

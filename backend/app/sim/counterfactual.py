@@ -59,6 +59,8 @@ class Opcion:
 
 def nombre_decision(decision: str) -> str:
     clave, _, arg = decision.partition(":")
+    if clave == "emprender":
+        return "Emprender con empleados" if arg == "empleador" else "Emprender por tu cuenta"
     if clave == "magister":
         from app.sim.decisions import normalizar
         from app.sim.tables import tablas
@@ -91,7 +93,8 @@ def _efectos(dec: str, r: dict, base: dict, sueldo: float, yo: Estado) -> list[d
         txt = f"{signo(hi)} al mes" if abs(hi - lo) < 0.02 * sueldo else f"{signo(lo)} a {signo(hi)} al mes"
         out.append({"texto": txt, "tono": "mas" if lo + hi > 0 else "menos"})
     if dec in ("aceptar_oferta", "buscar_pega") and yo.antig[0] >= 1:
-        out.append({"texto": f"Pierdes {yo.antig[0]:.0f} años de antigüedad", "tono": "menos"})
+        a = f"{yo.antig[0]:.0f} {'año' if round(yo.antig[0]) == 1 else 'años'}"
+        out.append({"texto": f"Pierdes {a} de antigüedad" if dec == "aceptar_oferta" else f"Si te cambias, pierdes {a} de antigüedad", "tono": "menos"})
     if dec == "capacitarte":
         out.append({"texto": "+0,6% de sueldo (evaluación SENCE)", "tono": "neutro"})
     for campo, etiqueta, minimo in (("animo", "Satisfacción", 1.5), ("social", "Tiempo con tu gente", 1.5)):

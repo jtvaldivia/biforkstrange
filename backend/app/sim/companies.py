@@ -85,5 +85,15 @@ def otro_rubro(u: np.ndarray) -> np.ndarray:
     return np.array(_MOVILES)[np.minimum((u * len(_MOVILES)).astype(int), len(_MOVILES) - 1)]
 
 
+def giro(rubro: int, u: float) -> str:
+    """Un giro de negocio del rubro, para nombrar un emprendimiento: 'tu agencia de software'."""
+    lista = PYMES[RUBROS[rubro]]
+    g = lista[min(int(u * len(lista)), len(lista) - 1)]
+    for art in ("una ", "un "):
+        if g.startswith(art):
+            return "tu " + g[len(art):]
+    return g
+
+
 def nombre_empresa(idx: int, propia: str = "") -> str:
     return (propia or NOMBRES[0]) if idx == 0 else NOMBRES[idx]

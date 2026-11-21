@@ -126,7 +126,7 @@
 .vd-opcion-check { position: absolute; top: -10px; right: -8px; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 2px solid var(--tinta); border-radius: 50%; background: var(--acento); color: var(--sobre-acento); transform: scale(0); transition: transform 240ms var(--rebote); }
 .vd-opcion[aria-pressed="true"] .vd-opcion-check { transform: scale(1); }
 
-.vd-tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; background: var(--niebla); color: var(--tinta); font: 600 11px/1 var(--mono); letter-spacing: .02em; white-space: nowrap; }
+.vd-tag { display: inline-flex; align-items: center; min-height: 22px; max-width: 100%; padding: 3px 8px; line-height: 1.25 !important; white-space: normal !important; text-align: left; border-radius: 999px; background: var(--niebla); color: var(--tinta); font: 600 11px/1 var(--mono); letter-spacing: .02em; white-space: nowrap; }
 .vd-tag--menos { background: transparent; border: 1.5px dashed var(--control); }
 .vd-tag--acento { background: var(--acento); color: var(--sobre-acento); }
 .vd-tag--sol { background: var(--sol); color: var(--sobre-sol); }

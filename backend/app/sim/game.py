@@ -7,6 +7,7 @@ import numpy as np
 from app.sim.companies import RUBROS, nombre_empresa
 from app.sim.context import Ctx
 from app.sim.counterfactual import Opcion, menu
+from app.sim.params import P
 from app.sim.decisions import normalizar
 from app.sim.engine import paso
 from app.sim.hand import mano
@@ -32,7 +33,7 @@ def ficha(e: Estado, perfil: Perfil | None = None) -> dict:
         "nivel": NIVELES[int(e.nivel[0])], "empleador": TAMANOS[int(e.tam[0])],
         "empresa": nombre_empresa(int(e.empresa[0]), perfil.empresa if perfil else "") if sit == EMP else "",
         "rubro": RUBROS[int(e.rubro[0])], "antiguedad": float(e.antig[0]), "exp_ocupacion": float(e.exp_ocup[0]),
-        "sueldo": _sueldo(e) if sit == EMP else 0.0, "ingreso_mes": float(e.ingreso[0]), "ahorros": float(e.ahorros[0]),
+        "sueldo": _sueldo(e) if sit == EMP else float(e.ingreso[0]) if sit == EMPR else 0.0, "ingreso_mes": float(e.ingreso[0]), "ahorros": float(e.ahorros[0]),
         "gasto_mes": float(e.gasto[0]), "colchon_meses": float(e.ahorros[0] / max(e.gasto[0], 1)),
         "animo": float(e.animo[0]), "salud": float(e.salud[0]), "social": float(min(e.social[0], 100)), "depresion": bool(e.depresion[0]),
         "horas": float(e.horas[0]), "pareja": bool(e.pareja[0]), "hijos": int(e.hijos[0]), "postgrado": bool(e.postgrado[0]),
@@ -40,13 +41,13 @@ def ficha(e: Estado, perfil: Perfil | None = None) -> dict:
     }
 
 
-def narrar(antes: Estado, e: Estado, perfil: Perfil, decision: str = "seguir") -> list[str]:
+def narrar(antes: Estado, e: Estado, perfil: Perfil, decision: str = "seguir", nube: dict | None = None) -> list[str]:
     """Qué te pasó este año, en frases. Plantillas, sin LLM."""
     tb, ev = tablas(), e.ev
     si = lambda k: bool(ev[k][0])  # noqa: E731
     emp = lambda x: nombre_empresa(int(x.empresa[0]), perfil.empresa)  # noqa: E731
     clave = decision.split(":")[0]
-    out = []
+    out = _negocio(antes, e, si)
     if si("oferta_aceptada"):
         out.append(f"Te fuiste a {emp(e)}. Empiezas de cero, con {_M(_sueldo(e))} al mes.")
     if si("despido"):
@@ -68,12 +69,6 @@ def narrar(antes: Estado, e: Estado, perfil: Perfil, decision: str = "seguir") -
         out.append(f"El trabajo nuevo es en otra ocupación: {tb.nombres[int(e.ocup[0])].split(' (')[0].lower()}.")
     if si("pausa"):
         out.append("Año de pausa cuidando a tu hijo." if si("sale_por_hijo") else "Te tomaste el año. Viviste de tus ahorros.")
-    if si("emprende"):
-        out.append(f"Partiste tu emprendimiento. Este año te dejó {_M(e.ingreso[0])} al mes.")
-    elif antes.sit[0] == EMPR and e.ingreso[0] > 0:
-        out.append(f"Tu emprendimiento te dejó {_M(e.ingreso[0])} al mes este año.")
-    if si("cierra_emp"):
-        out.append("El emprendimiento cerró. Vuelves a buscar trabajo.")
     if si("titulo"):
         out.append(f"Terminaste el magíster. Tu sueldo queda en {_M(_sueldo(e))}." + ("" if e.mag_sel[0] else " En una universidad no selectiva, los datos no muestran prima."))
     elif si("estudia"):
@@ -90,8 +85,60 @@ def narrar(antes: Estado, e: Estado, perfil: Perfil, decision: str = "seguir") -
         out.append("Te separaste.")
     if e.ahorros[0] < 0 <= antes.ahorros[0]:
         out.append("Se te acabaron los ahorros: empiezas a endeudarte.")
-    if not out:
-        out.append("Año sin sobresaltos.")
+    if len(out) <= 1:
+        out += situaciones(antes, e, perfil, nube or {})[: 2 - len(out) + 1]
+    return out or ["Año sin sobresaltos."]
+
+
+def _negocio(antes: Estado, e: Estado, si) -> list[str]:
+    """El emprendimiento contado con sus números y con la supervivencia real de negocios como el tuyo (EPS)."""
+    from app.sim.companies import giro
+
+    if not (si("emprende") or antes.sit[0] == EMPR):
+        return []
+    tipo = "empleador" if e.emp_tipo[0] == 1 else "cuenta_propia"
+    g = giro(int(e.rubro[0]), float(e.emp_giro[0]))
+    anio = int(e.emp_anios[0])
+    rel = e.ingreso[0] / max(e.emp_ref[0], 1)
+    comp = f"{100 * rel:.0f}% de lo que ganarías empleado"
+    if si("cierra_voluntario"):
+        return [f"Cerraste {g} después de {max(anio, 1)} {'año' if max(anio, 1) == 1 else 'años'} y saliste a buscar trabajo."]
+    if si("cierra_emp"):
+        return [f"{g[0].upper() + g[1:]} no aguantó: cerró en el año {max(anio, 1)}. El último año te dejó {_M(e.ingreso[0])} al mes. Vuelves a buscar trabajo."]
+    sobrevive = P.EMP_SOBREVIVE[tipo][min(anio, 5)]
+    if si("emprende"):
+        return [f"Abriste {g}" + (" y contrataste gente" if tipo == "empleador" else "") + f". El primer año te dejó {_M(e.ingreso[0])} al mes, {comp}."]
+    linea = f"Año {anio} de {g}: te dejó {_M(e.ingreso[0])} al mes, {comp}."
+    if anio <= 5:
+        linea += f" De cada 100 negocios como el tuyo, {100 * sobrevive:.0f} siguen abiertos a esta altura (EPS)."
+    return [linea]
+
+
+def situaciones(antes: Estado, e: Estado, perfil: Perfil, nube: dict) -> list[str]:
+    """Lo que cambió en tu vida este año aunque no haya pasado nada grande, con los datos que lo explican."""
+    tb, out = tablas(), []
+    if e.sit[0] == EMP:
+        a = int(e.antig[0])
+        if a in (1, 3, 5, 10, 15, 20):
+            extra = " Con 5 años o más, el riesgo de despido baja a un tercio (EPS)." if a == 5 else ""
+            out.append(f"Cumpliste {a} {'año' if a == 1 else 'años'} en {nombre_empresa(int(e.empresa[0]), perfil.empresa)}.{extra}")
+        d = nube.get("despido", 0)
+        if d >= 0.05 and not e.ev["despido"][0]:
+            out.append(f"Este año despidieron al {100 * d:.0f}% de la gente con tu perfil. A ti no.")
+        if antes.sit[0] == EMP and abs(e.sueldo[0] / max(antes.sueldo[0], 1) - 1) >= 0.03:
+            out.append(f"Tu sueldo pasó de {_M(_sueldo(antes))} a {_M(_sueldo(e))} con la edad y el reajuste de la economía (ESI e INE).")
+        if e.edad <= P.IA_EDAD_MAX and tb.ia[int(e.ocup[0])] >= P.IA_QUINTIL:
+            out.append("Tu ocupación está entre las más expuestas a la IA: a tu edad llegan 19% menos ofertas (Brynjolfsson et al.).")
+        m = e.mult_rubro[0]
+        if m >= 1.3 and e.anio % 4 == 0:
+            out.append(f"En {RUBROS[int(e.rubro[0])].lower()} se despide {m:.1f} veces más que el promedio (INE).".replace(".", ",", 1))
+    meses0, meses1 = antes.ahorros[0] / max(antes.gasto[0], 1), e.ahorros[0] / max(e.gasto[0], 1)
+    for hito in (6, 12, 24):
+        if meses0 < hito <= meses1:
+            out.append(f"Tus ahorros ya cubren {hito} meses de gastos.")
+            break
+    if e.hijos[0] and e.edad_hijo[0] in (1, 6, 14):
+        out.append(f"Tu hijo menor cumple {int(e.edad_hijo[0])}. Cada hijo cuesta cerca de $383 mil al mes en bienes y servicios (UNICEF 2025).")
     return out
 
 
@@ -128,6 +175,7 @@ class Partida:
         antes, i = self.yo, self.ctx.suerte.indice(self.yo.t)
         carta = next((c for c in mano(antes, self.perfil, self.ctx) if c["decision"] == decision), None)
         nube = paso(antes.replicar(self.n), decision, self.ctx, jugador=True)
+        nube_emp = np.full(self.n, antes.sit[0] == EMP)
         self.yo = nube.tomar(i)
         self.sombra = paso(self.sombra.replicar(self.n), "seguir", self.ctx, jugador=True).tomar(i)
         nuevos = [nombre for nombre, cond in LOGROS if nombre not in self.logros and cond(antes, self.yo)]
@@ -135,7 +183,7 @@ class Partida:
         from app.sim.counterfactual import nombre_decision
 
         turno = {"decision": decision, "nombre": carta["nombre"] if carta else nombre_decision(decision),
-                 "eventos": narrar(antes, self.yo, self.perfil, decision), "logros": nuevos,
+                 "eventos": narrar(antes, self.yo, self.perfil, decision, {"despido": float(nube.ev["despido"][nube_emp].mean()) if nube_emp.any() else 0.0}), "logros": nuevos,
                  "yo": ficha(self.yo, self.perfil), "sombra": ficha(self.sombra, self.perfil), "nube": resumen_anual(nube),
                  "nube_eventos": {k: float(nube.ev[k].mean()) for k in ("despido", "cambio", "ascenso", "encuentra", "cierra_emp", "hijo")}
                  | {"depresion": float(nube.depresion.mean())}}

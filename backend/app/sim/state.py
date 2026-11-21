@@ -46,6 +46,9 @@ class Estado:
     hueco_vol: np.ndarray  # viene de una pausa elegida
     emp_anios: np.ndarray
     emp_q: np.ndarray      # calidad persistente del emprendimiento (z)
+    emp_tipo: np.ndarray   # 0 por tu cuenta, 1 con empleados
+    emp_ref: np.ndarray    # sueldo de asalariado con que se compara el negocio
+    emp_giro: np.ndarray   # u del sorteo del giro (companies.giro)
     postgrado: np.ndarray
     estudia: np.ndarray    # años de magíster que quedan
     mag_total: np.ndarray  # años que dura el magíster en curso
@@ -80,7 +83,7 @@ class Estado:
             tam=f(TAMANOS.index(p.tipo_empleador), np.int8), nivel=f(p.nivel, np.int8), antig=f(p.antiguedad),
             sueldo=f(p.sueldo), cicatriz=f(0.0), mult_rubro=f(tb.mult_rubro.get(p.rubro, 1.0)),
             rubro=f(RUBROS.index(p.rubro if p.rubro in RUBROS else RUBRO_DEFECTO), np.int8), empresa=f(0, np.int16),
-            anios_ces=f(0, np.int16), hueco_vol=f(False, bool), emp_anios=f(0, np.int16), emp_q=f(0.0),
+            anios_ces=f(0, np.int16), hueco_vol=f(False, bool), emp_anios=f(0, np.int16), emp_q=f(0.0), emp_tipo=f(0, np.int8), emp_ref=f(p.sueldo), emp_giro=f(0.0),
             postgrado=f(p.edu == "postgrado", bool), estudia=f(0, np.int8), mag_total=f(0, np.int8), mag_sel=f(False, bool), mag_arancel=f(0.0), penal_hijo=f(0.0), horas=f(P.HORAS_BASE if trabaja else 0.0),
             animo=f(por_tramo(P.ANIMO_BASE, p.edad)), salud=f(por_tramo(P.SALUD_BASE, p.edad)), depresion=f(False, bool),
             social=f(100.0), ahorros=f(p.ahorros - p.deuda_estudios), gasto=f(gasto), pareja=f(p.pareja, bool),

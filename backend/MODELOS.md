@@ -43,10 +43,11 @@ Los perfiles personales van en `backend/perfiles/` y están en `.gitignore` (el 
 | IA | Jóvenes de hasta 25 años en el quintil más expuesto reciben 19% menos ofertas; sin efecto para el resto | Brynjolfsson, Chandar y Chen 2025; Humlum y Vestergaard (Dinamarca) |
 | Capacitación | Curso SENCE de más de 140 horas: +0,6% de sueldo, sin efecto en empleo | Comisión revisora 2011, vía BCN 2019 |
 | Magíster | La carta trae una universidad real (sorteada según cuántos magísteres ofrece). Selectiva: renta casi igual mientras estudias y +9,3% al titularte. No selectiva: la renta baja 5,5% y 9% los dos años de estudio y la prima no se distingue de cero. Arancel y duración de esa universidad | DIPRES 2026, figura C1; SIES oferta 2026; selectividad con la regla de DIPRES aplicada a la PAES 2024-2025 (DEMRE) |
-| Emprender | Ingreso relativo al asalariado comparable con su dispersión; cierre de 31% el primer año | ESI 2023-2025, EPS 2024, Caliendo et al. 2014 |
+| Emprender | Dos cartas: por tu cuenta o con empleados, en un giro de tu rubro. Cada tipo tiene su ingreso frente a un asalariado con tus estudios, su dispersión y su cierre por año; el relato de cada año compara lo que te dejó el negocio con lo que ganarías empleado y con cuántos negocios como el tuyo siguen abiertos | EPS 2024 (entrada, supervivencia por tipo), ESI 2023-2025 (ingresos por tipo y educación), Caliendo et al. 2014 |
 | Familia | Pareja, separación e hijos por edad y situación de pareja; las madres pierden ingreso o salen | ELSOC, INE estadísticas vitales, EPS, COES |
 | Finanzas | Gasto según la tasa de ahorro de tu tramo de ingreso, más el costo de cada hijo y el arancel | EPF IX, UNICEF y Ministerio de la Mujer 2025 |
 | Bienestar | Satisfacción con la vida y salud por edad; efecto del ingreso, la cesantía, el reempleo, la pareja y la separación; síntomas depresivos según horas; tiempo con tu gente según horas | ELSOC, ENUT 2023 |
+| Situaciones del año | Cuando no pasa nada grande, el relato cuenta lo que sí cambió: antigüedad cumplida, sueldo, ahorros en meses de gasto, despidos en tu perfil ese año, exposición a IA, riesgo de tu rubro, edad de tus hijos | Los mismos datos del motor |
 | Gente como tú | Cada carta dice qué fracción de la gente de tu edad toma esa decisión al año | EPS, ESI, ELSOC, SCE |
 
 ## Cómo se juega un año
@@ -69,6 +70,8 @@ Ponerte la camiseta (en el panel ESI, pasar a 50 o 55 horas no sube el sueldo: �
 - El sueldo relativo entre ocupaciones solo distingue los grandes grupos de la ESI.
 - El modelo no tiene shocks propios al sueldo: no hay un número chileno que los separe de los cambios y despidos que ya simula. Por eso la dispersión del sueldo de quien se queda en su empleo es menor que en la ESI (`make validar` lo muestra).
 - Los síntomas depresivos se sortean cada año sin persistencia: ELSOC da la incidencia, no la duración.
+- El ingreso de los empleadores sale de los negocios que siguen abiertos (corte transversal de la ESI), así que sobrestima lo que gana quien recién parte.
+- Los nombres de empresas son una lista armada a mano (`companies.py`); el tipo de empleador sí sale de la ESI.
 - La prima del magíster por tipo de universidad sale de digitalizar un gráfico de DIPRES (±5 USD) y el propio informe dice en otra parte que la diferencia entre grupos no es significativa.
 - No hay datos de prima por jornada (vespertina o diurna): la jornada solo se informa.
 - El modelo valida distribuciones, no la vida de una persona.

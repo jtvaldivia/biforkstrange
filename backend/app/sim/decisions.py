@@ -24,12 +24,13 @@ CATALOGO: dict[str, Decision] = {d.clave: d for d in [
     Decision("capacitarte", "Hacer un curso SENCE", "Un curso de más de 140 horas que tu empresa paga con la franquicia tributaria.", (EMP,), "crecer"),
     Decision("magister", "Hacer un magíster", "Estudias mientras trabajas y pagas el arancel. Al titularte, la prima depende de la universidad.", (EMP,), "crecer"),
     Decision("sabatico", "Año sabático", "Renuncias y paras un año. Vives de tus ahorros y vuelves a buscar con un hueco en el currículum.", (EMP,), "riesgo"),
-    Decision("emprender", "Emprender", "Dejas el empleo y partes algo propio. En Chile, la mayoría gana menos que empleada; pocos ganan mucho.", (EMP, CES), "riesgo"),
+    Decision("emprender", "Emprender", "Dejas el empleo y partes algo propio: por tu cuenta o con empleados.", (EMP, CES), "riesgo"),
     Decision("volver_empleo", "Cerrar y volver a emplearte", "Cierras el emprendimiento y sales a buscar trabajo.", (EMPR,), "trabajo"),
     Decision("aceptar_oferta", "Aceptar la oferta", "Te cambias a la empresa que te ofreció trabajo.", (EMP,), "oportunidad"),
 ]}
 
 ALIAS = {"cambiar_pega": "buscar_pega", "estudiar": "magister"}
+TIPOS_EMP = ["cuenta_propia", "empleador"]
 
 
 def normalizar(texto: str) -> tuple[str, int]:
@@ -38,6 +39,10 @@ def normalizar(texto: str) -> tuple[str, int]:
     clave = ALIAS.get(clave, clave)
     if clave not in CATALOGO:
         raise ValueError(f"Decisión desconocida: {texto}")
+    if clave == "emprender":
+        if arg and arg not in TIPOS_EMP:
+            raise ValueError(f"Tipo de emprendimiento desconocido: {arg} (usa {' o '.join(TIPOS_EMP)})")
+        return clave, TIPOS_EMP.index(arg) if arg else 0
     if clave == "magister":
         tb = tablas()
         if arg and arg not in tb.uni_idx:
@@ -56,13 +61,13 @@ class Intencion:
     volver: np.ndarray
     capacita: np.ndarray
     acepta: np.ndarray
-    universidad: int = -1
+    destino: int = -1   # universidad del magíster o tipo de emprendimiento
 
 
 def intencion(e: Estado, clave: str, destino: int = -1) -> Intencion:
     """Aplica la decisión solo en los universos donde es posible; en el resto equivale a 'seguir'."""
     emp, ces, empr = e.sit == EMP, e.sit == CES, e.sit == EMPR
-    i = Intencion(np.full(e.n, P.HORAS_BASE), *(np.zeros(e.n, bool) for _ in fields(Intencion)[1:-1]), universidad=destino)
+    i = Intencion(np.full(e.n, P.HORAS_BASE), *(np.zeros(e.n, bool) for _ in fields(Intencion)[1:-1]), destino=destino)
     campo, donde = {
         "buscar_pega": ("busca", emp), "magister": ("magister", emp & ~e.postgrado & (e.estudia == 0)), "sabatico": ("sabatico", emp),
         "emprende": ("emprende", emp | ces), "emprender": ("emprende", emp | ces), "volver_empleo": ("volver", empr),
