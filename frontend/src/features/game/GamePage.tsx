@@ -55,7 +55,7 @@ function Inicio({ juego }: { juego: Juego }) {
       <LifePathHero />
       <Stack gap={12}>
         <Heading level={1}>Vive tu vida laboral antes de vivirla.</Heading>
-        <Text>Cada año te tocan tres cartas: seguir como vas o dos jugadas. Eliges una y ves qué te pasa.</Text>
+        <Text>Cada año te tocan dos o tres cartas: seguir como vas u otra jugada. Todo lo que pasa sale de datos chilenos.</Text>
       </Stack>
       <Row gap={6}>
         <Tag>Una decisión por año</Tag>
@@ -139,6 +139,8 @@ function Trabajo({ f }: { f: Ficha }) {
         {f.situacion === "con empleo" && <Tag>{tipo[f.empleador] ?? f.empleador}</Tag>}
         <Tag tone={f.ahorros < 0 ? "minus" : "default"}>{f.ahorros < 0 ? `Deuda ${plata(-f.ahorros)}` : `Ahorros ${plata(f.ahorros)}`}</Tag>
         <Tag>{`${f.pareja ? "Con pareja" : "Sin pareja"} · ${f.hijos} ${f.hijos === 1 ? "hijo" : "hijos"}`}</Tag>
+        {f.situacion === "con empleo" && <Tag>{`${Math.round(f.exp_ocupacion)} años en tu ocupación`}</Tag>}
+        {f.depresion && <Tag tone="minus">Síntomas depresivos</Tag>}
         <Tag tone={f.ia >= 0.65 ? "minus" : "default"}>{`IA: exposición ${nivelIA(f.ia)}`}</Tag>
         {f.estudia > 0 && <Tag tone="sol">Estudiando magíster</Tag>}
         {f.postgrado && <Tag>Magíster</Tag>}
@@ -150,10 +152,10 @@ function Trabajo({ f }: { f: Ficha }) {
 /* 2 · Decisión del año */
 const TONO = { mas: "accent", menos: "minus", neutro: "default" } as const;
 
-function etiquetas(o: Opcion, popular: boolean): DecisionTag[] {
+function etiquetas(o: Opcion): DecisionTag[] {
   const t: DecisionTag[] = [];
   if (o.tipo === "oportunidad") t.push({ label: "Solo este año", tone: "sol" });
-  if (popular) t.push({ label: "Lo que haría la mayoría", tone: "sol" });
+  if (o.gemelos_texto) t.push({ label: o.gemelos_texto, tone: "default" });
   for (const e of o.efectos) t.push({ label: e.texto, tone: TONO[e.tono] });
   return t;
 }
@@ -161,7 +163,6 @@ function etiquetas(o: Opcion, popular: boolean): DecisionTag[] {
 function Decision({ juego }: { juego: Juego }) {
   const { yo, menu, perfil, historial, logros } = juego.partida!;
   const [elegida, setElegida] = useState<string | null>(null);
-  const popular = menu.reduce((a, b) => (b.gemelos > a.gemelos ? b : a)).decision;
 
   return (
     <Screen>
@@ -179,7 +180,7 @@ function Decision({ juego }: { juego: Juego }) {
           art: <DecisionArt kind={arte(o.decision)} />,
           title: o.nombre,
           subtitle: o.descripcion,
-          tags: etiquetas(o, o.decision === popular && menu.length > 1),
+          tags: etiquetas(o),
         }))}
       />
       {juego.error && <Text size="sm">⚠ {juego.error}</Text>}
@@ -203,7 +204,7 @@ function Decision({ juego }: { juego: Juego }) {
 function Resultado({ juego, antes }: { juego: Juego; antes: Ficha }) {
   const { historial } = juego.partida!;
   const t = historial[historial.length - 1];
-  const duro = t.yo.situacion === "sin trabajo" || t.eventos.some((e) => /despidieron|agotaste|separaste|endeudarte|cerró|pasó la cuenta/.test(e));
+  const duro = t.yo.situacion === "sin trabajo" || t.eventos.some((e) => /despidieron|depresivos|separaste|endeudarte|cerró/.test(e));
   const dif = t.yo.ahorros - t.sombra.ahorros;
 
   return (

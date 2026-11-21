@@ -1,42 +1,32 @@
-"""Qué harían 'gemelos como tú': elección con utilidad aleatoria (logit).
-La constante de cada opción es la frecuencia con que la gente la toma; la personalidad y
-los resultados esperados de la opción (del contrafactual) la mueven desde ahí."""
-
-import numpy as np
+"""Qué hace la gente como tú: la frecuencia anual con que se toma cada decisión, según los datos.
+No es un modelo de elección: es el dato observado para tu edad, para comparar."""
 
 from app.sim.params import P
 from app.sim.profile import Perfil
 from app.sim.state import Estado
-from app.sim.tables import tablas, tramo3
+from app.sim.tables import tramo3
 
 
-def _base(clave: str, n_reconv: int, yo: Estado, perfil: Perfil) -> float:
-    if clave == "tener_hijo":
-        edad = yo.edad if perfil.sexo == "m" else yo.edad - 2
-        return max(tablas().p_hijo(edad) * P.HIJO_PAREJA[0], 0.002)
-    b = P.GEMELOS_BASE.get(clave, 0.05)
-    if isinstance(b, dict):
-        b = b[tramo3(yo.edad)]
-    return b / n_reconv if clave == "reconvertir" else b
+_TEXTO = {
+    "aceptar_oferta": "Se acepta el {p} de las ofertas (EE.UU.)",
+    "buscar_pega": "Busca otra pega el {p} de los asalariados (EE.UU.)",
+    "volver_empleo": "El {p} cierra su negocio el primer año",
+}
 
 
-def repartir_gemelos(opciones: list, yo: Estado, perfil: Perfil) -> None:
-    """Llena `gemelos` en cada opción del menú."""
-    beta, rasgos = P.GEMELOS_BETA, P.GEMELOS_RASGOS
-    z = {"riesgo": perfil.riesgo, "ambicion": perfil.ambicion, "O": perfil.z("O"), "E": perfil.z("E")}
-    ref = next(o for o in opciones if o.decision == "seguir")
-    n_reconv = max(1, sum(o.decision.startswith("reconvertir") for o in opciones))
-    claves = [o.decision.split(":")[0] for o in opciones]
-    bases = [0.0 if c == "seguir" else _base(c, n_reconv, yo, perfil) for c in claves]
-    u = []
-    for o, c, b in zip(opciones, claves, bases):
-        const = np.log(max(1 - sum(bases), 0.05)) if c == "seguir" else np.log(b)
-        rasgo = sum(z[r] * pesos.get(c, 0.0) for r, pesos in rasgos.items())
-        d_ing = np.log(max(o.ingreso[1], 1) / max(ref.ingreso[1], 1))
-        d_malo = (o.p_cesantia + o.p_deuda) - (ref.p_cesantia + ref.p_deuda)
-        u.append(const + rasgo + beta["ingreso"] * (1 + 0.3 * perfil.ambicion) * d_ing
-                 - beta["riesgo"] * (1 - 0.4 * perfil.riesgo) * d_malo + beta["animo"] * (o.animo - ref.animo))
-    p = np.exp(np.array(u) - max(u))
-    p /= p.sum()
-    for o, v in zip(opciones, p):
-        o.gemelos = float(v)
+def texto_frecuencia(decision: str, f: float | None) -> str:
+    if f is None:
+        return ""
+    p = f"{100 * f:.1f}%".replace(".0%", "%").replace(".", ",") if f < 0.1 else f"{100 * f:.0f}%"
+    return _TEXTO.get(decision.split(":")[0], "Lo hace el {p} de la gente de tu edad cada año").format(p=p)
+
+
+def frecuencia(decision: str, yo: Estado, perfil: Perfil) -> float | None:
+    clave = decision.split(":")[0]
+    f = P.FRECUENCIA.get(clave)
+    if f is None:
+        return None
+    f = f[tramo3(yo.edad)] if isinstance(f, dict) else f
+    if clave == "emprender":   # personalidad: Caliendo, Fossen y Kritikos 2014
+        f *= (1 + P.B_EMP_ENTRADA["O"]) ** perfil.z("O") * (1 + P.B_EMP_ENTRADA["E"]) ** perfil.z("E")
+    return float(f)

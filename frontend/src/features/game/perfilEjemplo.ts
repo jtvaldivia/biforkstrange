@@ -19,7 +19,6 @@ export const PERFIL_EJEMPLO: Perfil = {
   deuda_estudios: 0,
   hijos: 0,
   pareja: true,
-  contactos: 30,
   riesgo: 25,
   ambicion: 55,
   big5: { O: -0.3, C: 0.3, E: -0.8, A: 0.3, N: 1.2 },

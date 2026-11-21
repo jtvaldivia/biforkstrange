@@ -6,7 +6,7 @@ PERFIL = json.loads((Path(__file__).parent.parent / "perfiles" / "ejemplo.json")
 
 def test_list_decisions(client):
     keys = {d["key"] for d in client.get("/api/decisions").json()}
-    assert {"seguir", "sabatico", "emprender"} <= keys and "reconvertir" not in keys
+    assert {"seguir", "sabatico", "emprender", "magister"} <= keys
 
 
 def test_run_and_fetch(client):

@@ -23,23 +23,19 @@ export function indicadores(f: Ficha, sueldo0: number): IndicatorValues {
     carrera: tope(
       conEmpleo ? 25 + 14 * Math.max(0, NIVELES.indexOf(f.nivel)) + 30 * Math.log2(Math.max(f.sueldo, 1) / sueldo0) : f.situacion === "emprendiendo" ? 45 : 12,
     ),
-    bienestar: tope((f.energia + f.animo) / 2),
+    bienestar: tope((f.animo + f.salud) / 2 - (f.depresion ? 10 : 0)),
     vida: tope(0.55 * f.social + (f.pareja ? 20 : 0) + 8 * Math.min(f.hijos, 2)),
   };
 }
 
 export type Atributo = { clave: string; nombre: string; color: "dinero" | "carrera" | "bienestar" | "vida"; valor: number };
 
-/** Los ocho atributos del gemelo, de 0 a 100, en el orden en que se muestran. */
+/** Los atributos medidos del gemelo, de 0 a 100: satisfacción y salud (ELSOC), tiempo con tu gente (ENUT) y colchón. */
 export function atributos(f: Ficha): Atributo[] {
   return [
-    { clave: "energia", nombre: "Energía", color: "bienestar", valor: tope(f.energia) },
-    { clave: "animo", nombre: "Ánimo", color: "bienestar", valor: tope(f.animo) },
+    { clave: "animo", nombre: "Satisfacción", color: "bienestar", valor: tope(f.animo) },
     { clave: "salud", nombre: "Salud", color: "bienestar", valor: tope(f.salud) },
     { clave: "social", nombre: "Tu gente", color: "vida", valor: tope(f.social) },
-    { clave: "habilidad", nombre: "Habilidades", color: "carrera", valor: tope(f.habilidad) },
-    { clave: "reputacion", nombre: "Reputación", color: "carrera", valor: tope(f.reputacion) },
-    { clave: "contactos", nombre: "Contactos", color: "carrera", valor: tope(f.contactos / 1.5) },   // 150 contactos = 100
     { clave: "colchon", nombre: "Colchón", color: "dinero", valor: tope((100 * f.colchon_meses) / 24) }, // 2 años de gastos = 100
   ];
 }
@@ -56,8 +52,8 @@ export const nivelIA = (p: number) => (p >= 0.85 ? "muy alta" : p >= 0.65 ? "alt
 /** Ilustración del kit que mejor calza con cada decisión. */
 export function arte(decision: string): "viaje" | "consultora" | "invertir" | "magister" {
   const clave = decision.split(":")[0];
-  if (["sabatico", "bajar_ritmo", "tener_hijo", "cuidarte", "tu_gente"].includes(clave)) return "viaje";
-  if (["magister", "reconvertir", "capacitarte"].includes(clave)) return "magister";
-  if (["emprender", "pedir_aumento", "buscar_pega", "pituto", "networking", "bajar_pretensiones"].includes(clave)) return "invertir";
+  if (clave === "sabatico") return "viaje";
+  if (clave === "magister" || clave === "capacitarte") return "magister";
+  if (clave === "emprender" || clave === "buscar_pega" || clave === "volver_empleo") return "invertir";
   return "consultora";
 }

@@ -9,16 +9,14 @@ from app.sim.context import Ctx
 from app.sim.decisions import intencion, normalizar
 from app.sim.luck import Suerte
 from app.sim.metrics import resumen_anual
-from app.sim.modules.attributes import atributos
 from app.sim.modules.family import familia
 from app.sim.modules.finance import finanzas
 from app.sim.modules.labor import trabajo
-from app.sim.modules.network import red
-from app.sim.modules.wellbeing import animo, energia
+from app.sim.modules.wellbeing import bienestar
 from app.sim.profile import Perfil
 from app.sim.state import Estado, Eventos
 
-MODULOS = (familia, trabajo, atributos, energia, finanzas, animo, red)
+MODULOS = (familia, trabajo, bienestar, finanzas)
 
 
 def paso(e: Estado, decision: str, ctx: Ctx, jugador: bool = False) -> Estado:
@@ -36,11 +34,10 @@ def paso(e: Estado, decision: str, ctx: Ctx, jugador: bool = False) -> Estado:
     return e
 
 
-def simular(perfil: Perfil, plan: list[str], n: int = 2000, seed: int = 7, escenario_ia: str = "base",
-            desde: Estado | None = None) -> list[Estado]:
+def simular(perfil: Perfil, plan: list[str], n: int = 2000, seed: int = 7, desde: Estado | None = None, **_) -> list[Estado]:
     """Corre un plan completo sobre n universos. Devuelve el estado al final de cada año."""
     e = (desde or Estado.desde_perfil(perfil, 1)).replicar(n)
-    ctx = Ctx(perfil, Suerte(seed, n), escenario_ia)
+    ctx = Ctx(perfil, Suerte(seed, n))
     out = []
     for decision in plan:
         e = paso(e, decision, ctx)
@@ -49,13 +46,10 @@ def simular(perfil: Perfil, plan: list[str], n: int = 2000, seed: int = 7, escen
 
 
 def simulate(twin, decisions: list[str], n_runs: int = 2000, seed: int | None = None, perfil: dict | None = None) -> dict:
-    """Entrada de la API. `twin` es el formato simple (edad, sueldo, desgaste); `perfil`, el completo."""
-    base = perfil or {"edad": twin.edad, "sueldo": twin.sueldo, "ahorros": 3 * twin.sueldo, "institucion": "universidad"}
+    """Entrada de la API. `twin` es el formato simple (edad, sueldo); `perfil`, el completo."""
+    base = perfil or {"edad": twin.edad, "sueldo": twin.sueldo, "ahorros": 0, "institucion": "universidad"}
     pf = Perfil.desde_dict(base)
-    ini = Estado.desde_perfil(pf, 1)
-    if perfil is None:
-        ini.energia[:] = 100 * (1 - twin.desgaste)
     seed = int(seed if seed is not None else np.random.SeedSequence().entropy % 2**31)
-    estados = simular(pf, decisions, n_runs, seed, desde=ini)
+    estados = simular(pf, decisions, n_runs, seed)
     tray = [{"decision": d, **resumen_anual(e)} for d, e in zip(decisions, estados)]
     return {"edad_final": estados[-1].edad if estados else pf.edad, "trayectoria": tray}

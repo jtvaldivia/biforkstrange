@@ -18,7 +18,7 @@ menu:
 	cd backend && uv run python -m app.cli menu --perfil $(PERFIL)
 comparar:
 	cd backend && uv run python -m app.cli comparar --perfil $(PERFIL)
-supuestos:
+supuestos:  # lista cada parámetro con su fuente
 	cd backend && uv run python -m app.cli supuestos
 validar:
 	cd backend && uv run python -m app.cli validar

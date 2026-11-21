@@ -1,81 +1,80 @@
-# Modelos del simulador
+# Modelo del simulador
 
 El motor vive en `backend/app/sim/`. Es una microsimulación de paso anual: el estado del gemelo se copia en N universos (1.000 por defecto), cada año se aplica una decisión y los módulos corren en orden fijo. No usa LLM.
+
+**Regla:** todo parámetro sale de un dato. Los 64 parámetros de `sim/params.py` son 55 datos (leídos o estimados de una fuente) y 9 derivados (una operación escrita sobre datos). No hay supuestos del equipo: lo que no tiene dato no está en el modelo. `make supuestos` los lista con su fuente y su país.
 
 ## Probarlo en la terminal
 
 Desde la raíz del repo:
 
 ```bash
-make jugar PERFIL=perfiles/ejemplo.json      # partida interactiva, una decisión por año
-make menu PERFIL=perfiles/ejemplo.json       # solo el menú de este año
+make jugar PERFIL=perfiles/ejemplo.json      # partida, una decisión por año
+make menu PERFIL=perfiles/ejemplo.json       # solo las cartas de este año
 make comparar PERFIL=perfiles/ejemplo.json   # planes completos, lado a lado
-make supuestos                               # qué parámetros son dato y cuáles supuesto
+make supuestos                               # cada parámetro con su fuente
 make validar                                 # cohorte simulada contra ESI y EPS
 ```
 
-O desde `backend/`, con todas las opciones:
+Desde `backend/`, con todas las opciones:
 
 ```bash
-uv run python -m app.cli jugar --perfil perfiles/ejemplo.json --seed 7 --ia rapida --ahorros 20000000
-uv run python -m app.cli jugar --perfil perfiles/ejemplo.json --auto "trabajar_mas*2,magister,seguir"
+uv run python -m app.cli jugar --perfil perfiles/ejemplo.json --seed 7 --ahorros 20000000
+uv run python -m app.cli menu --perfil perfiles/ejemplo.json --todas     # todas las decisiones, no solo las cartas
 uv run python -m app.cli comparar --perfil perfiles/ejemplo.json --anios 15 \
     --plan "sin cambios=seguir" --plan "magíster=magister" --plan "emprender a los 31=seguir*3,emprender"
-uv run python -m app.cli ocupaciones --perfil perfiles/ejemplo.json   # a qué ocupaciones puedes pasar
-uv run python -m app.cli ocupaciones --buscar ingenier                # buscar un código
+uv run python -m app.cli ocupaciones --perfil perfiles/ejemplo.json      # a qué ocupaciones pasa la gente de la tuya
 ```
 
-El perfil es un JSON en formato `bifurca.perfil`. Los perfiles personales van en `backend/perfiles/` y están en `.gitignore` (el repo es público); solo se versiona `ejemplo.json`, que es ficticio. Si el perfil no trae ahorros, ocupación o Big Five, el motor los supone y lo dice al partir. Se corrigen con `--ahorros`, `--ocupacion` y `--O --C --E --A --N`.
+Los perfiles personales van en `backend/perfiles/` y están en `.gitignore` (el repo es público); solo se versiona `ejemplo.json`, que es ficticio. Si el perfil no trae ahorros, ocupación o Big Five, el motor lo dice al partir: los ahorros parten en 0, la ocupación se toma del rubro y la personalidad queda en el promedio.
 
-## Qué modelo hace qué
+## Módulos y fuentes
 
-| Modelo | Qué responde | Dónde | Datos |
-|---|---|---|---|
-| Gemelo contrafactual | "¿Qué habría pasado si elegía otra cosa?" El mismo gemelo vive cada opción con la misma suerte, y la diferencia se mide universo por universo | `luck.py`, `counterfactual.py` | No usa datos: es la técnica de números aleatorios comunes |
-| Mercado laboral | Despido, oferta y ascenso compiten cada año; búsqueda desde la cesantía; cicatriz salarial al reemplearse | `modules/labor.py` | EPS 2024, ESI 2025, INE flujos laborales |
-| Trayectorias | Qué ocupación viene después de la actual al cambiar de trabajo | `modules/labor.py`, `tables.py` | JobHop: 1,4 millones de transiciones entre 118 ocupaciones |
-| Habilidades transferibles | Qué tan fácil es pasar a otra ocupación y cuánto cuesta. La afinidad se mide por la movilidad observada entre ocupaciones | `modules/labor.py` (reconversión), `counterfactual.py` | JobHop |
-| Exposición a IA | Cuánto suben el despido y bajan las ofertas según la ocupación, el nivel y el año | `modules/labor.py`, `context.py` | Microsoft y Eloundou et al. por ocupación; Brynjolfsson et al. para el tamaño del efecto |
-| Finanzas personales | Gasto con hábito, ahorro o deuda, indemnización, seguro de cesantía y costo de cada decisión | `modules/finance.py` | EPF IX (tasa de ahorro por quintil), CEP |
-| Vida familiar | Pareja, separación, hijos y su efecto en el trabajo y el gasto | `modules/family.py` | INE (fecundidad por edad), EPS, COES |
-| Bienestar | Energía (esfuerzo y recuperación), licencias por agotamiento, ánimo y tiempo con tu gente | `modules/wellbeing.py` | ELSOC, ENUT 2023, SUSESO |
-| Red de contactos | Más contactos traen más ofertas y acortan la búsqueda; la red crece al cambiar de trabajo y se enfría sin trabajar | `modules/network.py` | Solo la dirección del efecto (Rajkumar et al. 2022) |
-| Atributos | Habilidades, reputación y salud: suben y bajan con lo que haces y mueven ofertas, ascensos, despido y energía | `modules/attributes.py` | Solo la dirección (OMS/OIT para jornadas largas) |
-| Empresas | Cada empleo tiene nombre: empresas grandes y startups chilenas reales, pymes genéricas y servicios públicos, por rubro | `companies.py` | Catálogo armado a mano |
-| Oportunidades y logros | Ofertas con nombre y cupos de ascenso que duran un año; logros que se desbloquean | `hand.py`, `modules/labor.py`, `game.py` | Supuestos de juego |
-| Personalidad | Riesgo, ambición y Big Five mueven las tasas de los otros módulos | `profile.py`, `params.py` (`B_*`) | Caliendo et al. 2014, Mueller y Plug 2006 |
-| Decisiones de los gemelos | Qué elegiría "gente como tú": logit sobre la frecuencia real de cada decisión, la personalidad y el resultado esperado de cada opción | `choice.py` | EPS, INE, ESI para las frecuencias base |
+| Módulo | Qué hace | Fuente |
+|---|---|---|
+| Despido | Riesgo anual por edad, multiplicado por antigüedad, tipo de empleador y rubro | EPS 2024 (edad, antigüedad, Estado); INE flujos laborales (pyme, grande, rubro) |
+| Ofertas | Llegan sin buscar; se aceptan si superan tu sueldo de reserva. Buscar multiplica las ofertas por 1,7 | Tasa chilena: cambios voluntarios de la EPS divididos por la aceptación de la SCE. Sueldo de la oferta y umbrales: SCE (EE.UU.) |
+| Búsqueda | Probabilidad de encontrar trabajo por edad, más baja tras un año cesante o tras una pausa | EPS 2024 |
+| Sueldo al reemplearse | 0,117 log menos que el último, que se recupera casi entero en un año | SCE (EE.UU.) y Carranza, Prieto y Sehnbruch 2025 (Chile) |
+| Ascensos | Tasa por nivel y alza de 5,8% | Baker, Gibbs y Holmstrom 1994 (una empresa de EE.UU.) |
+| Sueldo en el tiempo | Perfil por edad y educación, más el reajuste real de la economía, sin el alza esperada por ascensos | ESI 2025, INE índice de remuneraciones |
+| Ocupación | Al cambiar de empleador, la ocupación siguiente sale de 1,4 millones de transiciones; se traspasa 25% del sueldo relativo del nuevo grupo y se pierde la experiencia en la ocupación | JobHop (Flandes), ESI 2023-2025, Kambourov y Manovskii 2009 |
+| Tipo de empleador | Pyme, grande o Estado del nuevo empleador | Panel ESI 2023-2025 |
+| IA | Jóvenes de hasta 25 años en el quintil más expuesto reciben 19% menos ofertas; sin efecto para el resto | Brynjolfsson, Chandar y Chen 2025; Humlum y Vestergaard (Dinamarca) |
+| Capacitación | Curso SENCE de más de 140 horas: +0,6% de sueldo, sin efecto en empleo | Comisión revisora 2011, vía BCN 2019 |
+| Magíster | +7% de sueldo al titularte; dos años de arancel | DIPRES 2026; arancel de la U. de Chile |
+| Emprender | Ingreso relativo al asalariado comparable con su dispersión; cierre de 31% el primer año | ESI 2023-2025, EPS 2024, Caliendo et al. 2014 |
+| Familia | Pareja, separación e hijos por edad y situación de pareja; las madres pierden ingreso o salen | ELSOC, INE estadísticas vitales, EPS, COES |
+| Finanzas | Gasto según la tasa de ahorro de tu tramo de ingreso, más el costo de cada hijo y el arancel | EPF IX, UNICEF y Ministerio de la Mujer 2025 |
+| Bienestar | Satisfacción con la vida y salud por edad; efecto del ingreso, la cesantía, el reempleo, la pareja y la separación; síntomas depresivos según horas; tiempo con tu gente según horas | ELSOC, ENUT 2023 |
+| Gente como tú | Cada carta dice qué fracción de la gente de tu edad toma esa decisión al año | EPS, ESI, ELSOC, SCE |
 
 ## Cómo se juega un año
 
-1. El juego reparte la mano del año (`hand.py`): "seguir", las oportunidades que el año trae (una oferta de una empresa con nombre, un cupo de ascenso) y dos o tres acciones elegidas según cómo está el gemelo. Son 4 o 5 cartas. `--todas` en la terminal muestra la lista completa.
-2. Por cada carta el motor corre 1.000 futuros a 5 años con la misma suerte y la compara contra "seguir igual": plata a todo el horizonte, atributos al cierre del año y cuántos gemelos como tú la elegirían.
+1. El juego reparte dos o tres cartas (`hand.py`): "seguir", la oferta del año si llega una (empresa con nombre, sueldo y cambio contra lo que ganas) y decisiones posibles sorteadas con la suerte del año.
+2. Por cada carta el motor corre 1.000 futuros a 5 años con la misma suerte y la compara contra "seguir": plata a todo el horizonte, satisfacción y tiempo con tu gente al cierre del año.
 3. Eliges. De los 1.000 futuros de ese año, uno es el que te tocó y la partida sigue desde ahí.
-4. En paralelo vive tu sombra: el gemelo que nunca cambia nada y recibe tu misma suerte. Al final se comparan.
+4. En paralelo vive tu sombra: el mismo gemelo que nunca cambia nada, con tu misma suerte.
 
-`POST /api/juego/turno` expone lo mismo para el frontend. No guarda estado: recibe el perfil, la semilla y las decisiones tomadas, y devuelve tu ficha, la de la sombra, lo que pasó cada año y el menú siguiente.
+`POST /api/juego/turno` expone lo mismo para el frontend. No guarda estado: recibe el perfil, la semilla y las decisiones, y devuelve tu ficha, la de la sombra, lo que pasó cada año y las cartas siguientes. Los logros y el puntaje final son marcas del juego: no cambian lo que simula el modelo.
 
-## Qué tan sólido es
+## Lo que se sacó por falta de datos
 
-`make supuestos` lista los 96 grupos de parámetros: 15 son datos leídos de una fuente, 16 son cálculos propios sobre una fuente y 65 son supuestos del equipo. Los atributos nuevos (habilidades, reputación, salud), las acciones livianas y las cartas de oportunidad son supuestos de juego. Los supuestos pesan sobre todo en:
+Pedir aumento (no hay dato del tamaño del aumento), postular a un ascenso, cambiarte de ocupación a voluntad, hacer redes, cuidarte, priorizar a tu gente, pitutos, bajar el ritmo, bajar pretensiones, tener un hijo a voluntad, energía, agotamiento, habilidades, reputación, contactos, intereses del ahorro y de la deuda, y la velocidad de llegada de la IA. Los hijos siguen ocurriendo con las tasas del INE y ELSOC.
 
-- **IA:** la brecha de 19% es dato, pero cómo crece en el tiempo y cómo se reparte por nivel es supuesto. Con los pesos actuales el efecto se concentra en juniors.
-- **Reconversión:** la afinidad sale de JobHop; la probabilidad de lograr el cambio y el castigo de sueldo son supuestos.
-- **Energía y agotamiento:** no hay fuente chilena de prevalencia de burnout.
-- **Ánimo:** cesantía, reempleo, pareja y separación vienen de ELSOC; el resto solo sigue el signo de la literatura.
+## Límites que conviene decir en la demo
 
-Límites que conviene decir en la demo:
-
-- JobHop son currículums de Flandes. Sirve como patrón de movilidad entre ocupaciones, no como mercado chileno.
-- El sueldo relativo entre ocupaciones solo distingue los 9 grandes grupos de la ESI, así que todas las ocupaciones profesionales pagan igual en el modelo.
-- El puente entre las ocupaciones de EE.UU. (exposición a IA) y las ISCO es propio y aproximado, y las etiquetas ISCO se escribieron a mano.
-- Los perfiles parten trabajando o buscando trabajo; todavía no hay etapa de estudios ni emigración.
-- La pareja no tiene carrera propia y las finanzas son individuales (sin vivienda ni impuestos).
+- Ocho parámetros vienen de EE.UU. (ofertas, umbrales, sueldo al reemplearse, ascensos, IA) y dos de Alemania (personalidad y emprendimiento). `make supuestos` los marca.
+- JobHop son currículums de Flandes: sirven como patrón de movilidad entre ocupaciones.
+- El sueldo relativo entre ocupaciones solo distingue los grandes grupos de la ESI.
+- El modelo no tiene shocks propios al sueldo: no hay un número chileno que los separe de los cambios y despidos que ya simula. Por eso la dispersión del sueldo de quien se queda en su empleo es menor que en la ESI (`make validar` lo muestra).
+- Los síntomas depresivos se sortean cada año sin persistencia: ELSOC da la incidencia, no la duración.
+- El arancel del magíster es de un programa de la U. de Chile; falta un promedio nacional oficial.
 - El modelo valida distribuciones, no la vida de una persona.
 
 ## Regenerar las tablas
 
-`backend/app/sim/data/tablas.json` (51 KB) son tablas agregadas. Los microdatos no van al repo. Con la carpeta `datos_laborales/` a mano:
+`backend/app/sim/data/tablas.json` son tablas agregadas; los microdatos no van al repo. Los parámetros estimados están en `datos_laborales/derivados/modelo_paneles.json`, `modelo_ofertas.json` y `modelo_literatura.json`, con sus scripts en `datos_laborales/scripts/modelo/`. Con la carpeta `datos_laborales/` a mano:
 
 ```bash
 make datos DATOS=../../datos_laborales

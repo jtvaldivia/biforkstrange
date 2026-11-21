@@ -31,13 +31,12 @@ def ficha(e: Estado, perfil: Perfil | None = None) -> dict:
         "edad": e.edad, "anio": e.anio, "situacion": SITUACIONES[sit], "ocupacion": tb.nombres[o], "isco": tb.codigos[o],
         "nivel": NIVELES[int(e.nivel[0])], "empleador": TAMANOS[int(e.tam[0])],
         "empresa": nombre_empresa(int(e.empresa[0]), perfil.empresa if perfil else "") if sit == EMP else "",
-        "rubro": RUBROS[int(e.rubro[0])], "antiguedad": float(e.antig[0]),
+        "rubro": RUBROS[int(e.rubro[0])], "antiguedad": float(e.antig[0]), "exp_ocupacion": float(e.exp_ocup[0]),
         "sueldo": _sueldo(e) if sit == EMP else 0.0, "ingreso_mes": float(e.ingreso[0]), "ahorros": float(e.ahorros[0]),
         "gasto_mes": float(e.gasto[0]), "colchon_meses": float(e.ahorros[0] / max(e.gasto[0], 1)),
-        "energia": float(e.energia[0]), "animo": float(e.animo[0]), "salud": float(e.salud[0]), "social": float(min(e.social[0], 100)),
-        "habilidad": float(e.habilidad[0]), "reputacion": float(e.reputacion[0]), "contactos": float(e.contactos[0]),
-        "pareja": bool(e.pareja[0]), "hijos": int(e.hijos[0]), "postgrado": bool(e.postgrado[0]), "estudia": int(e.estudia[0]),
-        "ia": float(tb.ia[o]), "meses_sin_trabajo": float(e.meses_ces[0]),
+        "animo": float(e.animo[0]), "salud": float(e.salud[0]), "social": float(min(e.social[0], 100)), "depresion": bool(e.depresion[0]),
+        "horas": float(e.horas[0]), "pareja": bool(e.pareja[0]), "hijos": int(e.hijos[0]), "postgrado": bool(e.postgrado[0]),
+        "estudia": int(e.estudia[0]), "ia": float(tb.ia[o]), "meses_sin_trabajo": float(e.meses_ces[0]),
     }
 
 
@@ -49,38 +48,24 @@ def narrar(antes: Estado, e: Estado, perfil: Perfil, decision: str = "seguir") -
     clave = decision.split(":")[0]
     out = []
     if si("oferta_aceptada"):
-        out.append(f"Te fuiste a {emp(e)}. Empiezas de cero, con mejor sueldo.")
+        out.append(f"Te fuiste a {emp(e)}. Empiezas de cero, con {_M(_sueldo(e))} al mes.")
     if si("despido"):
         meses = e.meses_ces[0]
         out.append(f"Te despidieron de {emp(antes)}. " + (
             f"{'Al mes siguiente' if meses < 1.5 else f'A los {meses:.0f} meses'} entraste a {emp(e)}, con {_M(_sueldo(e))} al mes." if si("reempleo_mismo_anio")
             else f"Terminas el año sin trabajo ({meses:.0f} meses buscando)."))
     if si("cambio"):
-        out.append(f"Saliste a buscar y te resultó: te cambiaste a {emp(e)}. Cierras el año ganando {_M(_sueldo(e))} al mes.")
+        out.append(f"Te llegó una oferta que mejoraba lo tuyo y te cambiaste a {emp(e)}: {_M(_sueldo(e))} al mes.")
     elif clave == "buscar_pega" and antes.sit[0] == EMP and not si("despido"):
-        out.append("Fuiste a varias entrevistas, pero nada mejoraba lo que tienes.")
-    if si("postula_ok"):
-        out.append(f"Postulaste y quedaste: ahora eres {NIVELES[int(e.nivel[0])]} en {emp(e)}.")
-    elif si("ascenso"):
+        out.append("Fuiste a entrevistas, pero ninguna oferta superó lo que ganas.")
+    if si("ascenso"):
         out.append(f"Te ascendieron a {NIVELES[int(e.nivel[0])]} en {emp(e)}.")
-    if si("a_jefatura"):
-        out.append(f"Tu rol cambia: {tb.nombres[int(e.ocup[0])].split(' (')[0]}.")
-    if si("postula_no"):
-        out.append("Postulaste al ascenso y eligieron a otra persona.")
-    if si("aumento"):
-        out.append(f"Pediste aumento y resultó: {_M(_sueldo(e))} al mes.")
-    if si("aumento_no"):
-        out.append("Pediste aumento y te dijeron que este año no.")
     if si("encuentra"):
         out.append(f"Encontraste trabajo en {emp(e)} tras {e.meses_ces[0]:.0f} meses de búsqueda: {_M(_sueldo(e))} al mes.")
     if antes.sit[0] == CES and e.sit[0] == CES and not si("pausa"):
         out.append("Buscaste todo el año y no salió nada.")
-    if si("cambia_ocup") and not si("reconv_ok"):
-        out.append(f"El trabajo nuevo es en otra ocupación: {tb.nombres[int(e.ocup[0])].split(' (')[0]}.")
-    if si("reconv_ok"):
-        out.append(f"Lograste el cambio de ocupación. Ahora trabajas en {tb.nombres[int(e.ocup[0])].split(' (')[0].lower()}, en {emp(e)}, con {_M(_sueldo(e))} al mes.")
-    if si("reconv_no"):
-        out.append("Te formaste, pero todavía no logras el cambio de ocupación. Puedes volver a intentarlo.")
+    if si("cambia_ocup"):
+        out.append(f"El trabajo nuevo es en otra ocupación: {tb.nombres[int(e.ocup[0])].split(' (')[0].lower()}.")
     if si("pausa"):
         out.append("Año de pausa cuidando a tu hijo." if si("sale_por_hijo") else "Te tomaste el año. Viviste de tus ahorros.")
     if si("emprende"):
@@ -90,17 +75,15 @@ def narrar(antes: Estado, e: Estado, perfil: Perfil, decision: str = "seguir") -
     if si("cierra_emp"):
         out.append("El emprendimiento cerró. Vuelves a buscar trabajo.")
     if si("titulo"):
-        out.append("Terminaste el magíster.")
+        out.append(f"Terminaste el magíster. Tu sueldo queda en {_M(_sueldo(e))}.")
     elif si("estudia"):
-        out.append("Primer año de magíster, estudiando mientras trabajas.")
-    if si("burnout"):
-        out.append("Te agotaste: licencia médica por estrés." + (" La isapre o Fonasa la rechazó y perdiste dos meses de sueldo." if si("licencia_rechazada") else ""))
-    if si("problema_salud"):
-        out.append("El cuerpo pasó la cuenta: un problema de salud te tuvo un mes fuera.")
+        out.append("Un año más de magíster, estudiando mientras trabajas.")
+    if si("curso"):
+        out.append("Terminaste el curso. En los datos de SENCE, el efecto en el sueldo es de 0,6%.")
+    if e.depresion[0] and not antes.depresion[0]:
+        out.append("Tuviste síntomas depresivos este año.")
     if si("hijo"):
         out.append("Nació tu hijo." if e.hijos[0] == 1 else f"Nació tu hijo número {int(e.hijos[0])}.")
-    elif clave == "tener_hijo":
-        out.append("Buscaron un hijo, pero este año no llegó.")
     if si("pareja_nueva"):
         out.append("Formaste pareja.")
     if si("separacion"):
@@ -108,14 +91,11 @@ def narrar(antes: Estado, e: Estado, perfil: Perfil, decision: str = "seguir") -
     if e.ahorros[0] < 0 <= antes.ahorros[0]:
         out.append("Se te acabaron los ahorros: empiezas a endeudarte.")
     if not out:
-        out.append({"capacitarte": "Terminaste el curso. Estás más al día en tu oficio.", "networking": "Conociste gente nueva del rubro. Tu nombre empieza a sonar.",
-                    "cuidarte": "Un año cuidándote: duermes mejor y te sientes con más cuerda.", "tu_gente": "Estuviste en todas: cumpleaños, asados y domingos en familia.",
-                    "pituto": "Los pitutos dejaron plata extra, a costa de tus fines de semana.", "trabajar_mas": "Un año de jornadas largas. En la oficina lo notaron.",
-                    "bajar_ritmo": "Bajaste el ritmo y recuperaste energía."}.get(clave, "Año sin sobresaltos."))
+        out.append({"trabajar_mas": "Un año de jornadas de 55 horas. Viste menos a tu gente."}.get(clave, "Año sin sobresaltos."))
     return out
 
 
-# (nombre, condición sobre el estado antes y después del año)
+# (nombre, condición sobre el estado antes y después del año). Son marcas del juego, no parámetros del modelo.
 LOGROS = [
     ("Primer ascenso", lambda a, e: e.ev["ascenso"][0]),
     ("Jefatura", lambda a, e: e.nivel[0] >= 3 and e.sit[0] == EMP),
@@ -124,26 +104,24 @@ LOGROS = [
     ("Sueldo duplicado", lambda a, e: e.sit[0] == EMP and e.sueldo[0] >= 2 * e.sueldo0),
     ("De pie otra vez", lambda a, e: e.ev["encuentra"][0] or e.ev["reempleo_mismo_anio"][0]),
     ("Magíster", lambda a, e: e.ev["titulo"][0]),
-    ("Nueva ocupación", lambda a, e: e.ev["reconv_ok"][0]),
+    ("Nueva ocupación", lambda a, e: e.ev["cambia_ocup"][0]),
     ("Emprendimiento rentable", lambda a, e: a.sit[0] == EMPR and e.ingreso[0] > e.sueldo[0]),
     ("Familia", lambda a, e: e.ev["hijo"][0] and e.hijos[0] == 1),
-    ("Red de 100 contactos", lambda a, e: e.contactos[0] >= 100),
-    ("Al día en tu oficio", lambda a, e: e.habilidad[0] >= 80),
-    ("En plena forma", lambda a, e: e.energia[0] >= 75 and e.salud[0] >= 85),
+    ("Cinco años en lo tuyo", lambda a, e: e.exp_ocup[0] >= 5),
 ]
 
 
 class Partida:
-    def __init__(self, perfil: Perfil, seed: int = 7, n: int = 1000, escenario: str = "base", horizonte: int = 5):
-        self.perfil, self.seed, self.n, self.escenario, self.horizonte = perfil, seed, n, escenario, horizonte
-        self.ctx = Ctx(perfil, Suerte(seed, n), escenario)
+    def __init__(self, perfil: Perfil, seed: int = 7, n: int = 1000, horizonte: int = 5, **_):
+        self.perfil, self.seed, self.n, self.horizonte = perfil, seed, n, horizonte
+        self.ctx = Ctx(perfil, Suerte(seed, n))
         self.yo = Estado.desde_perfil(perfil, 1)
         self.sombra = self.yo.copia()            # el gemelo que siempre elige 'seguir'
         self.historial: list[dict] = []
         self.logros: list[str] = []
 
     def menu(self, todas: bool = False) -> list[Opcion]:
-        return menu(self.yo, self.perfil, self.horizonte, self.n, self.seed, self.escenario, todas=todas)
+        return menu(self.yo, self.perfil, self.horizonte, self.n, self.seed, todas=todas)
 
     def decidir(self, decision: str) -> dict:
         normalizar(decision)
@@ -159,7 +137,8 @@ class Partida:
         turno = {"decision": decision, "nombre": carta["nombre"] if carta else nombre_decision(decision),
                  "eventos": narrar(antes, self.yo, self.perfil, decision), "logros": nuevos,
                  "yo": ficha(self.yo, self.perfil), "sombra": ficha(self.sombra, self.perfil), "nube": resumen_anual(nube),
-                 "nube_eventos": {k: float(nube.ev[k].mean()) for k in ("despido", "cambio", "ascenso", "aumento", "burnout", "encuentra", "reconv_ok", "cierra_emp", "hijo")}}
+                 "nube_eventos": {k: float(nube.ev[k].mean()) for k in ("despido", "cambio", "ascenso", "encuentra", "cierra_emp", "hijo")}
+                 | {"depresion": float(nube.depresion.mean())}}
         self.historial.append(turno)
         return turno
 

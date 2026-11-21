@@ -136,6 +136,15 @@ def esi_por_ocupacion(datos):
     }
 
 
+def esi_ocupacion_3_olas(der):
+    """Sueldo relativo por gran grupo, ESI 2023-2025 (lo calcula datos_laborales/scripts/modelo/ofertas_esi.py).
+    Solo grupos con al menos 100 casos universitarios; el resto no es destino en el motor."""
+    o = json.load(open(os.path.join(der, "modelo_ofertas.json")))["sueldo_relativo_ocupacion"]["por_grupo"]
+    return {"fuente": "INE, ESI 2023-2025: mediana del ingreso por gran grupo CIUO-08 sobre la mediana, ocupados de 25 a 54 años con educación universitaria o más",
+            "por_grupo": {k: {"relativo": v["rel_universitaria_o_mas"], "n": v["n_universitaria"]} for k, v in o.items()
+                          if v.get("rel_universitaria_o_mas") and v.get("n_universitaria", 0) >= 100}}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--datos", required=True, help="carpeta datos_laborales/")
@@ -153,7 +162,7 @@ def main():
         "isco1": ISCO1,
         "jobhop": jh,
         "exposicion_ia": exposicion_ia(a.datos, ocup),
-        "esi_ocupacion": esi_por_ocupacion(a.datos),
+        "esi_ocupacion": esi_ocupacion_3_olas(der),
         "esi_edad_educacion": cal["esi_2025"]["por_edad_educacion"],
         "esi_sector_superior": cal["esi_2025"]["por_sector_educacion_superior"],
         "esi_sexo_educacion": cal["esi_2025"]["por_sexo_educacion_25_54"],

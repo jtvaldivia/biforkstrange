@@ -16,7 +16,7 @@ router = APIRouter(prefix="/juego", tags=["juego"])
 def turno(body: TurnoIn) -> dict:
     try:
         perfil = Perfil.desde_dict(body.perfil)
-        g = Partida.reproducir(perfil, body.decisiones, seed=body.seed, n=body.n_runs, escenario=body.escenario_ia, horizonte=body.horizonte)
+        g = Partida.reproducir(perfil, body.decisiones, seed=body.seed, n=body.n_runs, horizonte=body.horizonte)
     except (ValueError, KeyError) as err:
         raise HTTPException(422, str(err)) from err
     return {

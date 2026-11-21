@@ -4,7 +4,6 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from app.sim.params import P
 from app.sim.tables import tablas
 
 NIVELES = ["junior", "semi senior", "senior", "jefatura", "gerencia"]
@@ -82,13 +81,13 @@ class Perfil:
         edu = d.get("edu") or ("tecnica" if inst in ("cft", "ip", "instituto") else "universitaria" if inst else "media")
         ahorros = d.get("ahorros")
         if ahorros is None:
-            ahorros = P.AHORRO_INICIAL_MESES * sueldo
-            sup.append(f"ahorros de {P.AHORRO_INICIAL_MESES} sueldos (${ahorros / 1e6:.1f} M), porque el perfil no los trae; cámbialos con --ahorros")
+            ahorros = 0.0
+            sup.append("el perfil no trae ahorros: partes en $0; cámbialos con --ahorros")
         if d.get("antiguedad") is None:
             sup.append("2 años de antigüedad en el empleo actual")
         big5 = dict.fromkeys(BIG5, 0.0) | {k: float(v) for k, v in (d.get("big5") or {}).items() if k in BIG5}
         if not d.get("big5"):
-            sup.append("Big Five en el promedio (no medido); riesgo y ambición sí vienen del perfil")
+            sup.append("Big Five en el promedio (no medido)")
         tipo = d.get("tipo_empleador") if d.get("tipo_empleador") in TAMANOS else "pyme"
         return cls(
             nombre=d.get("nombre") or "Gemelo", edad=int(d.get("edad") or 25), sexo="m" if str(d.get("sexo", "h")).lower().startswith("m") else "h",
@@ -96,7 +95,7 @@ class Perfil:
             edu=edu, ocupacion=ocup, rubro=rubro, empresa=str(d.get("empresa") or ""), tipo_empleador=tipo, nivel=nivel,
             antiguedad=float(d.get("antiguedad") if d.get("antiguedad") is not None else 2.0), sueldo=sueldo,
             ahorros=float(ahorros), deuda_estudios=float(d.get("deuda_estudios") or 0), hijos=int(d.get("hijos") or 0),
-            pareja=bool(d.get("pareja")), contactos=float(d.get("contactos") or P.RED_REF),
+            pareja=bool(d.get("pareja")), contactos=float(d.get("contactos") or 0),
             riesgo=(float(d.get("riesgo", 50)) - 50) / 25, ambicion=(float(d.get("ambicion", 50)) - 50) / 25,
             big5=big5, supuestos=sup,
         )

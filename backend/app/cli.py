@@ -15,14 +15,14 @@ from pathlib import Path
 
 import numpy as np
 
-from app.sim.counterfactual import comparar, p_reconvertir
+from app.sim.counterfactual import comparar
 from app.sim.decisions import normalizar
 from app.sim.engine import simular
 from app.sim.game import Partida, ficha
-from app.sim.modules.labor import factores_ia
+from app.sim.modules.labor import p_supera, tasa_ofertas
 from app.sim.params import PARAMS, P
 from app.sim.profile import BIG5, NIVELES, Perfil
-from app.sim.state import CES, Estado
+from app.sim.state import CES
 from app.sim.tables import tablas, tramo3
 
 B, DIM, FIN = "\033[1m", "\033[2m", "\033[0m"
@@ -68,32 +68,32 @@ def mostrar_perfil(pf: Perfil, a) -> None:
     print(f"  {pf.edad} años · {tb.nombres[o]} ({pf.ocupacion}), {NIVELES[pf.nivel]} · {pf.tipo_empleador} · {pf.rubro or 'rubro sin dato'}")
     med = tb.mediana_esi(pf.edu, pf.edad)
     print(f"  Sueldo {plata(pf.sueldo)} líquidos ({pf.sueldo / med:.1f} veces la mediana ESI de tu edad y estudios) · ahorros {plata(pf.ahorros)}")
-    print(f"  {'Con pareja' if pf.pareja else 'Sin pareja'}, {pf.hijos} hijos · {pf.contactos:.0f} contactos · riesgo {pf.riesgo:+.1f} DE · ambición {pf.ambicion:+.1f} DE")
-    print(f"  Tipo de persona más cercano: {pf.arquetipo}")
-    print(f"  Exposición de tu ocupación a la IA: {nivel_ia(tb.ia[o])} (percentil {100 * tb.ia[o]:.0f}); escenario de adopción: {a.ia}")
+    print(f"  {'Con pareja' if pf.pareja else 'Sin pareja'}, {pf.hijos} hijos · tipo de persona más cercano: {pf.arquetipo}")
+    print(f"  Exposición de tu ocupación a la IA: {nivel_ia(tb.ia[o])} (percentil {100 * tb.ia[o]:.0f})")
     if pf.supuestos:
-        print(f"{DIM}  Supuse: " + "; ".join(pf.supuestos) + f".{FIN}")
+        print(f"{DIM}  Lo que tu perfil no trae y cómo lo tomé: " + "; ".join(pf.supuestos) + f".{FIN}")
 
 
 def mostrar_ficha(f: dict, etiqueta: str = "") -> None:
     trabajo = f"{f['ocupacion'].split(' (')[0]}, {f['nivel']} en {f['empresa']} ({f['empleador']}) · {plata(f['sueldo'])}/mes" if f["situacion"] == "con empleo" else f["situacion"]
     print(f"  {etiqueta}{f['edad']} años · {trabajo}")
-    print(f"  {' ' * len(etiqueta)}ahorros {plata(f['ahorros'])} · energía {f['energia']:.0f} · ánimo {f['animo']:.0f} · "
-          f"salud {f['salud']:.0f} · habilidades {f['habilidad']:.0f} · reputación {f['reputacion']:.0f} · {f['contactos']:.0f} contactos · "
+    print(f"  {' ' * len(etiqueta)}ahorros {plata(f['ahorros'])} · satisfacción {f['animo']:.0f} · salud {f['salud']:.0f} · tiempo con tu gente {f['social']:.0f}"
+          + (" · síntomas depresivos" if f["depresion"] else "") + f" · {f['exp_ocupacion']:.0f} años en tu ocupación · "
           f"{'con pareja' if f['pareja'] else 'sin pareja'}, {f['hijos']} hijos"
           + (" · magíster" if f["postgrado"] else " · estudiando magíster" if f["estudia"] else ""))
 
 
 def mostrar_menu(ops, horizonte: int) -> None:
-    titulo(f"Tus cartas de este año (1.000 futuros por carta, misma suerte; plata a {horizonte} años, atributos al cierre del año)")
+    titulo(f"Tus cartas de este año (1.000 futuros por carta, misma suerte; plata a {horizonte} años, bienestar al cierre del año)")
     for k, o in enumerate(ops, 1):
         marca = " ★ oportunidad" if o.tipo == "oportunidad" else ""
-        print(f"\n  {B}{k}. {o.nombre}{FIN}{marca}  {DIM}· lo elegiría el {porc(o.gemelos)} de tus gemelos{FIN}")
+        gente = f"  {DIM}· {o.gemelos_texto}{FIN}" if o.gemelos_texto else ""
+        print(f"\n  {B}{k}. {o.nombre}{FIN}{marca}{gente}")
         print(f"     {o.descripcion}")
         efectos = " · ".join(e["texto"] for e in o.efectos) or "Tu año base"
         print(f"     {efectos}")
         print(f"{DIM}     ingreso {plata(o.ingreso[0])} · {plata(o.ingreso[1])} · {plata(o.ingreso[2])} | cesante {porc(o.p_cesantia)} | deuda {porc(o.p_deuda)} | "
-              f"energía mín. {o.energia_min:.0f} | ahorros {plata(o.ahorros[1])} | contra seguir +{porc(o.p_mejor)} / -{porc(o.p_peor)}{FIN}")
+              f"depresión {porc(o.p_depresion)} | ahorros {plata(o.ahorros[1])} | contra seguir +{porc(o.p_mejor)} / -{porc(o.p_peor)}{FIN}")
 
 
 def mostrar_turno(t: dict) -> None:
@@ -106,28 +106,22 @@ def mostrar_turno(t: dict) -> None:
     mostrar_ficha(t["sombra"], "Sombra:  ")
     n = t["nube_eventos"]
     print(f"{DIM}  En los 1.000 futuros de este año: despido {porc(n['despido'])}, cambio de pega {porc(n['cambio'])}, ascenso {porc(n['ascenso'])}, "
-          f"licencia por agotamiento {porc(n['burnout'])}, hijo {porc(n['hijo'])}. La sombra es tu gemelo que nunca cambia nada, con tu misma suerte.{FIN}")
+          f"síntomas depresivos {porc(n['depresion'])}, hijo {porc(n['hijo'])}. La sombra es tu gemelo que nunca cambia nada, con tu misma suerte.{FIN}")
 
 
 def cmd_perfil(a) -> None:
     pf = cargar_perfil(a)
     mostrar_perfil(pf, a)
-    e = Estado.desde_perfil(pf)
-    from app.sim.context import Ctx
-    from app.sim.luck import Suerte
-
-    ctx = Ctx(pf, Suerte(a.seed, 1), a.ia)
-    titulo("Cómo la IA mueve tus probabilidades (según tu ocupación y nivel de hoy)")
-    for anio in (2026, 2030, 2035, 2040, 2045):
-        e.anio = anio
-        of, de = factores_ia(e, ctx)
-        print(f"  {anio}: ofertas x{of[0]:.2f} · riesgo de despido x{de[0]:.2f}")
+    titulo("Tus tasas de partida")
+    tr = tramo3(pf.edad)
+    print(f"  Despido al año: {porc(P.DESPIDO[tr])} (EPS) · ofertas al año sin buscar: {tasa_ofertas(pf.edad):.2f} "
+          f"(se aceptan {porc(p_supera(P.UMBRAL['no_busca']))}) · encontrar trabajo si quedas cesante: {porc(P.ENCONTRAR[tr])}")
 
 
 def cmd_menu(a) -> None:
     pf = cargar_perfil(a)
     mostrar_perfil(pf, a)
-    g = Partida.reproducir(pf, _lista(a.historia), seed=a.seed, n=a.n, escenario=a.ia, horizonte=a.horizonte)
+    g = Partida.reproducir(pf, _lista(a.historia), seed=a.seed, n=a.n, horizonte=a.horizonte)
     if g.historial:
         titulo("Estado tras tu historia")
         mostrar_ficha(ficha(g.yo, pf))
@@ -150,7 +144,7 @@ def _lista(texto: str | None) -> list[str]:
 def cmd_jugar(a) -> None:
     pf = cargar_perfil(a)
     mostrar_perfil(pf, a)
-    g = Partida(pf, seed=a.seed, n=a.n, escenario=a.ia, horizonte=a.horizonte)
+    g = Partida(pf, seed=a.seed, n=a.n, horizonte=a.horizonte)
     guion = _lista(a.auto)
     while g.yo.edad < a.hasta:
         titulo(f"━━ {g.yo.anio} · {g.yo.edad} años ━━")
@@ -163,7 +157,7 @@ def cmd_jugar(a) -> None:
             dec = guion.pop(0)
         else:
             try:
-                txt = input(f"\n{B}¿Qué haces este año?{FIN} [número · reconvertir:CÓDIGO · o=ocupaciones · q=salir] > ").strip()
+                txt = input(f"\n{B}¿Qué haces este año?{FIN} [número · o=ocupaciones · q=salir] > ").strip()
             except (EOFError, KeyboardInterrupt):
                 break
             if txt in ("q", "salir", ""):
@@ -182,7 +176,7 @@ def cmd_jugar(a) -> None:
         print(f"  Decisiones: {', '.join(t['decision'] for t in g.historial)}")
         mostrar_ficha(yo, "Tú:      ")
         mostrar_ficha(so, "Sombra:  ")
-        print(f"  Diferencia: sueldo {plata(yo['sueldo'] - so['sueldo'])}/mes · ahorros {plata(yo['ahorros'] - so['ahorros'])} · ánimo {yo['animo'] - so['animo']:+.0f} · energía {yo['energia'] - so['energia']:+.0f}")
+        print(f"  Diferencia: sueldo {plata(yo['sueldo'] - so['sueldo'])}/mes · ahorros {plata(yo['ahorros'] - so['ahorros'])} · satisfacción {yo['animo'] - so['animo']:+.0f}")
         print(f"{DIM}  Es una sola vida de las posibles. Para ver el efecto promedio de un plan usa 'comparar'.{FIN}")
 
 
@@ -194,17 +188,17 @@ def cmd_comparar(a) -> None:
         nombre, _, txt = spec.partition("=")
         plan = _lista(txt or nombre)
         planes[nombre] = (plan + ["seguir"] * a.anios)[: a.anios]
-    r = comparar(pf, planes, n=a.n, seed=a.seed, escenario=a.ia)
+    r = comparar(pf, planes, n=a.n, seed=a.seed)
     titulo(f"Planes a {a.anios} años (hasta los {pf.edad + a.anios}), {a.n} futuros con la misma suerte")
-    print(f"\n  {'Plan':<28} {'Ingreso mensual prom.':<27} {'Sueldo final':>12} {'Ahorros':>10} {'Cesante':>7} {'Agotam.':>7} {'Deuda':>5} {'Ánimo':>5} {'Hijos':>5}")
+    print(f"\n  {'Plan':<28} {'Ingreso mensual prom.':<27} {'Sueldo final':>12} {'Ahorros':>10} {'Cesante':>7} {'Depres.':>7} {'Deuda':>5} {'Satisf.':>7} {'Hijos':>5}")
     for k, v in r.items():
         ing = f"{plata(v['ingreso'][0])} · {plata(v['ingreso'][1])} · {plata(v['ingreso'][2])}"
-        print(f"  {k[:28]:<28} {ing:<27} {plata(v['sueldo_final'][1]):>12} {plata(v['ahorros'][1]):>10} {porc(v['p_cesantia']):>7} {porc(v['p_burnout']):>7} {porc(v['p_deuda']):>5} {v['animo']:>5.0f} {v['hijos']:>5.1f}")
+        print(f"  {k[:28]:<28} {ing:<27} {plata(v['sueldo_final'][1]):>12} {plata(v['ahorros'][1]):>10} {porc(v['p_cesantia']):>7} {porc(v['p_depresion']):>7} {porc(v['p_deuda']):>5} {v['animo']:>7.0f} {v['hijos']:>5.1f}")
     ref = next(iter(r))
     titulo(f"Contra '{ref}', futuro por futuro")
     for k, v in list(r.items())[1:]:
         print(f"  {k}: gana más en {porc(v['p_mas_ingreso'])} de los futuros y menos en {porc(v['p_menos_ingreso'])} (mediana {plata(v['delta_ingreso'])}/mes) · "
-              f"más ahorros en {porc(v['p_mas_ahorros'])} (mediana {plata(v['delta_ahorros'])}) · ánimo mejor en {porc(v['p_mejor_animo'])}, peor en {porc(v['p_peor_animo'])}")
+              f"más ahorros en {porc(v['p_mas_ahorros'])} (mediana {plata(v['delta_ahorros'])}) · satisfacción mejor en {porc(v['p_mejor_animo'])}, peor en {porc(v['p_peor_animo'])}")
     for k, plan in planes.items():
         print(f"{DIM}  {k}: {', '.join(plan)}{FIN}")
 
@@ -214,11 +208,10 @@ def _ocupaciones(o: int, nivel: int, k: int) -> None:
     af = tb.afinidad[o].copy()
     af[o] = 0
     titulo(f"Ocupaciones más afines a {tb.nombres[o]} (por movilidad observada en 355 mil currículums)")
-    print(f"  {'Código':<7} {'Ocupación':<62} {'Afinidad':>8} {'Lo logra/año':>12} {'Sueldo rel.':>11} {'IA':>9}")
-    for d in np.argsort(-af)[:k]:
-        p = p_reconvertir(o, int(d), nivel)
-        print(f"  {tb.codigos[d]:<7} {tb.nombres[d][:62]:<62} {porc(af[d]):>8} {porc(p):>12} {tb.rel[d] / tb.rel[o]:>10.2f}x {nivel_ia(tb.ia[d]):>9}")
-    print(f"{DIM}  Afinidad 50% = la gente pasa a esa ocupación tanto como al azar. Sueldo relativo: grupo ocupacional en la ESI 2025. Usa reconvertir:CÓDIGO.{FIN}")
+    print(f"  {'Código':<7} {'Ocupación':<62} {'P(destino)':>10} {'Afinidad':>8} {'Sueldo rel.':>11} {'IA':>9}")
+    for d in np.argsort(-tb.T[o])[:k]:
+        print(f"  {tb.codigos[d]:<7} {tb.nombres[d][:62]:<62} {porc(tb.T[o, d]):>10} {porc(af[d]):>8} {tb.rel[d] / tb.rel[o]:>10.2f}x {nivel_ia(tb.ia[d]):>9}")
+    print(f"{DIM}  P(destino): a qué ocupación pasa la gente de la tuya cuando cambia de grupo (JobHop). Sueldo relativo: gran grupo en la ESI 2023-2025.{FIN}")
 
 
 def cmd_ocupaciones(a) -> None:
@@ -233,13 +226,14 @@ def cmd_ocupaciones(a) -> None:
 
 
 def cmd_supuestos(a) -> None:
-    nombres = {"dato": "DATOS (leídos de una fuente)", "derivado": "DERIVADOS (cálculo propio sobre una fuente)", "supuesto": "SUPUESTOS (decisión del equipo)"}
+    nombres = {"dato": "DATOS (leídos o estimados de una fuente)", "derivado": "DERIVADOS (operación escrita sobre datos)"}
     for estado, tit in nombres.items():
         ps = {k: v for k, v in PARAMS.items() if v.estado == estado}
         titulo(f"{tit}: {len(ps)}")
         for k, v in ps.items():
             val = json.dumps(v.valor, ensure_ascii=False)
-            print(f"  {k:<20} {val[:60]:<60} {DIM}{v.fuente}{FIN}")
+            print(f"  {k:<20} {val[:60]:<60} {DIM}[{v.pais}] {v.fuente}{FIN}")
+    print(f"\n  Supuestos del equipo: {sum(v.estado not in nombres for v in PARAMS.values())}")
 
 
 def cmd_validar(a) -> None:
@@ -248,7 +242,7 @@ def cmd_validar(a) -> None:
     pf = Perfil.desde_dict({"nombre": "cohorte", "edad": 25, "sexo": "h", "institucion": "universidad", "rubro": "Servicios profesionales",
                             "tipo_empleador": "grande", "nivel": "junior", "sueldo": tb.mediana_esi("universitaria", 25), "ahorros": 0,
                             "pareja": False, "antiguedad": 1, "big5": {"O": 0}})
-    es = simular(pf, ["seguir"] * 25, n=a.n, seed=a.seed, escenario_ia=a.ia)
+    es = simular(pf, ["seguir"] * 25, n=a.n, seed=a.seed)
     titulo("Cohorte de titulados universitarios que parte en la mediana a los 25 y nunca decide nada")
     print(f"  {'Edad':<5} {'Sueldo mediano sim.':>20} {'ESI 2025 + reajuste':>20} {'Sin trabajo sim.':>17} {'Desocupación ESI':>17}")
     des = tb.raw["ine"]["DESOCUPACION_por_edad"]
@@ -258,14 +252,23 @@ def cmd_validar(a) -> None:
         tr = "25-29" if e.edad < 30 else "30-34" if e.edad < 35 else "35-44" if e.edad < 45 else "45-54"
         print(f"  {e.edad:<5} {plata(float(np.median(e.sueldo[emp]))):>20} {plata(esi):>20} {porc((e.sit == CES).mean()):>17} {porc(des[tr]):>17}")
     titulo("Tasas anuales simuladas contra la Encuesta de Protección Social")
-    print(f"  {'Tramo':<7} {'Despido sim.':>13} {'EPS':>6} {'Cambio de empleador sim.':>26} {'EPS':>6}")
+    print(f"  {'Tramo':<7} {'Despido sim.':>13} {'EPS':>6} {'Cambio voluntario sim.':>24} {'EPS':>6}")
     for tr in ("18-29", "30-44", "45-59"):
         sel = [e for e in es if tramo3(e.edad - 1) == tr]
-        d = np.mean([e.ev["despido"].mean() for e in sel])
-        c = np.mean([(e.ev["cambio"] | e.ev["reempleo_mismo_anio"]).mean() for e in sel])
-        print(f"  {tr:<7} {porc(d):>13} {porc(P.DESPIDO[tr]):>6} {porc(c):>26} {porc(P.CAMBIO_EMPLEADOR[tr]):>6}")
-    print(f"{DIM}  La desocupación ESI es de toda la población de esa edad, no solo de universitarios, así que debe quedar por encima de la simulada.")
-    print(f"  El cambio de empleador simulado es más bajo que la EPS porque esta cohorte nunca busca pega.{FIN}")
+        if not sel:
+            continue
+        idx = [k for k, e in enumerate(es) if tramo3(e.edad - 1) == tr and k > 0]
+        d = np.mean([es[k].ev["despido"][es[k - 1].sit == 0].mean() for k in idx])
+        c = np.mean([e.ev["cambio"].mean() for e in sel])
+        print(f"  {tr:<7} {porc(d):>13} {porc(P.DESPIDO[tr]):>6} {porc(c):>24} {porc(P.CAMBIO_VOLUNTARIO[tr]):>6}")
+    # variación anual del ingreso de quienes siguen en el mismo empleo, contra el panel ESI (sd 0,36 en datos con error de medición)
+    pares = [(es[k - 1], es[k]) for k in range(1, len(es))]
+    dl = np.concatenate([np.log(b.sueldo[(a.sit == 0) & (b.sit == 0) & ~b.ev["cambio"]] / a.sueldo[(a.sit == 0) & (b.sit == 0) & ~b.ev["cambio"]]) for a, b in pares])
+    titulo("Lo que el modelo todavía no reproduce")
+    print(f"  Desviación del cambio anual de sueldo de quien se queda: simulada {dl.std():.2f}, ESI 0,36 (incluye error de medición).")
+    print(f"{DIM}  El modelo no tiene shocks propios al sueldo: no hay un número chileno que los separe de los cambios y despidos que ya simula.")
+    print(f"  El despido simulado baja con la edad porque esta cohorte nunca se cambia y acumula antigüedad (5 años o más: x0,33 en la EPS).")
+    print(f"  La desocupación ESI es de toda la población de esa edad, no solo de universitarios, así que debe quedar por encima de la simulada.{FIN}")
 
 
 def main() -> None:
@@ -276,7 +279,6 @@ def main() -> None:
         p.add_argument("--perfil", required=perfil_obligatorio, help="JSON en formato bifurca.perfil")
         p.add_argument("--seed", type=int, default=7, help="semilla de la suerte")
         p.add_argument("--n", type=int, default=1000, help="futuros simulados")
-        p.add_argument("--ia", choices=list(P.IA_ESCENARIOS), default="base", help="velocidad de adopción de IA")
         p.add_argument("--ahorros", type=float, help="ahorros en pesos, si el perfil no los trae")
         p.add_argument("--ocupacion", help="código ISCO-3, si no quieres el inferido")
         for r in BIG5:
@@ -304,7 +306,7 @@ def main() -> None:
     p.add_argument("--buscar", help="busca una ocupación por nombre")
     p.add_argument("-k", type=int, default=15)
     p.set_defaults(fn=cmd_ocupaciones)
-    sub.add_parser("supuestos", help="qué parámetros son dato y cuáles supuesto").set_defaults(fn=cmd_supuestos)
+    sub.add_parser("supuestos", help="cada parámetro con su fuente").set_defaults(fn=cmd_supuestos)
     comun(sub.add_parser("validar", help="cohorte simulada contra los datos"), perfil_obligatorio=False).set_defaults(fn=cmd_validar, n=5000)
     a = ap.parse_args()
     try:
