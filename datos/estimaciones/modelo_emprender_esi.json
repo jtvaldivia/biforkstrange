@@ -1,0 +1,109 @@
+{
+ "fuente": "INE, ESI 2023-2025, ocupados 25-64 años con 30-80 horas, mediana ponderada por fact_cal_esi",
+ "script": "scripts/modelo/emprender_esi.py",
+ "media": {
+  "empleador": {
+   "mediana_sobre_asalariado": 1.415,
+   "p10_p90_sobre_asalariado": [
+    0.666,
+    3.701
+   ],
+   "sd_log": 0.736,
+   "n": 903
+  },
+  "cuenta_propia": {
+   "mediana_sobre_asalariado": 0.83,
+   "p10_p90_sobre_asalariado": [
+    0.329,
+    1.656
+   ],
+   "sd_log": 0.716,
+   "n": 4580
+  },
+  "asalariado_sd_log": 0.453
+ },
+ "tecnica": {
+  "empleador": {
+   "mediana_sobre_asalariado": 1.327,
+   "p10_p90_sobre_asalariado": [
+    0.533,
+    3.591
+   ],
+   "sd_log": 0.828,
+   "n": 359
+  },
+  "cuenta_propia": {
+   "mediana_sobre_asalariado": 0.796,
+   "p10_p90_sobre_asalariado": [
+    0.266,
+    1.861
+   ],
+   "sd_log": 0.777,
+   "n": 1065
+  },
+  "asalariado_sd_log": 0.501
+ },
+ "universitaria": {
+  "empleador": {
+   "mediana_sobre_asalariado": 1.254,
+   "p10_p90_sobre_asalariado": [
+    0.458,
+    3.348
+   ],
+   "sd_log": 0.841,
+   "n": 706
+  },
+  "cuenta_propia": {
+   "mediana_sobre_asalariado": 0.667,
+   "p10_p90_sobre_asalariado": [
+    0.251,
+    1.676
+   ],
+   "sd_log": 0.833,
+   "n": 1420
+  },
+  "asalariado_sd_log": 0.638
+ },
+ "postgrado": {
+  "empleador": {
+   "mediana_sobre_asalariado": 1.288,
+   "p10_p90_sobre_asalariado": [
+    0.521,
+    2.162
+   ],
+   "sd_log": 0.634,
+   "n": 79
+  },
+  "cuenta_propia": {
+   "mediana_sobre_asalariado": 0.648,
+   "p10_p90_sobre_asalariado": [
+    0.215,
+    1.404
+   ],
+   "sd_log": 0.869,
+   "n": 125
+  },
+  "asalariado_sd_log": 0.656
+ },
+ "todos": {
+  "empleador": {
+   "mediana_sobre_asalariado": 1.394,
+   "p10_p90_sobre_asalariado": [
+    0.561,
+    4.864
+   ],
+   "sd_log": 0.855,
+   "n": 2539
+  },
+  "cuenta_propia": {
+   "mediana_sobre_asalariado": 0.695,
+   "p10_p90_sobre_asalariado": [
+    0.252,
+    1.675
+   ],
+   "sd_log": 0.83,
+   "n": 10511
+  },
+  "asalariado_sd_log": 0.63
+ }
+}

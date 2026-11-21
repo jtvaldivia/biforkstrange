@@ -1,0 +1,170 @@
+{
+ "fuente": "INE, Encuesta Suplementaria de Ingresos 2025, microdatos; cálculo del equipo",
+ "desocupacion": {
+  "30-34": 0.075,
+  "45-49": 0.0602,
+  "40-44": 0.0579,
+  "25-29": 0.1177,
+  "35-39": 0.068,
+  "18-24": 0.2191
+ },
+ "ocupacion": {
+  "30-34": 0.7862,
+  "45-49": 0.7841,
+  "40-44": 0.8027,
+  "25-29": 0.6949,
+  "35-39": 0.8025,
+  "18-24": 0.3164
+ },
+ "categoria_ocupados": {
+  "30-34": {
+   "asalariado_privado": 0.6643,
+   "cuenta_propia": 0.1567,
+   "asalariado_publico": 0.1491,
+   "otro": 0.01,
+   "empleador": 0.0199
+  },
+  "45-49": {
+   "asalariado_publico": 0.133,
+   "cuenta_propia": 0.202,
+   "asalariado_privado": 0.6019,
+   "otro": 0.0258,
+   "empleador": 0.0372
+  },
+  "40-44": {
+   "asalariado_publico": 0.142,
+   "asalariado_privado": 0.6068,
+   "cuenta_propia": 0.2014,
+   "otro": 0.0209,
+   "empleador": 0.0289
+  },
+  "25-29": {
+   "cuenta_propia": 0.124,
+   "asalariado_privado": 0.7308,
+   "asalariado_publico": 0.1285,
+   "empleador": 0.0089,
+   "otro": 0.0078
+  },
+  "35-39": {
+   "asalariado_publico": 0.1672,
+   "asalariado_privado": 0.6261,
+   "cuenta_propia": 0.1674,
+   "empleador": 0.02,
+   "otro": 0.0193
+  },
+  "18-24": {
+   "asalariado_privado": 0.8036,
+   "asalariado_publico": 0.058,
+   "cuenta_propia": 0.1225,
+   "otro": 0.0138,
+   "empleador": 0.0022
+  }
+ },
+ "informalidad": {
+  "30-34": 0.2068,
+  "45-49": 0.2187,
+  "40-44": 0.2222,
+  "25-29": 0.2357,
+  "35-39": 0.2095,
+  "18-24": 0.361
+ },
+ "tamano_empresa_asalariados_privados": {
+  "50_a_199": 0.2092,
+  "200_o_mas": 0.3994,
+  "11_a_49": 0.2111,
+  "menos_de_5": 0.1025,
+  "5_a_10": 0.0779
+ },
+ "educacion_30_34": {
+  "media": 0.5003,
+  "universitaria": 0.3149,
+  "tecnica": 0.1638,
+  "postgrado": 0.0209
+ },
+ "ingreso_mediano": {
+  "30-34": 750317,
+  "45-49": 750317,
+  "40-44": 800000,
+  "25-29": 650000,
+  "35-39": 800000,
+  "18-24": 500211
+ },
+ "ingreso_p25": {
+  "30-34": 529903,
+  "45-49": 502000,
+  "40-44": 530000,
+  "25-29": 500000,
+  "35-39": 530000,
+  "18-24": 279273
+ },
+ "ingreso_p75": {
+  "30-34": 1130477,
+  "45-49": 1396367,
+  "40-44": 1496107,
+  "25-29": 980414,
+  "35-39": 1350000,
+  "18-24": 640270
+ },
+ "educacion_por_banda": {
+  "30-34": {
+   "media": 0.5003,
+   "universitaria": 0.3149,
+   "tecnica": 0.1638,
+   "postgrado": 0.0209
+  },
+  "45-49": {
+   "media": 0.5936,
+   "tecnica": 0.1341,
+   "universitaria": 0.2336,
+   "postgrado": 0.0386
+  },
+  "40-44": {
+   "media": 0.5451,
+   "tecnica": 0.1356,
+   "universitaria": 0.2677,
+   "postgrado": 0.0516
+  },
+  "25-29": {
+   "media": 0.5374,
+   "universitaria": 0.3101,
+   "tecnica": 0.1466,
+   "postgrado": 0.0059
+  },
+  "35-39": {
+   "universitaria": 0.3116,
+   "media": 0.506,
+   "tecnica": 0.1448,
+   "postgrado": 0.0376
+  },
+  "18-24": {
+   "media": 0.8918,
+   "tecnica": 0.061,
+   "universitaria": 0.0468,
+   "postgrado": 0.0004
+  }
+ },
+ "ingreso_mediano_edu_30_34": {
+  "30-34": 728106,
+  "45-49": 780000,
+  "40-44": 797924,
+  "25-29": 650000,
+  "35-39": 760000,
+  "18-24": 548572
+ },
+ "ingreso_p25_edu_30_34": {
+  "30-34": 527627,
+  "45-49": 518651,
+  "40-44": 528625,
+  "25-29": 500000,
+  "35-39": 527627,
+  "18-24": 300127
+ },
+ "ingreso_p75_edu_30_34": {
+  "30-34": 1092461,
+  "45-49": 1400000,
+  "40-44": 1350570,
+  "25-29": 980414,
+  "35-39": 1200000,
+  "18-24": 750000
+ }
+}

@@ -1,0 +1,534 @@
+{
+ "INGRESO_SUBIR_A_50H": {
+  "valor": -0.0152,
+  "dist": {
+   "p10": -0.4125,
+   "p25": -0.1034,
+   "p50": -0.0283,
+   "p75": 0.1582,
+   "p90": 0.4234
+  },
+  "unidad": "cambio en log ingreso mensual de la ocupación principal en un año (relativo a la mediana de la ola)",
+  "fuente": "ESI 2023-2025 (INE), panel por rotación ENE (idrph, pares 2023-24 y 2024-25)",
+  "script": "scripts/modelo/beneficios_esi.py",
+  "n": 3847,
+  "n_tratados": 121,
+  "ee_o_ic": {
+   "ee": 0.0464,
+   "ic95": [
+    -0.1062,
+    0.0759
+   ]
+  },
+  "estado": "dato",
+  "nota": "Regresión ponderada (fact_cal_esi de t) del cambio en log ingreso sobre el grupo, con edad, edad², sexo, educación y ola; EE agrupados por conglomerado. Diferencia de medias simple -0.0159. Horas medias de los tratados 44.8 -> 60.3. Distribución del cambio: tratados {'p10': -0.434, 'p25': -0.125, 'p50': -0.05, 'p75': 0.137, 'p90': 0.402}, control {'p10': -0.372, 'p25': -0.157, 'p50': -0.017, 'p75': 0.132, 'p90': 0.309} (media control -0.0216). Asalariados público y privado con el mismo empleador, de 40-49 horas en t a 50+ en t+1 contra quienes siguen en 40-49. Con cualquier jornada inicial bajo 50: -0.0273 (ee 0.0447). Correlación dentro de la persona y el empleador: no separa si las horas suben por un ascenso, una crisis en la empresa o error de medición."
+ },
+ "INGRESO_SUBIR_A_55H": {
+  "valor": -0.0306,
+  "dist": {
+   "p10": -0.4183,
+   "p25": -0.1494,
+   "p50": -0.0194,
+   "p75": 0.1773,
+   "p90": 0.3821
+  },
+  "unidad": "cambio en log ingreso mensual de la ocupación principal en un año (relativo a la mediana de la ola)",
+  "fuente": "ESI 2023-2025 (INE), panel por rotación ENE (idrph, pares 2023-24 y 2024-25)",
+  "script": "scripts/modelo/beneficios_esi.py",
+  "n": 3795,
+  "n_tratados": 69,
+  "ee_o_ic": {
+   "ee": 0.0661,
+   "ic95": [
+    -0.1601,
+    0.0989
+   ]
+  },
+  "estado": "dato",
+  "nota": "Regresión ponderada (fact_cal_esi de t) del cambio en log ingreso sobre el grupo, con edad, edad², sexo, educación y ola; EE agrupados por conglomerado. Diferencia de medias simple -0.0257. Horas medias de los tratados 44.9 -> 66.8. Distribución del cambio: tratados {'p10': -0.44, 'p25': -0.171, 'p50': -0.041, 'p75': 0.156, 'p90': 0.36}, control {'p10': -0.372, 'p25': -0.157, 'p50': -0.017, 'p75': 0.132, 'p90': 0.309} (media control -0.0216). De 40-49 horas a 55+ contra quienes siguen en 40-49. Con cualquier jornada inicial bajo 55: -0.041 (ee 0.0636). Correlación dentro de la persona y el empleador: no separa si las horas suben por un ascenso, una crisis en la empresa o error de medición."
+ },
+ "INGRESO_SUBIR_A_50H_PRIVADO": {
+  "valor": -0.0281,
+  "dist": {
+   "p10": -0.4134,
+   "p25": -0.2073,
+   "p50": -0.0243,
+   "p75": 0.1406,
+   "p90": 0.4283
+  },
+  "unidad": "cambio en log ingreso mensual de la ocupación principal en un año (relativo a la mediana de la ola)",
+  "fuente": "ESI 2023-2025 (INE), panel por rotación ENE (idrph, pares 2023-24 y 2024-25)",
+  "script": "scripts/modelo/beneficios_esi.py",
+  "n": 2835,
+  "n_tratados": 86,
+  "ee_o_ic": {
+   "ee": 0.058,
+   "ic95": [
+    -0.1417,
+    0.0855
+   ]
+  },
+  "estado": "dato",
+  "nota": "Regresión ponderada (fact_cal_esi de t) del cambio en log ingreso sobre el grupo, con edad, edad², sexo, educación y ola; EE agrupados por conglomerado. Diferencia de medias simple -0.0279. Horas medias de los tratados 44.8 -> 60.5. Distribución del cambio: tratados {'p10': -0.44, 'p25': -0.234, 'p50': -0.051, 'p75': 0.114, 'p90': 0.402}, control {'p10': -0.38, 'p25': -0.163, 'p50': -0.022, 'p75': 0.132, 'p90': 0.297} (media control -0.0265). Solo asalariados privados en ambas olas. Correlación dentro de la persona y el empleador: no separa si las horas suben por un ascenso, una crisis en la empresa o error de medición."
+ },
+ "INGRESO_SUBIR_A_55H_PRIVADO": {
+  "valor": -0.0441,
+  "dist": {
+   "p10": -0.6625,
+   "p25": -0.3801,
+   "p50": -0.0017,
+   "p75": 0.238,
+   "p90": 0.387
+  },
+  "unidad": "cambio en log ingreso mensual de la ocupación principal en un año (relativo a la mediana de la ola)",
+  "fuente": "ESI 2023-2025 (INE), panel por rotación ENE (idrph, pares 2023-24 y 2024-25)",
+  "script": "scripts/modelo/beneficios_esi.py",
+  "n": 2793,
+  "n_tratados": 44,
+  "ee_o_ic": {
+   "ee": 0.0922,
+   "ic95": [
+    -0.2249,
+    0.1367
+   ]
+  },
+  "estado": "dato",
+  "nota": "Regresión ponderada (fact_cal_esi de t) del cambio en log ingreso sobre el grupo, con edad, edad², sexo, educación y ola; EE agrupados por conglomerado. Diferencia de medias simple -0.0418. Horas medias de los tratados 44.9 -> 69.0. Distribución del cambio: tratados {'p10': -0.689, 'p25': -0.407, 'p50': -0.028, 'p75': 0.211, 'p90': 0.36}, control {'p10': -0.38, 'p25': -0.163, 'p50': -0.022, 'p75': 0.132, 'p90': 0.297} (media control -0.0265). Solo asalariados privados en ambas olas. Correlación dentro de la persona y el empleador: no separa si las horas suben por un ascenso, una crisis en la empresa o error de medición."
+ },
+ "INGRESO_SUBIR_A_50H_PUBLICO": {
+  "valor": 0.0287,
+  "dist": {
+   "p10": -0.1279,
+   "p25": -0.1038,
+   "p50": 0.0135,
+   "p75": 0.161,
+   "p90": 0.26
+  },
+  "unidad": "cambio en log ingreso mensual de la ocupación principal en un año (relativo a la mediana de la ola)",
+  "fuente": "ESI 2023-2025 (INE), panel por rotación ENE (idrph, pares 2023-24 y 2024-25)",
+  "script": "scripts/modelo/beneficios_esi.py",
+  "n": 1012,
+  "n_tratados": 35,
+  "ee_o_ic": {
+   "ee": 0.0433,
+   "ic95": [
+    -0.0562,
+    0.1136
+   ]
+  },
+  "estado": "dato",
+  "nota": "Regresión ponderada (fact_cal_esi de t) del cambio en log ingreso sobre el grupo, con edad, edad², sexo, educación y ola; EE agrupados por conglomerado. Diferencia de medias simple 0.028. Horas medias de los tratados 44.9 -> 59.8. Distribución del cambio: tratados {'p10': -0.133, 'p25': -0.109, 'p50': 0.008, 'p75': 0.156, 'p90': 0.255}, control {'p10': -0.31, 'p25': -0.118, 'p50': -0.009, 'p75': 0.132, 'p90': 0.338} (media control -0.0054). Solo asalariados públicos en ambas olas. Correlación dentro de la persona y el empleador: no separa si las horas suben por un ascenso, una crisis en la empresa o error de medición."
+ },
+ "INGRESO_POR_HORA_SUBIR_A_50H": {
+  "valor": -0.3067,
+  "dist": {
+   "p10": -0.9337,
+   "p25": -0.4244,
+   "p50": -0.2269,
+   "p75": -0.0797,
+   "p90": 0.112
+  },
+  "unidad": "cambio en log ingreso por hora (ing_t_p / (habituales*4,33)) en un año",
+  "fuente": "ESI 2023-2025 (INE), panel por rotación ENE (idrph, pares 2023-24 y 2024-25)",
+  "script": "scripts/modelo/beneficios_esi.py",
+  "n": 3847,
+  "n_tratados": 121,
+  "ee_o_ic": {
+   "ee": 0.0542,
+   "ic95": [
+    -0.4129,
+    -0.2004
+   ]
+  },
+  "estado": "derivado",
+  "nota": "Mismo grupo que INGRESO_SUBIR_A_50H. El sueldo mensual no se mueve, así que el pago por hora cae casi en proporción a las horas extra (log de horas sube ~0,30). Correlación dentro de la persona y el empleador: no separa si las horas suben por un ascenso, una crisis en la empresa o error de medición."
+ },
+ "ELASTICIDAD_INGRESO_HORAS_SUBIDAS": {
+  "valor": 0.3189,
+  "dist": null,
+  "unidad": "cambio en log ingreso mensual por cada punto de log de horas habituales que suben",
+  "fuente": "ESI 2023-2025 (INE), panel por rotación ENE (idrph, pares 2023-24 y 2024-25)",
+  "script": "scripts/modelo/beneficios_esi.py",
+  "n": 4680,
+  "ee_o_ic": {
+   "ee": 0.0856
+  },
+  "estado": "derivado",
+  "nota": "Todos los asalariados con el mismo empleador (10-90 horas en ambas olas), 2626 cambian sus horas. Pendiente por tramos (subidas y bajadas por separado), mismos controles. Bajadas: 0.1317 (ee 0.0713); simétrica: 0.2343 (ee 0.0577). Incluye cambios chicos y jornadas parciales; para 45->55 horas (+0,20 log) implicaría +6%, dentro del IC del contraste discreto, que da cerca de 0. Úsese como cota alta. Correlación dentro de la persona y el empleador: no separa si las horas suben por un ascenso, una crisis en la empresa o error de medición."
+ },
+ "INGRESO_BAJAR_DE_45_A_MENOS_40H": {
+  "valor": -0.0255,
+  "dist": {
+   "p10": -0.5905,
+   "p25": -0.2469,
+   "p50": -0.0077,
+   "p75": 0.2174,
+   "p90": 0.4916
+  },
+  "unidad": "cambio en log ingreso mensual de la ocupación principal en un año (relativo a la mediana de la ola)",
+  "fuente": "ESI 2023-2025 (INE), panel por rotación ENE (idrph, pares 2023-24 y 2024-25)",
+  "script": "scripts/modelo/beneficios_esi.py",
+  "n": 745,
+  "n_tratados": 59,
+  "ee_o_ic": {
+   "ee": 0.0618,
+   "ic95": [
+    -0.1466,
+    0.0955
+   ]
+  },
+  "estado": "dato",
+  "nota": "Regresión ponderada (fact_cal_esi de t) del cambio en log ingreso sobre el grupo, con edad, edad², sexo, educación y ola; EE agrupados por conglomerado. Diferencia de medias simple -0.0398. Horas medias de los tratados 47.8 -> 29.8. Distribución del cambio: tratados {'p10': -0.597, 'p25': -0.253, 'p50': -0.014, 'p75': 0.211, 'p90': 0.486}, control {'p10': -0.35, 'p25': -0.14, 'p50': 0.007, 'p75': 0.136, 'p90': 0.333} (media control -0.0061). Asalariados con el mismo empleador, de 45+ horas a menos de 40 contra quienes siguen en 45+. Casi todos privados (56 de 59). Subconjunto que baja a 30-39 horas (n 35): 0.156 (ee 0.0576), positivo y con n muy chico; no usar. Control de reversión a la media: quienes vuelven de 50+ a 40-49 tienen -0.0556 (ee 0.0582). Correlación dentro de la persona y el empleador: no separa si las horas suben por un ascenso, una crisis en la empresa o error de medición."
+ },
+ "PROB_PASAR_DE_40_49_A_50H_MISMO_EMPLEADOR": {
+  "valor": 0.0285,
+  "dist": null,
+  "unidad": "probabilidad anual",
+  "fuente": "ESI 2023-2025 (INE), panel por rotación ENE (idrph, pares 2023-24 y 2024-25)",
+  "script": "scripts/modelo/beneficios_esi.py",
+  "n": 3977,
+  "ee_o_ic": null,
+  "estado": "dato",
+  "nota": "Frecuencia de la transición entre asalariados del panel (ponderada). A 55+: 0.0166. De 45+ a menos de 40: 0.029 (n 1916)."
+ },
+ "PROB_PASAR_A_DIRECTIVO_CON_50H": {
+  "valor": 0.0064,
+  "dist": null,
+  "unidad": "diferencia en probabilidad anual de pasar a CIUO gran grupo 1 (directivo)",
+  "fuente": "ESI 2023-2025 (INE), panel por rotación ENE (idrph, pares 2023-24 y 2024-25)",
+  "script": "scripts/modelo/beneficios_esi.py",
+  "n": 9888,
+  "ee_o_ic": {
+   "ee": 0.01
+  },
+  "estado": "dato",
+  "nota": "Correlación, no efecto. Asalariados en CIUO 2-9 en t. Tasa con 50+ horas: 0.0251 (9 de 530); resto: 0.0265 (182 de 9358). MPL con edad, sexo, educación, ola y gran grupo de origen. Mismo empleador: 0.0033 (ee 0.0139). Muy pocos eventos; el código CIUO a 1 dígito también cambia por error de codificación."
+ },
+ "PROB_PASAR_A_DIRECTIVO_CON_55H": {
+  "valor": -0.0116,
+  "dist": null,
+  "unidad": "diferencia en probabilidad anual de pasar a CIUO gran grupo 1 (directivo)",
+  "fuente": "ESI 2023-2025 (INE), panel por rotación ENE (idrph, pares 2023-24 y 2024-25)",
+  "script": "scripts/modelo/beneficios_esi.py",
+  "n": 9888,
+  "ee_o_ic": {
+   "ee": 0.0046
+  },
+  "estado": "dato",
+  "nota": "Correlación, no efecto. Asalariados en CIUO 2-9 en t. Tasa con 55+ horas: 0.0057 (3 de 355); resto: 0.0273 (188 de 9533). MPL con edad, sexo, educación, ola y gran grupo de origen. Mismo empleador: -0.016 (ee 0.0068). Muy pocos eventos; el código CIUO a 1 dígito también cambia por error de codificación."
+ },
+ "PAUSA_S01_ANIO_PAUSA": {
+  "valor": 0.13,
+  "dist": {
+   "p10": -25.264,
+   "p25": -25.264,
+   "p50": -0.264,
+   "p75": -0.264,
+   "p90": 24.736
+  },
+  "unidad": "puntos de satisfacción con la vida (0-100)",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 8388,
+  "n_tratados": 415,
+  "ee_o_ic": {
+   "ee": 1.4849,
+   "ic95": [
+    -2.781,
+    3.0397
+   ]
+  },
+  "estado": "dato",
+  "nota": "Efectos fijos de persona y de ola, 18-60 años, EE agrupados por persona, sin ponderar. Pausa = ocupado en la ola anterior e inactivo no jubilado (m02 4 solo estudia, 7 quehaceres, 9 otra; m02=5 jubilado, edad media 69, excluido). 415 pausas, 294 de ellas a quehaceres del hogar: ELSOC no dice si la salida fue voluntaria, así que esto es 'dejar de trabajar', no un sabático elegido. Control: personas ocupadas en todas sus olas. Referencia: ola anterior a la pausa. Pre-tendencia (2+ olas antes): 2.2766 (ee 1.5023). Diferencia simple de cambios individuales (ponderada): pausa -1.756 (n 439) contra sigue ocupado 0.264 (n 6272). Incluyendo m02=8 (enfermo): 0.0574 (ee 1.4313). dist: percentiles del cambio individual de quien pausa menos la media del control; la escala 1-5 hace que los saltos sean de 25 puntos."
+ },
+ "PAUSA_S01_ANIO_SIGUIENTE_SI_VUELVE": {
+  "valor": 0.07,
+  "dist": {
+   "p10": -25.83,
+   "p25": -0.83,
+   "p50": -0.83,
+   "p75": -0.83,
+   "p90": 24.17
+  },
+  "unidad": "puntos de satisfacción con la vida (0-100)",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 8388,
+  "n_tratados": 131,
+  "ee_o_ic": {
+   "ee": 2.0536,
+   "ic95": [
+    -3.9598,
+    4.0902
+   ]
+  },
+  "estado": "dato",
+  "nota": "Efectos fijos de persona y de ola, 18-60 años, EE agrupados por persona, sin ponderar. Pausa = ocupado en la ola anterior e inactivo no jubilado (m02 4 solo estudia, 7 quehaceres, 9 otra; m02=5 jubilado, edad media 69, excluido). 415 pausas, 294 de ellas a quehaceres del hogar: ELSOC no dice si la salida fue voluntaria, así que esto es 'dejar de trabajar', no un sabático elegido. Control: personas ocupadas en todas sus olas. Referencia: ola anterior a la pausa. Ola siguiente a la pausa y de nuevo ocupado, contra la ola anterior a la pausa. Si sigue sin trabajar: 1.3559 (ee 2.1133). Diferencia simple (vuelve menos dos olas antes): 0.701 (n 147) contra siempre ocupado 0.83 (n 3891)."
+ },
+ "PAUSA_S03_ANIO_PAUSA": {
+  "valor": 0.98,
+  "dist": {
+   "p10": -24.343,
+   "p25": 0.657,
+   "p50": 0.657,
+   "p75": 25.657,
+   "p90": 25.657
+  },
+  "unidad": "puntos de salud autorreportada (0-100)",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 8397,
+  "n_tratados": 415,
+  "ee_o_ic": {
+   "ee": 1.3291,
+   "ic95": [
+    -1.6276,
+    3.5827
+   ]
+  },
+  "estado": "dato",
+  "nota": "Efectos fijos de persona y de ola, 18-60 años, EE agrupados por persona, sin ponderar. Pausa = ocupado en la ola anterior e inactivo no jubilado (m02 4 solo estudia, 7 quehaceres, 9 otra; m02=5 jubilado, edad media 69, excluido). 415 pausas, 294 de ellas a quehaceres del hogar: ELSOC no dice si la salida fue voluntaria, así que esto es 'dejar de trabajar', no un sabático elegido. Control: personas ocupadas en todas sus olas. Referencia: ola anterior a la pausa. Pre-tendencia (2+ olas antes): -0.2064 (ee 1.3545). Diferencia simple de cambios individuales (ponderada): pausa 2.301 (n 440) contra sigue ocupado -0.657 (n 6279). Incluyendo m02=8 (enfermo): 0.6087 (ee 1.2593). dist: percentiles del cambio individual de quien pausa menos la media del control; la escala 1-5 hace que los saltos sean de 25 puntos."
+ },
+ "PAUSA_S03_ANIO_SIGUIENTE_SI_VUELVE": {
+  "valor": -1.74,
+  "dist": {
+   "p10": -49.212,
+   "p25": -24.212,
+   "p50": 0.788,
+   "p75": 25.788,
+   "p90": 25.788
+  },
+  "unidad": "puntos de salud autorreportada (0-100)",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 8397,
+  "n_tratados": 131,
+  "ee_o_ic": {
+   "ee": 2.1153,
+   "ic95": [
+    -5.8886,
+    2.4033
+   ]
+  },
+  "estado": "dato",
+  "nota": "Efectos fijos de persona y de ola, 18-60 años, EE agrupados por persona, sin ponderar. Pausa = ocupado en la ola anterior e inactivo no jubilado (m02 4 solo estudia, 7 quehaceres, 9 otra; m02=5 jubilado, edad media 69, excluido). 415 pausas, 294 de ellas a quehaceres del hogar: ELSOC no dice si la salida fue voluntaria, así que esto es 'dejar de trabajar', no un sabático elegido. Control: personas ocupadas en todas sus olas. Referencia: ola anterior a la pausa. Ola siguiente a la pausa y de nuevo ocupado, contra la ola anterior a la pausa. Si sigue sin trabajar: -0.4895 (ee 1.9567). Diferencia simple (vuelve menos dos olas antes): 0.426 (n 147) contra siempre ocupado -0.788 (n 3894)."
+ },
+ "PAUSA_DEP_MOD_ANIO_PAUSA": {
+  "valor": -0.0121,
+  "dist": {
+   "p10": -1.01,
+   "p25": -0.01,
+   "p50": -0.01,
+   "p75": -0.01,
+   "p90": 0.99
+  },
+  "unidad": "cambio en probabilidad de PHQ-9 >= 10",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 7129,
+  "n_tratados": 336,
+  "ee_o_ic": {
+   "ee": 0.0326,
+   "ic95": [
+    -0.0761,
+    0.0518
+   ]
+  },
+  "estado": "dato",
+  "nota": "Efectos fijos de persona y de ola, 18-60 años, EE agrupados por persona, sin ponderar. Pausa = ocupado en la ola anterior e inactivo no jubilado (m02 4 solo estudia, 7 quehaceres, 9 otra; m02=5 jubilado, edad media 69, excluido). 415 pausas, 294 de ellas a quehaceres del hogar: ELSOC no dice si la salida fue voluntaria, así que esto es 'dejar de trabajar', no un sabático elegido. Control: personas ocupadas en todas sus olas. Referencia: ola anterior a la pausa. Pre-tendencia (2+ olas antes): -0.0416 (ee 0.0325). Diferencia simple de cambios individuales (ponderada): pausa -0.017 (n 319) contra sigue ocupado 0.01 (n 4768). Incluyendo m02=8 (enfermo): -0.0009 (ee 0.0319). dist: percentiles del cambio individual de quien pausa menos la media del control; la escala 1-5 hace que los saltos sean de 25 puntos."
+ },
+ "PAUSA_DEP_MOD_ANIO_SIGUIENTE_SI_VUELVE": {
+  "valor": -0.0052,
+  "dist": {
+   "p10": -0.979,
+   "p25": 0.021,
+   "p50": 0.021,
+   "p75": 0.021,
+   "p90": 1.021
+  },
+  "unidad": "cambio en probabilidad de PHQ-9 >= 10",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 7129,
+  "n_tratados": 112,
+  "ee_o_ic": {
+   "ee": 0.0456,
+   "ic95": [
+    -0.0946,
+    0.0842
+   ]
+  },
+  "estado": "dato",
+  "nota": "Efectos fijos de persona y de ola, 18-60 años, EE agrupados por persona, sin ponderar. Pausa = ocupado en la ola anterior e inactivo no jubilado (m02 4 solo estudia, 7 quehaceres, 9 otra; m02=5 jubilado, edad media 69, excluido). 415 pausas, 294 de ellas a quehaceres del hogar: ELSOC no dice si la salida fue voluntaria, así que esto es 'dejar de trabajar', no un sabático elegido. Control: personas ocupadas en todas sus olas. Referencia: ola anterior a la pausa. Ola siguiente a la pausa y de nuevo ocupado, contra la ola anterior a la pausa. Si sigue sin trabajar: -0.0294 (ee 0.0431). Diferencia simple (vuelve menos dos olas antes): -0.042 (n 114) contra siempre ocupado -0.021 (n 2975)."
+ },
+ "PAUSA_ESTADO_OLA_SIGUIENTE": {
+  "valor": {
+   "O": 0.562,
+   "D": 0.071,
+   "P": 0.335,
+   "J": 0.018,
+   "E": 0.013
+  },
+  "dist": null,
+  "unidad": "proporción en la ola siguiente (O ocupado, D desocupado, P sigue inactivo, J jubilado, E enfermo)",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 315,
+  "ee_o_ic": null,
+  "estado": "dato",
+  "nota": "Ponderado con ponderador02. Entre olas hay 1 año, salvo 2019-2021."
+ },
+ "HORAS_55_S01": {
+  "valor": -0.77,
+  "dist": {
+   "p10": -26.959,
+   "p25": -26.959,
+   "p50": -1.959,
+   "p75": 23.041,
+   "p90": 48.041
+  },
+  "unidad": "puntos de satisfacción con la vida (0-100)",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 3836,
+  "n_tratados": 399,
+  "ee_o_ic": {
+   "ee": 2.1349,
+   "ic95": [
+    -4.9546,
+    3.4142
+   ]
+  },
+  "estado": "dato",
+  "nota": "55+ horas (m12) contra 40-45 (n_tratados = observaciones en 55+), efectos fijos de persona y ola, ocupados 18-60 con horas en 2016, 2018, 2021. Diferencia simple de quienes pasan de 40-45 a 55+ contra quienes siguen en 40-45: 0.303 (IC95 [-7.775, 8.381], n 95 contra 884). dist: cambio individual de quien pasa a 55+ menos la media del control."
+ },
+ "BAJAR_DE_45_A_MENOS_40H_S01": {
+  "valor": -1.717,
+  "dist": {
+   "p10": -26.7,
+   "p25": -26.7,
+   "p50": -1.7,
+   "p75": -1.7,
+   "p90": 23.3
+  },
+  "unidad": "puntos de satisfacción con la vida (0-100)",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 1285,
+  "n_tratados": 184,
+  "ee_o_ic": {
+   "ee": 3.134,
+   "ic95": [
+    -7.859,
+    4.425
+   ]
+  },
+  "estado": "dato",
+  "nota": "Diferencia simple ponderada del cambio individual: de 45+ horas a menos de 40 contra quienes siguen en 45+ (pares 2016-18 y 2018-21). En efectos fijos, 30-39 horas contra 40-45: -3.1449 (ee 2.2406); menos de 30: -0.6298 (ee 2.1146)."
+ },
+ "HORAS_55_S03": {
+  "valor": -1.49,
+  "dist": {
+   "p10": -51.3,
+   "p25": -26.3,
+   "p50": -1.3,
+   "p75": -1.3,
+   "p90": 23.7
+  },
+  "unidad": "puntos de salud autorreportada (0-100)",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 3840,
+  "n_tratados": 399,
+  "ee_o_ic": {
+   "ee": 1.9724,
+   "ic95": [
+    -5.3578,
+    2.374
+   ]
+  },
+  "estado": "dato",
+  "nota": "55+ horas (m12) contra 40-45 (n_tratados = observaciones en 55+), efectos fijos de persona y ola, ocupados 18-60 con horas en 2016, 2018, 2021. Diferencia simple de quienes pasan de 40-45 a 55+ contra quienes siguen en 40-45: -4.878 (IC95 [-12.587, 2.831], n 95 contra 887). dist: cambio individual de quien pasa a 55+ menos la media del control."
+ },
+ "BAJAR_DE_45_A_MENOS_40H_S03": {
+  "valor": -2.994,
+  "dist": {
+   "p10": -49.282,
+   "p25": -24.282,
+   "p50": 0.718,
+   "p75": 0.718,
+   "p90": 25.718
+  },
+  "unidad": "puntos de salud autorreportada (0-100)",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 1284,
+  "n_tratados": 184,
+  "ee_o_ic": {
+   "ee": 3.124,
+   "ic95": [
+    -9.118,
+    3.13
+   ]
+  },
+  "estado": "dato",
+  "nota": "Diferencia simple ponderada del cambio individual: de 45+ horas a menos de 40 contra quienes siguen en 45+ (pares 2016-18 y 2018-21). En efectos fijos, 30-39 horas contra 40-45: -3.5784 (ee 1.9643); menos de 30: -1.8428 (ee 1.9675)."
+ },
+ "HORAS_55_DEP_MOD": {
+  "valor": -0.0097,
+  "dist": {
+   "p10": -0.972,
+   "p25": 0.028,
+   "p50": 0.028,
+   "p75": 0.028,
+   "p90": 0.028
+  },
+  "unidad": "cambio en probabilidad de PHQ-9 >= 10",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 3102,
+  "n_tratados": 318,
+  "ee_o_ic": {
+   "ee": 0.0366,
+   "ic95": [
+    -0.0815,
+    0.0621
+   ]
+  },
+  "estado": "dato",
+  "nota": "55+ horas (m12) contra 40-45 (n_tratados = observaciones en 55+), efectos fijos de persona y ola, ocupados 18-60 con horas en 2016, 2018, 2021. Diferencia simple de quienes pasan de 40-45 a 55+ contra quienes siguen en 40-45: -0.107 (IC95 [-0.294, 0.08], n 70 contra 687). dist: cambio individual de quien pasa a 55+ menos la media del control."
+ },
+ "BAJAR_DE_45_A_MENOS_40H_DEP_MOD": {
+  "valor": 0.087,
+  "dist": {
+   "p10": 0.019,
+   "p25": 0.019,
+   "p50": 0.019,
+   "p75": 0.019,
+   "p90": 1.019
+  },
+  "unidad": "cambio en probabilidad de PHQ-9 >= 10",
+  "fuente": "ELSOC 2016-2022 (COES), ELSOC_Wide_2016_2022_v1.00.tab",
+  "script": "scripts/modelo/beneficios_elsoc.py",
+  "n": 1004,
+  "n_tratados": 144,
+  "ee_o_ic": {
+   "ee": 0.067,
+   "ic95": [
+    -0.044,
+    0.218
+   ]
+  },
+  "estado": "dato",
+  "nota": "Diferencia simple ponderada del cambio individual: de 45+ horas a menos de 40 contra quienes siguen en 45+ (pares 2016-18 y 2018-21). En efectos fijos, 30-39 horas contra 40-45: 0.0209 (ee 0.034); menos de 30: 0.0411 (ee 0.0378)."
+ },
+ "sin_dato": {
+  "INGRESO_55H_PUBLICO": "Solo 25 asalariados públicos pasan de 40-49 a 55+ horas con el mismo empleador (mínimo usado: 30).",
+  "INGRESO_BAJAR_RITMO_PUBLICO": "Solo 3 asalariados públicos bajan de 45+ a menos de 40 horas con el mismo empleador.",
+  "INGRESO_HORAS_LARGAS_MAS_DE_UN_ANIO": "El panel ESI enlaza a cada persona solo dos olas seguidas; no hay forma de ver si las horas largas pagan a los 2-3 años.",
+  "INGRESO_HORAS_INDEPENDIENTES": "No se estimó para cuenta propia: el pedido es sobre asalariados con el mismo empleador.",
+  "PAUSA_VOLUNTARIA_VS_INVOLUNTARIA": "ELSOC no pregunta por qué se dejó de trabajar. 294 de 415 pausas son a quehaceres del hogar; solo 70 a estudiar y 51 a 'otra', muy pocas para estimar un sabático elegido por separado.",
+  "PAUSA_SUELDO_AL_VOLVER": "Ni la ESI (dos olas) ni ELSOC (m13 ingreso con muchos faltantes; no se intentó) permiten medirlo aquí. El valor de EPS ya está en modelo_paneles.md (CICATRIZ_PAUSA_VS_DESPIDO).",
+  "PAUSA_EN_ESI": "La ESI enlaza solo dos olas: no se puede ver ocupado -> inactivo -> ocupado."
+ }
+}

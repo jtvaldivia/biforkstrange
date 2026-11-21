@@ -1,0 +1,1519 @@
+{
+ "meta": {
+  "generado": "2026-11-21",
+  "autor": "agente de datos INE",
+  "scripts": "datos_laborales/scripts/ine/",
+  "descargas_en": "scratchpad/ine (no versionadas)"
+ },
+ "1_uso_del_tiempo_ENUT_2023": {
+  "fuente": "INE, II Encuesta Nacional de Uso del Tiempo 2023 (II ENUT), base Stata v2 (250403). Solo zonas urbanas.",
+  "unidades": "horas por día tipo ((5·lunes-viernes + 2·fin de semana)/7), promedio poblacional: quien no hizo la actividad cuenta 0",
+  "ponderador": "fe_cut (respondientes del cuestionario de uso del tiempo)",
+  "a_no_remunerado_18_50": {
+   "definicion_hijos": "hijos propios en el hogar (el niño declara a la persona como madre o padre, c9b/c10b)",
+   "tabla": [
+    {
+     "sexo": "hombre",
+     "hijos": "con_hijo_0_4",
+     "n": 834,
+     "domestico_h": 1.94,
+     "cuidados_h": 2.28,
+     "no_remunerado_total_h": 4.34,
+     "remunerado_h": 5.88,
+     "carga_global_h": 10.22,
+     "vida_social_ocio_h": 2.87
+    },
+    {
+     "sexo": "hombre",
+     "hijos": "con_hijos_5_14_sin_0_4",
+     "n": 1171,
+     "domestico_h": 2.33,
+     "cuidados_h": 1.34,
+     "no_remunerado_total_h": 3.8,
+     "remunerado_h": 5.9,
+     "carga_global_h": 9.7,
+     "vida_social_ocio_h": 2.77
+    },
+    {
+     "sexo": "hombre",
+     "hijos": "sin_hijos_menores_15",
+     "n": 4172,
+     "domestico_h": 2.11,
+     "cuidados_h": 0.15,
+     "no_remunerado_total_h": 2.52,
+     "remunerado_h": 4.43,
+     "carga_global_h": 6.95,
+     "vida_social_ocio_h": 3.72
+    },
+    {
+     "sexo": "mujer",
+     "hijos": "con_hijo_0_4",
+     "n": 1578,
+     "domestico_h": 3.91,
+     "cuidados_h": 4.45,
+     "no_remunerado_total_h": 8.57,
+     "remunerado_h": 2.59,
+     "carga_global_h": 11.17,
+     "vida_social_ocio_h": 2.32
+    },
+    {
+     "sexo": "mujer",
+     "hijos": "con_hijos_5_14_sin_0_4",
+     "n": 2826,
+     "domestico_h": 4.1,
+     "cuidados_h": 1.68,
+     "no_remunerado_total_h": 6.06,
+     "remunerado_h": 3.74,
+     "carga_global_h": 9.8,
+     "vida_social_ocio_h": 2.4
+    },
+    {
+     "sexo": "mujer",
+     "hijos": "sin_hijos_menores_15",
+     "n": 4118,
+     "domestico_h": 2.94,
+     "cuidados_h": 0.28,
+     "no_remunerado_total_h": 3.56,
+     "remunerado_h": 3.31,
+     "carga_global_h": 6.88,
+     "vida_social_ocio_h": 3.32
+    },
+    {
+     "sexo": "hombre",
+     "hijos": "todos",
+     "n": 6177,
+     "domestico_h": 2.13,
+     "cuidados_h": 0.65,
+     "no_remunerado_total_h": 3.0,
+     "remunerado_h": 4.89,
+     "carga_global_h": 7.88,
+     "vida_social_ocio_h": 3.44
+    },
+    {
+     "sexo": "mujer",
+     "hijos": "todos",
+     "n": 8522,
+     "domestico_h": 3.47,
+     "cuidados_h": 1.52,
+     "no_remunerado_total_h": 5.29,
+     "remunerado_h": 3.3,
+     "carga_global_h": 8.59,
+     "vida_social_ocio_h": 2.85
+    }
+   ]
+  },
+  "b_ocio_segun_horas_ocupados_18_50": [
+   {
+    "tramo_horas_semana": "<30",
+    "n": 1808,
+    "horas_semana_media": 16.5,
+    "vida_social_ocio_h": 3.56,
+    "convivencia_social_recreacion_h": 2.49,
+    "conversar_compartir_familia_amigos_lunes_viernes_h": 1.99,
+    "conversar_compartir_familia_amigos_fin_semana_h": 3.41,
+    "medios_comunicacion_h": 3.67,
+    "no_remunerado_h": 5.28,
+    "p_se_junto_con_amigos_o_familia_no_conviviente_lunes_viernes": 0.382,
+    "p_se_junto_con_amigos_o_familia_no_conviviente_fin_semana": 0.515,
+    "p_compartio_con_familia_amigos_fin_semana": 0.787
+   },
+   {
+    "tramo_horas_semana": "30-44",
+    "n": 3411,
+    "horas_semana_media": 38.6,
+    "vida_social_ocio_h": 2.99,
+    "convivencia_social_recreacion_h": 2.21,
+    "conversar_compartir_familia_amigos_lunes_viernes_h": 1.65,
+    "conversar_compartir_familia_amigos_fin_semana_h": 3.38,
+    "medios_comunicacion_h": 3.43,
+    "no_remunerado_h": 4.02,
+    "p_se_junto_con_amigos_o_familia_no_conviviente_lunes_viernes": 0.32,
+    "p_se_junto_con_amigos_o_familia_no_conviviente_fin_semana": 0.487,
+    "p_compartio_con_familia_amigos_fin_semana": 0.783
+   },
+   {
+    "tramo_horas_semana": "45-54",
+    "n": 4169,
+    "horas_semana_media": 46.5,
+    "vida_social_ocio_h": 2.87,
+    "convivencia_social_recreacion_h": 2.11,
+    "conversar_compartir_familia_amigos_lunes_viernes_h": 1.57,
+    "conversar_compartir_familia_amigos_fin_semana_h": 3.24,
+    "medios_comunicacion_h": 3.22,
+    "no_remunerado_h": 3.67,
+    "p_se_junto_con_amigos_o_familia_no_conviviente_lunes_viernes": 0.28,
+    "p_se_junto_con_amigos_o_familia_no_conviviente_fin_semana": 0.448,
+    "p_compartio_con_familia_amigos_fin_semana": 0.754
+   },
+   {
+    "tramo_horas_semana": "55+",
+    "n": 989,
+    "horas_semana_media": 67.5,
+    "vida_social_ocio_h": 2.53,
+    "convivencia_social_recreacion_h": 1.9,
+    "conversar_compartir_familia_amigos_lunes_viernes_h": 1.5,
+    "conversar_compartir_familia_amigos_fin_semana_h": 2.78,
+    "medios_comunicacion_h": 3.13,
+    "no_remunerado_h": 3.52,
+    "p_se_junto_con_amigos_o_familia_no_conviviente_lunes_viernes": 0.27,
+    "p_se_junto_con_amigos_o_familia_no_conviviente_fin_semana": 0.412,
+    "p_compartio_con_familia_amigos_fin_semana": 0.689
+   }
+  ],
+  "b_regresion_wls": {
+   "muestra": "ocupados 18-50 con 10-90 horas habituales",
+   "controles": "sexo, edad, edad², hijos<15, hijos<5",
+   "resultados": {
+    "t_vsyo_dt": {
+     "min_dia_por_hora_semanal_extra": -1.4,
+     "ee_min": 0.19,
+     "n": 9997,
+     "media_h_ocupados_40_50h": 2.92,
+     "cambio_pct_por_hora_extra": -0.8
+    },
+    "t_vsyo_csar_dt": {
+     "min_dia_por_hora_semanal_extra": -0.78,
+     "ee_min": 0.15,
+     "n": 9997,
+     "media_h_ocupados_40_50h": 2.17,
+     "cambio_pct_por_hora_extra": -0.6
+    },
+    "vs1_t_ds": {
+     "min_dia_por_hora_semanal_extra": -0.66,
+     "ee_min": 0.15,
+     "n": 9997,
+     "media_h_ocupados_40_50h": 1.61,
+     "cambio_pct_por_hora_extra": -0.68
+    },
+    "vs1_t_fds": {
+     "min_dia_por_hora_semanal_extra": -0.84,
+     "ee_min": 0.24,
+     "n": 9997,
+     "media_h_ocupados_40_50h": 3.32,
+     "cambio_pct_por_hora_extra": -0.42
+    },
+    "t_tnr_dt": {
+     "min_dia_por_hora_semanal_extra": -1.72,
+     "ee_min": 0.24,
+     "n": 9997,
+     "media_h_ocupados_40_50h": 3.7,
+     "cambio_pct_por_hora_extra": -0.77
+    },
+    "p_juntarse_fin_semana": {
+     "puntos_por_hora_semanal_extra": -0.225,
+     "ee": 0.055,
+     "n": 9972,
+     "p_ocupados_40_50h": 0.465,
+     "cambio_pct_por_hora_extra": -0.48
+    }
+   },
+   "nota": "error estándar HC1 con pesos, ignora estratos y conglomerados (subestima algo el error)"
+  }
+ },
+ "2_fecundidad_2023_2024": {
+  "fuente": "INE, Anuario de estadísticas vitales 2023 (cuadros 1.2.2.1-41 y 1.2.2.1-04) y cifras provisionales 2024 (cuadro 15); población base 2024",
+  "anio": 2023,
+  "nacidos_vivos": 173911,
+  "tef_por_mil_mujeres_2023_calculada": {
+   "15-19": 10.7,
+   "20-24": 43.7,
+   "25-29": 61.2,
+   "30-34": 62.5,
+   "35-39": 43.7,
+   "40-44": 12.8,
+   "45-49": 0.9
+  },
+  "tgf_2023_calculada": 1.175,
+  "tgf_2023_publicada_INE": 1.16,
+  "nota_tgf": "El INE publica 1,16 para 2023 con nacidos vivos corregidos por inscripción tardía y población base 2017; con población base 2024 y sin corrección da el valor calculado",
+  "edad_media_de_la_madre_2023": 30.15,
+  "edad_media_al_primer_hijo_2023_cruda": 28.21,
+  "edad_media_al_primer_hijo_2023_estandarizada": 27.85,
+  "edad_media_al_segundo_hijo_2023": 31.47,
+  "nota_edades": "con marcas de clase de grupos quinquenales (orden de nacimiento solo viene agrupado)",
+  "proporcion_nacimientos_primer_hijo": 0.479,
+  "tasa_primeros_hijos_por_mil_mujeres_2023": {
+   "15-19": 10.2,
+   "20-24": 33.2,
+   "25-29": 31.2,
+   "30-34": 23.7,
+   "35-39": 13.1,
+   "40-44": 3.4,
+   "45-49": 0.4
+  },
+  "tgf_de_primer_orden_2023": 0.576,
+  "tef_por_mil_2024p_publicada": {
+   "15-19 años": 9.3,
+   "20-24 años": 38.5,
+   "25-29 años": 53.4,
+   "30-34 años": 54.6,
+   "35-39 años": 38.7,
+   "40-44 años": 11.3,
+   "45-49 años": 0.8
+  },
+  "tgf_2024p_publicada": 1.03,
+  "proyeccion_base_2024": {
+   "tgf": {
+    "2023": 1.18,
+    "2024": 1.06,
+    "2025": 0.97,
+    "2030": 0.86,
+    "2040": 0.83,
+    "2050": 1
+   },
+   "edad_media_fecundidad": {
+    "2023": 29,
+    "2024": 29,
+    "2025": 29,
+    "2030": 29.3,
+    "2040": 29.8,
+    "2050": 30.3
+   }
+  }
+ },
+ "2b_nupcialidad_2023": {
+  "fuente": "INE, Anuario de estadísticas vitales 2023, matrimonios y AUC (cuadros 1.2.2.4-21a/b, 1.2.2.4-23, 1.2.2.5-03a, 1.2.2.5-23); población base 2024",
+  "anio": 2023,
+  "tasa_bruta_nupcialidad_por_mil": 3.229,
+  "tasa_bruta_auc_por_10mil": 5.9,
+  "tasa_bruta_nupcialidad_2024p": 3.0,
+  "tasa_bruta_auc_2024p_por_10mil": 8.1,
+  "matrimonios_por_mil_personas_por_edad": {
+   "Mujeres": {
+    "18-19": {
+     "personas": 546,
+     "por_mil": 2.25
+    },
+    "20-24": {
+     "personas": 4923,
+     "por_mil": 7.46
+    },
+    "25-29": {
+     "personas": 12513,
+     "por_mil": 16.71
+    },
+    "30-34": {
+     "personas": 15813,
+     "por_mil": 19.36
+    },
+    "35-39": {
+     "personas": 10299,
+     "por_mil": 14.07
+    },
+    "40-44": {
+     "personas": 6548,
+     "por_mil": 9.48
+    },
+    "45-49": {
+     "personas": 4696,
+     "por_mil": 7.26
+    },
+    "50-54": {
+     "personas": 3564,
+     "por_mil": 5.5
+    },
+    "55-59": {
+     "personas": 2530,
+     "por_mil": 3.94
+    },
+    "60-64": {
+     "personas": 1721,
+     "por_mil": 2.89
+    },
+    "65-69": {
+     "personas": 905,
+     "por_mil": 1.9
+    },
+    "70-74": {
+     "personas": 470,
+     "por_mil": 1.28
+    },
+    "75+": {
+     "personas": 284,
+     "por_mil": 0.44
+    },
+    "total_personas": 64814
+   },
+   "Hombres": {
+    "18-19": {
+     "personas": 209,
+     "por_mil": 0.83
+    },
+    "20-24": {
+     "personas": 3138,
+     "por_mil": 4.6
+    },
+    "25-29": {
+     "personas": 10011,
+     "por_mil": 12.97
+    },
+    "30-34": {
+     "personas": 14690,
+     "por_mil": 17.54
+    },
+    "35-39": {
+     "personas": 11137,
+     "por_mil": 14.98
+    },
+    "40-44": {
+     "personas": 7368,
+     "por_mil": 10.64
+    },
+    "45-49": {
+     "personas": 4967,
+     "por_mil": 7.81
+    },
+    "50-54": {
+     "personas": 3904,
+     "por_mil": 6.3
+    },
+    "55-59": {
+     "personas": 3080,
+     "por_mil": 5.19
+    },
+    "60-64": {
+     "personas": 2309,
+     "por_mil": 4.3
+    },
+    "65-69": {
+     "personas": 1612,
+     "por_mil": 3.86
+    },
+    "70-74": {
+     "personas": 870,
+     "por_mil": 2.8
+    },
+    "75+": {
+     "personas": 771,
+     "por_mil": 1.75
+    },
+    "total_personas": 64066
+   }
+  },
+  "auc_por_mil_personas_por_edad_ambos_sexos": {
+   "18-19": 0.39,
+   "20-24": 1.6,
+   "25-29": 3.58,
+   "30-34": 3.48,
+   "35-39": 2.46,
+   "40-44": 1.65,
+   "45-49": 1.17,
+   "50-54": 0.82,
+   "55-59": 0.54,
+   "60-64": 0.4,
+   "65-69": 0.25,
+   "70-74": 0.13
+  },
+  "auc_total_2023": 11750,
+  "edad_promedio_matrimonio_distinto_sexo": {
+   "hombre": 39.3806690254101,
+   "mujer": 36.95889221267973
+  },
+  "edad_mediana_matrimonio_distinto_sexo": {
+   "hombre": 36,
+   "mujer": 34
+  },
+  "edad_promedio_auc_distinto_sexo": {
+   "hombre": 36.2875,
+   "mujer": 34.26310878895316
+  },
+  "edad_mediana_auc_distinto_sexo": {
+   "hombre": 34,
+   "mujer": 32
+  },
+  "nota": "las tasas por edad incluyen segundas nupcias; no distinguen primer matrimonio"
+ },
+ "fuente_poblacion": "INE, Estimaciones y proyecciones de población 1992-2070, base 2024 (población al 30 de junio)",
+ "3_mortalidad": {
+  "fuente": "INE, Tablas de mortalidad de Chile 1992-2050 (proyecciones base 2017), total país, edad simple",
+  "url": "http://www.ine.gob.cl/docs/default-source/proyecciones-de-poblacion/cuadros-estadisticos/base-2017/tablas-de-mortalidad-de-chile-1992-2050.xlsx",
+  "2025": {
+   "Hombre": {
+    "qx": {
+     "50": 0.0036,
+     "60": 0.00803,
+     "70": 0.01994,
+     "80": 0.05102,
+     "90": 0.124
+    },
+    "e0": 79.1,
+    "e50": 31.88,
+    "gompertz_50_95": {
+     "a": -10.2053,
+     "b": 0.09016,
+     "error_rel_max": 0.067
+    }
+   },
+   "Mujer": {
+    "qx": {
+     "50": 0.00193,
+     "60": 0.00443,
+     "70": 0.01193,
+     "80": 0.034,
+     "90": 0.09904
+    },
+    "e0": 84.47,
+    "e50": 36.09,
+    "gompertz_50_95": {
+     "a": -11.4101,
+     "b": 0.10043,
+     "error_rel_max": 0.127
+    }
+   },
+   "promedio_simple_hombre_mujer": {
+    "qx": {
+     "50": 0.00276,
+     "60": 0.00623,
+     "70": 0.01594,
+     "80": 0.04251,
+     "90": 0.11152
+    },
+    "gompertz_50_95": {
+     "a": -10.7,
+     "b": 0.09421,
+     "error_rel_max": 0.093
+    }
+   }
+  },
+  "2040": {
+   "Hombre": {
+    "qx": {
+     "50": 0.00286,
+     "60": 0.00639,
+     "70": 0.01592,
+     "80": 0.04102,
+     "90": 0.10069
+    },
+    "e0": 81.73,
+    "e50": 34.09,
+    "gompertz_50_95": {
+     "a": -10.4681,
+     "b": 0.09074,
+     "error_rel_max": 0.072
+    }
+   },
+   "Mujer": {
+    "qx": {
+     "50": 0.00155,
+     "60": 0.00356,
+     "70": 0.00963,
+     "80": 0.02779,
+     "90": 0.08174
+    },
+    "e0": 86.63,
+    "e50": 38.02,
+    "gompertz_50_95": {
+     "a": -11.6777,
+     "b": 0.10126,
+     "error_rel_max": 0.134
+    }
+   },
+   "promedio_simple_hombre_mujer": {
+    "qx": {
+     "50": 0.0022,
+     "60": 0.00498,
+     "70": 0.01278,
+     "80": 0.0344,
+     "90": 0.09121
+    },
+    "gompertz_50_95": {
+     "a": -10.967,
+     "b": 0.09492,
+     "error_rel_max": 0.099
+    }
+   }
+  },
+  "metodo": "MCO de ln q(x) sobre x, edades simples 50 a 95; q(x) = exp(a + b·x)",
+  "motor_actual": {
+   "a": -10.2,
+   "b": 0.094,
+   "qx": {
+    "50": 0.00409,
+    "60": 0.01046,
+    "70": 0.02678,
+    "80": 0.06856,
+    "90": 0.17552
+   }
+  }
+ },
+ "4_ENE_OND_2025": {
+  "fuente": "INE, Encuesta Nacional de Empleo, trimestre octubre-diciembre 2025, tomada de la base de la ESI 2025 (misma muestra, variables ENE: activ, tpi, ocup_form, habituales, e6_mes, e6_ano)",
+  "ponderador": "fact_cal (factor de expansión ENE)",
+  "n_personas_15_mas": 78660,
+  "ocupados_por_sexo_y_edad": [
+   {
+    "sexo": "hombre",
+    "tramo": "15-17",
+    "n_ocupados": 35,
+    "p_tiempo_parcial": 0.5909,
+    "p_parcial_involuntario_sobre_ocupados": 0.2373,
+    "p_parcial_involuntario_sobre_parciales": 0.4015,
+    "tasa_informalidad": 0.839
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "18-24",
+    "n_ocupados": 1615,
+    "p_tiempo_parcial": 0.2967,
+    "p_parcial_involuntario_sobre_ocupados": 0.0958,
+    "p_parcial_involuntario_sobre_parciales": 0.3249,
+    "tasa_informalidad": 0.3311
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "25-29",
+    "n_ocupados": 2098,
+    "p_tiempo_parcial": 0.1441,
+    "p_parcial_involuntario_sobre_ocupados": 0.0598,
+    "p_parcial_involuntario_sobre_parciales": 0.4165,
+    "tasa_informalidad": 0.2307
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "30-34",
+    "n_ocupados": 2429,
+    "p_tiempo_parcial": 0.1056,
+    "p_parcial_involuntario_sobre_ocupados": 0.0393,
+    "p_parcial_involuntario_sobre_parciales": 0.3734,
+    "tasa_informalidad": 0.1853
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "35-44",
+    "n_ocupados": 4699,
+    "p_tiempo_parcial": 0.1173,
+    "p_parcial_involuntario_sobre_ocupados": 0.0457,
+    "p_parcial_involuntario_sobre_parciales": 0.3912,
+    "tasa_informalidad": 0.198
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "45-54",
+    "n_ocupados": 4489,
+    "p_tiempo_parcial": 0.1183,
+    "p_parcial_involuntario_sobre_ocupados": 0.0439,
+    "p_parcial_involuntario_sobre_parciales": 0.3723,
+    "tasa_informalidad": 0.231
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "55-64",
+    "n_ocupados": 4601,
+    "p_tiempo_parcial": 0.1567,
+    "p_parcial_involuntario_sobre_ocupados": 0.0501,
+    "p_parcial_involuntario_sobre_parciales": 0.3208,
+    "tasa_informalidad": 0.2741
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "65+",
+    "n_ocupados": 2380,
+    "p_tiempo_parcial": 0.3116,
+    "p_parcial_involuntario_sobre_ocupados": 0.0619,
+    "p_parcial_involuntario_sobre_parciales": 0.1995,
+    "tasa_informalidad": 0.5474
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "15-17",
+    "n_ocupados": 24,
+    "p_tiempo_parcial": 0.6679,
+    "p_parcial_involuntario_sobre_ocupados": 0.1439,
+    "p_parcial_involuntario_sobre_parciales": 0.2155,
+    "tasa_informalidad": 0.9118
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "18-24",
+    "n_ocupados": 1088,
+    "p_tiempo_parcial": 0.4709,
+    "p_parcial_involuntario_sobre_ocupados": 0.1313,
+    "p_parcial_involuntario_sobre_parciales": 0.2798,
+    "tasa_informalidad": 0.4036
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "25-29",
+    "n_ocupados": 1869,
+    "p_tiempo_parcial": 0.2249,
+    "p_parcial_involuntario_sobre_ocupados": 0.0855,
+    "p_parcial_involuntario_sobre_parciales": 0.3809,
+    "tasa_informalidad": 0.2414
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "30-34",
+    "n_ocupados": 2181,
+    "p_tiempo_parcial": 0.2092,
+    "p_parcial_involuntario_sobre_ocupados": 0.0576,
+    "p_parcial_involuntario_sobre_parciales": 0.2766,
+    "tasa_informalidad": 0.233
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "35-44",
+    "n_ocupados": 4520,
+    "p_tiempo_parcial": 0.226,
+    "p_parcial_involuntario_sobre_ocupados": 0.0711,
+    "p_parcial_involuntario_sobre_parciales": 0.3157,
+    "tasa_informalidad": 0.2371
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "45-54",
+    "n_ocupados": 4306,
+    "p_tiempo_parcial": 0.2514,
+    "p_parcial_involuntario_sobre_ocupados": 0.0873,
+    "p_parcial_involuntario_sobre_parciales": 0.3483,
+    "tasa_informalidad": 0.249
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "55-64",
+    "n_ocupados": 3408,
+    "p_tiempo_parcial": 0.3051,
+    "p_parcial_involuntario_sobre_ocupados": 0.0799,
+    "p_parcial_involuntario_sobre_parciales": 0.2629,
+    "tasa_informalidad": 0.3457
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "65+",
+    "n_ocupados": 1204,
+    "p_tiempo_parcial": 0.4906,
+    "p_parcial_involuntario_sobre_ocupados": 0.0718,
+    "p_parcial_involuntario_sobre_parciales": 0.1465,
+    "tasa_informalidad": 0.645
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "15-17",
+    "n_ocupados": 59,
+    "p_tiempo_parcial": 0.6232,
+    "p_parcial_involuntario_sobre_ocupados": 0.1981,
+    "p_parcial_involuntario_sobre_parciales": 0.3179,
+    "tasa_informalidad": 0.8695
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "18-24",
+    "n_ocupados": 2703,
+    "p_tiempo_parcial": 0.3687,
+    "p_parcial_involuntario_sobre_ocupados": 0.1105,
+    "p_parcial_involuntario_sobre_parciales": 0.3011,
+    "tasa_informalidad": 0.361
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "25-29",
+    "n_ocupados": 3967,
+    "p_tiempo_parcial": 0.1818,
+    "p_parcial_involuntario_sobre_ocupados": 0.0718,
+    "p_parcial_involuntario_sobre_parciales": 0.3959,
+    "tasa_informalidad": 0.2357
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "30-34",
+    "n_ocupados": 4610,
+    "p_tiempo_parcial": 0.1524,
+    "p_parcial_involuntario_sobre_ocupados": 0.0476,
+    "p_parcial_involuntario_sobre_parciales": 0.3134,
+    "tasa_informalidad": 0.2068
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "35-44",
+    "n_ocupados": 9219,
+    "p_tiempo_parcial": 0.1659,
+    "p_parcial_involuntario_sobre_ocupados": 0.0571,
+    "p_parcial_involuntario_sobre_parciales": 0.3452,
+    "tasa_informalidad": 0.2155
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "45-54",
+    "n_ocupados": 8795,
+    "p_tiempo_parcial": 0.1775,
+    "p_parcial_involuntario_sobre_ocupados": 0.0632,
+    "p_parcial_involuntario_sobre_parciales": 0.3572,
+    "tasa_informalidad": 0.239
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "55-64",
+    "n_ocupados": 8009,
+    "p_tiempo_parcial": 0.2167,
+    "p_parcial_involuntario_sobre_ocupados": 0.0622,
+    "p_parcial_involuntario_sobre_parciales": 0.2879,
+    "tasa_informalidad": 0.3031
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "65+",
+    "n_ocupados": 3584,
+    "p_tiempo_parcial": 0.3736,
+    "p_parcial_involuntario_sobre_ocupados": 0.0653,
+    "p_parcial_involuntario_sobre_parciales": 0.1754,
+    "tasa_informalidad": 0.5811
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "total",
+    "n_ocupados": 22346,
+    "p_tiempo_parcial": 0.1512,
+    "p_parcial_involuntario_sobre_ocupados": 0.0511,
+    "p_parcial_involuntario_sobre_parciales": 0.3393,
+    "tasa_informalidad": 0.2541
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "total",
+    "n_ocupados": 18600,
+    "p_tiempo_parcial": 0.2685,
+    "p_parcial_involuntario_sobre_ocupados": 0.0791,
+    "p_parcial_involuntario_sobre_parciales": 0.2956,
+    "tasa_informalidad": 0.2866
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "total",
+    "n_ocupados": 40946,
+    "p_tiempo_parcial": 0.2021,
+    "p_parcial_involuntario_sobre_ocupados": 0.0633,
+    "p_parcial_involuntario_sobre_parciales": 0.3141,
+    "tasa_informalidad": 0.2682
+   }
+  ],
+  "desocupacion_por_sexo_y_edad": [
+   {
+    "sexo": "hombre",
+    "tramo": "15-17",
+    "n_fuerza_trabajo": 59,
+    "n_desocupados": 24,
+    "tasa_desocupacion": 0.4445
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "18-24",
+    "n_fuerza_trabajo": 1973,
+    "n_desocupados": 358,
+    "tasa_desocupacion": 0.1922
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "25-29",
+    "n_fuerza_trabajo": 2381,
+    "n_desocupados": 283,
+    "tasa_desocupacion": 0.1285
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "30-34",
+    "n_fuerza_trabajo": 2609,
+    "n_desocupados": 180,
+    "tasa_desocupacion": 0.0657
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "35-44",
+    "n_fuerza_trabajo": 5008,
+    "n_desocupados": 309,
+    "tasa_desocupacion": 0.0596
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "45-54",
+    "n_fuerza_trabajo": 4756,
+    "n_desocupados": 267,
+    "tasa_desocupacion": 0.0592
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "55-64",
+    "n_fuerza_trabajo": 4864,
+    "n_desocupados": 263,
+    "tasa_desocupacion": 0.058
+   },
+   {
+    "sexo": "hombre",
+    "tramo": "65+",
+    "n_fuerza_trabajo": 2489,
+    "n_desocupados": 109,
+    "tasa_desocupacion": 0.0557
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "15-17",
+    "n_fuerza_trabajo": 34,
+    "n_desocupados": 10,
+    "tasa_desocupacion": 0.3934
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "18-24",
+    "n_fuerza_trabajo": 1471,
+    "n_desocupados": 383,
+    "tasa_desocupacion": 0.2545
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "25-29",
+    "n_fuerza_trabajo": 2122,
+    "n_desocupados": 253,
+    "tasa_desocupacion": 0.105
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "30-34",
+    "n_fuerza_trabajo": 2385,
+    "n_desocupados": 204,
+    "tasa_desocupacion": 0.086
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "35-44",
+    "n_fuerza_trabajo": 4838,
+    "n_desocupados": 318,
+    "tasa_desocupacion": 0.0677
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "45-54",
+    "n_fuerza_trabajo": 4593,
+    "n_desocupados": 287,
+    "tasa_desocupacion": 0.0611
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "55-64",
+    "n_fuerza_trabajo": 3603,
+    "n_desocupados": 195,
+    "tasa_desocupacion": 0.0639
+   },
+   {
+    "sexo": "mujer",
+    "tramo": "65+",
+    "n_fuerza_trabajo": 1252,
+    "n_desocupados": 48,
+    "tasa_desocupacion": 0.0426
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "15-17",
+    "n_fuerza_trabajo": 93,
+    "n_desocupados": 34,
+    "tasa_desocupacion": 0.4241
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "18-24",
+    "n_fuerza_trabajo": 3444,
+    "n_desocupados": 741,
+    "tasa_desocupacion": 0.2191
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "25-29",
+    "n_fuerza_trabajo": 4503,
+    "n_desocupados": 536,
+    "tasa_desocupacion": 0.1177
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "30-34",
+    "n_fuerza_trabajo": 4994,
+    "n_desocupados": 384,
+    "tasa_desocupacion": 0.075
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "35-44",
+    "n_fuerza_trabajo": 9846,
+    "n_desocupados": 627,
+    "tasa_desocupacion": 0.0632
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "45-54",
+    "n_fuerza_trabajo": 9349,
+    "n_desocupados": 554,
+    "tasa_desocupacion": 0.0601
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "55-64",
+    "n_fuerza_trabajo": 8467,
+    "n_desocupados": 458,
+    "tasa_desocupacion": 0.0604
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "65+",
+    "n_fuerza_trabajo": 3741,
+    "n_desocupados": 157,
+    "tasa_desocupacion": 0.0512
+   },
+   {
+    "sexo": "ambos",
+    "tramo": "total",
+    "n_fuerza_trabajo": 44437,
+    "n_desocupados": 3491,
+    "tasa_desocupacion": 0.0805
+   }
+  ],
+  "duracion_busqueda_desocupados": {
+   "nota": "duración en curso (incompleta) al momento de la encuesta, no la duración total del episodio; la duración completa esperada es mayor",
+   "tabla": [
+    {
+     "tramo": "15-17",
+     "n_desocupados": 32,
+     "media_meses": 2.0,
+     "p25_meses": 0.5,
+     "mediana_meses": 0.5,
+     "p75_meses": 1.5,
+     "p_mas_de_6_meses": 0.123,
+     "p_mas_de_12_meses": 0.0
+    },
+    {
+     "tramo": "18-24",
+     "n_desocupados": 722,
+     "media_meses": 4.5,
+     "p25_meses": 0.5,
+     "mediana_meses": 2.5,
+     "p75_meses": 6.5,
+     "p_mas_de_6_meses": 0.274,
+     "p_mas_de_12_meses": 0.076
+    },
+    {
+     "tramo": "25-29",
+     "n_desocupados": 510,
+     "media_meses": 6.85,
+     "p25_meses": 2.5,
+     "mediana_meses": 3.5,
+     "p75_meses": 9.5,
+     "p_mas_de_6_meses": 0.371,
+     "p_mas_de_12_meses": 0.164
+    },
+    {
+     "tramo": "30-34",
+     "n_desocupados": 363,
+     "media_meses": 6.41,
+     "p25_meses": 1.5,
+     "mediana_meses": 3.5,
+     "p75_meses": 8.5,
+     "p_mas_de_6_meses": 0.347,
+     "p_mas_de_12_meses": 0.132
+    },
+    {
+     "tramo": "35-44",
+     "n_desocupados": 600,
+     "media_meses": 7.42,
+     "p25_meses": 1.5,
+     "mediana_meses": 3.5,
+     "p75_meses": 9.5,
+     "p_mas_de_6_meses": 0.357,
+     "p_mas_de_12_meses": 0.184
+    },
+    {
+     "tramo": "45-54",
+     "n_desocupados": 519,
+     "media_meses": 8.64,
+     "p25_meses": 1.5,
+     "mediana_meses": 4.5,
+     "p75_meses": 9.5,
+     "p_mas_de_6_meses": 0.426,
+     "p_mas_de_12_meses": 0.185
+    },
+    {
+     "tramo": "55-64",
+     "n_desocupados": 428,
+     "media_meses": 11.18,
+     "p25_meses": 1.5,
+     "mediana_meses": 4.5,
+     "p75_meses": 12.5,
+     "p_mas_de_6_meses": 0.428,
+     "p_mas_de_12_meses": 0.258
+    },
+    {
+     "tramo": "65+",
+     "n_desocupados": 147,
+     "media_meses": 8.99,
+     "p25_meses": 1.5,
+     "mediana_meses": 4.5,
+     "p75_meses": 12.5,
+     "p_mas_de_6_meses": 0.439,
+     "p_mas_de_12_meses": 0.278
+    },
+    {
+     "tramo": "total",
+     "n_desocupados": 3321,
+     "media_meses": 7.26,
+     "p25_meses": 1.5,
+     "mediana_meses": 3.5,
+     "p75_meses": 9.5,
+     "p_mas_de_6_meses": 0.362,
+     "p_mas_de_12_meses": 0.164
+    }
+   ]
+  }
+ },
+ "5_EPF_IX": {
+  "fuente": "INE, IX Encuesta de Presupuestos Familiares (oct 2021 - sep 2022), Tabulados principales resultados (estimaciones), cuadros 3A y 7A, total capitales regionales, excluye arriendo imputado; pesos corrientes del periodo",
+  "url": "http://www.ine.gob.cl/docs/default-source/encuesta-de-presupuestos-familiares/cuadros-estadisticos/ix-epf/tabulados-principales-resultados-ix-epf-(estimaciones).xlsx",
+  "quintiles_ingreso_disponible_hogar": {
+   "Total": {
+    "personas_por_hogar": 2.96,
+    "gasto_hogar": 1451782,
+    "gasto_per_capita": 564680,
+    "ingreso_disponible_hogar": 1413349,
+    "ingreso_disponible_per_capita": 555437,
+    "ingreso_menos_gasto_hogar": -38433,
+    "tasa_ahorro_aparente": -0.027
+   },
+   "I": {
+    "personas_por_hogar": 2.19,
+    "gasto_hogar": 658972,
+    "gasto_per_capita": 350084,
+    "ingreso_disponible_hogar": 322286,
+    "ingreso_disponible_per_capita": 190432,
+    "ingreso_menos_gasto_hogar": -336686,
+    "tasa_ahorro_aparente": -1.045
+   },
+   "II": {
+    "personas_por_hogar": 2.74,
+    "gasto_hogar": 904446,
+    "gasto_per_capita": 395420,
+    "ingreso_disponible_hogar": 647340,
+    "ingreso_disponible_per_capita": 306616,
+    "ingreso_menos_gasto_hogar": -257105,
+    "tasa_ahorro_aparente": -0.397
+   },
+   "III": {
+    "personas_por_hogar": 3.08,
+    "gasto_hogar": 1201713,
+    "gasto_per_capita": 483474,
+    "ingreso_disponible_hogar": 987747,
+    "ingreso_disponible_per_capita": 409075,
+    "ingreso_menos_gasto_hogar": -213966,
+    "tasa_ahorro_aparente": -0.217
+   },
+   "IV": {
+    "personas_por_hogar": 3.3,
+    "gasto_hogar": 1595586,
+    "gasto_per_capita": 599134,
+    "ingreso_disponible_hogar": 1506926,
+    "ingreso_disponible_per_capita": 592073,
+    "ingreso_menos_gasto_hogar": -88660,
+    "tasa_ahorro_aparente": -0.059
+   },
+   "V": {
+    "personas_por_hogar": 3.46,
+    "gasto_hogar": 2898195,
+    "gasto_per_capita": 995289,
+    "ingreso_disponible_hogar": 3602444,
+    "ingreso_disponible_per_capita": 1278988,
+    "ingreso_menos_gasto_hogar": 704249,
+    "tasa_ahorro_aparente": 0.195
+   }
+  },
+  "arriendo_vivienda_principal_promedio_todos_los_hogares": {
+   "Total": 95597,
+   "I": 52391,
+   "II": 75617,
+   "III": 90552,
+   "IV": 106870,
+   "V": 152552
+  },
+  "nota": "el arriendo es promedio sobre todos los hogares (incluye propietarios con 0), no el arriendo de quien arrienda. El dividendo hipotecario no es gasto de consumo en la EPF y no está en los tabulados. Gasto > ingreso en quintiles I a IV es habitual en la EPF (subdeclaración de ingresos, desahorro, crédito). Para llevar a 2026 hay que reajustar por IPC"
+ },
+ "7_IR_real": {
+  "fuente": "INE, Índice Real de Remuneraciones (IR real), serie empalmada base anual 2023=100, deflactado con IPC; mide remuneración por hora ordinaria",
+  "url": "http://www.ine.gob.cl/docs/default-source/sueldos-y-salarios/cuadros-estadisticos/ir-icl-base-anual-2023-100/series-empalmadas/tabulado_ir_real_empalmado.xlsx",
+  "variacion_real_anual_promedio_pct": {
+   "2016": 1.39,
+   "2017": 2.41,
+   "2018": 1.9,
+   "2019": 2.05,
+   "2020": 0.58,
+   "2021": 1.08,
+   "2022": -1.79,
+   "2023": 1.86,
+   "2024": 2.89,
+   "2025": 2.74
+  },
+  "promedio_simple_10_anios_pct": 1.51,
+  "mediana_10_anios_pct": 1.88,
+  "tasa_compuesta_10_anios_pct": 1.73,
+  "periodo_compuesto": "2016-09 a 2026-09 (P=provisional)",
+  "min_max_10_anios_pct": [
+   -1.79,
+   2.89
+  ],
+  "desv_estandar_10_anios_pct": 1.36
+ },
+ "8_flujos_laborales": {
+  "fuente": "INE, Estadísticas de flujos laborales con registros administrativos (Seguro de Cesantía), serie publicada el 10-06-2026; asalariados privados con contrato",
+  "url_base": "http://www.ine.gob.cl/docs/default-source/estadisticas-registros-administrativos/cuadro-estadisticos/tasas-de-rotación-laboral/",
+  "periodo_12_meses": [
+   "[2025, 'enero']",
+   "[2025, 'diciembre']"
+  ],
+  "general": {
+   "tasa_salida_anual_pct": 30.587,
+   "tasa_entrada_anual_pct": 31.134
+  },
+  "por_sector": [
+   {
+    "glosa": "Construcción",
+    "tasa_salida_anual_pct": 51.229,
+    "tasa_entrada_anual_pct": 51.426,
+    "multiplicador_salida_vs_total": 1.67,
+    "meses": 12
+   },
+   {
+    "glosa": "Actividades de servicios administrativos y de apoyo",
+    "tasa_salida_anual_pct": 44.941,
+    "tasa_entrada_anual_pct": 46.938,
+    "multiplicador_salida_vs_total": 1.47,
+    "meses": 12
+   },
+   {
+    "glosa": "Agricultura, ganadería, silvicultura y pesca",
+    "tasa_salida_anual_pct": 42.075,
+    "tasa_entrada_anual_pct": 38.796,
+    "multiplicador_salida_vs_total": 1.38,
+    "meses": 12
+   },
+   {
+    "glosa": "Actividades de alojamiento y de servicio de comidas",
+    "tasa_salida_anual_pct": 37.067,
+    "tasa_entrada_anual_pct": 38.957,
+    "multiplicador_salida_vs_total": 1.21,
+    "meses": 12
+   },
+   {
+    "glosa": "Actividades profesionales, científicas y técnicas",
+    "tasa_salida_anual_pct": 31.66,
+    "tasa_entrada_anual_pct": 32.121,
+    "multiplicador_salida_vs_total": 1.04,
+    "meses": 12
+   },
+   {
+    "glosa": "Comercio al por mayor y al por menor",
+    "tasa_salida_anual_pct": 29.442,
+    "tasa_entrada_anual_pct": 28.15,
+    "multiplicador_salida_vs_total": 0.96,
+    "meses": 12
+   },
+   {
+    "glosa": "Transporte y almacenamiento",
+    "tasa_salida_anual_pct": 29.217,
+    "tasa_entrada_anual_pct": 28.699,
+    "multiplicador_salida_vs_total": 0.96,
+    "meses": 12
+   },
+   {
+    "glosa": "Información y comunicaciones",
+    "tasa_salida_anual_pct": 28.457,
+    "tasa_entrada_anual_pct": 25.796,
+    "multiplicador_salida_vs_total": 0.93,
+    "meses": 12
+   },
+   {
+    "glosa": "Actividades inmobiliarias",
+    "tasa_salida_anual_pct": 28.316,
+    "tasa_entrada_anual_pct": 27.81,
+    "multiplicador_salida_vs_total": 0.93,
+    "meses": 12
+   },
+   {
+    "glosa": "Actividades artísticas, de entretenimiento y recreativas",
+    "tasa_salida_anual_pct": 27.913,
+    "tasa_entrada_anual_pct": 28.331,
+    "multiplicador_salida_vs_total": 0.91,
+    "meses": 12
+   },
+   {
+    "glosa": "Industrias manufactureras",
+    "tasa_salida_anual_pct": 27.619,
+    "tasa_entrada_anual_pct": 26.845,
+    "multiplicador_salida_vs_total": 0.9,
+    "meses": 12
+   },
+   {
+    "glosa": "Otras actividades de servicios",
+    "tasa_salida_anual_pct": 25.691,
+    "tasa_entrada_anual_pct": 26.436,
+    "multiplicador_salida_vs_total": 0.84,
+    "meses": 12
+   },
+   {
+    "glosa": "Suministro de agua",
+    "tasa_salida_anual_pct": 24.262,
+    "tasa_entrada_anual_pct": 27.396,
+    "multiplicador_salida_vs_total": 0.79,
+    "meses": 12
+   },
+   {
+    "glosa": "Actividades financieras y de seguros",
+    "tasa_salida_anual_pct": 20.393,
+    "tasa_entrada_anual_pct": 21.345,
+    "multiplicador_salida_vs_total": 0.67,
+    "meses": 12
+   },
+   {
+    "glosa": "Actividades de atención de la salud humana y de asistencia social",
+    "tasa_salida_anual_pct": 18.721,
+    "tasa_entrada_anual_pct": 19.435,
+    "multiplicador_salida_vs_total": 0.61,
+    "meses": 12
+   },
+   {
+    "glosa": "Suministro de electricidad, gas, vapor y aire acondicionado",
+    "tasa_salida_anual_pct": 18.556,
+    "tasa_entrada_anual_pct": 21.517,
+    "multiplicador_salida_vs_total": 0.61,
+    "meses": 12
+   },
+   {
+    "glosa": "Enseñanza",
+    "tasa_salida_anual_pct": 18.454,
+    "tasa_entrada_anual_pct": 24.608,
+    "multiplicador_salida_vs_total": 0.6,
+    "meses": 12
+   },
+   {
+    "glosa": "Explotación de minas y canteras",
+    "tasa_salida_anual_pct": 17.581,
+    "tasa_entrada_anual_pct": 21.465,
+    "multiplicador_salida_vs_total": 0.57,
+    "meses": 12
+   },
+   {
+    "glosa": "Administración pública y defensa",
+    "tasa_salida_anual_pct": 15.168,
+    "tasa_entrada_anual_pct": 11.384,
+    "multiplicador_salida_vs_total": 0.5,
+    "meses": 12
+   }
+  ],
+  "por_tamano": [
+   {
+    "glosa": "Pequeñas Empresas",
+    "tasa_salida_anual_pct": 35.167,
+    "tasa_entrada_anual_pct": 34.56,
+    "multiplicador_salida_vs_total": 1.15,
+    "meses": 12
+   },
+   {
+    "glosa": "Medianas Empresas",
+    "tasa_salida_anual_pct": 34.424,
+    "tasa_entrada_anual_pct": 35.545,
+    "multiplicador_salida_vs_total": 1.13,
+    "meses": 12
+   },
+   {
+    "glosa": "Microempresas",
+    "tasa_salida_anual_pct": 32.115,
+    "tasa_entrada_anual_pct": 28.865,
+    "multiplicador_salida_vs_total": 1.05,
+    "meses": 12
+   },
+   {
+    "glosa": "Grandes Empresas",
+    "tasa_salida_anual_pct": 27.183,
+    "tasa_entrada_anual_pct": 28.571,
+    "multiplicador_salida_vs_total": 0.89,
+    "meses": 12
+   }
+  ],
+  "por_continuidad_empresa": [
+   {
+    "glosa": "Empresa continua",
+    "tasa_salida_anual_pct": 27.365,
+    "tasa_entrada_anual_pct": 28.175,
+    "multiplicador_salida_vs_total": 0.89,
+    "meses": 12
+   },
+   {
+    "glosa": "Empresa no continua",
+    "tasa_salida_anual_pct": 3.222,
+    "tasa_entrada_anual_pct": 2.959,
+    "multiplicador_salida_vs_total": 0.11,
+    "meses": 12
+   }
+  ],
+  "nota": "la tasa de salida cuenta todo término de relación laboral (despido, renuncia, fin de plazo fijo u obra), no solo despidos; cada dato mensual del INE es una tasa anual móvil (ventana de 12 meses; permanencia = 100 - salida); aquí se promedian los últimos 12 datos publicados"
+ },
+ "6_demografia_empresas": {
+  "estado": "no calculado",
+  "motivo": "no encontré en el sitio del INE tabulados de nacimiento, cierre y supervivencia de empresas por cohorte; los flujos por continuidad de empresa (sección 8) solo separan empresas continuas y no continuas"
+ },
+ "parametros_sugeridos_juego": {
+  "TIEMPO_SOCIAL_POR_HORA_TRABAJO": {
+   "valor": 0.994,
+   "uso": "multiplicar el tiempo de convivencia social por este factor por cada hora semanal sobre 45; ENUT 2023 da -0,6% por hora (-0,8 min/día)"
+  },
+  "JUNTARSE_FIN_DE_SEMANA_POR_HORA": {
+   "valor": 0.9952,
+   "uso": "alternativa chilena a VISITAS_POR_HORA (0,935 del motor, Corea): la probabilidad de juntarse con familia o amigos no convivientes el fin de semana cae 0,48% por hora semanal extra"
+  },
+  "OCIO_POR_TRAMO_HORAS_h_dia": {
+   "<30": 3.56,
+   "30-44": 2.99,
+   "45-54": 2.87,
+   "55+": 2.53
+  },
+  "CUIDADOS_EXTRA_POR_HIJO_0_4_h_dia": {
+   "mujer": 5.01,
+   "hombre": 1.82
+  },
+  "MORT_por_sexo_2025": {
+   "hombre": [
+    -10.2053,
+    0.09016
+   ],
+   "mujer": [
+    -11.4101,
+    0.10043
+   ],
+   "promedio": [
+    -10.7,
+    0.09421
+   ],
+   "uso": "reemplaza K.MORT = [-10.2, 0.094], que sobreestima la mortalidad entre 1,5 y 1,7 veces a los 60-90 años"
+  },
+  "EDAD_MADRE": {
+   "media_al_nacer_cualquier_hijo": 30.15,
+   "media_primer_hijo": 28.21,
+   "uso": "la diferencia de edad mamá-jugador puede sortearse centrada en 30 (rango 24-34 del motor queda bien centrado)"
+  },
+  "P_HIJO_ANUAL_MUJER_por_edad": {
+   "15-19": 0.0093,
+   "20-24": 0.0385,
+   "25-29": 0.0534,
+   "30-34": 0.0546,
+   "35-39": 0.0387,
+   "40-44": 0.0113,
+   "45-49": 0.0008
+  },
+  "P_PRIMER_HIJO_ANUAL_MUJER_por_edad_2023": {
+   "15-19": 0.0102,
+   "20-24": 0.0332,
+   "25-29": 0.0312,
+   "30-34": 0.0237,
+   "35-39": 0.0131,
+   "40-44": 0.0034,
+   "45-49": 0.0004
+  },
+  "P_CASARSE_ANUAL_por_edad": {
+   "Mujeres": {
+    "18-19": 0.0022,
+    "20-24": 0.0075,
+    "25-29": 0.0167,
+    "30-34": 0.0194,
+    "35-39": 0.0141,
+    "40-44": 0.0095,
+    "45-49": 0.0073,
+    "50-54": 0.0055,
+    "55-59": 0.0039,
+    "60-64": 0.0029,
+    "65-69": 0.0019,
+    "70-74": 0.0013,
+    "75+": 0.0004
+   },
+   "Hombres": {
+    "18-19": 0.0008,
+    "20-24": 0.0046,
+    "25-29": 0.013,
+    "30-34": 0.0175,
+    "35-39": 0.015,
+    "40-44": 0.0106,
+    "45-49": 0.0078,
+    "50-54": 0.0063,
+    "55-59": 0.0052,
+    "60-64": 0.0043,
+    "65-69": 0.0039,
+    "70-74": 0.0028,
+    "75+": 0.0018
+   }
+  },
+  "P_AUC_ANUAL_por_edad": {
+   "18-19": 0.0004,
+   "20-24": 0.0016,
+   "25-29": 0.0036,
+   "30-34": 0.0035,
+   "35-39": 0.0025,
+   "40-44": 0.0016,
+   "45-49": 0.0012,
+   "50-54": 0.0008,
+   "55-59": 0.0005,
+   "60-64": 0.0004,
+   "65-69": 0.0003,
+   "70-74": 0.0001
+  },
+  "REAJUSTE_REAL_ANUAL": {
+   "valor": 0.0173,
+   "desv": 0.0136,
+   "uso": "crecimiento real del sueldo de toda la economía, aparte del ascenso y la experiencia"
+  },
+  "MULT_SALIDA_POR_RUBRO": {
+   "Minería": 0.57,
+   "Finanzas y seguros": 0.67,
+   "Información y comunicaciones": 0.93,
+   "Comercio": 0.96,
+   "Salud": 0.61,
+   "Enseñanza": 0.6,
+   "Servicios profesionales": 1.04,
+   "Construcción": 1.67,
+   "Industria manufacturera": 0.9,
+   "Transporte": 0.96,
+   "Agricultura y pesca": 1.38,
+   "Hoteles y restaurantes": 1.21,
+   "Artes y entretención": 0.91,
+   "Servicios administrativos": 1.47,
+   "Otros servicios": 0.84
+  },
+  "MULT_SALIDA_POR_TAMANO": {
+   "Pequeñas Empresas": 1.15,
+   "Medianas Empresas": 1.13,
+   "Microempresas": 1.05,
+   "Grandes Empresas": 0.89
+  },
+  "DESOCUPACION_por_edad": {
+   "15-17": 0.4241,
+   "18-24": 0.2191,
+   "25-29": 0.1177,
+   "30-34": 0.075,
+   "35-44": 0.0632,
+   "45-54": 0.0601,
+   "55-64": 0.0604,
+   "65+": 0.0512,
+   "total": 0.0805
+  },
+  "INFORMALIDAD_por_edad": {
+   "15-17": 0.8695,
+   "18-24": 0.361,
+   "25-29": 0.2357,
+   "30-34": 0.2068,
+   "35-44": 0.2155,
+   "45-54": 0.239,
+   "55-64": 0.3031,
+   "65+": 0.5811,
+   "total": 0.2682
+  },
+  "MESES_BUSQUEDA_EN_CURSO": {
+   "mediana": 3.5,
+   "media": 7.26
+  },
+  "TASA_AHORRO_por_quintil": {
+   "Total": -0.027,
+   "I": -1.045,
+   "II": -0.397,
+   "III": -0.217,
+   "IV": -0.059,
+   "V": 0.195
+  }
+ }
+}

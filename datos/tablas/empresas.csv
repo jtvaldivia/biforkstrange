@@ -1,0 +1,160 @@
+tipo,rubro,nombre
+startup,,Fintual
+startup,,Fintoc
+startup,,Houm
+startup,,AgendaPro
+startup,,Examedi
+startup,,Chipax
+startup,,Toku
+startup,,Plutto
+startup,,RUUF
+startup,,Koywe
+startup,,Instacrops
+startup,,NotCo
+startup,,Betterfly
+startup,,Buk
+startup,,Xepelin
+startup,,Racional
+startup,,Frogmi
+startup,,Lemontech
+estado,,el Servicio de Impuestos Internos
+estado,,el Ministerio de Educación
+estado,,una municipalidad
+estado,,BancoEstado
+estado,,Metro de Santiago
+estado,,el Ministerio de Hacienda
+estado,,ChileCompra
+estado,,un hospital público
+estado,,la Universidad de Chile
+estado,,TVN
+grande,Minería,Codelco
+grande,Minería,Minera Escondida
+grande,Minería,Antofagasta Minerals
+grande,Minería,SQM
+grande,Minería,Anglo American
+grande,Minería,Collahuasi
+grande,Minería,Albemarle
+grande,Finanzas y seguros,Banco de Chile
+grande,Finanzas y seguros,Santander Chile
+grande,Finanzas y seguros,Bci
+grande,Finanzas y seguros,Itaú
+grande,Finanzas y seguros,Scotiabank
+grande,Finanzas y seguros,AFP Habitat
+grande,Finanzas y seguros,Consorcio
+grande,Información y comunicaciones,Entel
+grande,Información y comunicaciones,Movistar
+grande,Información y comunicaciones,Claro
+grande,Información y comunicaciones,WOM
+grande,Información y comunicaciones,Sonda
+grande,Información y comunicaciones,Mercado Libre
+grande,Información y comunicaciones,Globant
+grande,Comercio,Falabella
+grande,Comercio,Cencosud
+grande,Comercio,Walmart Chile
+grande,Comercio,Ripley
+grande,Comercio,SMU
+grande,Comercio,Copec
+grande,Comercio,Sodimac
+grande,Salud,Clínica Alemana
+grande,Salud,RedSalud
+grande,Salud,Clínica Las Condes
+grande,Salud,Clínica Santa María
+grande,Salud,UC Christus
+grande,Salud,Cruz Verde
+grande,Enseñanza,Pontificia Universidad Católica
+grande,Enseñanza,Duoc UC
+grande,Enseñanza,Inacap
+grande,Enseñanza,Universidad Andrés Bello
+grande,Enseñanza,Universidad Adolfo Ibáñez
+grande,Servicios profesionales,Deloitte
+grande,Servicios profesionales,EY
+grande,Servicios profesionales,PwC
+grande,Servicios profesionales,KPMG
+grande,Servicios profesionales,Accenture
+grande,Servicios profesionales,Carey
+grande,Servicios profesionales,Arcadis
+grande,Construcción,SalfaCorp
+grande,Construcción,Sigdo Koppers
+grande,Construcción,Besalco
+grande,Construcción,Echeverría Izquierdo
+grande,Construcción,Socovesa
+grande,Construcción,Ingevec
+grande,Industria manufacturera,CMPC
+grande,Industria manufacturera,Arauco
+grande,Industria manufacturera,CCU
+grande,Industria manufacturera,Carozzi
+grande,Industria manufacturera,Concha y Toro
+grande,Industria manufacturera,Embotelladora Andina
+grande,Transporte,LATAM Airlines
+grande,Transporte,Sky Airline
+grande,Transporte,Starken
+grande,Transporte,Chilexpress
+grande,Transporte,Turbus
+grande,Agricultura y pesca,Agrosuper
+grande,Agricultura y pesca,Hortifrut
+grande,Agricultura y pesca,AquaChile
+grande,Agricultura y pesca,Camanchaca
+grande,Agricultura y pesca,Viña Santa Rita
+grande,Hoteles y restaurantes,Sodexo
+grande,Hoteles y restaurantes,Aramark
+grande,Hoteles y restaurantes,Enjoy
+grande,Hoteles y restaurantes,Starbucks Chile
+grande,Hoteles y restaurantes,Juan Maestro
+grande,Artes y entretención,Mega
+grande,Artes y entretención,Chilevisión
+grande,Artes y entretención,Canal 13
+grande,Servicios administrativos,Adecco
+grande,Servicios administrativos,Randstad
+grande,Servicios administrativos,Manpower
+grande,Servicios administrativos,Konecta
+grande,Servicios administrativos,Prosegur
+grande,Otros servicios,una empresa grande de servicios
+pyme,Minería,una contratista minera
+pyme,Minería,una empresa de mantención minera
+pyme,Minería,una consultora de geología
+pyme,Finanzas y seguros,una corredora de seguros
+pyme,Finanzas y seguros,una cooperativa de ahorro
+pyme,Finanzas y seguros,una corredora de bolsa
+pyme,Información y comunicaciones,una agencia de software
+pyme,Información y comunicaciones,una consultora de datos
+pyme,Información y comunicaciones,una agencia de marketing digital
+pyme,Información y comunicaciones,un estudio de diseño web
+pyme,Comercio,una distribuidora
+pyme,Comercio,una ferretería
+pyme,Comercio,una tienda de ropa
+pyme,Comercio,una importadora
+pyme,Salud,un centro médico
+pyme,Salud,una clínica dental
+pyme,Salud,un laboratorio clínico
+pyme,Salud,un centro de kinesiología
+pyme,Enseñanza,un colegio particular subvencionado
+pyme,Enseñanza,un preuniversitario
+pyme,Enseñanza,un instituto de idiomas
+pyme,Servicios profesionales,un estudio contable
+pyme,Servicios profesionales,un estudio de abogados
+pyme,Servicios profesionales,una consultora chica
+pyme,Servicios profesionales,una oficina de arquitectura
+pyme,Construcción,una constructora mediana
+pyme,Construcción,una empresa de instalaciones eléctricas
+pyme,Construcción,una inmobiliaria chica
+pyme,Industria manufacturera,una fábrica de alimentos
+pyme,Industria manufacturera,una maestranza
+pyme,Industria manufacturera,una imprenta
+pyme,Industria manufacturera,una fábrica de muebles
+pyme,Transporte,una empresa de transporte de carga
+pyme,Transporte,una empresa de buses
+pyme,Transporte,una bodega de logística
+pyme,Agricultura y pesca,un fundo frutícola
+pyme,Agricultura y pesca,un packing
+pyme,Agricultura y pesca,una viña familiar
+pyme,Hoteles y restaurantes,un restaurante del barrio
+pyme,Hoteles y restaurantes,un hotel boutique
+pyme,Hoteles y restaurantes,una cafetería
+pyme,Artes y entretención,una productora audiovisual
+pyme,Artes y entretención,un centro cultural
+pyme,Artes y entretención,un gimnasio
+pyme,Servicios administrativos,una empresa de aseo
+pyme,Servicios administrativos,una empresa de seguridad
+pyme,Servicios administrativos,un call center
+pyme,Otros servicios,un taller mecánico
+pyme,Otros servicios,una peluquería

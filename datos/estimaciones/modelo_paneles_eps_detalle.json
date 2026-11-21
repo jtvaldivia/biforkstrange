@@ -1,0 +1,929 @@
+{
+ "fuente": "EPS VIII ronda (2023-2024), módulo B historia laboral; factor_XS (Factor_XS_EPS_2023)",
+ "script": "scripts/modelo/paneles_eps.py",
+ "antiguedad": {
+  "nota": "Asalariados (b8 3,4,5,6,8), episodios con inicio observado, exposición 2016-2024. Poisson ponderado con factor_XS, controla tramo de edad, EE agrupados por persona. razon_vs_1_4 = tasa del tramo / tasa de 1-4 años; razon_vs_promedio = tasa del tramo / tasa media de todos los años-persona del mismo grupo.",
+  "inv": {
+   "n_personas": 4293,
+   "anios_persona": 10850.0,
+   "eventos": 825,
+   "razon_<1_vs_1_4": {
+    "valor": 1.35,
+    "ic95": [
+     1.087,
+     1.677
+    ]
+   },
+   "razon_5+_vs_1_4": {
+    "valor": 0.333,
+    "ic95": [
+     0.195,
+     0.569
+    ]
+   },
+   "tasas_brutas": {
+    "<1": {
+     "tasa_anual": 0.0834,
+     "anios_persona": 5168.0,
+     "eventos": 466,
+     "razon_vs_promedio": 1.327
+    },
+    "1-4": {
+     "tasa_anual": 0.0603,
+     "anios_persona": 4727.0,
+     "eventos": 332,
+     "razon_vs_promedio": 0.96
+    },
+    "5+": {
+     "tasa_anual": 0.0196,
+     "anios_persona": 956.0,
+     "eventos": 27,
+     "razon_vs_promedio": 0.312
+    }
+   },
+   "tasa_media": 0.0628
+  },
+  "invfc": {
+   "n_personas": 4293,
+   "anios_persona": 10850.0,
+   "eventos": 2427,
+   "razon_<1_vs_1_4": {
+    "valor": 2.766,
+    "ic95": [
+     2.376,
+     3.221
+    ]
+   },
+   "razon_5+_vs_1_4": {
+    "valor": 0.26,
+    "ic95": [
+     0.166,
+     0.407
+    ]
+   },
+   "tasas_brutas": {
+    "<1": {
+     "tasa_anual": 0.2916,
+     "anios_persona": 5168.0,
+     "eventos": 1808,
+     "razon_vs_promedio": 1.776
+    },
+    "1-4": {
+     "tasa_anual": 0.101,
+     "anios_persona": 4727.0,
+     "eventos": 582,
+     "razon_vs_promedio": 0.615
+    },
+    "5+": {
+     "tasa_anual": 0.0242,
+     "anios_persona": 956.0,
+     "eventos": 37,
+     "razon_vs_promedio": 0.147
+    }
+   },
+   "tasa_media": 0.1642
+  }
+ },
+ "despido_asalariados_por_edad": {
+  "nota": "Asalariados, todos los episodios desde 2016 (incluye los de inicio no observado). Despido = imputable + necesidades de la empresa + cierre + fuerza mayor.",
+  "18-29": {
+   "tasa_inv": 0.0617,
+   "ee_inv": 0.0031,
+   "tasa_inv_mas_fin_contrato": 0.1698,
+   "anios_persona": 8638.0
+  },
+  "30-44": {
+   "tasa_inv": 0.039,
+   "ee_inv": 0.0028,
+   "tasa_inv_mas_fin_contrato": 0.0828,
+   "anios_persona": 7194.0
+  },
+  "45-59": {
+   "tasa_inv": 0.0353,
+   "ee_inv": 0.0031,
+   "tasa_inv_mas_fin_contrato": 0.0657,
+   "anios_persona": 7158.0
+  }
+ },
+ "sector": {
+  "nota": "Empleados públicos (b8=3) vs privados (b8=4), todos los episodios 2016-2024. razon = exp(coef) de Poisson ponderado con tramo de edad; mult_vs_media = tasa pública / tasa media de todos los asalariados (b8 3,4,5,6,8) estandarizada por edad.",
+  "inv": {
+   "razon_publico_vs_privado": {
+    "valor": 0.26,
+    "ic95": [
+     0.184,
+     0.369
+    ]
+   },
+   "tasa_publico_std": 0.0142,
+   "tasa_privado_std": 0.0511,
+   "tasa_asalariados_std": 0.0429,
+   "mult_publico_vs_media": 0.332,
+   "mult_privado_vs_media": 1.192,
+   "eventos_publico": 86,
+   "anios_persona_publico": 4586.0,
+   "eventos_privado": 1044,
+   "mult_publico_ic95": [
+    0.23,
+    0.44
+   ]
+  },
+  "invfc": {
+   "razon_publico_vs_privado": {
+    "valor": 0.482,
+    "ic95": [
+     0.39,
+     0.596
+    ]
+   },
+   "tasa_publico_std": 0.0541,
+   "tasa_privado_std": 0.1089,
+   "tasa_asalariados_std": 0.0966,
+   "mult_publico_vs_media": 0.561,
+   "mult_privado_vs_media": 1.128,
+   "eventos_publico": 326,
+   "anios_persona_publico": 4586.0,
+   "eventos_privado": 2615,
+   "mult_publico_ic95": [
+    0.479,
+    0.667
+   ]
+  }
+ },
+ "duracion_cesantia": {
+  "nota": "Episodios de cesantía o búsqueda (b2a_so 2,3; episodios de búsqueda consecutivos se juntan en uno) con inicio observado desde 2016. Salida = siguiente episodio es trabajo y empieza <=1 mes después. Tasa mensual constante por tramo de duración; ponderado. razon = tasa meses 12-23 / tasa meses 0-11; equivale al multiplicador del motor sobre el riesgo anual.",
+  "n_episodios": 3422,
+  "n_salidas_a_empleo": 1773,
+  "n_censurados": 1155,
+  "episodios_formados_por_varios_tramos": 397,
+  "tasa_mensual": {
+   "0-11": 0.0684,
+   "12-23": 0.0305,
+   "24-mas": 0.0229
+  },
+  "eventos_por_tramo": [
+   1367,
+   236,
+   170
+  ],
+  "meses_persona_por_tramo": [
+   20569,
+   7463,
+   7756
+  ],
+  "prob_encontrar_en_12m": {
+   "anio_1": 0.56,
+   "anio_2": 0.306
+  },
+  "razon_anio2_vs_anio1": {
+   "valor": 0.445,
+   "ic95": [
+    0.371,
+    0.527
+   ]
+  },
+  "por_edad": {
+   "18-29": 0.502,
+   "30-44": 0.487,
+   "45-59": 0.287
+  },
+  "termino_con_mes_imputado": 0.0
+ },
+ "encontrar_12m": {
+  "18-29": {
+   "prob_12m": 0.612,
+   "n_episodios": 2274,
+   "salidas_a_empleo_12m": 960,
+   "ic95": [
+    0.584,
+    0.645
+   ]
+  },
+  "30-44": {
+   "prob_12m": 0.571,
+   "n_episodios": 481,
+   "salidas_a_empleo_12m": 205,
+   "ic95": [
+    0.504,
+    0.638
+   ]
+  },
+  "45-59": {
+   "prob_12m": 0.492,
+   "n_episodios": 389,
+   "salidas_a_empleo_12m": 149,
+   "ic95": [
+    0.395,
+    0.572
+   ]
+  },
+  "todos": {
+   "prob_12m": 0.56,
+   "n_episodios": 3422,
+   "salidas_a_empleo_12m": 1367,
+   "ic95": [
+    0.528,
+    0.594
+   ]
+  },
+  "destino_de_las_salidas": {
+   "inactividad": 0.163,
+   "trabajo": 0.837
+  },
+  "nota": "Riesgo de pasar a un trabajo en los primeros 12 meses de búsqueda; las salidas a inactividad cuentan como censura (riesgo neto). Comparar con ENCONTRAR del motor, que salió de un Kaplan-Meier donde cualquier término del episodio de cesantía contaba como encontrar."
+ },
+ "busqueda_por_origen": {
+  "nota": "Mismos episodios de búsqueda según lo que vino justo antes: despido (imputable, necesidades, cierre, fuerza mayor), fin de contrato, renuncia o mutuo acuerdo, un episodio de inactividad (no jubilación), y el subconjunto de esa inactividad que siguió a una renuncia (pausa elegida). Tasa de encontrar trabajo en los primeros 12 meses de búsqueda.",
+  "despido": {
+   "n_episodios": 549,
+   "salidas_a_empleo_12m": 224,
+   "tasa_mensual_0_11": 0.065,
+   "prob_12m": 0.541,
+   "razon_vs_despido": 1.0
+  },
+  "fin_contrato": {
+   "n_episodios": 744,
+   "salidas_a_empleo_12m": 366,
+   "tasa_mensual_0_11": 0.1008,
+   "prob_12m": 0.702,
+   "razon_vs_despido": 1.551,
+   "ic95": [
+    1.287,
+    1.964
+   ]
+  },
+  "renuncia": {
+   "n_episodios": 698,
+   "salidas_a_empleo_12m": 321,
+   "tasa_mensual_0_11": 0.0723,
+   "prob_12m": 0.58,
+   "razon_vs_despido": 1.112,
+   "ic95": [
+    0.886,
+    1.373
+   ]
+  },
+  "tras_inactividad": {
+   "n_episodios": 1124,
+   "salidas_a_empleo_12m": 338,
+   "tasa_mensual_0_11": 0.0467,
+   "prob_12m": 0.429,
+   "razon_vs_despido": 0.718,
+   "ic95": [
+    0.566,
+    0.903
+   ]
+  },
+  "tras_pausa_voluntaria": {
+   "n_episodios": 36,
+   "salidas_a_empleo_12m": 21,
+   "tasa_mensual_0_11": 0.1022,
+   "prob_12m": 0.707,
+   "razon_vs_despido": 1.572,
+   "ic95": [
+    0.94,
+    2.562
+   ]
+  },
+  "otro": {
+   "n_episodios": 271,
+   "salidas_a_empleo_12m": 97,
+   "tasa_mensual_0_11": 0.0606,
+   "prob_12m": 0.517,
+   "razon_vs_despido": 0.932,
+   "ic95": [
+    0.587,
+    1.408
+   ]
+  }
+ },
+ "pausas": {
+  "nota": "Ocupados (todo tipo de empleo) 2016-2024. Pausa = el empleo termina y el episodio siguiente (<=1 mes) es inactividad, excluye jubilación. Tasa anual por año-persona ocupado, ponderada. \"pausa_voluntaria\" = además el empleo terminó por renuncia o mutuo acuerdo.",
+  "anios_persona_ocupado": {
+   "18-29": 11778,
+   "30-44": 10115,
+   "45-59": 11180
+  },
+  "pausa_total": {
+   "18-29": 0.0633,
+   "ee_18-29": 0.0024,
+   "30-44": 0.0098,
+   "ee_30-44": 0.0012,
+   "45-59": 0.0076,
+   "ee_45-59": 0.0009
+  },
+  "n_pausa_total": 1426,
+  "pausa_voluntaria": {
+   "18-29": 0.0236,
+   "ee_18-29": 0.0015,
+   "30-44": 0.0028,
+   "ee_30-44": 0.0006,
+   "45-59": 0.0016,
+   "ee_45-59": 0.0005
+  },
+  "n_pausa_voluntaria": 467,
+  "pausa_voluntaria_sin_estudio_ni_cuidado": {
+   "18-29": 0.0037,
+   "ee_18-29": 0.0005,
+   "30-44": 0.0017,
+   "ee_30-44": 0.0005,
+   "45-59": 0.0014,
+   "ee_45-59": 0.0004
+  },
+  "tipo_de_inactividad_en_pausas_voluntarias": {
+   "cuidar_hijos": 0.065,
+   "cuidar_otros": 0.028,
+   "embarazo": 0.017,
+   "enfermedad": 0.013,
+   "estudiar": 0.564,
+   "no_le_interesaba": 0.005,
+   "nr": 0.013,
+   "otras_responsabilidades": 0.004,
+   "otro": 0.04,
+   "quehaceres": 0.251
+  },
+  "tipo_de_inactividad_en_todas_las_pausas": {
+   "cuidar_hijos": 0.061,
+   "cuidar_otros": 0.046,
+   "embarazo": 0.017,
+   "enfermedad": 0.017,
+   "estudiar": 0.492,
+   "no_le_interesaba": 0.003,
+   "nr": 0.01,
+   "otras_responsabilidades": 0.004,
+   "otro": 0.05,
+   "quehaceres": 0.3
+  },
+  "duracion_pausa_voluntaria_KM": {
+   "n": 470,
+   "sigue_inactivo_a_meses": {
+    "6": 0.836,
+    "12": 0.628,
+    "24": 0.553
+   },
+   "destino_al_terminar": {
+    "trabajo": 0.772,
+    "cesantia": 0.202,
+    "busca_1a_vez": 0.026
+   }
+  }
+ },
+ "cambio_voluntario": {
+  "nota": "Cambio de empleador sin pasar por cesantía (<=1 mes) cuyo motivo de término fue renuncia o \"encontró un mejor trabajo\". Tasa anual por año-persona ocupado.",
+  "tasa": {
+   "18-29": 0.0782,
+   "ee_18-29": 0.0032,
+   "30-44": 0.0371,
+   "ee_30-44": 0.0023,
+   "45-59": 0.0195,
+   "ee_45-59": 0.0017
+  },
+  "n": 1601,
+  "tasa_j2j_cualquier_motivo": {
+   "18-29": 0.2178,
+   "ee_18-29": 0.0055,
+   "30-44": 0.1377,
+   "ee_30-44": 0.0045,
+   "45-59": 0.1019,
+   "ee_45-59": 0.0035
+  }
+ },
+ "independiente_entrada": {
+  "nota": "Asalariados 2016-2024: tasa anual de pasar directamente (<=1 mes) a un trabajo por cuenta propia o de empleador (b8 1,2). a_empleador = solo patrón/empleador; a_indep_formal = el trabajo independiente siguiente emite boleta o factura (b11 1,2).",
+  "anios_persona_asalariado": 26209,
+  "a_indep": {
+   "18-29": 0.0179,
+   "30-44": 0.0134,
+   "45-59": 0.0092,
+   "ee_18-29": 0.0017,
+   "ee_30-44": 0.0017,
+   "ee_45-59": 0.0015,
+   "ee_todos": 0.001,
+   "todos": 0.0142,
+   "n": 356
+  },
+  "a_empleador": {
+   "18-29": 0.0026,
+   "30-44": 0.0025,
+   "45-59": 0.0019,
+   "ee_18-29": 0.0007,
+   "ee_30-44": 0.0009,
+   "ee_45-59": 0.0007,
+   "ee_todos": 0.0005,
+   "todos": 0.0025,
+   "n": 63
+  },
+  "a_indep_formal": {
+   "18-29": 0.0028,
+   "30-44": 0.0014,
+   "45-59": 0.0006,
+   "ee_18-29": 0.0007,
+   "ee_30-44": 0.0005,
+   "ee_45-59": 0.0003,
+   "ee_todos": 0.0003,
+   "todos": 0.0016,
+   "n": 38
+  },
+  "desde_cesantia_share_salidas_a_independiente": 0.164,
+  "n_salidas_cesantia_a_trabajo": 2057
+ },
+ "independiente_salida": {
+  "nota": "Episodios de trabajo independiente (cuenta propia o empleador; episodios independientes consecutivos se juntan) con inicio observado desde 2016. Kaplan-Meier ponderado; censura a la entrevista. riesgo_anual = -ln(S) anualizado, la misma forma que usa el motor (1-exp(-h)).",
+  "todos": {
+   "n_episodios": 1198,
+   "n_censurados": 631,
+   "sobrevive": {
+    "12": 0.687,
+    "24": 0.567,
+    "36": 0.516,
+    "48": 0.445,
+    "60": 0.42
+   },
+   "salida_anio1": 0.313,
+   "salida_2_anios": 0.433,
+   "salida_5_anios": 0.58,
+   "riesgo_anual_anios_0_2": 0.284,
+   "riesgo_anual_anios_2_5": 0.1
+  },
+  "empleador": {
+   "n_episodios": 315,
+   "n_censurados": 140,
+   "sobrevive": {
+    "12": 0.599,
+    "24": 0.426,
+    "36": 0.387,
+    "48": 0.328,
+    "60": 0.263
+   },
+   "salida_anio1": 0.401,
+   "salida_2_anios": 0.574,
+   "salida_5_anios": 0.737,
+   "riesgo_anual_anios_0_2": 0.427,
+   "riesgo_anual_anios_2_5": 0.161
+  },
+  "cuenta_propia": {
+   "n_episodios": 883,
+   "n_censurados": 491,
+   "sobrevive": {
+    "12": 0.713,
+    "24": 0.609,
+    "36": 0.556,
+    "48": 0.481,
+    "60": 0.468
+   },
+   "salida_anio1": 0.287,
+   "salida_2_anios": 0.391,
+   "salida_5_anios": 0.532,
+   "riesgo_anual_anios_0_2": 0.248,
+   "riesgo_anual_anios_2_5": 0.088
+  },
+  "formal_boleta_o_factura": {
+   "n_episodios": 131,
+   "n_censurados": 88,
+   "sobrevive": {
+    "12": 0.802,
+    "24": 0.716,
+    "36": 0.687,
+    "48": 0.579,
+    "60": 0.579
+   },
+   "salida_anio1": 0.198,
+   "salida_2_anios": 0.284,
+   "salida_5_anios": 0.421,
+   "riesgo_anual_anios_0_2": 0.167,
+   "riesgo_anual_anios_2_5": 0.071
+  },
+  "por_edad_al_iniciar": {
+   "18-29": {
+    "n_episodios": 674,
+    "n_censurados": 326,
+    "sobrevive": {
+     "12": 0.609,
+     "24": 0.501,
+     "36": 0.44,
+     "48": 0.356,
+     "60": 0.327
+    },
+    "salida_anio1": 0.391,
+    "salida_2_anios": 0.499,
+    "salida_5_anios": 0.673,
+    "riesgo_anual_anios_0_2": 0.346,
+    "riesgo_anual_anios_2_5": 0.142
+   },
+   "30-44": {
+    "n_episodios": 219,
+    "n_censurados": 143,
+    "sobrevive": {
+     "12": 0.788,
+     "24": 0.676,
+     "36": 0.648,
+     "48": 0.597,
+     "60": 0.582
+    },
+    "salida_anio1": 0.212,
+    "salida_2_anios": 0.324,
+    "salida_5_anios": 0.418,
+    "riesgo_anual_anios_0_2": 0.196,
+    "riesgo_anual_anios_2_5": 0.05
+   },
+   "45-59": {
+    "n_episodios": 181,
+    "n_censurados": 101,
+    "sobrevive": {
+     "12": 0.651,
+     "24": 0.517,
+     "36": 0.463,
+     "48": 0.358,
+     "60": 0.304
+    },
+    "salida_anio1": 0.349,
+    "salida_2_anios": 0.483,
+    "salida_5_anios": 0.696,
+    "riesgo_anual_anios_0_2": 0.33,
+    "riesgo_anual_anios_2_5": 0.177
+   }
+  },
+  "ic95_riesgo_2_5": [
+   0.068,
+   0.135
+  ],
+  "ic95_riesgo_0_2": [
+   0.251,
+   0.33
+  ]
+ },
+ "sueldo_cambio": {
+  "contraste_pausa_menos_despido": {
+   "coef": 0.0202,
+   "ee": 0.0935
+  },
+  "contraste_despido_menos_j2j_otro": {
+   "coef": -0.1279,
+   "ee": 0.0654
+  },
+  "nota": "Pares de empleos consecutivos de la misma persona con sueldo líquido mensual promedio (b12) en ambos; el primero termina desde 2015. dlw = log(sueldo nuevo) - log(sueldo anterior). Tipos: j2j = el nuevo empieza <=1 mes después sin cesantía ni inactividad entre medio; despido_cesantia = término involuntario y episodio de cesantía entre medio; pausa_voluntaria = renuncia o mutuo acuerdo seguida de inactividad (no jubilación). Regresión WLS ponderada con factor_XS, efectos fijos del año medio de cada empleo (absorben inflación: b12 no dice en pesos de qué año), tramo de edad; EE agrupados por persona. gap_ces = pendiente por año sin trabajo entre empleos, cuando hubo cesantía.",
+  "descriptivo": {
+   "j2j_voluntario": {
+    "n": 1402,
+    "media": 0.2433,
+    "mediana": 0.1634,
+    "de": 0.5745,
+    "de_robusta_iqr": 0.3447,
+    "share_sube": 0.617,
+    "share_igual": 0.236,
+    "gap_meses_mediana": 1.0
+   },
+   "j2j_otro": {
+    "n": 3134,
+    "media": 0.0429,
+    "mediana": 0.0,
+    "de": 0.5686,
+    "de_robusta_iqr": 0.099,
+    "share_sube": 0.328,
+    "share_igual": 0.477,
+    "gap_meses_mediana": 1.0
+   },
+   "despido_cesantia": {
+    "n": 276,
+    "media": -0.0533,
+    "mediana": 0.0385,
+    "de": 0.5991,
+    "de_robusta_iqr": 0.2879,
+    "share_sube": 0.486,
+    "share_igual": 0.13,
+    "gap_meses_mediana": 7.0
+   },
+   "otra_cesantia": {
+    "n": 487,
+    "media": 0.1707,
+    "mediana": 0.1054,
+    "de": 0.5825,
+    "de_robusta_iqr": 0.3355,
+    "share_sube": 0.572,
+    "share_igual": 0.167,
+    "gap_meses_mediana": 7.0
+   },
+   "fincontrato_cesantia": {
+    "n": 412,
+    "media": 0.0643,
+    "mediana": 0.0071,
+    "de": 0.6348,
+    "de_robusta_iqr": 0.2948,
+    "share_sube": 0.464,
+    "share_igual": 0.237,
+    "gap_meses_mediana": 6.0
+   },
+   "otro": {
+    "n": 298,
+    "media": 0.018,
+    "mediana": 0.0,
+    "de": 0.7116,
+    "de_robusta_iqr": 0.3099,
+    "share_sube": 0.382,
+    "share_igual": 0.297,
+    "gap_meses_mediana": 11.0
+   },
+   "pausa_voluntaria": {
+    "n": 152,
+    "media": 0.135,
+    "mediana": 0.0912,
+    "de": 0.6752,
+    "de_robusta_iqr": 0.3362,
+    "share_sube": 0.533,
+    "share_igual": 0.257,
+    "gap_meses_mediana": 11.0
+   }
+  },
+  "descriptivo_toda_reinsercion_desde_cesantia": {
+   "n": 1175,
+   "media": 0.0775,
+   "mediana": 0.0541,
+   "de": 0.6095,
+   "de_robusta_iqr": 0.3167,
+   "share_sube": 0.515,
+   "share_igual": 0.179,
+   "gap_meses_mediana": 6.0
+  },
+  "regresion_vs_j2j_voluntario": {
+   "n": 6161,
+   "despido_cesantia": {
+    "coef": -0.3107,
+    "ee": 0.0659
+   },
+   "fincontrato_cesantia": {
+    "coef": -0.1743,
+    "ee": 0.0484
+   },
+   "j2j_otro": {
+    "coef": -0.1829,
+    "ee": 0.0254
+   },
+   "otra_cesantia": {
+    "coef": -0.0965,
+    "ee": 0.0459
+   },
+   "otro": {
+    "coef": -0.3891,
+    "ee": 0.0726
+   },
+   "pausa_voluntaria": {
+    "coef": -0.2905,
+    "ee": 0.0744
+   },
+   "gap_ces_por_anio": {
+    "coef": -0.0022,
+    "ee": 0.0293
+   },
+   "gap_ina_por_anio": {
+    "coef": 0.1111,
+    "ee": 0.0424
+   },
+   "constante_j2j_vol": {
+    "coef": 0.2379,
+    "ee": 0.0813
+   }
+  },
+  "descriptivo_por_hora": {
+   "despido_cesantia": {
+    "n": 262,
+    "media": -0.0129,
+    "mediana": 0.0639
+   },
+   "fincontrato_cesantia": {
+    "n": 402,
+    "media": 0.1079,
+    "mediana": 0.0434
+   },
+   "j2j_otro": {
+    "n": 3010,
+    "media": 0.0436,
+    "mediana": 0.0
+   },
+   "j2j_voluntario": {
+    "n": 1345,
+    "media": 0.1893,
+    "mediana": 0.1178
+   },
+   "otra_cesantia": {
+    "n": 477,
+    "media": 0.1376,
+    "mediana": 0.1098
+   },
+   "otro": {
+    "n": 284,
+    "media": 0.0657,
+    "mediana": 0.0
+   },
+   "pausa_voluntaria": {
+    "n": 150,
+    "media": 0.0671,
+    "mediana": 0.0154
+   }
+  }
+ },
+ "hijo_segun_pareja": {
+  "nota": "Personas con entrevista anterior (i2_a: con pareja / sin pareja en la entrevista anterior). Nacimientos de hijos propios desde la entrevista anterior (MODULO_I_HIJOS, i21) por año-persona. Edad = edad en la entrevista anterior. mult = tasa del grupo / tasa de todos en el tramo; el estandarizado compara nacimientos observados con los esperados según la tasa de todos por edad (razón estandarizada). Ponderado con factor_XS.",
+  "mujeres": {
+   "18-24": {
+    "n": 243,
+    "n_con_pareja": 76,
+    "nacimientos": 60,
+    "tasa_todos": 0.0448,
+    "tasa_con_pareja": 0.087,
+    "tasa_sin_pareja": 0.0267,
+    "mult_con_pareja": 1.941,
+    "mult_sin_pareja": 0.596
+   },
+   "25-29": {
+    "n": 602,
+    "n_con_pareja": 220,
+    "nacimientos": 114,
+    "tasa_todos": 0.0444,
+    "tasa_con_pareja": 0.0665,
+    "tasa_sin_pareja": 0.0301,
+    "mult_con_pareja": 1.498,
+    "mult_sin_pareja": 0.68
+   },
+   "30-34": {
+    "n": 457,
+    "n_con_pareja": 196,
+    "nacimientos": 73,
+    "tasa_todos": 0.0417,
+    "tasa_con_pareja": 0.0637,
+    "tasa_sin_pareja": 0.0243,
+    "mult_con_pareja": 1.527,
+    "mult_sin_pareja": 0.582
+   },
+   "35-39": {
+    "n": 162,
+    "n_con_pareja": 85,
+    "nacimientos": 14,
+    "tasa_todos": 0.0217,
+    "tasa_con_pareja": 0.03,
+    "tasa_sin_pareja": 0.0115,
+    "mult_con_pareja": 1.381,
+    "mult_sin_pareja": 0.529
+   },
+   "40-44": {
+    "n": 265,
+    "n_con_pareja": 146,
+    "nacimientos": 6,
+    "tasa_todos": 0.0047,
+    "tasa_con_pareja": 0.0045,
+    "tasa_sin_pareja": 0.005,
+    "mult_con_pareja": 0.962,
+    "mult_sin_pareja": 1.059
+   },
+   "ic95_con_pareja": [
+    1.413,
+    1.724
+   ],
+   "ic95_sin_pareja": [
+    0.518,
+    0.74
+   ],
+   "mult_estandarizado_18_39": {
+    "con_pareja": 1.557,
+    "sin_pareja": 0.624,
+    "nacimientos_con_pareja": 156,
+    "nacimientos_sin_pareja": 105
+   }
+  },
+  "hombres": {
+   "18-24": {
+    "n": 210,
+    "n_con_pareja": 55,
+    "nacimientos": 24,
+    "tasa_todos": 0.0176,
+    "tasa_con_pareja": 0.0373,
+    "tasa_sin_pareja": 0.01,
+    "mult_con_pareja": 2.121,
+    "mult_sin_pareja": 0.571
+   },
+   "25-29": {
+    "n": 400,
+    "n_con_pareja": 124,
+    "nacimientos": 48,
+    "tasa_todos": 0.0262,
+    "tasa_con_pareja": 0.0527,
+    "tasa_sin_pareja": 0.0138,
+    "mult_con_pareja": 2.013,
+    "mult_sin_pareja": 0.529
+   },
+   "30-34": {
+    "n": 311,
+    "n_con_pareja": 127,
+    "nacimientos": 35,
+    "tasa_todos": 0.0325,
+    "tasa_con_pareja": 0.0527,
+    "tasa_sin_pareja": 0.0181,
+    "mult_con_pareja": 1.621,
+    "mult_sin_pareja": 0.556
+   },
+   "35-39": {
+    "n": 106,
+    "n_con_pareja": 65,
+    "nacimientos": 11,
+    "tasa_todos": 0.0202,
+    "tasa_con_pareja": 0.0303,
+    "tasa_sin_pareja": 0.0071,
+    "mult_con_pareja": 1.498,
+    "mult_sin_pareja": 0.354
+   },
+   "40-44": {
+    "n": 197,
+    "n_con_pareja": 114,
+    "nacimientos": 10,
+    "tasa_todos": 0.0113,
+    "tasa_con_pareja": 0.0179,
+    "tasa_sin_pareja": 0.0015,
+    "mult_con_pareja": 1.587,
+    "mult_sin_pareja": 0.133
+   },
+   "ic95_con_pareja": [
+    1.444,
+    2.095
+   ],
+   "ic95_sin_pareja": [
+    0.358,
+    0.708
+   ],
+   "mult_estandarizado_18_39": {
+    "con_pareja": 1.777,
+    "sin_pareja": 0.534,
+    "nacimientos_con_pareja": 79,
+    "nacimientos_sin_pareja": 39
+   }
+  }
+ },
+ "pareja_entre_entrevistas": {
+  "nota": "Personas con entrevista anterior (2015-16 o 2019-20). Unión: entre quienes estaban sin pareja, uniones (matrimonio o convivencia) declaradas desde la entrevista anterior (i2_b) por año-persona. Separación: entre quienes estaban con pareja, fracción que hoy no tiene pareja (sin contar viudez), convertida a riesgo anual -ln(1-p)/años; subestima porque quien se separó y volvió a emparejarse cuenta como con pareja. Ponderado con factor_XS. Edad = edad en la entrevista anterior.",
+  "tb": {
+   "18-24": {
+    "union_tasa_anual": 0.0119,
+    "n_sin_pareja": 320,
+    "uniones": 25,
+    "separacion_riesgo_anual": 0.0756,
+    "n_con_pareja": 130,
+    "separados_hoy": 45,
+    "anios_entre_entrevistas": 5.69
+   },
+   "25-29": {
+    "union_tasa_anual": 0.0152,
+    "n_sin_pareja": 653,
+    "uniones": 47,
+    "separacion_riesgo_anual": 0.0832,
+    "n_con_pareja": 343,
+    "separados_hoy": 114,
+    "anios_entre_entrevistas": 4.8
+   },
+   "30-34": {
+    "union_tasa_anual": 0.03,
+    "n_sin_pareja": 440,
+    "uniones": 43,
+    "separacion_riesgo_anual": 0.0637,
+    "n_con_pareja": 322,
+    "separados_hoy": 76,
+    "anios_entre_entrevistas": 4.26
+   },
+   "35-44": {
+    "union_tasa_anual": 0.0191,
+    "n_sin_pareja": 320,
+    "uniones": 27,
+    "separacion_riesgo_anual": 0.0337,
+    "n_con_pareja": 410,
+    "separados_hoy": 61,
+    "anios_entre_entrevistas": 4.83
+   },
+   "45-59": {
+    "union_tasa_anual": 0.0135,
+    "n_sin_pareja": 793,
+    "uniones": 51,
+    "separacion_riesgo_anual": 0.0179,
+    "n_con_pareja": 1446,
+    "separados_hoy": 121,
+    "anios_entre_entrevistas": 4.7
+   }
+  },
+  "eng": {
+   "20-35": {
+    "union_tasa_anual": 0.0194,
+    "n_sin_pareja": 1380,
+    "uniones": 111,
+    "separacion_riesgo_anual": 0.0721,
+    "n_con_pareja": 801,
+    "separados_hoy": 232,
+    "anios_entre_entrevistas": 4.64
+   },
+   "36-59": {
+    "union_tasa_anual": 0.0158,
+    "n_sin_pareja": 1087,
+    "uniones": 77,
+    "separacion_riesgo_anual": 0.0221,
+    "n_con_pareja": 1817,
+    "separados_hoy": 176,
+    "anios_entre_entrevistas": 4.74
+   }
+  }
+ }
+}

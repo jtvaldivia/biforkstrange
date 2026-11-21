@@ -76,10 +76,11 @@ Ponerte la camiseta (en el panel ESI, pasar a 50 o 55 horas no sube el sueldo: �
 - No hay datos de prima por jornada (vespertina o diurna): la jornada solo se informa.
 - El modelo valida distribuciones, no la vida de una persona.
 
-## Regenerar las tablas
+## Datos y reproducción
 
-`backend/app/sim/data/tablas.json` son tablas agregadas; los microdatos no van al repo. Los parámetros estimados están en `datos_laborales/derivados/modelo_paneles.json`, `modelo_ofertas.json` y `modelo_literatura.json`, con sus scripts en `datos_laborales/scripts/modelo/`. Con la carpeta `datos_laborales/` a mano:
+`datos/` trae las tablas del motor en CSV, cada estimación con su fuente y error, y los scripts que las calculan. Los microdatos de personas no van al repo; `datos/README.md` dice de dónde bajar cada fuente y cómo reproducir todo. `backend/app/sim/data/tablas.json` y `magister.json` son las tablas que lee el motor; se regeneran con:
 
 ```bash
 make datos DATOS=../../datos_laborales
+cd backend && uv run python scripts/exportar_csv.py ../datos/tablas
 ```

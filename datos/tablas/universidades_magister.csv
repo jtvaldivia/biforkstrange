@@ -1,0 +1,52 @@
+codigo_sies,universidad,sigla,selectiva,magisteres,arancel_anual_mediano,anios,frac_no_diurna
+23,Universidad Adolfo Ibáñez,UAI,True,75,8546030,2,0.493
+86,Pontificia Universidad Católica de Chile,UC,True,131,5864000,2,0.45
+88,Universidad Técnica Federico Santa María,UTFSM,True,20,7110000,2,0.15
+34,Universidad de los Andes,UANDES,True,36,4598578,2,0.417
+70,Universidad de Chile,UCH,True,124,4876162,2,0.5
+87,Universidad de Concepción,UDEC,True,72,4378000,2,0.278
+71,Universidad de Santiago de Chile,USACH,True,45,2948420,2,0.711
+3,Universidad Diego Portales,UDP,True,32,3491666,2,0.812
+45,Universidad del Desarrollo,UDD,True,33,4883446,2,0.606
+89,Pontificia Universidad Católica de Valparaíso,PUCV,True,42,3125000,2,0.69
+76,Universidad de la Frontera,UFRO,True,30,2725000,2,0.1
+78,Universidad de Talca,UTAL,False,25,3176278,2,0.44
+74,Universidad de la Serena,ULS,False,7,2528500,2,0.286
+91,Universidad Católica del Norte,UCN,False,27,3322500,2,0.481
+10,Universidad Mayor,UMAYOR,False,34,2930000,2,0.971
+72,Universidad de Valparaíso,UV,False,48,3000000,2,0.688
+75,Universidad del Bío-Bío,UBB,False,25,2791000,2,0.24
+92,Universidad Católica del Maule,UCM,False,19,2748000,2,0.211
+90,Universidad Austral de Chile,UACH,False,42,3011000,2,0.714
+93,Universidad Católica de la Santisima Concepción,UCSC,False,26,3535000,2,0.846
+20,Universidad Andrés Bello,UNAB,False,58,6825000,2,0.897
+895,Universidad de O'higgins,UOH,False,6,3307500,2,0.5
+73,Universidad de Antofagasta,UANT,False,6,2600000,2,0.0
+77,Universidad de Magallanes,UMAG,False,7,3535000,2,0.857
+2,Universidad Finis Terrae,UFT,False,13,2825000,2,0.846
+39,Universidad San Sebastián,USS,False,56,3645000,2,0.875
+31,Universidad Autónoma de Chile,UA,False,66,5490000,2,0.955
+80,Universidad de Tarapacá,UTA,False,10,3000000,2,0.3
+69,Universidad Alberto Hurtado,UAH,False,30,2540000,2,1.0
+79,Universidad de Atacama,UDA,False,11,3240000,2,0.455
+94,Universidad Católica de Temuco,UCT,False,7,2289000,2,0.714
+85,Universidad Tecnológica Metropolitana,UTEM,False,14,3325000,2,0.857
+82,Universidad Metropolitana de Ciencias de la Educación,UMCE,False,12,3216000,2,0.833
+50,Universidad Bernardo O'Higgins,UBO,False,7,2750000,2,1.0
+4,Universidad Central de Chile,UCENTRAL,False,31,2965200,2,1.0
+81,Universidad Arturo Prat,UNAP,False,9,2223500,2,0.667
+84,Universidad de los Lagos,ULAG,False,10,2440000,2,0.0
+38,Universidad Adventista de Chile,UNACH,False,3,2757000,2,1.0
+13,Universidad Santo Tomas,UST,False,13,2908350,2,1.0
+83,Universidad de Playa Ancha de Ciencias de la Educacion,UPA,False,10,2500000,2,0.4
+1,Universidad Gabriela Mistral,UGM,False,18,6401000,2,1.0
+896,Universidad de Aysén,UAYSEN,False,1,5000000,2,1.0
+42,Universidad Católica Cardenal Raul Silva Henriquez,UCSH,False,1,2135250,2,1.0
+11,Universidad Academia de Humanismo Cristiano,UACADEMIA,False,5,4500000,2,1.0
+19,Universidad de las Americas,UDLA,False,17,4680000,2,0.941
+674,Academia Nacional de Estudios Politicos y Estrategicos Anepe,,False,1,2750000,2,1.0
+46,Universidad de Aconcagua,,False,1,2921625,2,1.0
+26,"Universidad de Artes, Ciencias y Comunicacion - Uniacc",,False,3,4500000,2,1.0
+22,Universidad de Viña del Mar,,False,13,5454649,2,1.0
+9,Universidad del Alba,,False,3,3956000,2,1.0
+68,Universidad Miguel de Cervantes,,False,3,3570000,2,1.0

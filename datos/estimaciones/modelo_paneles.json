@@ -1,0 +1,597 @@
+{
+ "ANTIG_NUEVO": {
+  "valor": 1.35,
+  "unidad": "multiplicador del riesgo de despido el primer año, sobre el de 1 a 4 años",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "personas": 4293,
+   "anios_persona": 10850.0,
+   "despidos": 825
+  },
+  "ee_o_ic": {
+   "ic95": [
+    1.087,
+    1.677
+   ]
+  },
+  "estado": "dato",
+  "nota": "Asalariados, episodios con inicio observado 2016-2024, Poisson ponderado (factor_XS) con tramo de edad. Contra el promedio de todas las antigüedades: 1.327. Chequeo ELSOC (pasar a desocupado al año): 1.397."
+ },
+ "ANTIG_VIEJO": {
+  "valor": 0.333,
+  "unidad": "multiplicador del riesgo de despido con 5 o más años, sobre el de 1 a 4 años",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "anios_persona_5mas": 956.0,
+   "despidos_5mas": 27
+  },
+  "ee_o_ic": {
+   "ic95": [
+    0.195,
+    0.569
+   ]
+  },
+  "estado": "dato",
+  "nota": "Solo 27 despidos con 5 o más años: la EPS 2024 solo observa el inicio de empleos que partieron desde la entrevista anterior. Chequeo ELSOC con antigüedad completa (m09): 0.502 (IC95 [0.293, 0.86])."
+ },
+ "MULT_TAM.estado": {
+  "valor": 0.332,
+  "unidad": "multiplicador del despido en el sector público sobre la tasa media de asalariados",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "anios_persona_publico": 4586.0,
+   "despidos_publico": 86
+  },
+  "ee_o_ic": {
+   "ic95": [
+    0.23,
+    0.44
+   ]
+  },
+  "estado": "dato",
+  "nota": "Estandarizado por edad. Público contra privado: 0.26 (IC95 [0.184, 0.369]). Si se cuenta además el fin de contrato (no renovación de contrata o plazo fijo): 0.561 (IC95 [0.479, 0.667])."
+ },
+ "DESPIDO": {
+  "valor": {
+   "18-29": 0.0617,
+   "30-44": 0.039,
+   "45-59": 0.0353
+  },
+  "unidad": "tasa anual de despido (imputable, necesidades de la empresa, cierre, fuerza mayor) entre asalariados",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "18-29": 8638.0,
+   "30-44": 7194.0,
+   "45-59": 7158.0
+  },
+  "ee_o_ic": {
+   "ee": {
+    "18-29": 0.0031,
+    "30-44": 0.0028,
+    "45-59": 0.0031
+   }
+  },
+  "estado": "dato",
+  "nota": "El valor actual del motor (0,0529 / 0,0333 / 0,0274) divide por todos los ocupados, incluidos independientes que no pueden ser despedidos. Con fin de contrato: {'18-29': 0.1698, '30-44': 0.0828, '45-59': 0.0657}."
+ },
+ "ENCONTRAR": {
+  "valor": {
+   "18-29": 0.612,
+   "30-44": 0.571,
+   "45-59": 0.492
+  },
+  "unidad": "probabilidad de pasar a un trabajo en los primeros 12 meses de búsqueda",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "18-29": 2274,
+   "30-44": 481,
+   "45-59": 389
+  },
+  "ee_o_ic": {
+   "18-29": [
+    0.584,
+    0.645
+   ],
+   "30-44": [
+    0.504,
+    0.638
+   ],
+   "45-59": [
+    0.395,
+    0.572
+   ]
+  },
+  "estado": "dato",
+  "nota": "Episodios de búsqueda con inicio observado desde 2016; los episodios de cesantía consecutivos se juntan. Las salidas a inactividad (0.163) se tratan como censura. El 0,70 / 0,68 / 0,60 del motor contaba como 'encontrar' cualquier término del episodio, incluidos el paso a inactividad y el cambio de un episodio de cesantía a otro."
+ },
+ "DURACION_DEP": {
+  "valor": 0.445,
+  "unidad": "multiplicador del riesgo de encontrar empleo en el segundo año de búsqueda sobre el primero",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "episodios": 3422,
+   "salidas_a_empleo": 1773
+  },
+  "ee_o_ic": {
+   "ic95": [
+    0.371,
+    0.527
+   ]
+  },
+  "estado": "dato",
+  "nota": "Tasa mensual de encontrar: {'0-11': 0.0684, '12-23': 0.0305, '24-mas': 0.0229}. Por edad: {'18-29': 0.502, '30-44': 0.487, '45-59': 0.287}. Mezcla dependencia real de la duración con selección (los que encuentran rápido salen primero); el motor no tiene otra fuente de heterogeneidad que la reproduzca, así que el multiplicador observado es el que corresponde."
+ },
+ "HUECO_VOLUNTARIO": {
+  "valor": 0.718,
+  "unidad": "multiplicador del riesgo de encontrar empleo cuando la búsqueda viene de un período de inactividad, sobre la que viene de un despido",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "episodios_tras_inactividad": 1124,
+   "episodios_tras_despido": 549
+  },
+  "ee_o_ic": {
+   "ic95": [
+    0.566,
+    0.903
+   ]
+  },
+  "estado": "dato",
+  "nota": "Inactividad = estudio, cuidado, quehaceres u otra, sin jubilación. Solo 36 búsquedas vienen de una inactividad que siguió a una renuncia (pausa elegida en sentido estricto): 1.572 (IC95 [0.94, 2.562]), sin precisión para usarse. Tras renuncia directa a cesantía: 1.112; tras fin de contrato: 1.551."
+ },
+ "EMP_ENTRADA_BASE": {
+  "valor": 0.0142,
+  "unidad": "tasa anual de pasar de asalariado a independiente (cuenta propia o empleador)",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "anios_persona_asalariado": 26209,
+   "entradas": 356
+  },
+  "ee_o_ic": {
+   "ee": 0.001
+  },
+  "estado": "dato",
+  "nota": "Por edad: {'18-29': 0.0179, '30-44': 0.0134, '45-59': 0.0092}. Solo empleador: 0.0025; independiente con boleta o factura: 0.0016. Además, 0.164 de quienes salen de la cesantía a un trabajo entran como independientes."
+ },
+ "EMP_SALIDA_12": {
+  "valor": 0.284,
+  "unidad": "riesgo anual de cerrar el trabajo independiente en los dos primeros años (forma 1-exp(-h))",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "episodios": 1198
+  },
+  "ee_o_ic": {
+   "ic95": [
+    0.251,
+    0.33
+   ]
+  },
+  "estado": "dato",
+  "nota": "Kaplan-Meier: cierra 0.313 al año, 0.433 a dos años y 0.58 a cinco. Empleadores: 0.427; cuenta propia: 0.248; con boleta o factura: 0.167. Por edad al iniciar: {'18-29': 0.346, '30-44': 0.196, '45-59': 0.33}."
+ },
+ "EMP_SALIDA_3": {
+  "valor": 0.1,
+  "unidad": "riesgo anual de cerrar el trabajo independiente entre el año 2 y el 5",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "episodios": 1198
+  },
+  "ee_o_ic": {
+   "ic95": [
+    0.068,
+    0.135
+   ]
+  },
+  "estado": "dato",
+  "nota": "Empleadores: 0.161; cuenta propia: 0.088."
+ },
+ "BRECHA_REEMPLEO_VS_CAMBIO": {
+  "valor": -0.3107,
+  "unidad": "diferencia en log sueldo: reempleo tras despido y cesantía menos cambio voluntario directo",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "pares": 6161,
+   "tras_despido": 276,
+   "cambio_voluntario": 1402
+  },
+  "ee_o_ic": {
+   "ee": 0.0659
+  },
+  "estado": "dato",
+  "nota": "Clave nueva, objetivo de calibración: el motor debe reproducir esta diferencia entre CICATRIZ + (premio previo - M_REEMPLEO) y la ganancia media de las ofertas aceptadas. Sueldo líquido mensual promedio de cada empleo (b12), con efectos fijos del año medio de cada empleo porque b12 no dice en pesos de qué año está. Contra cambios directos no voluntarios (renovaciones, fin de contrato con empleo inmediato): -0.1279 (ee 0.0654). En los cambios voluntarios directos sube el sueldo en 0.617 de los casos y queda igual en 0.236 (en pesos corrientes)."
+ },
+ "CICATRIZ_ANUAL": {
+  "valor": 0.0022,
+  "unidad": "pérdida adicional de log sueldo por cada año sin trabajo antes de reemplearse",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "pares_con_cesantia": 1175
+  },
+  "ee_o_ic": {
+   "ic95": [
+    -0.055,
+    0.06
+   ]
+  },
+  "estado": "dato",
+  "nota": "Pendiente del cambio de log sueldo sobre los años entre empleos cuando hubo cesantía. No distinguible de cero; el 0,05 del motor queda en el borde superior del intervalo."
+ },
+ "CICATRIZ_PAUSA_VS_DESPIDO": {
+  "valor": 0.0202,
+  "unidad": "diferencia en log sueldo al volver: tras pausa voluntaria menos tras despido",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "pausas": 152,
+   "despidos": 276
+  },
+  "ee_o_ic": {
+   "ee": 0.0935
+  },
+  "estado": "dato",
+  "nota": "Clave nueva. El motor da a quien vuelve de una pausa la mitad de la cicatriz de un despido (0,5 x CICATRIZ). En la EPS la caída es la misma (diferencia cercana a cero), aunque el intervalo es ancho y no descarta la mitad."
+ },
+ "M_SD": {
+  "valor": 0.224,
+  "unidad": "desviación del premio salarial entre empleadores (log)",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "pares": 1175
+  },
+  "ee_o_ic": {
+   "de_robusta_del_cambio": 0.3167,
+   "de_simple_del_cambio": 0.6095
+  },
+  "estado": "derivado",
+  "nota": "Si el premio del empleo nuevo y el del anterior son independientes con la misma dispersión, el cambio al reemplearse desde la cesantía tiene desviación M_SD x raíz de 2. Se usa la desviación robusta (rango intercuartil / 1,349) del cambio de log sueldo; el error de recuerdo del sueldo la infla, así que es cota superior."
+ },
+ "GEMELOS_BASE.sabatico": {
+  "valor": {
+   "18-29": 0.0037,
+   "30-44": 0.0017,
+   "45-59": 0.0014
+  },
+  "unidad": "fracción anual de ocupados que deja su empleo por voluntad propia y pasa a inactividad sin estudiar, cuidar ni por salud",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "18-29": 11778,
+   "30-44": 10115,
+   "45-59": 11180
+  },
+  "ee_o_ic": {
+   "18-29": 0.0005,
+   "30-44": 0.0005,
+   "45-59": 0.0004
+  },
+  "estado": "dato",
+  "nota": "Incluye quehaceres del hogar. Todas las pausas tras renuncia o mutuo acuerdo: {'18-29': 0.0236, '30-44': 0.0028, '45-59': 0.0016}, de las cuales 0.564 son para estudiar. Duración: siguen inactivos a los 12 meses 0.628 y a los 24 meses 0.553; el motor supone un año."
+ },
+ "GEMELOS_BASE.buscar_pega": {
+  "valor": {
+   "18-29": 0.0782,
+   "30-44": 0.0371,
+   "45-59": 0.0195
+  },
+  "unidad": "fracción anual de ocupados que se cambia de empleador por renuncia o por un mejor trabajo, sin pasar por cesantía",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "cambios": 1601
+  },
+  "ee_o_ic": {
+   "18-29": 0.0032,
+   "30-44": 0.0023,
+   "45-59": 0.0017
+  },
+  "estado": "dato",
+  "nota": "Es el resultado (cambio logrado), no la decisión de buscar. El valor actual del motor (0,25 / 0,16 / 0,12) es el total de cambios directos de cualquier motivo: {'18-29': 0.2178, '30-44': 0.1377, '45-59': 0.1019}."
+ },
+ "GEMELOS_BASE.emprender": {
+  "valor": {
+   "18-29": 0.0179,
+   "30-44": 0.0134,
+   "45-59": 0.0092
+  },
+  "unidad": "fracción anual de asalariados que pasa a independiente",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "entradas": 356
+  },
+  "ee_o_ic": {
+   "18-29": 0.0017,
+   "30-44": 0.0017,
+   "45-59": 0.0015
+  },
+  "estado": "dato",
+  "nota": "Misma estimación que EMP_ENTRADA_BASE, por edad."
+ },
+ "GEMELOS_BASE.magister": {
+  "valor": 0.0345,
+  "unidad": "fracción anual de ocupados con título universitario (25-45 años) que pasa a estudiar y trabajar",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "personas_anio": 589,
+   "eventos": 17
+  },
+  "ee_o_ic": {
+   "ee": 0.0111
+  },
+  "estado": "dato",
+  "nota": "ELSOC no pregunta qué se estudia; con título universitario lo más probable es un posgrado o diplomado. 17 eventos."
+ },
+ "UNION": {
+  "valor": [
+   0.0913,
+   0.0894
+  ],
+  "unidad": "tasa anual de formar pareja entre quienes no tienen (20-35 años, 36-59)",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "20-35": 442,
+   "36-59": 592
+  },
+  "ee_o_ic": {
+   "ee": [
+    0.0206,
+    0.0174
+   ]
+  },
+  "estado": "dato",
+  "nota": "Pares de olas a un año (2018-19, 2021-22), exigiendo que la nueva pareja siga en la ola siguiente. Sin esa exigencia sale 0,18-0,19, inflado por idas y vueltas conviviente-soltero. Versión estricta (mismo estado también la ola anterior): 0.0566 / 0.0329. La EPS (uniones declaradas desde la entrevista anterior) da 0.0194 / 0.0158, demasiado bajo para explicar que la fracción con pareja suba de 0.138 (18-24) a 0.559 (30-34) en ELSOC 2018; la versión persistente sí lo explica."
+ },
+ "SEPARACION": {
+  "valor": {
+   "20-35": 0.1076,
+   "36-59": 0.0801
+  },
+  "unidad": "tasa anual de quedar sin pareja entre quienes tienen (sin viudez)",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "20-35": 278,
+   "36-59": 772
+  },
+  "ee_o_ic": {
+   "ee": {
+    "20-35": 0.028,
+    "36-59": 0.014
+   }
+  },
+  "estado": "dato",
+  "nota": "Incluye el fin de convivencias, no solo divorcios. El motor usa un solo valor; los datos piden dos tramos. Estricta: 0.0971 / 0.0491. EPS (cota inferior, no ve a quien se separó y volvió a emparejarse): 0.0721 / 0.0221."
+ },
+ "HIJO_PAREJA": {
+  "valor": [
+   1.557,
+   0.624
+  ],
+  "unidad": "multiplicador de la fecundidad por edad del INE según tenga pareja o no (mujeres 18-39)",
+  "fuente": "EPS 2024 módulo B",
+  "script": "scripts/modelo/paneles_eps.py",
+  "n": {
+   "nacimientos_con_pareja": 156,
+   "nacimientos_sin_pareja": 105
+  },
+  "ee_o_ic": {
+   "ic95": [
+    [
+     1.413,
+     1.724
+    ],
+    [
+     0.518,
+     0.74
+    ]
+   ]
+  },
+  "estado": "dato",
+  "nota": "Razón estandarizada por edad: nacimientos observados sobre esperados con la tasa de todas las mujeres de su edad. Pareja medida en la entrevista anterior (unos 4-5 años antes de algunos nacimientos), lo que acerca ambos grupos: el primero es cota inferior y el segundo cota superior. Hombres: 1.777 / 0.534."
+ },
+ "ANIMO_INGRESO": {
+  "valor": 2.25,
+  "unidad": "puntos de ánimo (0-100) por cada unidad de log del ingreso propio",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "obs": 8868,
+   "personas": 2445
+  },
+  "ee_o_ic": {
+   "ee": 0.69
+  },
+  "estado": "dato",
+  "nota": "Efectos fijos de persona y ola, ocupados. Por un aumento de 100% del ingreso son 0,69 x este valor. Con ingreso del hogar: 3.27. El motor aplica 4,0 por unidad de log (su comentario dice 'por 100%', pero el código usa log)."
+ },
+ "ANIMO_HORAS_55": {
+  "valor": -0.22,
+  "unidad": "puntos de ánimo (0-100) por trabajar 55 horas o más frente a 40-45",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "obs": 4161,
+   "personas_que_cambian": 276
+  },
+  "ee_o_ic": {
+   "ee": 2.0
+  },
+  "estado": "dato",
+  "nota": "Clave nueva. Efectos fijos de persona y ola, olas 2016, 2018 y 2021. No distinguible de cero. El motor baja el ánimo con las horas por la vía de la energía (ENERGIA_HORA); ELSOC no lo muestra."
+ },
+ "SALUD_HORAS_55": {
+  "valor": -1.04,
+  "unidad": "puntos de salud (0-100), nivel por trabajar 55 horas o más frente a 40-45",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "obs": 4167,
+   "personas_que_cambian": 276
+  },
+  "ee_o_ic": {
+   "ee": 1.89
+  },
+  "estado": "dato",
+  "nota": "Clave nueva. Efectos fijos de persona y ola, olas 2016, 2018 y 2021. No distinguible de cero. El motor resta 4 puntos de salud por cada año con 55 horas o más (ATRIBUTOS.salud_horas); ELSOC no muestra diferencia de nivel dentro de la persona."
+ },
+ "DEPRESION_INCIDENCIA": {
+  "valor": {
+   "<30": 0.21,
+   "30-39": 0.1835,
+   "40-45": 0.1349,
+   "46-54": 0.1338,
+   "55+": 0.1617
+  },
+  "unidad": "probabilidad anual de pasar a síntomas depresivos moderados o severos (PHQ-9 >= 10) entre ocupados sin ellos, por horas semanales",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "<30": 562,
+   "30-39": 305,
+   "40-45": 1937,
+   "46-54": 372,
+   "55+": 364
+  },
+  "ee_o_ic": {
+   "<30": 0.0282,
+   "30-39": 0.0339,
+   "40-45": 0.0123,
+   "46-54": 0.0266,
+   "55+": 0.032
+  },
+  "estado": "dato",
+  "nota": "Clave nueva, propuesta como reemplazo medible de BURNOUT y de la energía. Todos los ocupados: 0.1533. Prevalencia por horas: {'<30': 0.2267, '30-39': 0.1549, '40-45': 0.1602, '46-54': 0.1973, '55+': 0.1917}. Efecto fijo de 55+ horas sobre la probabilidad de PHQ-9 >= 10: 0.0072 (ee 0.0345). Quedar cesante la sube en 0.0345 (ee 0.0193) y el PHQ-9 en 0.6119 puntos (ee 0.2508)."
+ },
+ "ANIMO_OTROS.cambio_empleo": {
+  "valor": -0.36,
+  "unidad": "puntos de ánimo (0-100) en el año del cambio de empleo",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "obs": 4166,
+   "personas_que_cambian": 593
+  },
+  "ee_o_ic": {
+   "ee": 1.33
+  },
+  "estado": "dato",
+  "nota": "Efectos fijos; cambio = el trabajo actual empezó este año o el anterior (m09). No distinguible de cero. El motor da +2 al aceptar una oferta."
+ },
+ "ANIMO_OTROS.ascenso": {
+  "valor": 1.22,
+  "unidad": "puntos de ánimo (0-100) al pasar a tener personas a cargo",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "obs": 3745,
+   "personas_que_cambian": 460
+  },
+  "ee_o_ic": {
+   "ee": 1.43
+  },
+  "estado": "derivado",
+  "nota": "ELSOC no pregunta por ascensos; tener personas a cargo (m06 > 0) es el sustituto. Dentro del mismo empleo: 1.13 (ee 2.81). No distinguible de cero; el motor suma +3 permanente."
+ },
+ "ATRIBUTOS.salud_edad": {
+  "valor": 0.38,
+  "unidad": "puntos de salud (0-100) que se pierden por año de edad",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "obs": 16455
+  },
+  "ee_o_ic": {
+   "ee": 0.03
+  },
+  "estado": "dato",
+  "nota": "Pendiente de salud autorreportada (s03) sobre la edad, 18-70, con efectos de ola, ponderada; compara personas de distintas edades. El cambio dentro de la misma persona por tramo de edad es {'18-29': 0.49, '30-39': 0.84, '40-49': 0.47, '50-59': 0.37, '60-70': 0.42}, ruidoso y mezclado con el período 2019-2021. El motor resta 0,6 desde los 30."
+ },
+ "RED_ELAST": {
+  "valor": 0.0514,
+  "unidad": "elasticidad del riesgo de encontrar empleo respecto del número de conocidos",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "desocupados": 389,
+   "encuentran": 233
+  },
+  "ee_o_ic": {
+   "ee": 0.0667
+  },
+  "estado": "dato",
+  "nota": "Desocupados en 2016, 2018 o 2021; resultado: ocupados un año después; cloglog con edad, sexo y educación superior. Conocidos medidos con el generador de posiciones (13 ocupaciones). No distinguible de cero; el 0,25 del motor queda fuera del intervalo de 95%. Es asociación, no efecto causal. En 2018, 0.328 de los ocupados dice que alguien lo ayudó a conseguir su trabajo."
+ },
+ "RED_REF": {
+  "valor": 31.2957,
+  "unidad": "conocidos de una persona promedio en el generador de posiciones de ELSOC",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "obs": 5199
+  },
+  "ee_o_ic": null,
+  "estado": "derivado",
+  "nota": "Mediana 24.0. Suma de conocidos en 13 ocupaciones con el punto medio de cada tramo; mide una parte de la red, no toda. Solo sirve como referencia si el motor adopta esta unidad para los contactos."
+ },
+ "RED_GANA.cambio": {
+  "valor": -0.4,
+  "unidad": "contactos nuevos por cambiar de trabajo (unidad: conocidos del generador de posiciones)",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "obs": 5199,
+   "personas_que_cambian": 660
+  },
+  "ee_o_ic": {
+   "ic95": [
+    -3.6,
+    2.8
+   ]
+  },
+  "estado": "derivado",
+  "nota": "Efecto fijo sobre log(1+conocidos): -0.0129 (ee 0.0529), multiplicado por RED_REF. No distinguible de cero; el motor suma 8."
+ },
+ "RED_PIERDE": {
+  "valor": 0.11,
+  "unidad": "fracción de los contactos que falta mientras se está desocupado (nivel, no por año)",
+  "fuente": "ELSOC 2016-2022",
+  "script": "scripts/modelo/paneles_elsoc.py",
+  "n": {
+   "obs": 5199,
+   "personas_que_cambian": 269
+  },
+  "ee_o_ic": {
+   "ic95": [
+    -0.056,
+    0.275
+   ]
+  },
+  "estado": "derivado",
+  "nota": "Efecto fijo de estar desocupado sobre log(1+conocidos). El motor resta 10% por cada año de cesantía después del primero; ELSOC no permite separar por duración."
+ },
+ "sin_dato": {
+  "CICATRIZ": "Requiere el sueldo que habría tenido quien fue despedido si no lo despiden. La EPS trae un solo sueldo por empleo (b12, promedio, sin año de referencia) y no sigue el sueldo de quienes se quedan; en ELSOC hay 30 personas que cambian de empleo con desempleo entremedio (coeficiente -0,10, ee 0,14). Queda la brecha conjunta BRECHA_REEMPLEO_VS_CAMBIO.",
+  "M_REEMPLEO": "Mismo motivo que CICATRIZ: con un sueldo por empleo solo se identifica la suma de premio de reempleo y cicatriz.",
+  "CICATRIZ_DECAE": "Hace falta el sueldo año a año después del reempleo; b12 es un promedio por empleo.",
+  "ENERGIA_HORA, ENERGIA_REVERSION, BURNOUT": "Ninguna encuesta mide energía ni licencias por agotamiento. Se propone reemplazarlos por DEPRESION_INCIDENCIA (PHQ-9 en ELSOC).",
+  "RED_GANA.anual": "Dentro de la persona los conocidos suben 11% a 15% por año en todas las edades (2016-2021), y entre edades el promedio no cambia (30 a 35): el aumento es del período, no de la edad. No se puede separar.",
+  "RED_GANA.titulo, RED_GANA.emprende": "No estimado. ELSOC mide la red solo en 2016, 2018 y 2021, no registra el inicio de un emprendimiento y el posgrado declarado (m01) cambia de una ola a otra con mucho ruido.",
+  "UMBRAL_PASIVO, UMBRAL_ACTIVO, OFERTA_FACTOR, BUSCA_MULT": "Ni la EPS ni ELSOC registran ofertas recibidas o rechazadas ni búsqueda mientras se trabaja.",
+  "GEMELOS_BASE (pedir_aumento, trabajar_mas, bajar_ritmo, reconvertir, capacitarte, networking, cuidarte, tu_gente, pituto, aceptar_oferta, postular_ascenso, bajar_pretensiones, volver_empleo)": "No hay variable en la EPS 2024 ni en ELSOC que registre estas decisiones.",
+  "ASCENSO, ASC_ALZA": "ELSOC no pregunta por ascensos ni la EPS por cambios de cargo dentro del mismo empleo."
+ }
+}

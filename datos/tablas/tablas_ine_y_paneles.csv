@@ -1,0 +1,173 @@
+tabla,valor
+ine.TIEMPO_SOCIAL_POR_HORA_TRABAJO.valor,0.994
+ine.TIEMPO_SOCIAL_POR_HORA_TRABAJO.uso,"multiplicar el tiempo de convivencia social por este factor por cada hora semanal sobre 45; ENUT 2023 da -0,6% por hora (-0,8 min/día)"
+ine.JUNTARSE_FIN_DE_SEMANA_POR_HORA.valor,0.9952
+ine.JUNTARSE_FIN_DE_SEMANA_POR_HORA.uso,"alternativa chilena a VISITAS_POR_HORA (0,935 del motor, Corea): la probabilidad de juntarse con familia o amigos no convivientes el fin de semana cae 0,48% por hora semanal extra"
+ine.OCIO_POR_TRAMO_HORAS_h_dia.<30,3.56
+ine.OCIO_POR_TRAMO_HORAS_h_dia.30-44,2.99
+ine.OCIO_POR_TRAMO_HORAS_h_dia.45-54,2.87
+ine.OCIO_POR_TRAMO_HORAS_h_dia.55+,2.53
+ine.CUIDADOS_EXTRA_POR_HIJO_0_4_h_dia.mujer,5.01
+ine.CUIDADOS_EXTRA_POR_HIJO_0_4_h_dia.hombre,1.82
+ine.MORT_por_sexo_2025.hombre,"[-10.2053, 0.09016]"
+ine.MORT_por_sexo_2025.mujer,"[-11.4101, 0.10043]"
+ine.MORT_por_sexo_2025.promedio,"[-10.7, 0.09421]"
+ine.MORT_por_sexo_2025.uso,"reemplaza K.MORT = [-10.2, 0.094], que sobreestima la mortalidad entre 1,5 y 1,7 veces a los 60-90 años"
+ine.EDAD_MADRE.media_al_nacer_cualquier_hijo,30.15
+ine.EDAD_MADRE.media_primer_hijo,28.21
+ine.EDAD_MADRE.uso,la diferencia de edad mamá-jugador puede sortearse centrada en 30 (rango 24-34 del motor queda bien centrado)
+ine.P_HIJO_ANUAL_MUJER_por_edad.15-19,0.0093
+ine.P_HIJO_ANUAL_MUJER_por_edad.20-24,0.0385
+ine.P_HIJO_ANUAL_MUJER_por_edad.25-29,0.0534
+ine.P_HIJO_ANUAL_MUJER_por_edad.30-34,0.0546
+ine.P_HIJO_ANUAL_MUJER_por_edad.35-39,0.0387
+ine.P_HIJO_ANUAL_MUJER_por_edad.40-44,0.0113
+ine.P_HIJO_ANUAL_MUJER_por_edad.45-49,0.0008
+ine.P_PRIMER_HIJO_ANUAL_MUJER_por_edad_2023.15-19,0.0102
+ine.P_PRIMER_HIJO_ANUAL_MUJER_por_edad_2023.20-24,0.0332
+ine.P_PRIMER_HIJO_ANUAL_MUJER_por_edad_2023.25-29,0.0312
+ine.P_PRIMER_HIJO_ANUAL_MUJER_por_edad_2023.30-34,0.0237
+ine.P_PRIMER_HIJO_ANUAL_MUJER_por_edad_2023.35-39,0.0131
+ine.P_PRIMER_HIJO_ANUAL_MUJER_por_edad_2023.40-44,0.0034
+ine.P_PRIMER_HIJO_ANUAL_MUJER_por_edad_2023.45-49,0.0004
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.18-19,0.0022
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.20-24,0.0075
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.25-29,0.0167
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.30-34,0.0194
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.35-39,0.0141
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.40-44,0.0095
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.45-49,0.0073
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.50-54,0.0055
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.55-59,0.0039
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.60-64,0.0029
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.65-69,0.0019
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.70-74,0.0013
+ine.P_CASARSE_ANUAL_por_edad.Mujeres.75+,0.0004
+ine.P_CASARSE_ANUAL_por_edad.Hombres.18-19,0.0008
+ine.P_CASARSE_ANUAL_por_edad.Hombres.20-24,0.0046
+ine.P_CASARSE_ANUAL_por_edad.Hombres.25-29,0.013
+ine.P_CASARSE_ANUAL_por_edad.Hombres.30-34,0.0175
+ine.P_CASARSE_ANUAL_por_edad.Hombres.35-39,0.015
+ine.P_CASARSE_ANUAL_por_edad.Hombres.40-44,0.0106
+ine.P_CASARSE_ANUAL_por_edad.Hombres.45-49,0.0078
+ine.P_CASARSE_ANUAL_por_edad.Hombres.50-54,0.0063
+ine.P_CASARSE_ANUAL_por_edad.Hombres.55-59,0.0052
+ine.P_CASARSE_ANUAL_por_edad.Hombres.60-64,0.0043
+ine.P_CASARSE_ANUAL_por_edad.Hombres.65-69,0.0039
+ine.P_CASARSE_ANUAL_por_edad.Hombres.70-74,0.0028
+ine.P_CASARSE_ANUAL_por_edad.Hombres.75+,0.0018
+ine.P_AUC_ANUAL_por_edad.18-19,0.0004
+ine.P_AUC_ANUAL_por_edad.20-24,0.0016
+ine.P_AUC_ANUAL_por_edad.25-29,0.0036
+ine.P_AUC_ANUAL_por_edad.30-34,0.0035
+ine.P_AUC_ANUAL_por_edad.35-39,0.0025
+ine.P_AUC_ANUAL_por_edad.40-44,0.0016
+ine.P_AUC_ANUAL_por_edad.45-49,0.0012
+ine.P_AUC_ANUAL_por_edad.50-54,0.0008
+ine.P_AUC_ANUAL_por_edad.55-59,0.0005
+ine.P_AUC_ANUAL_por_edad.60-64,0.0004
+ine.P_AUC_ANUAL_por_edad.65-69,0.0003
+ine.P_AUC_ANUAL_por_edad.70-74,0.0001
+ine.REAJUSTE_REAL_ANUAL.valor,0.0173
+ine.REAJUSTE_REAL_ANUAL.desv,0.0136
+ine.REAJUSTE_REAL_ANUAL.uso,"crecimiento real del sueldo de toda la economía, aparte del ascenso y la experiencia"
+ine.MULT_SALIDA_POR_RUBRO.Minería,0.57
+ine.MULT_SALIDA_POR_RUBRO.Finanzas y seguros,0.67
+ine.MULT_SALIDA_POR_RUBRO.Información y comunicaciones,0.93
+ine.MULT_SALIDA_POR_RUBRO.Comercio,0.96
+ine.MULT_SALIDA_POR_RUBRO.Salud,0.61
+ine.MULT_SALIDA_POR_RUBRO.Enseñanza,0.6
+ine.MULT_SALIDA_POR_RUBRO.Servicios profesionales,1.04
+ine.MULT_SALIDA_POR_RUBRO.Construcción,1.67
+ine.MULT_SALIDA_POR_RUBRO.Industria manufacturera,0.9
+ine.MULT_SALIDA_POR_RUBRO.Transporte,0.96
+ine.MULT_SALIDA_POR_RUBRO.Agricultura y pesca,1.38
+ine.MULT_SALIDA_POR_RUBRO.Hoteles y restaurantes,1.21
+ine.MULT_SALIDA_POR_RUBRO.Artes y entretención,0.91
+ine.MULT_SALIDA_POR_RUBRO.Servicios administrativos,1.47
+ine.MULT_SALIDA_POR_RUBRO.Otros servicios,0.84
+ine.MULT_SALIDA_POR_TAMANO.Pequeñas Empresas,1.15
+ine.MULT_SALIDA_POR_TAMANO.Medianas Empresas,1.13
+ine.MULT_SALIDA_POR_TAMANO.Microempresas,1.05
+ine.MULT_SALIDA_POR_TAMANO.Grandes Empresas,0.89
+ine.DESOCUPACION_por_edad.15-17,0.4241
+ine.DESOCUPACION_por_edad.18-24,0.2191
+ine.DESOCUPACION_por_edad.25-29,0.1177
+ine.DESOCUPACION_por_edad.30-34,0.075
+ine.DESOCUPACION_por_edad.35-44,0.0632
+ine.DESOCUPACION_por_edad.45-54,0.0601
+ine.DESOCUPACION_por_edad.55-64,0.0604
+ine.DESOCUPACION_por_edad.65+,0.0512
+ine.DESOCUPACION_por_edad.total,0.0805
+ine.INFORMALIDAD_por_edad.15-17,0.8695
+ine.INFORMALIDAD_por_edad.18-24,0.361
+ine.INFORMALIDAD_por_edad.25-29,0.2357
+ine.INFORMALIDAD_por_edad.30-34,0.2068
+ine.INFORMALIDAD_por_edad.35-44,0.2155
+ine.INFORMALIDAD_por_edad.45-54,0.239
+ine.INFORMALIDAD_por_edad.55-64,0.3031
+ine.INFORMALIDAD_por_edad.65+,0.5811
+ine.INFORMALIDAD_por_edad.total,0.2682
+ine.MESES_BUSQUEDA_EN_CURSO.mediana,3.5
+ine.MESES_BUSQUEDA_EN_CURSO.media,7.26
+ine.TASA_AHORRO_por_quintil.Total,-0.027
+ine.TASA_AHORRO_por_quintil.I,-1.045
+ine.TASA_AHORRO_por_quintil.II,-0.397
+ine.TASA_AHORRO_por_quintil.III,-0.217
+ine.TASA_AHORRO_por_quintil.IV,-0.059
+ine.TASA_AHORRO_por_quintil.V,0.195
+paneles.DESPIDO_por_edad_anual.fuente,"EPS 2016-2024, tasa_involuntario (despido + cierre + fuerza mayor)"
+paneles.DESPIDO_por_edad_anual.18-29,0.0529
+paneles.DESPIDO_por_edad_anual.30-44,0.0333
+paneles.DESPIDO_por_edad_anual.45-59,0.0274
+paneles.DESPIDO_por_edad_anual.mas_fin_de_contrato.18-29,0.1433
+paneles.DESPIDO_por_edad_anual.mas_fin_de_contrato.30-44,0.0662
+paneles.DESPIDO_por_edad_anual.mas_fin_de_contrato.45-59,0.0495
+paneles.RENUNCIA_por_edad_anual.18-29,0.1166
+paneles.RENUNCIA_por_edad_anual.30-44,0.0478
+paneles.RENUNCIA_por_edad_anual.45-59,0.0237
+paneles.CAMBIO_EMPLEADOR_por_edad_anual.18-29,0.2178
+paneles.CAMBIO_EMPLEADOR_por_edad_anual.30-44,0.1377
+paneles.CAMBIO_EMPLEADOR_por_edad_anual.45-59,0.1019
+paneles.MESES_CESANTIA.mediana_KM_meses.18-29,5
+paneles.MESES_CESANTIA.mediana_KM_meses.30-44,11
+paneles.MESES_CESANTIA.mediana_KM_meses.45-59,11
+paneles.MESES_CESANTIA.mediana_KM_meses.todos,8
+paneles.MESES_CESANTIA.media_exponencial_equivalente_meses.18-29,9.9
+paneles.MESES_CESANTIA.media_exponencial_equivalente_meses.30-44,10.5
+paneles.MESES_CESANTIA.media_exponencial_equivalente_meses.45-59,13.2
+paneles.MESES_CESANTIA.media_exponencial_equivalente_meses.todos,11.0
+paneles.MESES_CESANTIA.nota,"media exponencial que reproduce la sobrevida KM a 12 meses: -12/ln(S12). pEncontrar anual = 1 - S12 = 0,70 / 0,68 / 0,60."
+paneles.ANIMO_cesantia.s01_coef.coef,-0.1488
+paneles.ANIMO_cesantia.s01_coef.se,0.0409
+paneles.ANIMO_cesantia.s01_coef.personas_con_cambio,619
+paneles.ANIMO_cesantia.en_puntos_0_100,-3.7
+paneles.ANIMO_cesantia.conversion,1 punto de s01 (1-5) = 25 puntos de animo (0-100)
+paneles.ANIMO_reempleo.s01_k0.coef,0.2401
+paneles.ANIMO_reempleo.s01_k0.se,0.0682
+paneles.ANIMO_reempleo.s01_k0.personas_con_cambio,355
+paneles.ANIMO_reempleo.en_puntos_0_100,6.0
+paneles.ANIMO_pareja.s01_coef.coef,0.0975
+paneles.ANIMO_pareja.s01_coef.se,0.029
+paneles.ANIMO_pareja.s01_coef.personas_con_cambio,1066
+paneles.ANIMO_pareja.en_puntos_0_100,2.4
+paneles.HIJO_SALE_MUJER,0.173
+paneles.HIJO_SALE_HOMBRE,0.05
+epf_quintiles.Total.gasto_per_capita,564680
+epf_quintiles.Total.ingreso_disponible_per_capita,555437
+epf_quintiles.Total.tasa_ahorro_aparente,-0.027
+epf_quintiles.I.gasto_per_capita,350084
+epf_quintiles.I.ingreso_disponible_per_capita,190432
+epf_quintiles.I.tasa_ahorro_aparente,-1.045
+epf_quintiles.II.gasto_per_capita,395420
+epf_quintiles.II.ingreso_disponible_per_capita,306616
+epf_quintiles.II.tasa_ahorro_aparente,-0.397
+epf_quintiles.III.gasto_per_capita,483474
+epf_quintiles.III.ingreso_disponible_per_capita,409075
+epf_quintiles.III.tasa_ahorro_aparente,-0.217
+epf_quintiles.IV.gasto_per_capita,599134
+epf_quintiles.IV.ingreso_disponible_per_capita,592073
+epf_quintiles.IV.tasa_ahorro_aparente,-0.059
+epf_quintiles.V.gasto_per_capita,995289
+epf_quintiles.V.ingreso_disponible_per_capita,1278988
+epf_quintiles.V.tasa_ahorro_aparente,0.195

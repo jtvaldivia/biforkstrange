@@ -1,0 +1,1132 @@
+{
+ "_meta": {
+  "generado": "2026-11-21",
+  "scripts": [
+   "magister_selectividad.py",
+   "magister_oferta.py",
+   "magister_digitaliza_fig_c1.py",
+   "magister_ensamblar.py"
+  ],
+  "oferta_fuente": "SIES/mifuturo Oferta_Academica_2026_SIES_05_06_2026_WEB_E.xlsx, https://www.mifuturo.cl/bases-de-datos-de-oferta-academica/",
+  "oferta_universo": "Nivel Carrera = Magister, Vigencia = 'Vigente con estudiantes nuevos'. Cada fila es un codigo unico (programa x sede x jornada x version), no un programa distinto.",
+  "arancel": "Arancel Anual en pesos; 130 filas en UF convertidas con UF 05-06-2026 = 40.695,38 (SII, https://www.sii.cl/valores_y_fechas/uf/uf2026.htm); aranceles en 0 excluidos (20 filas)",
+  "duracion": "Duracion Total de SIES (semestres, incluye titulacion)",
+  "jornadas_sies": "Diurna, Vespertina, Semipresencial, A Distancia, Otra. No hay categoria 'fin de semana' ni 'tiempo parcial'."
+ },
+ "prima": {
+  "fuente": "DIPRES mar. 2026, 'Radiografia de la formacion de postgrado', Anexo, Figura C1 panel inferior (p. 47) y texto p. 31 y p. 45-46",
+  "url": "https://www.dipres.gob.cl/598/articles-406754_doc_pdf.pdf",
+  "metodo": "estudio de eventos con efectos fijos de dos vias, becarios Magister Nacional vs no becarios, renta total mensual SII en USD; t = anos desde la adjudicacion",
+  "pooled_referencia": {
+   "usd_mes_ano_7": 150,
+   "rango_usd_mes_fig8": [
+    130,
+    170
+   ],
+   "estado": "vista",
+   "pagina": "p. 4 y Fig. 8 (p. 29)",
+   "motor_actual_pct": 0.07
+  },
+  "competitiva": {
+   "serie": {
+    "t0": {
+     "usd_mes": -6,
+     "ic95": [
+      -77,
+      65
+     ]
+    },
+    "t1": {
+     "usd_mes": -46,
+     "ic95": [
+      -154,
+      61
+     ]
+    },
+    "t2": {
+     "usd_mes": 194,
+     "ic95": [
+      53,
+      335
+     ]
+    },
+    "t3": {
+     "usd_mes": 256,
+     "ic95": [
+      94,
+      418
+     ]
+    },
+    "t4": {
+     "usd_mes": 207,
+     "ic95": [
+      27,
+      388
+     ]
+    },
+    "t5": {
+     "usd_mes": 115,
+     "ic95": [
+      -63,
+      295
+     ]
+    },
+    "t6": {
+     "usd_mes": 213,
+     "ic95": [
+      18,
+      407
+     ]
+    },
+    "t7": {
+     "usd_mes": 269,
+     "ic95": [
+      71,
+      468
+     ]
+    }
+   },
+   "media_t5_t7_usd_mes": 199,
+   "estado": "calculada (digitalizacion de la Figura C1; los valores no estan tabulados en el informe)",
+   "lectura": "IC excluye cero en t2, t3, t4, t6, t7; costo de estudiar (t0-t1) chico y no significativo"
+  },
+  "no_competitiva": {
+   "serie": {
+    "t0": {
+     "usd_mes": -118,
+     "ic95": [
+      -196,
+      -40
+     ]
+    },
+    "t1": {
+     "usd_mes": -193,
+     "ic95": [
+      -286,
+      -100
+     ]
+    },
+    "t2": {
+     "usd_mes": -27,
+     "ic95": [
+      -131,
+      78
+     ]
+    },
+    "t3": {
+     "usd_mes": 75,
+     "ic95": [
+      -41,
+      192
+     ]
+    },
+    "t4": {
+     "usd_mes": 105,
+     "ic95": [
+      -27,
+      236
+     ]
+    },
+    "t5": {
+     "usd_mes": -8,
+     "ic95": [
+      -143,
+      125
+     ]
+    },
+    "t6": {
+     "usd_mes": 32,
+     "ic95": [
+      -106,
+      173
+     ]
+    },
+    "t7": {
+     "usd_mes": 6,
+     "ic95": [
+      -148,
+      159
+     ]
+    }
+   },
+   "media_t5_t7_usd_mes": 10,
+   "estado": "calculada (digitalizacion de la Figura C1)",
+   "lectura": "caida significativa durante los estudios (t0 -118, t1 -193 USD); desde t2 el IC siempre incluye cero"
+  },
+  "en_pct_escalado": {
+   "competitiva_t7": 0.126,
+   "competitiva_media_t5_t7": 0.093,
+   "no_competitiva_t7": 0.003,
+   "no_competitiva_media_t5_t7": 0.005,
+   "estado": "calculada",
+   "supuesto": "escala el 7 % del motor (equivalente a 150 USD pooled) en proporcion a los USD de cada grupo; supone la misma renta base en ambos grupos, cosa que el informe no reporta"
+  },
+  "advertencia": "El informe se contradice: el cuerpo (p. 31) dice que las competitivas sostienen la prima y en las no competitivas se diluye con IC que incluye cero; el anexo (p. 45-46) dice que los IC de ambos grupos se traslapan en t2-t7 y que no hay diferencia significativa entre ellos (puntos de las competitivas 'en torno a 200 y 300 USD'). Lo defendible: prima positiva y distinta de cero solo en competitivas; diferencia entre grupos no significativa.",
+  "jornada_o_duracion": "DIPRES 2026 no separa por jornada ni duracion del programa (ver sin_dato)",
+  "dipres_2024": {
+   "estado": "vista",
+   "url": "https://www.dipres.gob.cl/597/articles-341575_informe_final.pdf",
+   "nota": "No trae cortes por institucion ni por selectividad; solo efectos agregados (Tabla A.20, magister nacional, ningun coeficiente significativo)."
+  }
+ },
+ "definicion_selectiva": {
+  "criterio_dipres": "Anexo p. 44-45: se ordena a todos los postulantes por puntaje de admision (PAA/PSU) en 10 deciles; una universidad es 'competitiva' si la proporcion de sus estudiantes en deciles 8-10 supera a la de deciles 1-7 (mas de la mitad en el 30 % superior).",
+  "estado_criterio": "vista",
+  "lista_dipres": "sin_dato: el informe no publica que universidades quedan en cada grupo",
+  "ambiguedad": "El anexo titula 'Clasificacion ... (Pregrado)' y habla de 'institucion de origen'; no queda claro si clasifica la universidad del pregrado del becario o la del magister. Aqui se aplica a la universidad que dicta el magister.",
+  "replica": {
+   "estado": "calculada",
+   "script": "datos_laborales/scripts/modelo/magister_selectividad.py",
+   "datos": "DEMRE/Mineduc datos abiertos, PAES 2024 y 2025: Inscritos-Puntajes y Matricula (https://datosabiertos.mineduc.cl/pruebas-de-admision-a-la-educacion-superior/)",
+   "puntaje": "PROMEDIO_CM_MAX (promedio Competencia Lectora + Matematica 1)",
+   "poblacion_deciles": "inscritos con puntaje > 0 (270.604 en 2025; 268.915 en 2024). DIPRES usa 'universo total de postulantes'; si se usaran solo postulantes, los cortes suben y la lista podria achicarse.",
+   "corte_decil_8": {
+    "paes2025": 675.5,
+    "paes2024": 664.0
+   },
+   "regla_final": "selectiva = 'si' si es competitiva en 2024 y 2025; 'borde' si cambia entre anos; 'no' si no lo es en ninguno; null si no admite por el sistema DEMRE",
+   "selectivas": [
+    "UNIVERSIDAD ADOLFO IBAÑEZ",
+    "PONTIFICIA UNIVERSIDAD CATOLICA DE CHILE",
+    "UNIVERSIDAD TECNICA FEDERICO SANTA MARIA",
+    "UNIVERSIDAD DE LOS ANDES",
+    "UNIVERSIDAD DE CHILE",
+    "UNIVERSIDAD DE CONCEPCION",
+    "UNIVERSIDAD DE SANTIAGO DE CHILE",
+    "UNIVERSIDAD DIEGO PORTALES",
+    "UNIVERSIDAD DEL DESARROLLO",
+    "PONTIFICIA UNIVERSIDAD CATOLICA DE VALPARAISO",
+    "UNIVERSIDAD DE LA FRONTERA"
+   ],
+   "borde": [
+    "UNIVERSIDAD DE TALCA"
+   ],
+   "limite": "Cohortes 2024-2025, no las cohortes PSU que uso DIPRES; universidades fuera del Sistema de Acceso quedan sin clasificar."
+  }
+ },
+ "universidades": [
+  {
+   "nombre": "UNIVERSIDAD ADOLFO IBAÑEZ",
+   "codigo_ies": 23,
+   "sigla_demre": "UAI",
+   "selectiva": "si",
+   "frac_top30_paes2024": 0.8765,
+   "frac_top30_paes2025": 0.9046,
+   "n_magister": 75,
+   "arancel_anual_mediano": 8546030,
+   "duracion_semestres_mediana": 3.0,
+   "frac_no_diurna": 0.493
+  },
+  {
+   "nombre": "PONTIFICIA UNIVERSIDAD CATOLICA DE CHILE",
+   "codigo_ies": 86,
+   "sigla_demre": "UC",
+   "selectiva": "si",
+   "frac_top30_paes2024": 0.8898,
+   "frac_top30_paes2025": 0.8943,
+   "n_magister": 131,
+   "arancel_anual_mediano": 5864000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.45
+  },
+  {
+   "nombre": "UNIVERSIDAD TECNICA FEDERICO SANTA MARIA",
+   "codigo_ies": 88,
+   "sigla_demre": "UTFSM",
+   "selectiva": "si",
+   "frac_top30_paes2024": 0.8314,
+   "frac_top30_paes2025": 0.8506,
+   "n_magister": 20,
+   "arancel_anual_mediano": 7110000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.15
+  },
+  {
+   "nombre": "UNIVERSIDAD DE LOS ANDES",
+   "codigo_ies": 34,
+   "sigla_demre": "UANDES",
+   "selectiva": "si",
+   "frac_top30_paes2024": 0.8536,
+   "frac_top30_paes2025": 0.8502,
+   "n_magister": 36,
+   "arancel_anual_mediano": 4598578,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.417
+  },
+  {
+   "nombre": "UNIVERSIDAD DE CHILE",
+   "codigo_ies": 70,
+   "sigla_demre": "UCH",
+   "selectiva": "si",
+   "frac_top30_paes2024": 0.852,
+   "frac_top30_paes2025": 0.8345,
+   "n_magister": 124,
+   "arancel_anual_mediano": 4876162,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.5
+  },
+  {
+   "nombre": "UNIVERSIDAD DE CONCEPCION",
+   "codigo_ies": 87,
+   "sigla_demre": "UDEC",
+   "selectiva": "si",
+   "frac_top30_paes2024": 0.6829,
+   "frac_top30_paes2025": 0.6768,
+   "n_magister": 72,
+   "arancel_anual_mediano": 4378000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.278
+  },
+  {
+   "nombre": "UNIVERSIDAD DE SANTIAGO DE CHILE",
+   "codigo_ies": 71,
+   "sigla_demre": "USACH",
+   "selectiva": "si",
+   "frac_top30_paes2024": 0.6319,
+   "frac_top30_paes2025": 0.6356,
+   "n_magister": 45,
+   "arancel_anual_mediano": 2948420,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.711
+  },
+  {
+   "nombre": "UNIVERSIDAD DIEGO PORTALES",
+   "codigo_ies": 3,
+   "sigla_demre": "UDP",
+   "selectiva": "si",
+   "frac_top30_paes2024": 0.5903,
+   "frac_top30_paes2025": 0.6161,
+   "n_magister": 32,
+   "arancel_anual_mediano": 3491666,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.812
+  },
+  {
+   "nombre": "UNIVERSIDAD DEL DESARROLLO",
+   "codigo_ies": 45,
+   "sigla_demre": "UDD",
+   "selectiva": "si",
+   "frac_top30_paes2024": 0.5862,
+   "frac_top30_paes2025": 0.5804,
+   "n_magister": 33,
+   "arancel_anual_mediano": 4883446,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.606
+  },
+  {
+   "nombre": "PONTIFICIA UNIVERSIDAD CATOLICA DE VALPARAISO",
+   "codigo_ies": 89,
+   "sigla_demre": "PUCV",
+   "selectiva": "si",
+   "frac_top30_paes2024": 0.5113,
+   "frac_top30_paes2025": 0.5276,
+   "n_magister": 42,
+   "arancel_anual_mediano": 3125000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.69
+  },
+  {
+   "nombre": "UNIVERSIDAD DE LA FRONTERA",
+   "codigo_ies": 76,
+   "sigla_demre": "UFRO",
+   "selectiva": "si",
+   "frac_top30_paes2024": 0.5538,
+   "frac_top30_paes2025": 0.5137,
+   "n_magister": 30,
+   "arancel_anual_mediano": 2725000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.1
+  },
+  {
+   "nombre": "UNIVERSIDAD DE TALCA",
+   "codigo_ies": 78,
+   "sigla_demre": "UTAL",
+   "selectiva": "borde",
+   "frac_top30_paes2024": 0.5123,
+   "frac_top30_paes2025": 0.4853,
+   "n_magister": 25,
+   "arancel_anual_mediano": 3176278,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.44
+  },
+  {
+   "nombre": "UNIVERSIDAD DE LA SERENA",
+   "codigo_ies": 74,
+   "sigla_demre": "ULS",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.4526,
+   "frac_top30_paes2025": 0.4744,
+   "n_magister": 7,
+   "arancel_anual_mediano": 2528500,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.286
+  },
+  {
+   "nombre": "UNIVERSIDAD CATOLICA DEL NORTE",
+   "codigo_ies": 91,
+   "sigla_demre": "UCN",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.435,
+   "frac_top30_paes2025": 0.4348,
+   "n_magister": 27,
+   "arancel_anual_mediano": 3322500,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.481
+  },
+  {
+   "nombre": "UNIVERSIDAD MAYOR",
+   "codigo_ies": 10,
+   "sigla_demre": "UMAYOR",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.4637,
+   "frac_top30_paes2025": 0.4344,
+   "n_magister": 34,
+   "arancel_anual_mediano": 2930000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.971
+  },
+  {
+   "nombre": "UNIVERSIDAD DE VALPARAISO",
+   "codigo_ies": 72,
+   "sigla_demre": "UV",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.4158,
+   "frac_top30_paes2025": 0.3928,
+   "n_magister": 48,
+   "arancel_anual_mediano": 3000000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.688
+  },
+  {
+   "nombre": "UNIVERSIDAD DEL BIO-BIO",
+   "codigo_ies": 75,
+   "sigla_demre": "UBB",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.3917,
+   "frac_top30_paes2025": 0.3848,
+   "n_magister": 25,
+   "arancel_anual_mediano": 2791000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.24
+  },
+  {
+   "nombre": "UNIVERSIDAD CATOLICA DEL MAULE",
+   "codigo_ies": 92,
+   "sigla_demre": "UCM",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.3839,
+   "frac_top30_paes2025": 0.381,
+   "n_magister": 19,
+   "arancel_anual_mediano": 2748000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.211
+  },
+  {
+   "nombre": "UNIVERSIDAD AUSTRAL DE CHILE",
+   "codigo_ies": 90,
+   "sigla_demre": "UACH",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.4392,
+   "frac_top30_paes2025": 0.3697,
+   "n_magister": 42,
+   "arancel_anual_mediano": 3011000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.714
+  },
+  {
+   "nombre": "UNIVERSIDAD CATOLICA DE LA SANTISIMA CONCEPCION",
+   "codigo_ies": 93,
+   "sigla_demre": "UCSC",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.3336,
+   "frac_top30_paes2025": 0.3672,
+   "n_magister": 26,
+   "arancel_anual_mediano": 3535000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.846
+  },
+  {
+   "nombre": "UNIVERSIDAD ANDRES BELLO",
+   "codigo_ies": 20,
+   "sigla_demre": "UNAB",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.3596,
+   "frac_top30_paes2025": 0.3455,
+   "n_magister": 58,
+   "arancel_anual_mediano": 6825000,
+   "duracion_semestres_mediana": 3.0,
+   "frac_no_diurna": 0.897
+  },
+  {
+   "nombre": "UNIVERSIDAD DE O'HIGGINS",
+   "codigo_ies": 895,
+   "sigla_demre": "UOH",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.3756,
+   "frac_top30_paes2025": 0.319,
+   "n_magister": 6,
+   "arancel_anual_mediano": 3307500,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.5
+  },
+  {
+   "nombre": "UNIVERSIDAD DE ANTOFAGASTA",
+   "codigo_ies": 73,
+   "sigla_demre": "UANT",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.3292,
+   "frac_top30_paes2025": 0.3076,
+   "n_magister": 6,
+   "arancel_anual_mediano": 2600000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.0
+  },
+  {
+   "nombre": "UNIVERSIDAD DE MAGALLANES",
+   "codigo_ies": 77,
+   "sigla_demre": "UMAG",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.3209,
+   "frac_top30_paes2025": 0.3025,
+   "n_magister": 7,
+   "arancel_anual_mediano": 3535000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.857
+  },
+  {
+   "nombre": "UNIVERSIDAD FINIS TERRAE",
+   "codigo_ies": 2,
+   "sigla_demre": "UFT",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.3252,
+   "frac_top30_paes2025": 0.302,
+   "n_magister": 13,
+   "arancel_anual_mediano": 2825000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.846
+  },
+  {
+   "nombre": "UNIVERSIDAD SAN SEBASTIAN",
+   "codigo_ies": 39,
+   "sigla_demre": "USS",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.3354,
+   "frac_top30_paes2025": 0.2955,
+   "n_magister": 56,
+   "arancel_anual_mediano": 3645000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.875
+  },
+  {
+   "nombre": "UNIVERSIDAD AUTONOMA DE CHILE",
+   "codigo_ies": 31,
+   "sigla_demre": "UA",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.3051,
+   "frac_top30_paes2025": 0.2805,
+   "n_magister": 66,
+   "arancel_anual_mediano": 5490000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.955
+  },
+  {
+   "nombre": "UNIVERSIDAD DE TARAPACA",
+   "codigo_ies": 80,
+   "sigla_demre": "UTA",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.2803,
+   "frac_top30_paes2025": 0.2567,
+   "n_magister": 10,
+   "arancel_anual_mediano": 3000000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.3
+  },
+  {
+   "nombre": "UNIVERSIDAD ALBERTO HURTADO",
+   "codigo_ies": 69,
+   "sigla_demre": "UAH",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.2998,
+   "frac_top30_paes2025": 0.2503,
+   "n_magister": 30,
+   "arancel_anual_mediano": 2540000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD DE ATACAMA",
+   "codigo_ies": 79,
+   "sigla_demre": "UDA",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.2395,
+   "frac_top30_paes2025": 0.2492,
+   "n_magister": 11,
+   "arancel_anual_mediano": 3240000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.455
+  },
+  {
+   "nombre": "UNIVERSIDAD CATOLICA DE TEMUCO",
+   "codigo_ies": 94,
+   "sigla_demre": "UCT",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.2214,
+   "frac_top30_paes2025": 0.2455,
+   "n_magister": 7,
+   "arancel_anual_mediano": 2289000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.714
+  },
+  {
+   "nombre": "UNIVERSIDAD TECNOLOGICA METROPOLITANA",
+   "codigo_ies": 85,
+   "sigla_demre": "UTEM",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.2285,
+   "frac_top30_paes2025": 0.2428,
+   "n_magister": 14,
+   "arancel_anual_mediano": 3325000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.857
+  },
+  {
+   "nombre": "UNIVERSIDAD METROPOLITANA DE CIENCIAS DE LA EDUCACION",
+   "codigo_ies": 82,
+   "sigla_demre": "UMCE",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.3074,
+   "frac_top30_paes2025": 0.2375,
+   "n_magister": 12,
+   "arancel_anual_mediano": 3216000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.833
+  },
+  {
+   "nombre": "UNIVERSIDAD BERNARDO O'HIGGINS",
+   "codigo_ies": 50,
+   "sigla_demre": "UBO",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.2323,
+   "frac_top30_paes2025": 0.2055,
+   "n_magister": 7,
+   "arancel_anual_mediano": 2750000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD CENTRAL DE CHILE",
+   "codigo_ies": 4,
+   "sigla_demre": "UCENTRAL",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.2017,
+   "frac_top30_paes2025": 0.1724,
+   "n_magister": 31,
+   "arancel_anual_mediano": 2965200,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD ARTURO PRAT",
+   "codigo_ies": 81,
+   "sigla_demre": "UNAP",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.1573,
+   "frac_top30_paes2025": 0.1671,
+   "n_magister": 9,
+   "arancel_anual_mediano": 2223500,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.667
+  },
+  {
+   "nombre": "UNIVERSIDAD DE LOS LAGOS",
+   "codigo_ies": 84,
+   "sigla_demre": "ULAG",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.1754,
+   "frac_top30_paes2025": 0.1601,
+   "n_magister": 10,
+   "arancel_anual_mediano": 2440000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.0
+  },
+  {
+   "nombre": "UNIVERSIDAD ADVENTISTA DE CHILE",
+   "codigo_ies": 38,
+   "sigla_demre": "UNACH",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.1926,
+   "frac_top30_paes2025": 0.1592,
+   "n_magister": 3,
+   "arancel_anual_mediano": 2757000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD SANTO TOMAS",
+   "codigo_ies": 13,
+   "sigla_demre": "UST",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.258,
+   "frac_top30_paes2025": 0.1525,
+   "n_magister": 13,
+   "arancel_anual_mediano": 2908350,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD DE PLAYA ANCHA DE CIENCIAS DE LA EDUCACION",
+   "codigo_ies": 83,
+   "sigla_demre": "UPA",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.1232,
+   "frac_top30_paes2025": 0.1237,
+   "n_magister": 10,
+   "arancel_anual_mediano": 2500000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.4
+  },
+  {
+   "nombre": "UNIVERSIDAD GABRIELA MISTRAL",
+   "codigo_ies": 1,
+   "sigla_demre": "UGM",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.1528,
+   "frac_top30_paes2025": 0.1215,
+   "n_magister": 18,
+   "arancel_anual_mediano": 6401000,
+   "duracion_semestres_mediana": 3.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD DE AYSEN",
+   "codigo_ies": 896,
+   "sigla_demre": "UAYSEN",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.1644,
+   "frac_top30_paes2025": 0.1102,
+   "n_magister": 1,
+   "arancel_anual_mediano": 5000000,
+   "duracion_semestres_mediana": 3.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD CATOLICA CARDENAL RAUL SILVA HENRIQUEZ",
+   "codigo_ies": 42,
+   "sigla_demre": "UCSH",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.1099,
+   "frac_top30_paes2025": 0.0839,
+   "n_magister": 1,
+   "arancel_anual_mediano": 2135250,
+   "duracion_semestres_mediana": 3.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD ACADEMIA DE HUMANISMO CRISTIANO",
+   "codigo_ies": 11,
+   "sigla_demre": "UACADEMIA",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.1234,
+   "frac_top30_paes2025": 0.0829,
+   "n_magister": 5,
+   "arancel_anual_mediano": 4500000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD DE LAS AMERICAS",
+   "codigo_ies": 19,
+   "sigla_demre": "UDLA",
+   "selectiva": "no",
+   "frac_top30_paes2024": 0.0795,
+   "frac_top30_paes2025": 0.0766,
+   "n_magister": 17,
+   "arancel_anual_mediano": 4680000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 0.941
+  },
+  {
+   "nombre": "ACADEMIA DE GUERRA NAVAL",
+   "codigo_ies": 970,
+   "sigla_demre": null,
+   "selectiva": null,
+   "frac_top30_paes2024": null,
+   "frac_top30_paes2025": null,
+   "n_magister": 3,
+   "arancel_anual_mediano": null,
+   "duracion_semestres_mediana": 3.0,
+   "frac_no_diurna": 0.667
+  },
+  {
+   "nombre": "ACADEMIA NACIONAL DE ESTUDIOS POLITICOS Y ESTRATEGICOS ANEPE",
+   "codigo_ies": 674,
+   "sigla_demre": null,
+   "selectiva": null,
+   "frac_top30_paes2024": null,
+   "frac_top30_paes2025": null,
+   "n_magister": 1,
+   "arancel_anual_mediano": 2750000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD DE ACONCAGUA",
+   "codigo_ies": 46,
+   "sigla_demre": null,
+   "selectiva": null,
+   "frac_top30_paes2024": null,
+   "frac_top30_paes2025": null,
+   "n_magister": 1,
+   "arancel_anual_mediano": 2921625,
+   "duracion_semestres_mediana": 3.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD DE ARTES, CIENCIAS Y COMUNICACION - UNIACC",
+   "codigo_ies": 26,
+   "sigla_demre": null,
+   "selectiva": null,
+   "frac_top30_paes2024": null,
+   "frac_top30_paes2025": null,
+   "n_magister": 3,
+   "arancel_anual_mediano": 4500000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD DE VIÑA DEL MAR",
+   "codigo_ies": 22,
+   "sigla_demre": null,
+   "selectiva": null,
+   "frac_top30_paes2024": null,
+   "frac_top30_paes2025": null,
+   "n_magister": 13,
+   "arancel_anual_mediano": 5454649,
+   "duracion_semestres_mediana": 3.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD DEL ALBA",
+   "codigo_ies": 9,
+   "sigla_demre": null,
+   "selectiva": null,
+   "frac_top30_paes2024": null,
+   "frac_top30_paes2025": null,
+   "n_magister": 3,
+   "arancel_anual_mediano": 3956000,
+   "duracion_semestres_mediana": 4.0,
+   "frac_no_diurna": 1.0
+  },
+  {
+   "nombre": "UNIVERSIDAD MIGUEL DE CERVANTES",
+   "codigo_ies": 68,
+   "sigla_demre": null,
+   "selectiva": null,
+   "frac_top30_paes2024": null,
+   "frac_top30_paes2025": null,
+   "n_magister": 3,
+   "arancel_anual_mediano": 3570000,
+   "duracion_semestres_mediana": 3.0,
+   "frac_no_diurna": 1.0
+  }
+ ],
+ "por_jornada": {
+  "estado": "calculada",
+  "por_jornada": {
+   "A Distancia": {
+    "n": 265,
+    "n_con_arancel": 264,
+    "arancel_anual_mediano": 4500000,
+    "arancel_anual_p25_p75": [
+     3284744,
+     5526667
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   },
+   "Diurna": {
+    "n": 501,
+    "n_con_arancel": 490,
+    "arancel_anual_mediano": 4073269,
+    "arancel_anual_p25_p75": [
+     2818000,
+     5946539
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   },
+   "Otra": {
+    "n": 18,
+    "n_con_arancel": 18,
+    "arancel_anual_mediano": 4987500,
+    "arancel_anual_p25_p75": [
+     3491535,
+     7647679
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   },
+   "Semipresencial": {
+    "n": 302,
+    "n_con_arancel": 301,
+    "arancel_anual_mediano": 3466667,
+    "arancel_anual_p25_p75": [
+     2875000,
+     4679969
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   },
+   "Vespertina": {
+    "n": 255,
+    "n_con_arancel": 248,
+    "arancel_anual_mediano": 4122500,
+    "arancel_anual_p25_p75": [
+     3025125,
+     5457875
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   }
+  },
+  "diurna_vs_no_diurna": {
+   "diurna": {
+    "n": 501,
+    "n_con_arancel": 490,
+    "arancel_anual_mediano": 4073269,
+    "arancel_anual_p25_p75": [
+     2818000,
+     5946539
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   },
+   "no_diurna": {
+    "n": 840,
+    "n_con_arancel": 831,
+    "arancel_anual_mediano": 4041051,
+    "arancel_anual_p25_p75": [
+     3011000,
+     5317000
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   }
+  },
+  "sistema": {
+   "n": 1341,
+   "n_con_arancel": 1321,
+   "arancel_anual_mediano": 4050000,
+   "arancel_anual_p25_p75": [
+    2954000,
+    5492000
+   ],
+   "duracion_semestres_mediana": 4.0,
+   "duracion_semestres_p25_p75": [
+    4.0,
+    4.0
+   ]
+  },
+  "por_selectiva": {
+   "borde": {
+    "n": 25,
+    "n_con_arancel": 25,
+    "arancel_anual_mediano": 3176278,
+    "arancel_anual_p25_p75": [
+     2401200,
+     3500000
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   },
+   "fuera_demre": {
+    "n": 27,
+    "n_con_arancel": 24,
+    "arancel_anual_mediano": 4687368,
+    "arancel_anual_p25_p75": [
+     3912000,
+     5519585
+    ],
+    "duracion_semestres_mediana": 3.0,
+    "duracion_semestres_p25_p75": [
+     3.0,
+     4.0
+    ]
+   },
+   "no": {
+    "n": 649,
+    "n_con_arancel": 648,
+    "arancel_anual_mediano": 3307500,
+    "arancel_anual_p25_p75": [
+     2750000,
+     4752500
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   },
+   "si": {
+    "n": 640,
+    "n_con_arancel": 624,
+    "arancel_anual_mediano": 4756000,
+    "arancel_anual_p25_p75": [
+     3750000,
+     7047249
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   }
+  },
+  "por_selectiva_y_jornada": {
+   "borde|diurna": {
+    "n": 14,
+    "n_con_arancel": 14,
+    "arancel_anual_mediano": 2662500,
+    "arancel_anual_p25_p75": [
+     2413400,
+     3361326
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   },
+   "borde|no_diurna": {
+    "n": 11,
+    "n_con_arancel": 11,
+    "arancel_anual_mediano": 3400000,
+    "arancel_anual_p25_p75": [
+     2688139,
+     3822500
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   },
+   "fuera_demre|diurna": {
+    "n": 1,
+    "n_con_arancel": 0,
+    "arancel_anual_mediano": null,
+    "arancel_anual_p25_p75": [
+     null,
+     null
+    ],
+    "duracion_semestres_mediana": 2.0,
+    "duracion_semestres_p25_p75": [
+     2.0,
+     2.0
+    ]
+   },
+   "fuera_demre|no_diurna": {
+    "n": 26,
+    "n_con_arancel": 24,
+    "arancel_anual_mediano": 4687368,
+    "arancel_anual_p25_p75": [
+     3912000,
+     5519585
+    ],
+    "duracion_semestres_mediana": 3.5,
+    "duracion_semestres_p25_p75": [
+     3.0,
+     4.0
+    ]
+   },
+   "no|diurna": {
+    "n": 152,
+    "n_con_arancel": 152,
+    "arancel_anual_mediano": 2805000,
+    "arancel_anual_p25_p75": [
+     2500000,
+     3507500
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   },
+   "no|no_diurna": {
+    "n": 497,
+    "n_con_arancel": 496,
+    "arancel_anual_mediano": 3514000,
+    "arancel_anual_p25_p75": [
+     2893125,
+     4990000
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   },
+   "si|diurna": {
+    "n": 334,
+    "n_con_arancel": 324,
+    "arancel_anual_mediano": 4998500,
+    "arancel_anual_p25_p75": [
+     3750750,
+     7399457
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   },
+   "si|no_diurna": {
+    "n": 306,
+    "n_con_arancel": 300,
+    "arancel_anual_mediano": 4405894,
+    "arancel_anual_p25_p75": [
+     3705646,
+     5799319
+    ],
+    "duracion_semestres_mediana": 4.0,
+    "duracion_semestres_p25_p75": [
+     4.0,
+     4.0
+    ]
+   }
+  }
+ },
+ "sin_dato": [
+  "Prima salarial por jornada (vespertina, semipresencial, a distancia vs diurna): ni DIPRES 2026 ni DIPRES 2024 la estiman.",
+  "Lista de universidades competitivas usada por DIPRES 2026: no se publica; se replico la regla con DEMRE.",
+  "Prima en % por grupo: DIPRES solo da USD; el % es un escalado del equipo.",
+  "Dedicacion horaria (horas por semana) de los programas: SIES no la trae; 'jornada' es solo horario o modalidad.",
+  "Programas de fin de semana o tiempo parcial como categoria: SIES no la distingue (quedan dentro de Vespertina, Semipresencial u Otra).",
+  "Diferencia de duracion por jornada: la mediana es 4 semestres en todas las jornadas (p25-p75 = 4-4), sin variacion utilizable."
+ ]
+}

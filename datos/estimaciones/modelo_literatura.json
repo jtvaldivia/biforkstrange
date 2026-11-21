@@ -1,0 +1,231 @@
+{
+  "_meta": {
+    "fecha": "2026-11-21",
+    "estado": "vista = cifra leída en el texto, tabla o abstract de la fuente; resumen = solo snippet o prensa, NO usar en el motor",
+    "complementa": ["efectos_por_decision.md", "investigacion_modelo_y_datos.md", "personalidad_y_trabajo.md"]
+  },
+
+  "CICATRIZ": {
+    "valor": {"media_mes_1": 0.42, "mediana_mes_1": 0.35, "p10_mes_1": 0.53, "p10_mes_3": 0.27, "p10_mes_12": 0.05, "p90_mes_1": 0.47, "top5": "pérdida casi nula; ganan sueldo a 3 años", "perdida_acumulada_36m_en_sueldos_mensuales": 2.4},
+    "unidad": "fracción del sueldo de enero 2010 (aprox. $800.000) perdida tras una separación involuntaria, relativo a quienes no se separan",
+    "fuente": "Carranza, Prieto y Sehnbruch 2025, Economic Analysis and Policy 86:1020-1036, abstract, sección 5 y Figs. 3-6",
+    "url": "https://researchonline.lse.ac.uk/id/eprint/127462/1/1-s2.0-S0313592625000530-main.pdf",
+    "pais": "Chile",
+    "metodo": "causal",
+    "estado": "vista",
+    "nota": "Estudio de eventos con regresión RIF (cuantiles incondicionales) contra no separados; muestra 3% del Seguro de Cesantía 2010-2019, asalariados formales privados con empleos de 12+ meses. La pérdida incluye los meses sin trabajo. La media nunca vuelve del todo en 36 meses; la mediana queda con 'diferencias pequeñas' desde el mes 18. Los autores no dan la cifra residual a 3 años en el texto; está solo en la Fig. 3. Es mucho más chica y corta que Couch y Placzek (15% a 6 años, EE.UU.)."
+  },
+  "CICATRIZ_DECAE": {
+    "valor": {"p10": {"mes_1": 0.53, "mes_3": 0.27, "mes_12": 0.05, "mes_36": "casi 0"}, "mediana": "diferencias pequeñas desde el mes 18", "p90": "no significativa al mes 12"},
+    "unidad": "pérdida remanente por horizonte",
+    "fuente": "Carranza, Prieto y Sehnbruch 2025, sección 5.2 y Fig. 5",
+    "url": "https://researchonline.lse.ac.uk/id/eprint/127462/1/1-s2.0-S0313592625000530-main.pdf",
+    "pais": "Chile",
+    "metodo": "causal",
+    "estado": "vista",
+    "nota": "No hay una tasa de decaimiento anual publicada; estos son los puntos que el texto da. En Chile la mayor parte de la pérdida se cierra en 12 a 18 meses. Un decaimiento de 0,7 anual sobre 12% de cicatriz deja 5,9% al tercer año, más de lo que muestra la media chilena."
+  },
+
+  "ASCENSO": {
+    "valor": {"nivel_1": 0.263, "nivel_2": 0.180, "nivel_3": 0.109, "nivel_4": 0.014, "nivel_5_8": 0.045},
+    "unidad": "probabilidad anual de ascenso por nivel jerárquico",
+    "fuente": "Baker, Gibbs y Holmstrom 1994, QJE 109(4), Tabla II (fila 'Promotion rate per year')",
+    "url": "http://houdekpetr.cz/!data/public_html/papers/Baker%20et%20al%201994.pdf",
+    "pais": "EE.UU. (una empresa mediana de servicios, empleados de gestión, 1969-1988)",
+    "metodo": "correlacion",
+    "estado": "vista",
+    "nota": "Descriptivo, una sola firma y solo cargos de gestión. Las tasas son 2 a 3 veces las que usa hoy el motor ([0.10, 0.08, 0.05, 0.03, 0]). El paper muestra que, a igual antigüedad en la firma, la tasa cae con los años en el nivel. Salida anual 11,4%, 11,5%, 11,0%, 9,6% y 8,2% por nivel (misma tabla). No hay cifra chilena."
+  },
+  "ASC_ALZA": {
+    "valor": 0.058,
+    "unidad": "alza salarial al ascender, relativa al reajuste medio de quienes no cambian de nivel",
+    "fuente": "Baker, Gibbs y Holmstrom 1994, Tabla VI",
+    "url": "http://houdekpetr.cz/!data/public_html/papers/Baker%20et%20al%201994.pdf",
+    "pais": "EE.UU. (una empresa)",
+    "metodo": "correlacion",
+    "estado": "vista",
+    "nota": "Por nivel de llegada: 5,1% (2), 5,6% (3), 7,4% (4), 8,7% (5), 4,5% (6), 22,3% (7), 14,8% (8); promedio 1-8 de 5,8%. El texto dice 'an immediate 6 percent increase'. La diferencia de sueldo medio entre niveles es mucho mayor (18% a 107%): el ascenso explica solo parte. El motor usa 0,08."
+  },
+
+  "CURSO_SALARIO": {
+    "valor": 0.006,
+    "unidad": "efecto en remuneraciones de capacitación vía franquicia tributaria SENCE",
+    "fuente": "Comisión Revisora del Sistema de Capacitación e Intermediación Laboral (PNUD 2011), citada en BCN 2019, p. 7",
+    "url": "https://obtienearchivo.bcn.cl/obtienearchivo?id=repositorio%2F10221%2F27241%2F1%2FFranquicia_Tributaria_SENCE_para_Capacitacion_Laboral___Antecedentes_y_Sintesis_de_Evaluaciones_realizadas_al.pdf",
+    "pais": "Chile",
+    "metodo": "causal",
+    "estado": "vista",
+    "nota": "Panel del Seguro de Cesantía con más de 2 millones de asalariados privados, efectos fijos. Efecto significativo solo en cursos de más de 140 horas, que son el 1% de los financiados. Leído en la síntesis de la BCN; el informe original de la Comisión no se abrió. Una evaluación anterior por matching (U. Central 2009) da 4,4% en 2002-2007, pero la Comisión la contrasta con métodos de panel."
+  },
+  "CURSO_EMPLEO": {
+    "valor": 0.0,
+    "unidad": "efecto en probabilidad de estar empleado",
+    "fuente": "Comisión Revisora (PNUD 2011), citada en BCN 2019, p. 7",
+    "url": "https://obtienearchivo.bcn.cl/obtienearchivo?id=repositorio%2F10221%2F27241%2F1%2FFranquicia_Tributaria_SENCE_para_Capacitacion_Laboral___Antecedentes_y_Sintesis_de_Evaluaciones_realizadas_al.pdf",
+    "pais": "Chile",
+    "metodo": "causal",
+    "estado": "vista",
+    "nota": "Textual: 'no se observan impactos positivos de la capacitación en la probabilidad de estar empleado'. La BCN concluye que no hay impacto significativo en productividad, empleabilidad ni remuneraciones. Programas distintos (bonificación a la contratación, DIPRES 2005) muestran +5 a +12% de probabilidad de empleo, pero no son cursos."
+  },
+
+  "OCUP_TENURE_RETORNO": {
+    "valor": [0.12, 0.20],
+    "unidad": "alza de sueldo asociada a 5 años de antigüedad en la ocupación (3 dígitos); es lo que se arriesga al cambiar de ocupación",
+    "fuente": "Kambourov y Manovskii 2009, International Economic Review 50(1):63-115, abstract",
+    "url": "https://ideas.repec.org/a/ier/iecrev/v50y2009i1p63-115.html",
+    "pais": "EE.UU. (PSID, recodificación retrospectiva 1968-1980)",
+    "metodo": "correlacion",
+    "estado": "vista",
+    "nota": "Con la experiencia en la ocupación controlada, la antigüedad en el empleador o la industria pesa poco. No leí la sección de método, así que queda como correlación. Sirve para CAMBIA_OCUP_DESC y RECONV_PEN: la pérdida al cambiar de ocupación crece con los años acumulados en la de origen."
+  },
+
+  "SALUD_DEPRESION_55H": {
+    "valor": {"global": 1.14, "ic95_global": [1.03, 1.25], "europa": 1.11, "asia": 1.50, "norteamerica": 0.97, "australia": 0.95},
+    "unidad": "riesgo relativo de síntomas depresivos nuevos con ≥55 h/semana contra jornada estándar",
+    "fuente": "Virtanen et al. 2018, Scand J Work Environ Health 44(3):239-250, abstract",
+    "url": "https://www.sjweh.fi/Long-working-hours-and-depressive-symptoms-systematic-review-and-meta-analysis-of,238000,0,2.html",
+    "pais": "35 países (189.729 personas, seguimiento 1 a 5 años)",
+    "metodo": "correlacion",
+    "estado": "vista",
+    "nota": "Meta-análisis de cohortes; 21.747 casos nuevos; I²=45,1%. No hay estimación para América Latina."
+  },
+  "SALUD_CARDIO_55H": {
+    "valor": {"acv": 1.35, "cardiopatia_muerte": 1.17},
+    "unidad": "riesgo relativo con ≥55 h contra 35-40 h",
+    "fuente": "OMS y OIT 2021",
+    "url": "https://www.who.int/news/item/17-05-2021-long-working-hours-increasing-deaths-from-heart-disease-and-stroke-who-ilo",
+    "pais": "global",
+    "metodo": "correlacion",
+    "estado": "vista",
+    "nota": "Ya verificada en efectos_por_decision.md; no se volvió a abrir en esta ronda."
+  },
+  "LICENCIA_MENTAL_PARTE": {
+    "valor": 0.331,
+    "unidad": "fracción de las licencias médicas de 2024 por trastornos mentales",
+    "fuente": "SUSESO 2024",
+    "url": "https://www.suseso.cl/605/w3-article-748285.html",
+    "pais": "Chile",
+    "metodo": "correlacion",
+    "estado": "vista",
+    "nota": "Verificada en la ronda anterior. Es la composición de las licencias, no la probabilidad anual de que un trabajador tenga una; no sirve directo para BURNOUT."
+  },
+
+  "MAG_PREMIO": {
+    "valor": {"usd_mes_ano_7": 150, "tir_mediana": 0.281, "rango_usd_mes_fig8": [130, 170]},
+    "unidad": "USD mensuales de prima de ingreso; TIR",
+    "fuente": "DIPRES mar. 2026, 'Radiografía de la formación de postgrado', resumen p. 4 y Fig. 8, Fig. 13",
+    "url": "https://www.dipres.gob.cl/598/articles-406754_doc_pdf.pdf",
+    "pais": "Chile",
+    "metodo": "causal",
+    "estado": "vista",
+    "nota": "Estudio de eventos con efectos fijos, solo becarios de Magíster Nacional (datos SII). Heterogeneidad: los egresados de universidades competitivas sostienen la prima; en las no competitivas se diluye y el IC incluye cero. Ya lo usa el motor (0,07); la conversión a % es del equipo."
+  },
+  "MAG_PREMIO_DIPRES2024": {
+    "valor": {"ano_5": 85205, "ic95_ano_5": [-135933, 306342], "ano_8": 300414, "ic95_ano_8": [-91444, 692272], "ano_10": 166507, "ic95_ano_10": [-437797, 770810]},
+    "unidad": "renta mensualizada en el mercado formal (moneda del informe, pesos)",
+    "fuente": "DIPRES sept. 2024, Evaluación de impacto Becas de Capital Humano Avanzado, Tabla A.20 (magíster nacional)",
+    "url": "https://www.dipres.gob.cl/597/articles-341575_informe_final.pdf",
+    "pais": "Chile",
+    "metodo": "causal",
+    "estado": "vista",
+    "nota": "Regresión discontinua en el puntaje de adjudicación. Ningún coeficiente es significativo (p 0,13 a 0,59). Para magíster en el extranjero (Tabla A.18) los puntos son negativos: -126.922 al año 5, -211.441 al año 8, también no significativos. Es la mejor base para la dispersión: el IC del año 5 va de -136 mil a +306 mil."
+  },
+
+  "EMP_INGRESO_MEDIANO": {
+    "valor": 400000,
+    "unidad": "pesos mensuales, ganancia mediana del microemprendimiento",
+    "fuente": "INE, Encuesta de Microemprendimiento 2025",
+    "url": "https://www.ine.gob.cl/docs/default-source/microemprendimiento/publicaciones-y-anuarios/viii-eme/sintesis-de-resultados-viii-eme-2025.pdf",
+    "pais": "Chile",
+    "metodo": "correlacion",
+    "estado": "vista",
+    "nota": "Verificada en la ronda anterior; no se reabrió."
+  },
+
+  "IA_DINAMARCA": {
+    "valor": {"cota_efecto_sueldo_y_horas": 0.02},
+    "unidad": "efecto máximo descartado en ingresos y horas registradas, dos años después de ChatGPT",
+    "fuente": "Humlum y Vestergaard, NBER WP 33777 (rev. mar. 2026), abstract",
+    "url": "https://www.nber.org/papers/w33777",
+    "pais": "Dinamarca (11 ocupaciones expuestas, 25.000 trabajadores, 7.000 empresas, datos administrativos)",
+    "metodo": "causal",
+    "estado": "vista",
+    "nota": "Diferencias en diferencias; 'precise null effects' a nivel trabajador y empresa. Quienes adoptan se mueven a ocupaciones mejor pagadas, pero son pocos. La versión de abril 2025 decía cota de 1%, ahorro de tiempo de 3% y traspaso de 3-7% al sueldo (solo resumen)."
+  },
+  "IA_BRECHA": {
+    "valor": 0.19,
+    "unidad": "empleo de 22-25 años en ocupaciones más expuestas, relativo a las menos expuestas",
+    "fuente": "Brynjolfsson, Chandar y Chen, versión ago. 2026",
+    "url": "https://digitaleconomy.stanford.edu/publications/canaries-in-the-coal-mine/",
+    "pais": "EE.UU. (planillas ADP)",
+    "metodo": "correlacion",
+    "estado": "vista",
+    "nota": "Verificada en la ronda anterior. Rango defendible para el motor: de ~0 en sueldos y horas de todas las edades (Dinamarca) a -19% de empleo juvenil en ocupaciones expuestas (EE.UU.). Miden resultados distintos."
+  },
+
+  "HIJO_COSTO": {
+    "valor": {"bienes_servicios_0_17": 383267, "tiempo_0_17": 211616, "total_0_17": 594882, "total_edad_0": 735057, "total_1_3": 708829, "total_4_5": 535655, "total_6_13": 476285, "total_14_17": 484643, "bienes_servicios_0_13": 366294, "bienes_servicios_14_17": 416722},
+    "unidad": "pesos mensuales de marzo 2025 por niño",
+    "fuente": "UNICEF y Ministerio de la Mujer 2025, Canasta de Crianza, resumen ejecutivo, Tabla 3",
+    "url": "https://www.unicef.org/chile/media/13276/file/Resumen%20ejecutivo_canasta-crianza_web.pdf.pdf",
+    "pais": "Chile",
+    "metodo": "correlacion",
+    "estado": "vista",
+    "nota": "Escalas de equivalencia sobre la IX EPF 2021-22 más tiempo de cuidado valorado con la ENUT 2023. Peso 0,75 al primer hijo y 0,5 a los siguientes. Para COSTO_HIJO en dinero corresponde la parte de bienes y servicios ($383.267); el tiempo ya lo modela CUIDADO. Un niño de 0 años equivale a 27% más de gasto que un hogar sin menores."
+  },
+  "HIJO_PENAL_HOMBRE": {
+    "valor": 0.0,
+    "unidad": "cambio del ingreso laboral de los hombres tras el primer hijo",
+    "fuente": "COES 2024 (registros AFC y Registro Civil)",
+    "url": "https://bidat.gob.cl/contenido-web/recurso/solicitudes-de-colaboracion/ID62_informe_final_v1.pdf/si",
+    "pais": "Chile",
+    "metodo": "causal",
+    "estado": "vista",
+    "nota": "Verificada en la ronda anterior ('en los hombres no cambia'); no se reabrió."
+  },
+
+  "RED_REFERIDO_SUELDO": {
+    "valor": "positivo, sin magnitud en el abstract",
+    "unidad": "dirección",
+    "fuente": "Dustmann, Glitz, Schönberg y Brücker 2016, REStud 83(2):514-546; abstract IZA DP 5777",
+    "url": "https://www.iza.org/publications/dp/5777/referral-based-job-search-networks",
+    "pais": "Alemania",
+    "metodo": "causal",
+    "estado": "vista",
+    "nota": "Quienes probablemente entraron por referido ganan más y se van menos; el efecto es mayor al inicio y cae con la antigüedad. Solo dirección: el PDF con las tablas no se pudo bajar."
+  },
+
+  "pendientes_resumen": {
+    "CICATRIZ_IZA_2022": "Borrador 2022 del mismo paper: -35% el primer mes y recuperación a los 12 meses. Reemplazado por la versión publicada.",
+    "SENCE_DIPRES_2025": "Evaluación DIPRES 2025 de la franquicia: sin efecto significativo en salarios, estabilidad ni empleabilidad a 12 y 24 meses; 88% del gasto en grandes empresas. Solo vía blog de una OTEC.",
+    "OCUP_DWS": "Displaced Workers Survey: -18% de sueldo semanal si el desplazado cambia de ocupación, -6% si no. Solo en una lámina de reading group.",
+    "RED_CHILE_PUBLICO": "36% de los funcionarios públicos dice que contactos personales influyeron en su primer empleo público (Encuesta Nacional de Funcionarios 2019, Servicio Civil, UCL y U. de Chile). Solo prensa.",
+    "RED_CHILE_JOVENES": "49% de jóvenes de 18-29 consiguió su último trabajo por contactos (Injuv/Cadem ~2016, n=1.111). Solo prensa.",
+    "EMP_SUPERVIVENCIA": "Banco Central DAE: cohorte 2019, 79,2% sobrevive 1 año y 44,0% 5 años. INE RUE: 75-81% a 1 año, ~43% a 5 años. Solo prensa y snippet; el PDF del Banco Central devuelve HTML.",
+    "EMP_SIN_TRABAJADORES": "Solo 30% de las empresas sin trabajadores creadas en 2013 seguía activa a 5 años; 57,6% las de 1 a 4 trabajadores (Banco Central). Solo snippet.",
+    "IA_HAMPOLE": "Hampole et al. NBER WP 33509: tareas más expuestas a IA reducen su demanda de trabajo; el efecto en empleo total es modesto. Sin cifra en el abstract."
+  },
+
+  "sin_dato": {
+    "CICATRIZ_ANUAL": "No hay estimación chilena de pérdida adicional de sueldo por año extra de cesantía. Carranza et al. no separan por duración.",
+    "ASC_HORAS": "No se encontró evidencia causal de que las horas largas suban la probabilidad de ascenso. Lo previo (Bell y Freeman 2001, Goldin 2014) es correlación y no se leyó.",
+    "AUMENTO_ALZA": "Ningún estudio leído reporta el tamaño del aumento cuando la negociación resulta.",
+    "RECONV_BASE": "No hay tasa de éxito publicada de programas de reconversión hacia otra ocupación en Chile; la evidencia SENCE es de capacitación corta.",
+    "RECONV_AFIN": "Sin dato.",
+    "RED_ELAST": "Ninguna fuente leída da la elasticidad de ofertas o sueldo a la cantidad de contactos.",
+    "RED_PARTE_CHILE": "No se encontró la fracción de empleos conseguidos por contactos para todos los ocupados (ENE o CASEN). Solo hay cifras de prensa para funcionarios públicos y jóvenes.",
+    "BURNOUT": "No hay probabilidad anual de licencia por salud mental por trabajador en lo leído; SUSESO da la composición de las licencias. El Termómetro ACHS-UC y la ENETS no se revisaron.",
+    "MAG_PREMIO_SD": "Ningún informe publica la desviación del retorno individual. Lo más cercano es el IC de DIPRES 2024 y la heterogeneidad por selectividad de DIPRES 2026.",
+    "EMP_SUPERVIVENCIA": "Las cifras de supervivencia de empresas están solo en resumen (ver pendientes)."
+  },
+
+  "abrir_a_mano": [
+    "https://www.bcentral.cl/documents/33528/3544110/Demograf%C3%ADa+de+empresas+en+Chile+2005-2023.pdf/0894dd77-b593-3675-a02b-52f63e2d2bc8?t=1733425109266 (supervivencia de empresas, el servidor devuelve HTML)",
+    "https://www.ucl.ac.uk/~uctpb21/Cpapers/referral%20based%20job%20search%20networks.pdf (Dustmann et al. 2016, tablas con magnitudes; bloqueado)",
+    "https://www.sas.upenn.edu/~manovski/papers/occupation_specific_HC.pdf (Kambourov y Manovskii, método y cifras DWS; 403)",
+    "https://www.mintrab.gob.cl/wp-content/uploads/downloads/2011/11/Informe-Final-Comisi%C3%B3n-Revisora_231111.pdf (Comisión Revisora 2011, informe original del 0,6%)",
+    "https://pubmed.ncbi.nlm.nih.gov/29423526/ (Virtanen 2018; pide cookies, la cifra se leyó en sjweh.fi)",
+    "Evaluación DIPRES 2025 de la franquicia tributaria SENCE (no se encontró el PDF)",
+    "https://www.nber.org/system/files/working_papers/w33509/w33509.pdf (Hampole et al., magnitudes por exposición)"
+  ]
+}

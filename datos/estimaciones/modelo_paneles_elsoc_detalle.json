@@ -1,0 +1,873 @@
+{
+ "fuente": "ELSOC 2016-2022 (COES), ELSOC_Long_2016_2022_v1.00.RData",
+ "script": "scripts/modelo/paneles_elsoc.py",
+ "familia": {
+  "nota": "m36 (no preguntado en 2017). Con pareja = casado, conviviente con o sin AUC; viudez no cuenta como separación. Pares de olas a un año: 2018-2019 y 2021-2022 (principal); pares a dos años 2016-2018 y 2019-2021 anualizados como 1-(1-p)^(1/2). Ponderado con ponderador02 de la ola de origen; EE = error estándar binomial con n efectivo. \"persistente\" exige que el nuevo estado se mantenga en la ola siguiente (descarta idas y vueltas conviviente-soltero); \"estricto\" exige además el mismo estado en la ola anterior al origen.",
+  "union": {
+   "por_edad": {
+    "18-24": {
+     "anual": {
+      "tasa": 0.0977,
+      "ee": 0.0286,
+      "n": 276,
+      "eventos": 31
+     },
+     "bienal": {
+      "tasa": 0.1119,
+      "ee": 0.0289,
+      "n": 253,
+      "eventos": 27,
+      "tasa_anualizada": 0.0576
+     },
+     "anual_persistente": {
+      "tasa": 0.0565,
+      "ee": 0.0278,
+      "n": 172,
+      "eventos": 5
+     },
+     "anual_estricto": {
+      "tasa": 0.0662,
+      "ee": 0.0446,
+      "n": 64,
+      "eventos": 3
+     }
+    },
+    "25-29": {
+     "anual": {
+      "tasa": 0.1864,
+      "ee": 0.0335,
+      "n": 299,
+      "eventos": 70
+     },
+     "bienal": {
+      "tasa": 0.2277,
+      "ee": 0.0423,
+      "n": 220,
+      "eventos": 47,
+      "tasa_anualizada": 0.1212
+     },
+     "anual_persistente": {
+      "tasa": 0.0869,
+      "ee": 0.0317,
+      "n": 159,
+      "eventos": 17
+     },
+     "anual_estricto": {
+      "tasa": 0.0093,
+      "ee": 0.0157,
+      "n": 66,
+      "eventos": 3
+     }
+    },
+    "30-34": {
+     "anual": {
+      "tasa": 0.2682,
+      "ee": 0.0431,
+      "n": 231,
+      "eventos": 61
+     },
+     "bienal": {
+      "tasa": 0.2095,
+      "ee": 0.046,
+      "n": 181,
+      "eventos": 41,
+      "tasa_anualizada": 0.1109
+     },
+     "anual_persistente": {
+      "tasa": 0.1335,
+      "ee": 0.045,
+      "n": 112,
+      "eventos": 18
+     },
+     "anual_estricto": {
+      "tasa": 0.1069,
+      "ee": 0.0638,
+      "n": 48,
+      "eventos": 7
+     }
+    },
+    "35-44": {
+     "anual": {
+      "tasa": 0.2106,
+      "ee": 0.0311,
+      "n": 477,
+      "eventos": 111
+     },
+     "bienal": {
+      "tasa": 0.2008,
+      "ee": 0.0342,
+      "n": 377,
+      "eventos": 77,
+      "tasa_anualizada": 0.106
+     },
+     "anual_persistente": {
+      "tasa": 0.1149,
+      "ee": 0.0292,
+      "n": 237,
+      "eventos": 25
+     },
+     "anual_estricto": {
+      "tasa": 0.072,
+      "ee": 0.035,
+      "n": 109,
+      "eventos": 6
+     }
+    },
+    "45-59": {
+     "anual": {
+      "tasa": 0.1829,
+      "ee": 0.0248,
+      "n": 749,
+      "eventos": 128
+     },
+     "bienal": {
+      "tasa": 0.1476,
+      "ee": 0.0239,
+      "n": 653,
+      "eventos": 105,
+      "tasa_anualizada": 0.0767
+     },
+     "anual_persistente": {
+      "tasa": 0.0808,
+      "ee": 0.0211,
+      "n": 376,
+      "eventos": 39
+     },
+     "anual_estricto": {
+      "tasa": 0.0175,
+      "ee": 0.0157,
+      "n": 196,
+      "eventos": 6
+     }
+    }
+   },
+   "tramos_motor": {
+    "20-35": {
+     "anual": {
+      "tasa": 0.1817,
+      "ee": 0.0207,
+      "n": 821,
+      "eventos": 173
+     },
+     "bienal": {
+      "tasa": 0.1793,
+      "ee": 0.0221,
+      "n": 659,
+      "eventos": 120,
+      "tasa_anualizada": 0.0941
+     },
+     "anual_persistente": {
+      "tasa": 0.0913,
+      "ee": 0.0206,
+      "n": 442,
+      "eventos": 44
+     },
+     "anual_estricto": {
+      "tasa": 0.0566,
+      "ee": 0.0237,
+      "n": 186,
+      "eventos": 14
+     }
+    },
+    "36-59": {
+     "anual": {
+      "tasa": 0.1926,
+      "ee": 0.0198,
+      "n": 1185,
+      "eventos": 226
+     },
+     "bienal": {
+      "tasa": 0.1726,
+      "ee": 0.0205,
+      "n": 989,
+      "eventos": 174,
+      "tasa_anualizada": 0.0904
+     },
+     "anual_persistente": {
+      "tasa": 0.0894,
+      "ee": 0.0174,
+      "n": 592,
+      "eventos": 60
+     },
+     "anual_estricto": {
+      "tasa": 0.0329,
+      "ee": 0.0167,
+      "n": 296,
+      "eventos": 11
+     }
+    }
+   }
+  },
+  "separacion": {
+   "por_edad": {
+    "18-24": {
+     "anual": {
+      "tasa": 0.3609,
+      "ee": 0.1102,
+      "n": 32,
+      "eventos": 9
+     },
+     "bienal": {
+      "tasa": 0.493,
+      "ee": 0.0962,
+      "n": 53,
+      "eventos": 29,
+      "tasa_anualizada": 0.288
+     },
+     "anual_persistente": {
+      "tasa": 0.4036,
+      "ee": 0.1325,
+      "n": 21,
+      "eventos": 7
+     },
+     "anual_estricto": {
+      "tasa": 0.3751,
+      "ee": 0.1933,
+      "n": 7,
+      "eventos": 2
+     }
+    },
+    "25-29": {
+     "anual": {
+      "tasa": 0.2231,
+      "ee": 0.0533,
+      "n": 151,
+      "eventos": 38
+     },
+     "bienal": {
+      "tasa": 0.2604,
+      "ee": 0.0527,
+      "n": 151,
+      "eventos": 44,
+      "tasa_anualizada": 0.14
+     },
+     "anual_persistente": {
+      "tasa": 0.0333,
+      "ee": 0.0298,
+      "n": 83,
+      "eventos": 7
+     },
+     "anual_estricto": {
+      "tasa": 0.0,
+      "ee": 0.0,
+      "n": 30,
+      "eventos": 0
+     }
+    },
+    "30-34": {
+     "anual": {
+      "tasa": 0.1671,
+      "ee": 0.0354,
+      "n": 261,
+      "eventos": 50
+     },
+     "bienal": {
+      "tasa": 0.2535,
+      "ee": 0.0449,
+      "n": 252,
+      "eventos": 64,
+      "tasa_anualizada": 0.136
+     },
+     "anual_persistente": {
+      "tasa": 0.1092,
+      "ee": 0.0402,
+      "n": 149,
+      "eventos": 18
+     },
+     "anual_estricto": {
+      "tasa": 0.1218,
+      "ee": 0.0587,
+      "n": 68,
+      "eventos": 9
+     }
+    },
+    "35-44": {
+     "anual": {
+      "tasa": 0.1428,
+      "ee": 0.023,
+      "n": 523,
+      "eventos": 72
+     },
+     "bienal": {
+      "tasa": 0.2433,
+      "ee": 0.0301,
+      "n": 519,
+      "eventos": 119,
+      "tasa_anualizada": 0.1301
+     },
+     "anual_persistente": {
+      "tasa": 0.0907,
+      "ee": 0.0245,
+      "n": 281,
+      "eventos": 25
+     },
+     "anual_estricto": {
+      "tasa": 0.0304,
+      "ee": 0.022,
+      "n": 136,
+      "eventos": 6
+     }
+    },
+    "45-59": {
+     "anual": {
+      "tasa": 0.1146,
+      "ee": 0.0173,
+      "n": 961,
+      "eventos": 122
+     },
+     "bienal": {
+      "tasa": 0.1122,
+      "ee": 0.0183,
+      "n": 872,
+      "eventos": 98,
+      "tasa_anualizada": 0.0578
+     },
+     "anual_persistente": {
+      "tasa": 0.0717,
+      "ee": 0.0162,
+      "n": 517,
+      "eventos": 40
+     },
+     "anual_estricto": {
+      "tasa": 0.0543,
+      "ee": 0.0187,
+      "n": 288,
+      "eventos": 12
+     }
+    }
+   },
+   "tramos_motor": {
+    "20-35": {
+     "anual": {
+      "tasa": 0.1908,
+      "ee": 0.0272,
+      "n": 487,
+      "eventos": 103
+     },
+     "bienal": {
+      "tasa": 0.2778,
+      "ee": 0.0303,
+      "n": 508,
+      "eventos": 148,
+      "tasa_anualizada": 0.1502
+     },
+     "anual_persistente": {
+      "tasa": 0.1076,
+      "ee": 0.028,
+      "n": 278,
+      "eventos": 33
+     },
+     "anual_estricto": {
+      "tasa": 0.0971,
+      "ee": 0.0408,
+      "n": 115,
+      "eventos": 12
+     }
+    },
+    "36-59": {
+     "anual": {
+      "tasa": 0.125,
+      "ee": 0.0142,
+      "n": 1440,
+      "eventos": 187
+     },
+     "bienal": {
+      "tasa": 0.1579,
+      "ee": 0.0168,
+      "n": 1335,
+      "eventos": 204,
+      "tasa_anualizada": 0.0823
+     },
+     "anual_persistente": {
+      "tasa": 0.0801,
+      "ee": 0.014,
+      "n": 772,
+      "eventos": 63
+     },
+     "anual_estricto": {
+      "tasa": 0.0491,
+      "ee": 0.0152,
+      "n": 414,
+      "eventos": 17
+     }
+    }
+   }
+  },
+  "share_con_pareja_2018": {
+   "(17, 24]": 0.138,
+   "(24, 29]": 0.304,
+   "(29, 34]": 0.559,
+   "(34, 39]": 0.551,
+   "(39, 44]": 0.665,
+   "(44, 59]": 0.667
+  },
+  "share_con_pareja_2018_nota": "Corte transversal 2018 (ponderado), para chequear que unión y separación sean consistentes con cómo sube la fracción con pareja con la edad."
+ },
+ "bienestar": {
+  "nota": "Efectos fijos de persona y de ola, sin ponderar, EE agrupados por persona, 18-65 años. Escala s01 y s03 de 1 a 5 (x25 para pasar a 0-100); phq9 0-27; dep_mod = PHQ-9 >= 10 (síntomas depresivos moderados o severos).",
+  "ingreso": {
+   "s01_log_ingreso_personal": {
+    "n_obs": 8868,
+    "n_personas": 2445,
+    "lm13": {
+     "coef": 0.0899,
+     "ee": 0.0278,
+     "personas_con_cambio": 2368
+    }
+   },
+   "s01_log_ingreso_hogar": {
+    "n_obs": 8601,
+    "n_personas": 2410,
+    "lm29": {
+     "coef": 0.1308,
+     "ee": 0.0266,
+     "personas_con_cambio": 2349
+    }
+   },
+   "nota": "Ocupados. lm13 = log ingreso mensual líquido del entrevistado (m13, 20 mil a 20 millones); lm29 = log ingreso total del hogar."
+  },
+  "horas": {
+   "s01": {
+    "n_obs": 4161,
+    "n_personas": 1759,
+    "h_menos30": {
+     "coef": -0.0378,
+     "ee": 0.0793,
+     "personas_con_cambio": 327
+    },
+    "h30_39": {
+     "coef": -0.1174,
+     "ee": 0.0853,
+     "personas_con_cambio": 268
+    },
+    "h46_54": {
+     "coef": 0.0385,
+     "ee": 0.0679,
+     "personas_con_cambio": 360
+    },
+    "h55mas": {
+     "coef": -0.0088,
+     "ee": 0.0799,
+     "personas_con_cambio": 276
+    }
+   },
+   "phq9": {
+    "n_obs": 4087,
+    "n_personas": 1734,
+    "h_menos30": {
+     "coef": 0.2743,
+     "ee": 0.4831,
+     "personas_con_cambio": 322
+    },
+    "h30_39": {
+     "coef": 0.4093,
+     "ee": 0.434,
+     "personas_con_cambio": 263
+    },
+    "h46_54": {
+     "coef": -0.2915,
+     "ee": 0.4298,
+     "personas_con_cambio": 353
+    },
+    "h55mas": {
+     "coef": 0.214,
+     "ee": 0.4579,
+     "personas_con_cambio": 272
+    }
+   },
+   "dep_mod": {
+    "n_obs": 4087,
+    "n_personas": 1734,
+    "h_menos30": {
+     "coef": 0.0559,
+     "ee": 0.037,
+     "personas_con_cambio": 322
+    },
+    "h30_39": {
+     "coef": 0.0337,
+     "ee": 0.035,
+     "personas_con_cambio": 263
+    },
+    "h46_54": {
+     "coef": 0.0087,
+     "ee": 0.0334,
+     "personas_con_cambio": 353
+    },
+    "h55mas": {
+     "coef": 0.0072,
+     "ee": 0.0345,
+     "personas_con_cambio": 272
+    }
+   },
+   "s03": {
+    "n_obs": 4167,
+    "n_personas": 1761,
+    "h_menos30": {
+     "coef": -0.0406,
+     "ee": 0.0752,
+     "personas_con_cambio": 328
+    },
+    "h30_39": {
+     "coef": -0.1134,
+     "ee": 0.0763,
+     "personas_con_cambio": 268
+    },
+    "h46_54": {
+     "coef": -0.0184,
+     "ee": 0.064,
+     "personas_con_cambio": 360
+    },
+    "h55mas": {
+     "coef": -0.0417,
+     "ee": 0.0755,
+     "personas_con_cambio": 276
+    }
+   },
+   "nota": "Ocupados con horas m12 (olas 2016, 2018, 2021). Referencia: 40 a 45 horas semanales."
+  },
+  "cambio_empleo": {
+   "s01": {
+    "n_obs": 4166,
+    "n_personas": 1758,
+    "nuevo_empleo": {
+     "coef": -0.0146,
+     "ee": 0.0533,
+     "personas_con_cambio": 593
+    }
+   },
+   "phq9": {
+    "n_obs": 4097,
+    "n_personas": 1735,
+    "nuevo_empleo": {
+     "coef": -0.6054,
+     "ee": 0.326,
+     "personas_con_cambio": 587
+    }
+   },
+   "s03": {
+    "n_obs": 4173,
+    "n_personas": 1760,
+    "nuevo_empleo": {
+     "coef": 0.0595,
+     "ee": 0.0525,
+     "personas_con_cambio": 596
+    }
+   },
+   "nota": "nuevo_empleo = el trabajo actual empezó el año de la encuesta o el anterior (m09). Ocupados en olas 2016, 2018, 2021."
+  },
+  "supervisa_proxy_ascenso": {
+   "s01_todos": {
+    "n_obs": 3745,
+    "n_personas": 1623,
+    "supervisa": {
+     "coef": 0.0489,
+     "ee": 0.0571,
+     "personas_con_cambio": 460
+    }
+   },
+   "s01_mismo_empleo": {
+    "n_obs": 912,
+    "n_personas": 402,
+    "supervisa": {
+     "coef": 0.0451,
+     "ee": 0.1123,
+     "personas_con_cambio": 99
+    }
+   },
+   "nota": "supervisa = m06 > 0 (tiene personas a cargo). mismo_empleo = el año de inicio del trabajo (m09) no cambia entre olas: pasar a supervisar dentro del mismo empleo es lo más cercano a un ascenso que trae ELSOC."
+  },
+  "cesantia_desde_calibracion_paneles": {
+   "s01": {
+    "coef": -0.1488,
+    "se": 0.0409,
+    "personas_con_cambio": 619
+   },
+   "phq9": {
+    "coef": 0.6119,
+    "se": 0.2508,
+    "personas_con_cambio": 606
+   },
+   "dep_mod": {
+    "coef": 0.0345,
+    "se": 0.0193,
+    "personas_con_cambio": 606
+   },
+   "s03": {
+    "coef": 0.0438,
+    "se": 0.0343,
+    "personas_con_cambio": 620
+   },
+   "nota": "Copiado de derivados/calibracion_paneles.json (scripts/paneles/elsoc_main.py): desocupado vs ocupado, efectos fijos."
+  },
+  "depresion_por_horas": {
+   "prevalencia_ocupados": {
+    "<30": {
+     "prevalencia": 0.2267,
+     "ee": 0.0217,
+     "n": 910
+    },
+    "30-39": {
+     "prevalencia": 0.1549,
+     "ee": 0.0257,
+     "n": 451
+    },
+    "40-45": {
+     "prevalencia": 0.1602,
+     "ee": 0.0106,
+     "n": 2897
+    },
+    "46-54": {
+     "prevalencia": 0.1973,
+     "ee": 0.0255,
+     "n": 574
+    },
+    "55+": {
+     "prevalencia": 0.1917,
+     "ee": 0.0273,
+     "n": 528
+    }
+   },
+   "incidencia_anual": {
+    "<30": {
+     "incidencia_anual": 0.21,
+     "ee": 0.0282,
+     "n": 562,
+     "casos": 90
+    },
+    "30-39": {
+     "incidencia_anual": 0.1835,
+     "ee": 0.0339,
+     "n": 305,
+     "casos": 55
+    },
+    "40-45": {
+     "incidencia_anual": 0.1349,
+     "ee": 0.0123,
+     "n": 1937,
+     "casos": 258
+    },
+    "46-54": {
+     "incidencia_anual": 0.1338,
+     "ee": 0.0266,
+     "n": 372,
+     "casos": 47
+    },
+    "55+": {
+     "incidencia_anual": 0.1617,
+     "ee": 0.032,
+     "n": 364,
+     "casos": 56
+    }
+   },
+   "incidencia_anual_todos_ocupados": {
+    "tasa": 0.1533,
+    "ee": 0.0096,
+    "n": 3540
+   },
+   "nota": "Ocupados 18-65 con horas (2016, 2018, 2021). Incidencia = sin síntomas moderados en t y con PHQ-9 >= 10 en la ola siguiente (2017, 2019, 2022), según horas en t. Ponderado con ponderador02."
+  },
+  "salud_por_edad": {
+   "cambio_dentro_persona": {
+    "18-29": {
+     "cambio_anual_s03": -0.0197,
+     "ee": 0.0317,
+     "n_pares": 1953,
+     "en_0_100": -0.49
+    },
+    "30-39": {
+     "cambio_anual_s03": -0.0338,
+     "ee": 0.0253,
+     "n_pares": 2531,
+     "en_0_100": -0.84
+    },
+    "40-49": {
+     "cambio_anual_s03": -0.0188,
+     "ee": 0.0271,
+     "n_pares": 2562,
+     "en_0_100": -0.47
+    },
+    "50-59": {
+     "cambio_anual_s03": -0.0149,
+     "ee": 0.0219,
+     "n_pares": 3099,
+     "en_0_100": -0.37
+    },
+    "60-70": {
+     "cambio_anual_s03": -0.0168,
+     "ee": 0.0235,
+     "n_pares": 2345,
+     "en_0_100": -0.42
+    }
+   },
+   "pendiente_transversal_por_anio_edad": {
+    "coef": -0.0153,
+    "ee": 0.0012,
+    "en_0_100": -0.38,
+    "n_obs": 16455
+   },
+   "nota": "cambio_dentro_persona: (s03 en la ola siguiente - s03) / años entre olas, por tramo de edad en t; mezcla el efecto de la edad con el del período (incluye 2019-2021). pendiente_transversal: MCO ponderado de s03 sobre la edad con efectos de ola (compara cohortes distintas)."
+  }
+ },
+ "red": {
+  "nota": "Generador de posiciones r01 (conocidos en 13 ocupaciones, olas 2016, 2018, 2021). red_vol = suma de conocidos usando el punto medio de cada tramo (16 o más = 16); lred = log(1 + red_vol), su coeficiente es el cambio porcentual aproximado. red_ext = número de ocupaciones con al menos un conocido (0-13). Efectos fijos de persona y de ola, sin ponderar.",
+  "fe_lred": {
+   "n_obs": 5199,
+   "n_personas": 1955,
+   "nuevo_empleo0": {
+    "coef": -0.0129,
+    "ee": 0.0529,
+    "personas_con_cambio": 660
+   },
+   "desocupado": {
+    "coef": -0.1096,
+    "ee": 0.0846,
+    "personas_con_cambio": 269
+   },
+   "inactivo": {
+    "coef": -0.0494,
+    "ee": 0.0596,
+    "personas_con_cambio": 463
+   }
+  },
+  "fe_red_ext": {
+   "n_obs": 5199,
+   "n_personas": 1955,
+   "nuevo_empleo0": {
+    "coef": 0.0238,
+    "ee": 0.1695,
+    "personas_con_cambio": 660
+   },
+   "desocupado": {
+    "coef": -0.4924,
+    "ee": 0.2737,
+    "personas_con_cambio": 269
+   },
+   "inactivo": {
+    "coef": -0.157,
+    "ee": 0.1921,
+    "personas_con_cambio": 463
+   }
+  },
+  "descriptivo": {
+   "red_vol_media": 31.2957,
+   "red_vol_mediana": 24.0,
+   "red_ext_media": 7.9666
+  },
+  "cambio_anual_por_edad": {
+   "18-29": {
+    "cambio_anual_lred": 0.1493,
+    "ee": 0.03,
+    "n": 551
+   },
+   "30-44": {
+    "cambio_anual_lred": 0.1063,
+    "ee": 0.0199,
+    "n": 1089
+   },
+   "45-59": {
+    "cambio_anual_lred": 0.1108,
+    "ee": 0.0192,
+    "n": 1345
+   }
+  },
+  "perfil_transversal_por_edad": {
+   "18-29": 29.74,
+   "30-44": 35.0,
+   "45-59": 29.4
+  },
+  "encontrar_empleo": {
+   "n_desocupados": 389,
+   "encuentran": 233,
+   "cloglog_coef_lred": {
+    "coef": 0.0514,
+    "ee": 0.0667
+   },
+   "logit_coef_lred": {
+    "coef": 0.1102,
+    "ee": 0.1067
+   },
+   "nota": "Desocupados (m02=6) en 2016, 2018 o 2021; resultado: ocupado en la ola siguiente (2017, 2019, 2022). Controles: edad, sexo, educación superior. El coeficiente cloglog es la elasticidad del riesgo de encontrar empleo respecto de los contactos, la misma forma que usa el motor (factor_red = 1 + RED_ELAST log(contactos/RED_REF)). Sin ponderar."
+  },
+  "empleo_con_ayuda_de_red_2018": {
+   "share_si": 0.328,
+   "n": 1350,
+   "nota": "m55, ola 2018, ocupados: recibió apoyo de alguien para encontrar su trabajo."
+  }
+ },
+ "frecuencias": {
+  "empieza_a_estudiar_y_trabajar_con_titulo": {
+   "tasa": 0.0345,
+   "ee": 0.0111,
+   "n": 589,
+   "eventos": 17,
+   "nota": "Ocupados (m02 1,2) de 25 a 45 años con título universitario o posgrado (m01 >= 9) que a la ola siguiente (un año) declaran \"estudia y trabaja\" (m02=3). No dice qué estudian."
+  },
+  "obtiene_posgrado": {
+   "tasa": 0.0718,
+   "ee": 0.0154,
+   "n": 591,
+   "eventos": 44,
+   "nota": "Ocupados de 25 a 50 con universitaria completa (m01=9) que a la ola siguiente declaran posgrado (m01=10). Incluye ruido de reporte."
+  }
+ },
+ "chequeo_antiguedad_ELSOC": {
+  "<1": {
+   "tasa_O_a_D": 0.0508,
+   "ee": 0.0133,
+   "n": 666,
+   "eventos": 38
+  },
+  "1-4": {
+   "tasa_O_a_D": 0.0372,
+   "ee": 0.0071,
+   "n": 1700,
+   "eventos": 69
+  },
+  "5+": {
+   "tasa_O_a_D": 0.0193,
+   "ee": 0.0047,
+   "n": 2115,
+   "eventos": 54
+  },
+  "razon_<1_vs_1_4": 1.397,
+  "razon_5+_vs_1_4": 0.502,
+  "ic95_5+": [
+   0.293,
+   0.86
+  ],
+  "ic95_<1": [
+   0.777,
+   2.51
+  ],
+  "sector": {
+   "privado": {
+    "tasa_O_a_D": 0.0353,
+    "ee": 0.0056,
+    "n": 2626
+   },
+   "publico": {
+    "tasa_O_a_D": 0.0198,
+    "ee": 0.0097,
+    "n": 587
+   }
+  },
+  "nota": "Ocupados 18-64 en 2016, 2018 y 2021 con antigüedad m09; tasa de estar desocupado (buscando) un año después, cualquier causa. Razones de cloglog ponderado con tramo de edad. Sirve como contraste de la EPS, no la reemplaza: mide stock de desocupación al año, no despidos."
+ },
+ "ingreso_por_trayectoria_ELSOC": {
+  "n": 1985,
+  "n_por_grupo": {
+   "mismo_empleo": 1462,
+   "cambio_sin_desempleo_observado": 493,
+   "cambio_con_desempleo_intermedio": 30
+  },
+  "cambio_con_desempleo_intermedio": {
+   "coef": -0.101,
+   "ee": 0.1401
+  },
+  "cambio_sin_desempleo_observado": {
+   "coef": 0.0675,
+   "ee": 0.0468
+  },
+  "nota": "Ocupados en 2016->2018 y 2018->2021 con ingreso m13 en ambos extremos. dl = cambio de log ingreso; coeficientes relativos a quien siguió en el mismo empleo (m09 no cambió), con efecto del par de olas (absorbe inflación). cambio_con_desempleo = cambió de empleo y estaba desocupado en la ola intermedia (2017 o 2019). WLS con ponderador02 de origen, EE robustos."
+ }
+}

@@ -1,0 +1,1071 @@
+{
+ "meta": {
+  "generado": "2026-11-21",
+  "descripcion": "Parametros de calibracion para Gemelo Laboral calculados con microdatos de panel chilenos (ELSOC 2016-2022 y EPS VIII ronda 2023-2024). Todo calculado desde los archivos locales; nada copiado de publicaciones.",
+  "scripts": "scratchpad/calib_scripts/elsoc_main.py y eps_main.py (temporales de la sesion)",
+  "fuentes": {
+   "ELSOC": "ELSOC_Long_2016_2022_v1.00.RData (COES, CC0). 18.035 obs, 4.447 personas, olas 2016, 2017, 2018, 2019, 2021, 2022.",
+   "EPS": "Bases_de_datos_EPS_VIII_Ronda_2024.7z: BBDD_VIVOS/MODULO_B_HISTORIA_LABORAL.dta (44.494 episodios, 15.788 personas), MODULO_A_ENTREVISTADO.dta (a8 sexo, a9 edad), MODULO_I_HIJOS.dta (i21_anio, i21_mes), FACT_EXP/Factor_XS_EPS_2023.dta (factor_XS)."
+  },
+  "variables_ELSOC": {
+   "s01": "Satisfaccion con la vida, 1 Totalmente insatisfecho a 5 Totalmente satisfecho",
+   "phq9": "Suma de s11_01..s11_09 (PHQ-9, 'Frecuencia: ...'), cada item recodificado 1-5 -> 0-4; rango 0-36. dep_mod = phq9>=10",
+   "s03": "Salud subjetiva, 1 Mala a 5 Excelente",
+   "m02": "Actividad principal: 1-3 ocupado (completa, parcial, estudia y trabaja); 6 desempleado buscando; 4,5,7,8,9 inactivo",
+   "m36": "Estado civil: 1 casado, 2 conviviente sin AUC, 3 con AUC = con pareja; 4 soltero, 5 viudo, 6 anulado, 7 divorciado, 8 separado, 9 otro = sin pareja. No preguntado en 2017",
+   "m12": "Horas semanales de trabajo (2016, 2018, 2021)",
+   "s12": "Frecuencia hablar problemas con familia o amigos, 1 Nunca a 5 Siempre (2016, 2018, 2021)",
+   "t06_08": "Satisfaccion con proximidad a familiares y/o amigos cercanos, 1-5",
+   "s13_06": "Estresores: Despidos del trabajo (si/no), 2016, 2018, 2022",
+   "ponderador02": "Ponderador corte transversal ajustado por poblacion y sexo"
+  },
+  "variables_EPS": {
+   "b2a_so": "Situacion ocupacional final del episodio: 1 Trabajando, 2 Cesante, 3 Buscando trabajo por 1a vez, 4 Inactivo",
+   "b2_a_inicio_anio/mes, b2_a_termino_anio/mes": "Fechas del episodio (mes faltante -> junio)",
+   "b22": "Motivo del termino de la relacion laboral (si b22=12 'Otra' se usa b22_e_cod recodificada)",
+   "a8, a9": "Sexo y edad del entrevistado; nacimiento aprox. = fecha de entrevista (ultimo mes del historial) - edad",
+   "i21_anio, i21_mes": "Fecha de nacimiento de hijos nacidos despues de la ultima entrevista",
+   "factor_XS": "Factor de expansion cross-section EPS 2023, usado para ponderar exposicion y eventos"
+  }
+ },
+ "1_bienestar_ELSOC": {
+  "escala_referencia": {
+   "s01": {
+    "mean": 3.816,
+    "sd": 0.844,
+    "n": 18001
+   },
+   "phq9": {
+    "mean": 6.401,
+    "sd": 5.819,
+    "n": 17683
+   },
+   "s03": {
+    "mean": 2.657,
+    "sd": 0.882,
+    "n": 18015
+   },
+   "dep_mod_prev": 0.22
+  },
+  "efecto_within_estado": {
+   "s01": {
+    "cesante_vs_ocupado": {
+     "n_obs": 14710,
+     "n_personas": 3452,
+     "desocupado": {
+      "coef": -0.1488,
+      "se": 0.0409,
+      "personas_con_cambio": 619
+     },
+     "inactivo": {
+      "coef": -0.0229,
+      "se": 0.0286,
+      "personas_con_cambio": 1073
+     }
+    },
+    "con_pareja": {
+     "n_obs": 12413,
+     "n_personas": 3248,
+     "pareja": {
+      "coef": 0.0975,
+      "se": 0.029,
+      "personas_con_cambio": 1066
+     }
+    }
+   },
+   "phq9": {
+    "cesante_vs_ocupado": {
+     "n_obs": 14430,
+     "n_personas": 3431,
+     "desocupado": {
+      "coef": 0.6119,
+      "se": 0.2508,
+      "personas_con_cambio": 606
+     },
+     "inactivo": {
+      "coef": 0.1795,
+      "se": 0.1926,
+      "personas_con_cambio": 1062
+     }
+    },
+    "con_pareja": {
+     "n_obs": 12165,
+     "n_personas": 3228,
+     "pareja": {
+      "coef": -0.0792,
+      "se": 0.1846,
+      "personas_con_cambio": 1045
+     }
+    }
+   },
+   "dep_mod": {
+    "cesante_vs_ocupado": {
+     "n_obs": 14430,
+     "n_personas": 3431,
+     "desocupado": {
+      "coef": 0.0345,
+      "se": 0.0193,
+      "personas_con_cambio": 606
+     },
+     "inactivo": {
+      "coef": 0.0025,
+      "se": 0.0145,
+      "personas_con_cambio": 1062
+     }
+    },
+    "con_pareja": {
+     "n_obs": 12165,
+     "n_personas": 3228,
+     "pareja": {
+      "coef": -0.0,
+      "se": 0.0142,
+      "personas_con_cambio": 1045
+     }
+    }
+   },
+   "s03": {
+    "cesante_vs_ocupado": {
+     "n_obs": 14722,
+     "n_personas": 3454,
+     "desocupado": {
+      "coef": 0.0438,
+      "se": 0.0343,
+      "personas_con_cambio": 620
+     },
+     "inactivo": {
+      "coef": -0.0056,
+      "se": 0.0248,
+      "personas_con_cambio": 1074
+     }
+    },
+    "con_pareja": {
+     "n_obs": 12425,
+     "n_personas": 3251,
+     "pareja": {
+      "coef": -0.0218,
+      "se": 0.0268,
+      "personas_con_cambio": 1066
+     }
+    }
+   }
+  },
+  "nota_within": "MCO con efectos fijos de persona y de ola (within), sin ponderar, SE agrupados por persona. Edades 18-65. 'desocupado' e 'inactivo' contra ocupado; 'pareja' contra sin pareja (sin ola 2017). personas_con_cambio = personas cuyo estado cambia en el panel (identifican el efecto).",
+  "event_study": {
+   "quedar_cesante": {
+    "n_eventos": 330,
+    "s01": {
+     "n_obs": 12994,
+     "n_personas": 3008,
+     "ev_pre2": {
+      "coef": -0.0397,
+      "se": 0.0672,
+      "personas_con_cambio": 260
+     },
+     "ev_0": {
+      "coef": -0.1389,
+      "se": 0.0735,
+      "personas_con_cambio": 330
+     },
+     "ev_1": {
+      "coef": 0.1226,
+      "se": 0.0795,
+      "personas_con_cambio": 224
+     },
+     "ev_2mas": {
+      "coef": 0.1564,
+      "se": 0.0915,
+      "personas_con_cambio": 143
+     }
+    },
+    "phq9": {
+     "n_obs": 12753,
+     "n_personas": 2990,
+     "ev_pre2": {
+      "coef": -0.3752,
+      "se": 0.4426,
+      "personas_con_cambio": 258
+     },
+     "ev_0": {
+      "coef": 0.5415,
+      "se": 0.4119,
+      "personas_con_cambio": 324
+     },
+     "ev_1": {
+      "coef": -0.0713,
+      "se": 0.5099,
+      "personas_con_cambio": 220
+     },
+     "ev_2mas": {
+      "coef": 0.0004,
+      "se": 0.596,
+      "personas_con_cambio": 141
+     }
+    }
+   },
+   "volver_a_trabajar": {
+    "n_eventos": 355,
+    "s01": {
+     "n_obs": 2883,
+     "n_personas": 633,
+     "ev_pre2": {
+      "coef": 0.1217,
+      "se": 0.0796,
+      "personas_con_cambio": 221
+     },
+     "ev_0": {
+      "coef": 0.2401,
+      "se": 0.0682,
+      "personas_con_cambio": 355
+     },
+     "ev_1": {
+      "coef": 0.165,
+      "se": 0.086,
+      "personas_con_cambio": 200
+     },
+     "ev_2mas": {
+      "coef": 0.2285,
+      "se": 0.1,
+      "personas_con_cambio": 167
+     }
+    },
+    "phq9": {
+     "n_obs": 2834,
+     "n_personas": 630,
+     "ev_pre2": {
+      "coef": 0.0693,
+      "se": 0.4774,
+      "personas_con_cambio": 220
+     },
+     "ev_0": {
+      "coef": -1.2033,
+      "se": 0.4357,
+      "personas_con_cambio": 344
+     },
+     "ev_1": {
+      "coef": -1.1579,
+      "se": 0.5487,
+      "personas_con_cambio": 198
+     },
+     "ev_2mas": {
+      "coef": -1.0546,
+      "se": 0.5874,
+      "personas_con_cambio": 166
+     }
+    }
+   },
+   "formar_pareja": {
+    "n_eventos": 756,
+    "s01": {
+     "n_obs": 9851,
+     "n_personas": 2266,
+     "ev_pre2": {
+      "coef": 0.0127,
+      "se": 0.0473,
+      "personas_con_cambio": 637
+     },
+     "ev_0": {
+      "coef": 0.081,
+      "se": 0.0464,
+      "personas_con_cambio": 755
+     },
+     "ev_1": {
+      "coef": 0.0518,
+      "se": 0.0556,
+      "personas_con_cambio": 462
+     },
+     "ev_2mas": {
+      "coef": 0.0343,
+      "se": 0.0645,
+      "personas_con_cambio": 337
+     }
+    },
+    "phq9": {
+     "n_obs": 9672,
+     "n_personas": 2256,
+     "ev_pre2": {
+      "coef": 0.4244,
+      "se": 0.2936,
+      "personas_con_cambio": 635
+     },
+     "ev_0": {
+      "coef": 0.0386,
+      "se": 0.2783,
+      "personas_con_cambio": 740
+     },
+     "ev_1": {
+      "coef": 0.0205,
+      "se": 0.3678,
+      "personas_con_cambio": 455
+     },
+     "ev_2mas": {
+      "coef": -0.0129,
+      "se": 0.3945,
+      "personas_con_cambio": 335
+     }
+    }
+   },
+   "separarse": {
+    "n_eventos": 714,
+    "s01": {
+     "n_obs": 9880,
+     "n_personas": 2271,
+     "ev_pre2": {
+      "coef": -0.0125,
+      "se": 0.0442,
+      "personas_con_cambio": 637
+     },
+     "ev_0": {
+      "coef": -0.0489,
+      "se": 0.0455,
+      "personas_con_cambio": 712
+     },
+     "ev_1": {
+      "coef": -0.0367,
+      "se": 0.0513,
+      "personas_con_cambio": 462
+     },
+     "ev_2mas": {
+      "coef": -0.0845,
+      "se": 0.069,
+      "personas_con_cambio": 262
+     }
+    },
+    "phq9": {
+     "n_obs": 9689,
+     "n_personas": 2258,
+     "ev_pre2": {
+      "coef": -0.0244,
+      "se": 0.3039,
+      "personas_con_cambio": 635
+     },
+     "ev_0": {
+      "coef": -0.0474,
+      "se": 0.3112,
+      "personas_con_cambio": 697
+     },
+     "ev_1": {
+      "coef": -0.2618,
+      "se": 0.3737,
+      "personas_con_cambio": 456
+     },
+     "ev_2mas": {
+      "coef": 0.1081,
+      "se": 0.4759,
+      "personas_con_cambio": 261
+     }
+    }
+   },
+   "formar_pareja_robusto": {
+    "n_eventos": 305,
+    "s01": {
+     "n_obs": 7527,
+     "n_personas": 1806,
+     "ev_pre2": {
+      "coef": -0.0136,
+      "se": 0.0745,
+      "personas_con_cambio": 248
+     },
+     "ev_0": {
+      "coef": 0.1192,
+      "se": 0.0738,
+      "personas_con_cambio": 304
+     },
+     "ev_1": {
+      "coef": 0.0575,
+      "se": 0.0975,
+      "personas_con_cambio": 146
+     },
+     "ev_2mas": {
+      "coef": 0.0338,
+      "se": 0.1156,
+      "personas_con_cambio": 105
+     }
+    },
+    "phq9": {
+     "n_obs": 7386,
+     "n_personas": 1796,
+     "ev_pre2": {
+      "coef": 1.0333,
+      "se": 0.4569,
+      "personas_con_cambio": 248
+     },
+     "ev_0": {
+      "coef": 0.7959,
+      "se": 0.4293,
+      "personas_con_cambio": 299
+     },
+     "ev_1": {
+      "coef": 0.6573,
+      "se": 0.5908,
+      "personas_con_cambio": 143
+     },
+     "ev_2mas": {
+      "coef": 0.8531,
+      "se": 0.6517,
+      "personas_con_cambio": 105
+     }
+    }
+   },
+   "separarse_robusto": {
+    "n_eventos": 282,
+    "s01": {
+     "n_obs": 7556,
+     "n_personas": 1811,
+     "ev_pre2": {
+      "coef": 0.0733,
+      "se": 0.0707,
+      "personas_con_cambio": 236
+     },
+     "ev_0": {
+      "coef": -0.0864,
+      "se": 0.076,
+      "personas_con_cambio": 280
+     },
+     "ev_1": {
+      "coef": -0.1616,
+      "se": 0.0886,
+      "personas_con_cambio": 138
+     },
+     "ev_2mas": {
+      "coef": -0.0667,
+      "se": 0.1006,
+      "personas_con_cambio": 86
+     }
+    },
+    "phq9": {
+     "n_obs": 7403,
+     "n_personas": 1798,
+     "ev_pre2": {
+      "coef": -0.0682,
+      "se": 0.5877,
+      "personas_con_cambio": 235
+     },
+     "ev_0": {
+      "coef": 0.3794,
+      "se": 0.5622,
+      "personas_con_cambio": 276
+     },
+     "ev_1": {
+      "coef": -0.174,
+      "se": 0.7437,
+      "personas_con_cambio": 136
+     },
+     "ev_2mas": {
+      "coef": -0.0317,
+      "se": 0.8052,
+      "personas_con_cambio": 85
+     }
+    }
+   },
+   "nota_robusto": "Version robusta: solo personas con a lo sumo un cambio de estado de pareja en todo el panel (elimina el ruido conviviente<->soltero y casado<->separado que vuelve y va). m36 no se pregunto en 2017.",
+   "nota": "k = olas desde el evento (olas 2016,17,18,19,21,22); referencia k=-1 (ola anterior al evento). ev_pre2: k<=-2; ev_0: ola del evento; ev_1: ola siguiente; ev_2mas: dos o mas olas despues. Efectos fijos de persona y de ola; SE agrupados por persona. Muestra 18-65 años. Controles: nunca tratados del grupo en riesgo."
+  },
+  "hijo": "No calculable en ELSOC: numero de hijos (m37) solo en 2016 y en refresco 2018; m48 (tiene hijos) en 2017 y solo para la muestra de refresco en 2019; roster del hogar solo en 2016."
+ },
+ "2_transiciones_ELSOC": {
+  "nota": "Filas: estado en t; columnas: estado en t+1 (O ocupado: m02 1-3; D desocupado buscando: m02=6; I inactivo: resto). Ponderado con ponderador02 de la ola de origen. anual = pares 2016-17, 2017-18, 2018-19, 2021-22. bienal_2019_2021 anualizado con raiz cuadrada de la matriz (periodo COVID).",
+  "18-29": {
+   "anual": {
+    "O": {
+     "O": 0.8718,
+     "D": 0.0425,
+     "I": 0.0857
+    },
+    "D": {
+     "O": 0.6069,
+     "D": 0.1773,
+     "I": 0.2158
+    },
+    "I": {
+     "O": 0.3637,
+     "D": 0.0715,
+     "I": 0.5648
+    }
+   },
+   "n_anual": {
+    "O": {
+     "O": 764,
+     "D": 41,
+     "I": 90
+    },
+    "D": {
+     "O": 76,
+     "D": 25,
+     "I": 34
+    },
+    "I": {
+     "O": 151,
+     "D": 31,
+     "I": 251
+    }
+   },
+   "bienal_2019_2021_anualizado": {
+    "O": {
+     "O": 0.9196,
+     "D": 0.0222,
+     "I": 0.0582
+    },
+    "D": {
+     "O": 0.3484,
+     "D": 0.5472,
+     "I": 0.1044
+    },
+    "I": {
+     "O": 0.184,
+     "D": 0.0884,
+     "I": 0.7276
+    }
+   },
+   "n_bienal": {
+    "O": {
+     "O": 177,
+     "D": 13,
+     "I": 23
+    },
+    "D": {
+     "O": 13,
+     "D": 8,
+     "I": 3
+    },
+    "I": {
+     "O": 31,
+     "D": 11,
+     "I": 59
+    }
+   }
+  },
+  "30-44": {
+   "anual": {
+    "O": {
+     "O": 0.92,
+     "D": 0.0331,
+     "I": 0.047
+    },
+    "D": {
+     "O": 0.4937,
+     "D": 0.3338,
+     "I": 0.1724
+    },
+    "I": {
+     "O": 0.3133,
+     "D": 0.0442,
+     "I": 0.6424
+    }
+   },
+   "n_anual": {
+    "O": {
+     "O": 1877,
+     "D": 75,
+     "I": 134
+    },
+    "D": {
+     "O": 87,
+     "D": 34,
+     "I": 31
+    },
+    "I": {
+     "O": 152,
+     "D": 27,
+     "I": 342
+    }
+   },
+   "bienal_2019_2021_anualizado": {
+    "O": {
+     "O": 0.9185,
+     "D": 0.0488,
+     "I": 0.0327
+    },
+    "D": {
+     "O": 0.3683,
+     "D": 0.5532,
+     "I": 0.0784
+    },
+    "I": {
+     "O": 0.1902,
+     "D": 0.0064,
+     "I": 0.8034
+    }
+   },
+   "n_bienal": {
+    "O": {
+     "O": 482,
+     "D": 38,
+     "I": 34
+    },
+    "D": {
+     "O": 22,
+     "D": 9,
+     "I": 8
+    },
+    "I": {
+     "O": 46,
+     "D": 4,
+     "I": 77
+    }
+   }
+  },
+  "45-59": {
+   "anual": {
+    "O": {
+     "O": 0.9178,
+     "D": 0.0297,
+     "I": 0.0524
+    },
+    "D": {
+     "O": 0.5644,
+     "D": 0.2511,
+     "I": 0.1845
+    },
+    "I": {
+     "O": 0.2068,
+     "D": 0.0334,
+     "I": 0.7599
+    }
+   },
+   "n_anual": {
+    "O": {
+     "O": 2089,
+     "D": 88,
+     "I": 143
+    },
+    "D": {
+     "O": 122,
+     "D": 25,
+     "I": 40
+    },
+    "I": {
+     "O": 183,
+     "D": 32,
+     "I": 584
+    }
+   },
+   "bienal_2019_2021_anualizado": {
+    "O": {
+     "O": 0.9122,
+     "D": 0.036,
+     "I": 0.0518
+    },
+    "D": {
+     "O": 0.2259,
+     "D": 0.5472,
+     "I": 0.2269
+    },
+    "I": {
+     "O": 0.0873,
+     "D": 0.1182,
+     "I": 0.7945
+    }
+   },
+   "n_bienal": {
+    "O": {
+     "O": 521,
+     "D": 32,
+     "I": 73
+    },
+    "D": {
+     "O": 18,
+     "D": 17,
+     "I": 12
+    },
+    "I": {
+     "O": 34,
+     "D": 10,
+     "I": 134
+    }
+   }
+  }
+ },
+ "2b_estresor_despido_ELSOC": {
+  "18-29": {
+   "prop_si": 0.1557,
+   "n": 827
+  },
+  "30-44": {
+   "prop_si": 0.1182,
+   "n": 1961
+  },
+  "45-59": {
+   "prop_si": 0.1258,
+   "n": 2054
+  },
+  "nota": "ELSOC s13_06 \"Estresores: Despidos del trabajo\" (si/no), olas 2016, 2018, 2022, ocupados, ponderado. Periodo de referencia no verificado en el cuestionario."
+ },
+ "3_historia_laboral_EPS": {
+  "fuente": "EPS VIII Ronda (2023-2024), BBDD_VIVOS/MODULO_B_HISTORIA_LABORAL.dta; ponderado con factor_XS (Factor_XS_EPS_2023).",
+  "empleo_2016_2024": {
+   "18-29": {
+    "anios_persona_ocupado": 11778.0,
+    "personas": 4275,
+    "n_terminos": 4844,
+    "tasa_anual_termino_total": 0.3731,
+    "tasa_involuntario": 0.0529,
+    "n_involuntario": 687,
+    "tasa_fin_contrato": 0.0904,
+    "n_fin_contrato": 1291,
+    "tasa_voluntario": 0.1166,
+    "n_voluntario": 1530,
+    "tasa_mutuo_acuerdo": 0.0334,
+    "n_mutuo_acuerdo": 435,
+    "tasa_otro_o_sin_dato": 0.0797,
+    "n_otro_o_sin_dato": 901,
+    "tasa_cambio_empleador_j2j": 0.2178,
+    "n_j2j": 2490,
+    "tasa_paso_a_cesantia": 0.0913,
+    "tasa_paso_a_inactividad": 0.064
+   },
+   "30-44": {
+    "anios_persona_ocupado": 10115.0,
+    "personas": 3091,
+    "n_terminos": 2120,
+    "tasa_anual_termino_total": 0.1863,
+    "tasa_involuntario": 0.0333,
+    "n_involuntario": 360,
+    "tasa_fin_contrato": 0.0329,
+    "n_fin_contrato": 409,
+    "tasa_voluntario": 0.0478,
+    "n_voluntario": 530,
+    "tasa_mutuo_acuerdo": 0.0212,
+    "n_mutuo_acuerdo": 199,
+    "tasa_otro_o_sin_dato": 0.0511,
+    "n_otro_o_sin_dato": 622,
+    "tasa_cambio_empleador_j2j": 0.1377,
+    "n_j2j": 1551,
+    "tasa_paso_a_cesantia": 0.0385,
+    "tasa_paso_a_inactividad": 0.01
+   },
+   "45-59": {
+    "anios_persona_ocupado": 11180.0,
+    "personas": 2987,
+    "n_terminos": 1790,
+    "tasa_anual_termino_total": 0.143,
+    "tasa_involuntario": 0.0274,
+    "n_involuntario": 309,
+    "tasa_fin_contrato": 0.0221,
+    "n_fin_contrato": 310,
+    "tasa_voluntario": 0.0237,
+    "n_voluntario": 260,
+    "tasa_mutuo_acuerdo": 0.0087,
+    "n_mutuo_acuerdo": 108,
+    "tasa_otro_o_sin_dato": 0.0611,
+    "n_otro_o_sin_dato": 803,
+    "tasa_cambio_empleador_j2j": 0.1019,
+    "n_j2j": 1309,
+    "tasa_paso_a_cesantia": 0.0319,
+    "tasa_paso_a_inactividad": 0.0092
+   }
+  },
+  "empleo_sin_2020": {
+   "18-29": {
+    "anios_persona_ocupado": 10201.0,
+    "personas": 4163,
+    "n_terminos": 4228,
+    "tasa_anual_termino_total": 0.3739,
+    "tasa_involuntario": 0.0531,
+    "n_involuntario": 598,
+    "tasa_fin_contrato": 0.0929,
+    "n_fin_contrato": 1150,
+    "tasa_voluntario": 0.1208,
+    "n_voluntario": 1350,
+    "tasa_mutuo_acuerdo": 0.0344,
+    "n_mutuo_acuerdo": 389,
+    "tasa_otro_o_sin_dato": 0.0727,
+    "n_otro_o_sin_dato": 741,
+    "tasa_cambio_empleador_j2j": 0.2165,
+    "n_j2j": 2146,
+    "tasa_paso_a_cesantia": 0.0926,
+    "tasa_paso_a_inactividad": 0.0647
+   },
+   "30-44": {
+    "anios_persona_ocupado": 8958.0,
+    "personas": 3034,
+    "n_terminos": 1760,
+    "tasa_anual_termino_total": 0.1771,
+    "tasa_involuntario": 0.0341,
+    "n_involuntario": 321,
+    "tasa_fin_contrato": 0.0325,
+    "n_fin_contrato": 366,
+    "tasa_voluntario": 0.0473,
+    "n_voluntario": 462,
+    "tasa_mutuo_acuerdo": 0.0206,
+    "n_mutuo_acuerdo": 168,
+    "tasa_otro_o_sin_dato": 0.0427,
+    "n_otro_o_sin_dato": 443,
+    "tasa_cambio_empleador_j2j": 0.1275,
+    "n_j2j": 1241,
+    "tasa_paso_a_cesantia": 0.0394,
+    "tasa_paso_a_inactividad": 0.0101
+   },
+   "45-59": {
+    "anios_persona_ocupado": 9701.0,
+    "personas": 2916,
+    "n_terminos": 1429,
+    "tasa_anual_termino_total": 0.1374,
+    "tasa_involuntario": 0.0284,
+    "n_involuntario": 261,
+    "tasa_fin_contrato": 0.0227,
+    "n_fin_contrato": 272,
+    "tasa_voluntario": 0.0245,
+    "n_voluntario": 230,
+    "tasa_mutuo_acuerdo": 0.0078,
+    "n_mutuo_acuerdo": 83,
+    "tasa_otro_o_sin_dato": 0.054,
+    "n_otro_o_sin_dato": 583,
+    "tasa_cambio_empleador_j2j": 0.0948,
+    "n_j2j": 1001,
+    "tasa_paso_a_cesantia": 0.0331,
+    "tasa_paso_a_inactividad": 0.0095
+   }
+  },
+  "empleo_2021_2024": {
+   "18-29": {
+    "anios_persona_ocupado": 6954.0,
+    "personas": 3717,
+    "n_terminos": 3079,
+    "tasa_anual_termino_total": 0.399,
+    "tasa_involuntario": 0.0577,
+    "n_involuntario": 443,
+    "tasa_fin_contrato": 0.109,
+    "n_fin_contrato": 891,
+    "tasa_voluntario": 0.1374,
+    "n_voluntario": 1010,
+    "tasa_mutuo_acuerdo": 0.0364,
+    "n_mutuo_acuerdo": 288,
+    "tasa_otro_o_sin_dato": 0.0586,
+    "n_otro_o_sin_dato": 447,
+    "tasa_cambio_empleador_j2j": 0.2205,
+    "n_j2j": 1522,
+    "tasa_paso_a_cesantia": 0.1134,
+    "tasa_paso_a_inactividad": 0.0651
+   },
+   "30-44": {
+    "anios_persona_ocupado": 6672.0,
+    "personas": 2760,
+    "n_terminos": 1364,
+    "tasa_anual_termino_total": 0.1904,
+    "tasa_involuntario": 0.0359,
+    "n_involuntario": 249,
+    "tasa_fin_contrato": 0.0398,
+    "n_fin_contrato": 311,
+    "tasa_voluntario": 0.0506,
+    "n_voluntario": 360,
+    "tasa_mutuo_acuerdo": 0.0209,
+    "n_mutuo_acuerdo": 134,
+    "tasa_otro_o_sin_dato": 0.0432,
+    "n_otro_o_sin_dato": 310,
+    "tasa_cambio_empleador_j2j": 0.1299,
+    "n_j2j": 926,
+    "tasa_paso_a_cesantia": 0.0483,
+    "tasa_paso_a_inactividad": 0.0122
+   },
+   "45-59": {
+    "anios_persona_ocupado": 6864.0,
+    "personas": 2667,
+    "n_terminos": 957,
+    "tasa_anual_termino_total": 0.1338,
+    "tasa_involuntario": 0.0259,
+    "n_involuntario": 161,
+    "tasa_fin_contrato": 0.0277,
+    "n_fin_contrato": 221,
+    "tasa_voluntario": 0.0239,
+    "n_voluntario": 153,
+    "tasa_mutuo_acuerdo": 0.0086,
+    "n_mutuo_acuerdo": 60,
+    "tasa_otro_o_sin_dato": 0.0478,
+    "n_otro_o_sin_dato": 362,
+    "tasa_cambio_empleador_j2j": 0.0868,
+    "n_j2j": 641,
+    "tasa_paso_a_cesantia": 0.0387,
+    "tasa_paso_a_inactividad": 0.0083
+   }
+  },
+  "motivos_termino_distribucion": {
+   "cierre_empresa": 0.0275,
+   "despido_imputable": 0.0108,
+   "despido_necesidades_empresa": 0.1006,
+   "fin_contrato_plazo_obra": 0.1885,
+   "fuerza_mayor": 0.0269,
+   "mutuo_acuerdo": 0.0891,
+   "nr": 0.1675,
+   "otra": 0.1022,
+   "pension": 0.022,
+   "renuncia": 0.1563,
+   "renuncia_mejor_trabajo": 0.0849,
+   "salud": 0.0238
+  },
+  "cesantia": {
+   "18-29": {
+    "n_episodios": 3290,
+    "n_censurados": 761,
+    "mediana_KM_meses": 5,
+    "media_restringida_60m_KM_meses": 13.7,
+    "sobrevida_KM": {
+     "3": 0.565,
+     "6": 0.467,
+     "12": 0.298,
+     "24": 0.183
+    },
+    "mediana_completos_meses": 3.0,
+    "media_completos_meses": 8.2
+   },
+   "30-44": {
+    "n_episodios": 898,
+    "n_censurados": 276,
+    "mediana_KM_meses": 11,
+    "media_restringida_60m_KM_meses": 16.9,
+    "sobrevida_KM": {
+     "3": 0.676,
+     "6": 0.59,
+     "12": 0.32,
+     "24": 0.224
+    },
+    "mediana_completos_meses": 4.0,
+    "media_completos_meses": 9.0
+   },
+   "45-59": {
+    "n_episodios": 911,
+    "n_censurados": 289,
+    "mediana_KM_meses": 11,
+    "media_restringida_60m_KM_meses": 21.4,
+    "sobrevida_KM": {
+     "3": 0.621,
+     "6": 0.574,
+     "12": 0.402,
+     "24": 0.327
+    },
+    "mediana_completos_meses": 2.0,
+    "media_completos_meses": 7.7
+   },
+   "todos": {
+    "n_episodios": 5850,
+    "n_censurados": 1553,
+    "mediana_KM_meses": 8,
+    "media_restringida_60m_KM_meses": 16.8,
+    "sobrevida_KM": {
+     "3": 0.612,
+     "6": 0.532,
+     "12": 0.335,
+     "24": 0.238
+    },
+    "mediana_completos_meses": 3.0,
+    "media_completos_meses": 8.4
+   },
+   "nota": "Episodios con situacion ocupacional final (b2a_so) = 2 Cesante o 3 Buscando trabajo por 1a vez, iniciados desde 2016. Duracion = termino - inicio en meses (minimo 1). Episodio vigente a la entrevista = censurado. Kaplan-Meier ponderado con factor_XS; media restringida a 60 meses."
+  },
+  "hijo": {
+   "nota": "MODULO_I_HIJOS (hijos nacidos despues de la ultima entrevista, i21_anio/i21_mes). Primer nacimiento en el periodo; se exige historia laboral que cubra 12 meses antes del parto. Denominador: ocupados 12 meses antes del parto. \"No ocupado\" = no esta en episodio b2a_so=1 (cuenta licencia larga/cuidado como no ocupado si asi se registro).",
+   "mujeres": {
+    "nacimientos_con_cobertura": 733,
+    "ocupados_12m_antes": 321,
+    "prop_no_ocupado_12m_despues": 0.173,
+    "n_emp_12": 245,
+    "prop_no_ocupado_24m_despues": 0.174,
+    "n_emp_24": 161,
+    "prop_con_alguna_salida_entre_-9m_y_+24m": 0.179,
+    "n_salida": 161
+   },
+   "hombres": {
+    "nacimientos_con_cobertura": 406,
+    "ocupados_12m_antes": 316,
+    "prop_no_ocupado_12m_despues": 0.05,
+    "n_emp_12": 265,
+    "prop_no_ocupado_24m_despues": 0.073,
+    "n_emp_24": 195,
+    "prop_con_alguna_salida_entre_-9m_y_+24m": 0.113,
+    "n_salida": 195
+   }
+  }
+ },
+ "4_horas_y_familia_ELSOC": {
+  "s12_hablar_problemas_familia_amigos": {
+   "n_obs": 3227,
+   "n_personas": 1292,
+   "horas10": {
+    "coef": -0.059,
+    "se": 0.0323,
+    "personas_con_cambio": 948
+   }
+  },
+  "t06_08_satisf_cercania_familia_amigos": {
+   "n_obs": 2120,
+   "n_personas": 1060,
+   "horas10": {
+    "coef": -0.0101,
+    "se": 0.039,
+    "personas_con_cambio": 673
+   }
+  },
+  "pooled_medias_s12_por_horas": {
+   "(0, 30]": 3.372,
+   "(30, 44]": 3.567,
+   "(44, 45]": 3.462,
+   "(45, 50]": 3.4,
+   "(50, 100]": 3.372
+  },
+  "nota": "Ocupados 18-65 con horas 1-100. Efecto fijo de persona y ola; coeficiente por +10 horas semanales. No hay en ELSOC ni en la EPS una pregunta de frecuencia de contacto o visitas a los padres; s12 es el mejor sustituto disponible."
+ },
+ "parametros_sugeridos_juego": {
+  "DESPIDO_por_edad_anual": {
+   "fuente": "EPS 2016-2024, tasa_involuntario (despido + cierre + fuerza mayor)",
+   "18-29": 0.0529,
+   "30-44": 0.0333,
+   "45-59": 0.0274,
+   "mas_fin_de_contrato": {
+    "18-29": 0.1433,
+    "30-44": 0.0662,
+    "45-59": 0.0495
+   }
+  },
+  "RENUNCIA_por_edad_anual": {
+   "18-29": 0.1166,
+   "30-44": 0.0478,
+   "45-59": 0.0237
+  },
+  "CAMBIO_EMPLEADOR_por_edad_anual": {
+   "18-29": 0.2178,
+   "30-44": 0.1377,
+   "45-59": 0.1019
+  },
+  "MESES_CESANTIA": {
+   "mediana_KM_meses": {
+    "18-29": 5,
+    "30-44": 11,
+    "45-59": 11,
+    "todos": 8
+   },
+   "media_exponencial_equivalente_meses": {
+    "18-29": 9.9,
+    "30-44": 10.5,
+    "45-59": 13.2,
+    "todos": 11.0
+   },
+   "nota": "media exponencial que reproduce la sobrevida KM a 12 meses: -12/ln(S12). pEncontrar anual = 1 - S12 = 0,70 / 0,68 / 0,60."
+  },
+  "ANIMO_cesantia": {
+   "s01_coef": {
+    "coef": -0.1488,
+    "se": 0.0409,
+    "personas_con_cambio": 619
+   },
+   "en_puntos_0_100": -3.7,
+   "conversion": "1 punto de s01 (1-5) = 25 puntos de animo (0-100)"
+  },
+  "ANIMO_reempleo": {
+   "s01_k0": {
+    "coef": 0.2401,
+    "se": 0.0682,
+    "personas_con_cambio": 355
+   },
+   "en_puntos_0_100": 6.0
+  },
+  "ANIMO_pareja": {
+   "s01_coef": {
+    "coef": 0.0975,
+    "se": 0.029,
+    "personas_con_cambio": 1066
+   },
+   "en_puntos_0_100": 2.4
+  },
+  "HIJO_SALE_MUJER": 0.173,
+  "HIJO_SALE_HOMBRE": 0.05
+ }
+}

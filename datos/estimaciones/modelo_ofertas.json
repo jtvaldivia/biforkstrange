@@ -1,0 +1,814 @@
+{
+ "OFERTAS_ANUAL_NO_BUSCA": {
+  "valor": 0.957,
+  "unidad": "ofertas por año (tasa de llegada)",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 13918,
+  "ee_o_ic": 0.039,
+  "pais": "EE.UU.",
+  "estado": "dato",
+  "nota": "Asalariados que no buscaron trabajo en las últimas 4 semanas (js6=3). nl1 son ofertas de los últimos 4 meses, por 3. El tope de la encuesta es '10 o más'; con tope en 4 da 0.837. EE bootstrap por persona (8.662 personas en total)."
+ },
+ "OFERTAS_ANUAL_BUSCA": {
+  "valor": 1.64,
+  "unidad": "ofertas por año (tasa de llegada)",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 2886,
+  "ee_o_ic": 0.104,
+  "pais": "EE.UU.",
+  "estado": "dato",
+  "nota": "Asalariados que buscaron en las últimas 4 semanas para dejar su empleo (js6=1). Quien busca un empleo adicional (js6=2) recibe 2.249 al año y no entra aquí."
+ },
+ "P_ALGUNA_OFERTA_ANUAL": {
+  "valor": {
+   "no_busca": 0.402,
+   "busca": 0.631,
+   "todos": 0.466
+  },
+  "unidad": "probabilidad anual (0-1)",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 17868,
+  "ee_o_ic": {
+   "no_busca": 0.009,
+   "busca": 0.018
+  },
+  "pais": "EE.UU.",
+  "estado": "derivado",
+  "nota": "1-(1-p4)^3 con p4 = probabilidad de al menos una oferta en 4 meses (no busca 0,157; busca 0,283). Supone independencia entre cuatrimestres. Es el análogo de CARTAS['oferta'] = 0,38."
+ },
+ "CAMBIO_EMPLEADOR_SCE": {
+  "valor": 0.12,
+  "unidad": "probabilidad anual (0-1)",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 9317,
+  "ee_o_ic": 0.008,
+  "pais": "EE.UU.",
+  "estado": "derivado",
+  "nota": "Panel de 4 meses: asalariado en dos olas seguidas cuyo empleo actual empezó después de la entrevista anterior (389 cambios). 4 meses: 0.0417; anualizado 1-(1-p)^3. Excluye mar-2023 a mar-2024 por el error de l1y que informa la Fed. Solo sirve como denominador de OFERTA_FACTOR."
+ },
+ "OFERTA_FACTOR": {
+  "valor": 7.97,
+  "unidad": "cociente: ofertas anuales de quien no busca / tasa anual de cambio de empleador",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 13918,
+  "ee_o_ic": 0.6,
+  "pais": "EE.UU.",
+  "estado": "derivado",
+  "nota": "0.957 ofertas al año de quien no busca, dividido por 0.12 cambios de empleador al año, ambos en la SCE. Con ofertas topadas en 4: 6.97. El motor usa 2,0. Si se adopta, la aceptación tiene que bajar a lo que mide la SCE (P_ACEPTA_OFERTA), si no los gemelos cambiarían de empleo cuatro veces más que en Chile."
+ },
+ "BUSCA_MULT": {
+  "valor": 1.713,
+  "unidad": "multiplicador de la tasa de ofertas",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 16804,
+  "ee_o_ic": 0.126,
+  "pais": "EE.UU.",
+  "estado": "dato",
+  "nota": "Ofertas de quien busca para irse / de quien no busca. Con tope en 4 ofertas: 1.801. Es asociación: quien busca puede ser distinto. El motor usa 2,5."
+ },
+ "FRAC_OFERTAS_SIN_BUSCAR": {
+  "valor": 0.669,
+  "unidad": "fracción de todas las ofertas a asalariados (0-1)",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 17868,
+  "ee_o_ic": 0.015,
+  "pais": "EE.UU.",
+  "estado": "dato",
+  "nota": "Ofertas recibidas por quien no buscó en las últimas 4 semanas sobre el total de ofertas. La SCE no pregunta si la oferta fue espontánea, y la búsqueda se mide en 4 semanas mientras las ofertas en 4 meses: es una cota."
+ },
+ "SHARE_BUSCA_ASALARIADOS": {
+  "valor": 0.148,
+  "unidad": "fracción de asalariados (0-1)",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 17868,
+  "ee_o_ic": 0.004,
+  "pais": "EE.UU.",
+  "estado": "dato",
+  "nota": "Buscó en las últimas 4 semanas para dejar su empleo. Para contrastar con GEMELOS_BASE['buscar_pega'] (EPS: 0,25 / 0,16 / 0,12)."
+ },
+ "OFERTA_REL_DIST": {
+  "valor": {
+   "media": -0.016,
+   "sd": 0.316,
+   "sd_robusta": 0.222,
+   "p10": -0.348,
+   "p25": -0.182,
+   "p50": -0.027,
+   "p75": 0.118,
+   "p90": 0.363,
+   "share_mejora": 0.392
+  },
+  "unidad": "log(sueldo anual de la oferta / sueldo anual actual)",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 2660,
+  "ee_o_ic": {
+   "media": 0.012,
+   "sd": 0.012,
+   "p50": 0.013
+  },
+  "pais": "EE.UU.",
+  "estado": "dato",
+  "nota": "Ofertas de jornada completa a asalariados, rechazadas o aceptadas (1406 personas). Base: sueldo actual si la rechazó; sueldo de la ola anterior si la aceptó (solo 156 de 1227 aceptadas tienen ola anterior, y se reponderan). Se descartan cocientes fuera de 0,2-5. Colas más gruesas que una normal: la desviación robusta (rango intercuartil/1,349) es 0,22 y la estándar 0,32."
+ },
+ "M_SD": {
+  "valor": 0.224,
+  "unidad": "desviación del premio salarial entre empleadores (log)",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 2660,
+  "ee_o_ic": 0.009,
+  "pais": "EE.UU.",
+  "estado": "derivado",
+  "nota": "Si el premio actual m y el de la oferta m' son independientes con la misma desviación, sd(m'-m) = M_SD·√2; sd observada 0,317. Con la desviación robusta da 0,157, y si se ajusta para reproducir que 27,7% de las ofertas supera al sueldo actual en más de 10% (lo relevante para el umbral) da 0,15. Chequeo chileno: en la ESI la desviación del cambio de ingreso de quien cambia de empleador excede la de quien se queda en sqrt(0,494²-0,361²) = 0,34, que da 0,24. El motor usa 0,15."
+ },
+ "OFERTA_SUPERA_UMBRAL": {
+  "valor": {
+   ">0.0": 0.392,
+   ">0.03": 0.372,
+   ">0.05": 0.346,
+   ">0.08": 0.301,
+   ">0.1": 0.277,
+   ">0.15": 0.212,
+   ">0.2": 0.18
+  },
+  "unidad": "fracción de ofertas cuyo log(oferta/actual) supera el umbral",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 2660,
+  "ee_o_ic": {
+   ">0.1": 0.021
+  },
+  "pais": "EE.UU.",
+  "estado": "dato",
+  "nota": "Momento para calibrar M_SD junto con UMBRAL_*: con los umbrales del motor (0,03 y 0,08) la SCE da 37% y 30%."
+ },
+ "OFERTA_ALZA_SI_MEJORA": {
+  "valor": {
+   "p10": 0.047,
+   "p25": 0.083,
+   "p50": 0.178,
+   "p75": 0.368,
+   "p90": 0.58
+  },
+  "unidad": "log(oferta/actual) entre ofertas que mejoran el sueldo",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 2660,
+  "ee_o_ic": {
+   "p50": 0.022
+  },
+  "pais": "EE.UU.",
+  "estado": "dato",
+  "nota": "Para CARTAS['oferta_alza'] = (0,06; 0,22), que sortea entre 6% y 28% con mediana 11,5%. La mediana de la SCE es 0,178 (19,5%) y el p90 0,58."
+ },
+ "M_REEMPLEO": {
+  "valor": -0.117,
+  "unidad": "log(sueldo de la oferta / sueldo del último empleo)",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 144,
+  "ee_o_ic": 0.056,
+  "pais": "EE.UU.",
+  "estado": "dato",
+  "nota": "No ocupados que buscan, con a lo más 24 meses sin trabajo, ofertas de jornada completa (91 personas). Mediana -0.069; entre las 25 aceptadas la mediana es 0. Este número ya contiene la pérdida por haber perdido el empleo: el motor suma además CICATRIZ (0,12), así que usar ambos cuenta la pérdida dos veces. El motor usa -0,03."
+ },
+ "P_ACEPTA_OFERTA": {
+  "valor": {
+   "todos": 0.214,
+   "busca": 0.288,
+   "no_busca": 0.162
+  },
+  "unidad": "fracción de ofertas aceptadas (0-1)",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 2144,
+  "ee_o_ic": {
+   "todos": 0.013,
+   "busca": 0.025,
+   "no_busca": 0.015
+  },
+  "pais": "EE.UU.",
+  "estado": "dato",
+  "nota": "Ofertas ya decididas de quien era asalariado 4 meses antes, según si buscaba en esa ola anterior (n busca 663, no busca 1203). Sin el panel (búsqueda medida después del cambio, aceptadas reponderadas) da 0.293, 0.577 y 0.14."
+ },
+ "UMBRAL_PASIVO": {
+  "valor": 0.105,
+  "unidad": "log(salario de reserva / sueldo actual), mediana",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 10573,
+  "ee_o_ic": 0.002,
+  "pais": "EE.UU.",
+  "estado": "dato",
+  "nota": "Asalariados que no buscan: mínimo que aceptarían por un trabajo nuevo (rw2a, anual desde mar-2017) sobre su sueldo. Media 0.137, p25 0, p75 0.223. La versión revelada (logit de aceptar sobre la mejora, punto de 50%) da 0.85 (ee 0.278): quien no busca rechaza casi todo. El motor usa 0,08."
+ },
+ "UMBRAL_ACTIVO": {
+  "valor": 0.069,
+  "unidad": "log(salario de reserva / sueldo actual), mediana",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, microdatos públicos nov-2014 a nov-2024 (sce-labor-microdata-public.xlsx)",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 2140,
+  "ee_o_ic": 0.006,
+  "pais": "EE.UU.",
+  "estado": "dato",
+  "nota": "Asalariados que buscan para irse. Media 0.098, p25 0, p75 0.182. Revelada por logit: -0.071 (ee 0.044), es decir, quien busca acepta ofertas que igualan su sueldo. El motor usa 0,03."
+ },
+ "OFERTAS_EDAD_MAYOR45": {
+  "valor": {
+   "ofertas_media": 0.594,
+   "alguna_oferta": 0.588,
+   "nuevo_empleador": 0.695,
+   "busca": 0.588
+  },
+  "unidad": "cociente mayores de 45 / 45 o menos",
+  "fuente": "Fed de Nueva York, SCE Labor Market Survey, series publicadas por edad (sce-labor-chart-data-public.xlsx), promedio de nov-2014 a jul-2026",
+  "script": "scripts/modelo/ofertas_sce.py",
+  "n": 37,
+  "ee_o_ic": {
+   "nuevo_empleador_pct_4m_ee_entre_olas": [
+    0.324,
+    0.255
+   ]
+  },
+  "pais": "EE.UU.",
+  "estado": "derivado",
+  "nota": "Ofertas en 4 meses: 0.423 (≤45) y 0.251 (>45), contando '4 o más' como 4. Con alguna oferta: 23.0% y 13.5%. Población de las series según la Fed, no solo asalariados. Para CARTAS por edad (1,0 / 0,8 / 0,6): el 0,6 de 45-59 calza. Los microdatos públicos no traen edad, así que no hay corte 18-29 contra 30-44."
+ },
+ "sueldo_relativo_ocupacion": {
+  "nivel": "CIUO-08 gran grupo (1 dígito, variable b1). La ESI pública no trae 2 dígitos.",
+  "definicion": "mediana ponderada del ingreso de la ocupación principal del grupo / mediana del mismo universo, ocupados de 25 a 54 años; promedio de las olas 2023, 2024 y 2025",
+  "universos": "rel_universitaria_o_mas: cine11_1d 4-6 (mismo universo que tablas.json); rel_superior_con_tecnica: 3-6; rel_todos: cualquier educación",
+  "fuente": "INE, Encuesta Suplementaria de Ingresos 2023, 2024 y 2025 (microdatos de personas)",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "pais": "Chile",
+  "estado": "dato",
+  "por_grupo": {
+   "1": {
+    "nombre": "Directores y gerentes",
+    "rel_universitaria_o_mas": 1.837,
+    "rango_olas_universitaria": [
+     1.789,
+     1.87
+    ],
+    "n_universitaria": 2043,
+    "rel_superior_con_tecnica": 2.056,
+    "n_superior": 2344,
+    "rel_todos": 2.868,
+    "n_todos": 2857
+   },
+   "2": {
+    "nombre": "Profesionales científicos e intelectuales",
+    "rel_universitaria_o_mas": 1.069,
+    "rango_olas_universitaria": [
+     1.039,
+     1.107
+    ],
+    "n_universitaria": 11743,
+    "rel_superior_con_tecnica": 1.259,
+    "n_superior": 12360,
+    "rel_todos": 1.822,
+    "n_todos": 13092
+   },
+   "3": {
+    "nombre": "Técnicos y profesionales de nivel medio",
+    "rel_universitaria_o_mas": 0.868,
+    "rango_olas_universitaria": [
+     0.833,
+     0.886
+    ],
+    "n_universitaria": 2853,
+    "rel_superior_con_tecnica": 0.827,
+    "n_superior": 6864,
+    "rel_todos": 1.162,
+    "n_todos": 10110
+   },
+   "4": {
+    "nombre": "Personal de apoyo administrativo",
+    "rel_universitaria_o_mas": 0.663,
+    "rango_olas_universitaria": [
+     0.618,
+     0.703
+    ],
+    "n_universitaria": 798,
+    "rel_superior_con_tecnica": 0.759,
+    "n_superior": 1695,
+    "rel_todos": 1.0,
+    "n_todos": 3708
+   },
+   "5": {
+    "nombre": "Trabajadores de servicios y vendedores",
+    "rel_universitaria_o_mas": 0.499,
+    "rango_olas_universitaria": [
+     0.472,
+     0.525
+    ],
+    "n_universitaria": 1582,
+    "rel_superior_con_tecnica": 0.572,
+    "n_superior": 3719,
+    "rel_todos": 0.749,
+    "n_todos": 14492
+   },
+   "6": {
+    "nombre": "Agricultores calificados",
+    "rel_universitaria_o_mas": 0.7,
+    "rango_olas_universitaria": [
+     0.68,
+     0.72
+    ],
+    "n_universitaria": 98,
+    "rel_superior_con_tecnica": 0.618,
+    "n_superior": 214,
+    "rel_todos": 0.722,
+    "n_todos": 1799
+   },
+   "7": {
+    "nombre": "Oficiales, operarios y artesanos",
+    "rel_universitaria_o_mas": 0.553,
+    "rango_olas_universitaria": [
+     0.534,
+     0.583
+    ],
+    "n_universitaria": 721,
+    "rel_superior_con_tecnica": 0.682,
+    "n_superior": 1807,
+    "rel_todos": 0.829,
+    "n_todos": 8602
+   },
+   "8": {
+    "nombre": "Operadores de instalaciones y máquinas",
+    "rel_universitaria_o_mas": 0.683,
+    "rango_olas_universitaria": [
+     0.659,
+     0.722
+    ],
+    "n_universitaria": 354,
+    "rel_superior_con_tecnica": 0.807,
+    "n_superior": 886,
+    "rel_todos": 1.009,
+    "n_todos": 5924
+   },
+   "9": {
+    "nombre": "Ocupaciones elementales",
+    "rel_universitaria_o_mas": 0.448,
+    "rango_olas_universitaria": [
+     0.423,
+     0.482
+    ],
+    "n_universitaria": 360,
+    "rel_superior_con_tecnica": 0.498,
+    "n_superior": 984,
+    "rel_todos": 0.711,
+    "n_todos": 11594
+   },
+   "10": {
+    "nombre": "Fuerzas Armadas",
+    "rel_universitaria_o_mas": 1.405,
+    "rango_olas_universitaria": [
+     1.26,
+     1.549
+    ],
+    "n_universitaria": 85,
+    "rel_superior_con_tecnica": 1.108,
+    "n_superior": 276,
+    "rel_todos": 1.614,
+    "n_todos": 374
+   }
+  },
+  "nota": "El motor tiene hoy la versión 2025 (1,851 para directores). Con tres olas el rango entre años es de ±0,05 en la mayoría de los grupos."
+ },
+ "OCUP_REL": {
+  "valor": 0.255,
+  "unidad": "fracción del log del sueldo relativo del grupo de destino que se traspasa",
+  "fuente": "INE, ESI 2023-2024 y 2024-2025 enlazadas por idrph (rotación de viviendas de la ENE), sexo igual y edad +0 a +2",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 1195,
+  "ee_o_ic": 0.102,
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Regresión del cambio de log ingreso (relativo a la mediana de la ola) sobre el cambio de log del sueldo relativo del gran grupo, entre quienes cambiaron de empleador (406 cambiaron de gran grupo). Errores de codificación de b1 entre olas sesgan el coeficiente hacia cero. El motor usa 0,3."
+ },
+ "RECONV_REL": {
+  "valor": 0.19,
+  "unidad": "fracción del log del sueldo relativo del grupo de destino que se traspasa",
+  "fuente": "INE, ESI 2023-2024 y 2024-2025 enlazadas por idrph (rotación de viviendas de la ENE), sexo igual y edad +0 a +2",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 6018,
+  "ee_o_ic": 0.041,
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Igual que OCUP_REL, con todos los asalariados que siguen ocupados (1649 cambiaron de gran grupo); sin cambiar de empleador da 0.179. La ESI no distingue una reconversión buscada de otro cambio de ocupación. Mismo sesgo hacia cero. El motor usa 0,5."
+ },
+ "PREMIO_TIPO_EMPLEADOR": {
+  "valor": {
+   "pyme": 0.0,
+   "grande": 0.208,
+   "estado": 0.132
+  },
+  "unidad": "log de sueldo respecto de pyme (1 a 199 personas)",
+  "fuente": "INE, Encuesta Suplementaria de Ingresos 2023, 2024 y 2025 (microdatos de personas)",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 65481,
+  "ee_o_ic": {
+   "grande": 0.006,
+   "estado": 0.008
+  },
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Asalariados 18-64 con 30-60 horas; controla edad, edad², sexo, educación, gran grupo CIUO, log horas, ola y región. Sin controlar ocupación: grande 0.224, Estado 0.182. Solo educación superior: grande 0.237, Estado 0.139. En el motor no existe este premio; MULT_TAM es un multiplicador de despido, no de sueldo. Startup no se puede identificar."
+ },
+ "PREMIO_TIPO_MULT": {
+  "valor": {
+   "pyme": 0.925,
+   "grande": 1.14,
+   "estado": 1.056
+  },
+  "unidad": "multiplicador sobre el promedio de quienes cambian de empleador",
+  "fuente": "INE, Encuesta Suplementaria de Ingresos 2023, 2024 y 2025 (microdatos de personas)",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 65481,
+  "ee_o_ic": null,
+  "pais": "Chile",
+  "estado": "derivado",
+  "nota": "exp(premio) normalizado con la mezcla de destinos de TAM_MEZCLA (pyme 0,62, grande 0,30, Estado 0,08)."
+ },
+ "PREMIO_TAMANO": {
+  "valor": {
+   "publico": -0.073,
+   "t1_<5": -0.372,
+   "t2_5-10": -0.253,
+   "t3_11-49": -0.21,
+   "t4_50-199": -0.136
+  },
+  "unidad": "log de sueldo respecto de empresas de 200 o más",
+  "fuente": "INE, Encuesta Suplementaria de Ingresos 2023, 2024 y 2025 (microdatos de personas)",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 65481,
+  "ee_o_ic": {
+   "publico": 0.008,
+   "t1_<5": 0.012,
+   "t2_5-10": 0.011,
+   "t3_11-49": 0.008,
+   "t4_50-199": 0.008
+  },
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Mismos controles que PREMIO_TIPO_EMPLEADOR; 'publico' es asalariado público."
+ },
+ "TAM_MEZCLA": {
+  "valor": {
+   "pyme": 0.621,
+   "grande": 0.299,
+   "estado": 0.081,
+   "startup": null
+  },
+  "unidad": "fracción de quienes cambian de empleador (0-1)",
+  "fuente": "INE, ESI 2023-2024 y 2024-2025 enlazadas por idrph (rotación de viviendas de la ENE), sexo igual y edad +0 a +2",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 1597,
+  "ee_o_ic": null,
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Tipo del nuevo empleador entre asalariados que cambiaron de empleador entre olas. Entre todos los asalariados con menos de un año en su empleo (corte transversal, n=22271): pyme 0.633, grande 0.279, Estado 0.088. El motor usa Estado 0,12, grande 0,35, pyme 0,52, startup 0,01."
+ },
+ "TAM_SE_QUEDA": {
+  "valor": 0.347,
+  "unidad": "probabilidad (0-1) de conservar el tipo antes de sortear uno nuevo",
+  "fuente": "INE, ESI 2023-2024 y 2024-2025 enlazadas por idrph (rotación de viviendas de la ENE), sexo igual y edad +0 a +2",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 1597,
+  "ee_o_ic": 0.023,
+  "pais": "Chile",
+  "estado": "derivado",
+  "nota": "En el panel 0.66 de quienes cambian de empleador queda en el mismo tipo (pyme, grande, Estado). El motor primero conserva el tipo con probabilidad s y si no sortea de TAM_MEZCLA, así que s = (P(mismo) - Σ origen·destino)/(1 - Σ origen·destino) con Σ = 0.479. El motor usa 0,3. Error aproximado binomial sin efecto de diseño."
+ },
+ "RETORNO_ANTIGUEDAD": {
+  "valor": {
+   "1-2": 0.082,
+   "2-5": 0.118,
+   "5-10": 0.158,
+   "10+": 0.265,
+   "lineal_por_anio": 0.0227,
+   "cuadratico": -0.00038
+  },
+  "unidad": "log de sueldo respecto de menos de 1 año en el empleo",
+  "fuente": "INE, Encuesta Suplementaria de Ingresos 2023, 2024 y 2025 (microdatos de personas)",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 45991,
+  "ee_o_ic": {
+   "1-2": 0.009,
+   "10+": 0.01,
+   "lineal_por_anio": 0.0013
+  },
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Asalariados 18-64, 30-60 horas; controla edad, edad², sexo, educación, gran grupo, tipo de empleador, horas, ola y región. Corte transversal: incluye que los buenos calces duran más, así que es cota alta del retorno causal. El motor no tiene un retorno a la antigüedad aparte del perfil por edad."
+ },
+ "HORAS_50_O_MAS": {
+  "valor": {
+   "18-24": 0.057,
+   "25-29": 0.068,
+   "30-34": 0.081,
+   "35-39": 0.085,
+   "40-44": 0.09,
+   "45-49": 0.086,
+   "50-54": 0.095,
+   "55-64": 0.102,
+   "18-54": 0.082
+  },
+  "unidad": "fracción de ocupados (0-1)",
+  "fuente": "INE, Encuesta Suplementaria de Ingresos 2023, 2024 y 2025 (microdatos de personas)",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 108623,
+  "ee_o_ic": {
+   "18-54": 0.0009
+  },
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Horas habituales ≥50, ponderado con fact_cal, tres olas. 18-54 por ola: 2023 8.7%, 2024 8.1%, 2025 7.8% (baja con la ley de 40 horas)."
+ },
+ "HORAS_55_O_MAS": {
+  "valor": {
+   "18-24": 0.041,
+   "25-29": 0.047,
+   "30-34": 0.058,
+   "35-39": 0.063,
+   "40-44": 0.065,
+   "45-49": 0.062,
+   "50-54": 0.071,
+   "55-64": 0.075,
+   "18-54": 0.059
+  },
+  "unidad": "fracción de ocupados (0-1)",
+  "fuente": "INE, Encuesta Suplementaria de Ingresos 2023, 2024 y 2025 (microdatos de personas)",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 108623,
+  "ee_o_ic": null,
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Horas habituales ≥55."
+ },
+ "TRABAJAR_MAS_FLUJO": {
+  "valor": 0.047,
+  "unidad": "probabilidad anual (0-1)",
+  "fuente": "INE, ESI 2023-2024 y 2024-2025 enlazadas por idrph (rotación de viviendas de la ENE), sexo igual y edad +0 a +2",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 12442,
+  "ee_o_ic": 0.0019,
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Ocupados con menos de 50 horas que al año siguiente declaran 50 o más. Por edad: 18-29 0.046, 30-44 0.042, 45-64 0.053. De quienes trabajan 50 o más, 0.348 sigue así al año siguiente (n=1309). GEMELOS_BASE['trabajar_mas'] = 0,08 usa el stock (8%), no la entrada anual."
+ },
+ "CAMBIO_EMPLEADOR_ESI": {
+  "valor": {
+   "total": 0.242,
+   "18-29": 0.35,
+   "30-44": 0.221,
+   "45-59": 0.205
+  },
+  "unidad": "probabilidad anual (0-1)",
+  "fuente": "INE, ESI 2023-2024 y 2024-2025 enlazadas por idrph (rotación de viviendas de la ENE), sexo igual y edad +0 a +2",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 6773,
+  "ee_o_ic": {
+   "total": 0.0052,
+   "18-29": 0.013
+  },
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Asalariados en ambas olas cuyo empleo actual empezó después de la entrevista anterior. Incluye a quien perdió el empleo y encontró otro dentro del año, y renovaciones registradas como empleo nuevo. Más alta que CAMBIO_EMPLEADOR del motor (EPS: 0,218 / 0,138 / 0,102). Sirve como cota alta."
+ },
+ "CAMBIO_INGRESO_AL_CAMBIAR": {
+  "valor": {
+   "se_queda": {
+    "media": -0.012,
+    "sd": 0.361,
+    "p25": -0.157,
+    "p50": -0.016,
+    "p75": 0.139,
+    "share_sube": 0.468
+   },
+   "cambia_empleador": {
+    "media": -0.018,
+    "sd": 0.494,
+    "p25": -0.233,
+    "p50": -0.016,
+    "p75": 0.227,
+    "share_sube": 0.486
+   },
+   "premio_cambio": -0.014
+  },
+  "unidad": "cambio anual de log ingreso relativo a la mediana de la ola",
+  "fuente": "INE, ESI 2023-2024 y 2024-2025 enlazadas por idrph (rotación de viviendas de la ENE), sexo igual y edad +0 a +2",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 6072,
+  "ee_o_ic": {
+   "premio_cambio": 0.02
+  },
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Asalariados en ambas olas. Sube el ingreso del 49% de quienes cambian de empleador y del 47% de quienes se quedan; el premio medio de cambiar no es distinto de cero. Mezcla cambios voluntarios e involuntarios. Objetivo para el motor, junto al 54% del Banco Central."
+ },
+ "EMP_MEDIANA": {
+  "valor": {
+   "media": 0.632,
+   "tecnica": 0.648,
+   "universitaria": 0.579,
+   "postgrado": 0.657,
+   "todos": 0.62
+  },
+  "unidad": "cociente de ingreso cuenta propia / asalariado comparable",
+  "fuente": "INE, Encuesta Suplementaria de Ingresos 2023, 2024 y 2025 (microdatos de personas)",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": {
+   "media": 7886,
+   "tecnica": 1065,
+   "universitaria": 1420,
+   "postgrado": 125,
+   "todos": 10496
+  },
+  "ee_o_ic": {
+   "media": 0.008,
+   "tecnica": 0.019,
+   "universitaria": 0.019,
+   "postgrado": 0.066,
+   "todos": 0.007
+  },
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "exp del coeficiente de cuenta propia en log ingreso, 25-64 años con 30-80 horas, controla edad, sexo, horas, ola y región (y educación en 'todos'). Cociente de medianas en celdas edad×sexo: 0.649 en todos, 0.582 en universitarios. En el panel, quien pasa de asalariado a cuenta propia cambia su ingreso en mediana -0.272 (cociente 0.762, n=331). Empleadores ganan más que asalariados: 1.17. Incluye cuenta propia informal y de subsistencia. El motor usa 0,65 (Hamilton 2000, EE.UU.)."
+ },
+ "EMP_SD_Q": {
+  "valor": 0.562,
+  "unidad": "desviación (log) adicional del ingreso por cuenta propia",
+  "fuente": "INE, Encuesta Suplementaria de Ingresos 2023, 2024 y 2025 (microdatos de personas)",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 10496,
+  "ee_o_ic": null,
+  "pais": "Chile",
+  "estado": "derivado",
+  "nota": "sqrt(sd_resid_cuenta_propia² - sd_resid_asalariado²) = sqrt(0.744² - 0.487²). Con el panel (varianza del cambio al pasar a cuenta propia menos la de asalariados que siguen y menos EMP_SD_T²) da 0.512. Sin error calculado. El motor usa 0,7."
+ },
+ "EMP_SD_T": {
+  "valor": 0.468,
+  "unidad": "desviación (log) del componente anual transitorio",
+  "fuente": "INE, ESI 2023-2024 y 2024-2025 enlazadas por idrph (rotación de viviendas de la ENE), sexo igual y edad +0 a +2",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 1763,
+  "ee_o_ic": null,
+  "pais": "Chile",
+  "estado": "derivado",
+  "nota": "sqrt((sd del cambio anual de quien sigue por cuenta propia² - sd de quien sigue asalariado²)/2) = sqrt((0.777² - 0.408²)/2). Supone que el exceso es transitorio e independiente entre años. Sin error calculado. El motor usa 0,4."
+ },
+ "EMP_ENTRADA_CHILE": {
+  "valor": 0.043,
+  "unidad": "probabilidad anual (0-1)",
+  "fuente": "INE, ESI 2023-2024 y 2024-2025 enlazadas por idrph (rotación de viviendas de la ENE), sexo igual y edad +0 a +2",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 9659,
+  "ee_o_ic": 0.0021,
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Asalariados de 25-64 ocupados en ambas olas que pasan a cuenta propia o empleador. Incluye cuenta propia informal. El motor usa 0,0113 (Alemania)."
+ },
+ "EMP_SALIDA_CHILE": {
+  "valor": 0.404,
+  "unidad": "probabilidad anual (0-1) de dejar de ser cuenta propia",
+  "fuente": "INE, ESI 2023-2024 y 2024-2025 enlazadas por idrph (rotación de viviendas de la ENE), sexo igual y edad +0 a +2",
+  "script": "scripts/modelo/ofertas_esi.py",
+  "n": 3170,
+  "ee_o_ic": 0.0087,
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Cuenta propia de 25-64 que al año siguiente no es cuenta propia ocupado; 0.148 pasa a asalariado. Sin duración del negocio, así que no separa los primeros años. El motor usa 0,31 en los dos primeros años y 0,15 después."
+ },
+ "MAG_PREMIO_ESI": {
+  "valor": {
+   "con_ocupacion": 0.282,
+   "sin_ocupacion": 0.415,
+   "doctorado_con_ocupacion": 0.477
+  },
+  "unidad": "log de sueldo respecto de título universitario",
+  "fuente": "INE, Encuesta Suplementaria de Ingresos 2023, 2024 y 2025 (microdatos de personas)",
+  "script": "scripts/modelo/ofertas_esi_postgrado.py",
+  "n": 20527,
+  "ee_o_ic": {
+   "con_ocupacion": 0.02,
+   "sin_ocupacion": 0.022
+  },
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "25-64 años, 30-60 horas, universitarios (18814), magíster (1535) y doctorado (178). Corte transversal: mezcla el efecto del magíster con quién lo hace. Es cota alta; el motor usa 0,07 (DIPRES 2026, becarios, estudio de eventos), que es la mejor estimación causal disponible."
+ },
+ "ASC_ALZA_SENIORITY_TECH": {
+  "valor": {
+   "junior->semi": 0.353,
+   "semi->senior": 0.365,
+   "senior->expert": 0.541
+  },
+  "unidad": "log de sueldo ofrecido entre niveles consecutivos",
+  "fuente": "Get on Board, API pública v0, avisos con sueldo publicado (getonbrd_vacantes.csv)",
+  "script": "scripts/modelo/ofertas_getonbrd.py",
+  "n": 355,
+  "ee_o_ic": {
+   "junior->semi": 0.089,
+   "semi->senior": 0.062,
+   "senior->expert": 0.115
+  },
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Avisos de jornada completa, punto medio del rango en USD, efectos fijos de categoría y país, errores por empresa (191 empresas). Solo avisos de Chile (n=153): 0.451, 0.167, 0.71. 'Sin experiencia' se junta con junior. Son diferencias de mercado entre niveles que también reflejan años de experiencia; el alza de un ascenso dentro de la empresa (ASC_ALZA = 0,08) no se observa aquí. Mezcla avisos remotos (pago en USD) con avisos chilenos."
+ },
+ "P_GANA_POSTULACION_ESTADO": {
+  "valor": {
+   "Administrativos": 0.0068,
+   "Auxiliares": 0.0298,
+   "Directiva": 0.0077,
+   "Directivos": 0.0063,
+   "Fiscalizadores": 0.0087,
+   "Otros": 0.0184,
+   "Profesional Ley 15.076/19.664": 0.0355,
+   "Profesionales": 0.0064,
+   "Técnicos": 0.0202,
+   "total": 0.0082
+  },
+  "unidad": "probabilidad por postulación (0-1)",
+  "fuente": "Servicio Civil, empleospublicos.cl: convocatorias 2009-2026 (convocatorias_eepp_historicas.csv y eepp_convocatorias.csv)",
+  "script": "scripts/modelo/ofertas_eepp.py",
+  "n": 86327,
+  "ee_o_ic": {
+   "Administrativos": [
+    0.0065,
+    0.0073
+   ],
+   "Auxiliares": [
+    0.0271,
+    0.0328
+   ],
+   "Directiva": [
+    0.0071,
+    0.0082
+   ],
+   "Directivos": [
+    0.0059,
+    0.0067
+   ],
+   "Fiscalizadores": [
+    0.0077,
+    0.01
+   ],
+   "Otros": [
+    0.0147,
+    0.0233
+   ],
+   "Profesional Ley 15.076/19.664": [
+    0.0323,
+    0.0397
+   ],
+   "Profesionales": [
+    0.0063,
+    0.0065
+   ],
+   "Técnicos": [
+    0.0196,
+    0.021
+   ]
+  },
+  "pais": "Chile",
+  "estado": "dato",
+  "nota": "Seleccionados / postulaciones en convocatorias con postulación en línea y proceso cerrado (aprobado o desierto). IC 95% bootstrap por convocatoria. 2023-2026: Profesionales 0.0055, Técnicos 0.0174. Quedan desiertas 22% de las convocatorias. Son concursos abiertos, no el cupo interno de CARTAS['postular'] (0,30 base), que no tiene análogo en estos datos. La renta por estamento ya está en calibracion.json (empleos_publicos.por_estamento)."
+ },
+ "sin_dato": {
+  "BUSCA_MULT_POR_EDAD": "Los microdatos públicos de la SCE no traen edad ni otras variables demográficas (están en el módulo principal de la SCE, no incluido). Solo hay series publicadas ≤45 / >45 sin corte por búsqueda.",
+  "UMBRAL_POR_EDAD": "Mismo motivo: sin edad en los microdatos de la SCE.",
+  "OFERTAS_18_29_VS_30_44": "Las series por edad de la SCE solo separan 45 o menos y más de 45.",
+  "OFERTA_FACTOR_CHILE": "Ninguna fuente chilena disponible pregunta por ofertas recibidas o rechazadas; solo hay cambios realizados (EPS, ESI).",
+  "ASC_ALZA": "Ninguna fuente local registra ascensos dentro de la empresa con su alza. Get on Board da diferencias de mercado entre niveles (ASC_ALZA_SENIORITY_TECH), que no son lo mismo.",
+  "ASC_ALZA_FUERA_DE_TECH": "La ESI no trae nivel jerárquico ni seniority; Get on Board es casi solo tecnología.",
+  "PREMIO_Y_MEZCLA_STARTUP": "La ESI no distingue startups; el tamaño (b15_1) y la categoría no bastan para identificarlas.",
+  "SUELDO_RELATIVO_CIUO_2_DIGITOS": "La ESI pública solo trae b1 (gran grupo, 1 dígito); los códigos a 2 o 3 dígitos no se publican.",
+  "MAG_PREMIO_MIFUTURO": "Los buscadores de mifuturo descargados (2022-2026) cubren solo carreras de pregrado y técnicas; no hay filas de magíster, postítulo ni doctorado.",
+  "CARTAS_POSTULAR_INTERNO": "Ninguna fuente registra concursos internos de ascenso; empleospublicos.cl son concursos abiertos (ver P_GANA_POSTULACION_ESTADO).",
+  "REEMPLEO_CHILE_SUELDO_OFERTA": "La ESI no tiene sueldo previo de quien estaba cesante en la ola anterior (ing_t_p es solo de ocupados), así que no hay versión chilena de M_REEMPLEO con este panel."
+ },
+ "_meta": {
+  "generado": "2026-11-21",
+  "scripts": [
+   "scripts/modelo/ofertas_sce.py",
+   "scripts/modelo/ofertas_esi.py",
+   "scripts/modelo/ofertas_esi_postgrado.py",
+   "scripts/modelo/ofertas_getonbrd.py",
+   "scripts/modelo/ofertas_eepp.py",
+   "scripts/modelo/ofertas_ensamblar.py"
+  ],
+  "nota": "Cada clave dice si viene de EE.UU. o de Chile. 'dato' = estimado directo; 'derivado' = cálculo sobre datos con un supuesto explícito en la nota."
+ }
+}

@@ -1,0 +1,119 @@
+isco3,ocupacion,empleos_jobhop,p_cambia_de_grupo,duracion_mediana_anios,exposicion_ia_percentil,sueldo_relativo_gran_grupo
+011,Oficiales de las fuerzas armadas,1345,0.9563,2.0,0.5,
+021,Suboficiales de las fuerzas armadas,1472,0.9595,2.0,0.5,
+031,Otros miembros de las fuerzas armadas,1393,0.9813,1.75,0.5,
+111,Directivos de la administración pública,5008,0.894,2.0,0.691,1.837
+112,Directores generales y gerentes generales,1184,0.9355,2.0,0.606,1.837
+121,Directores de administración y finanzas,21430,0.8394,2.0,0.508,1.837
+122,"Directores de ventas, marketing y desarrollo",10477,0.8089,2.0,0.702,1.837
+132,"Directores de industria, construcción y logística",15011,0.8275,2.0,0.605,1.837
+133,Directores de servicios de tecnología (TIC),3551,0.8204,2.5,0.682,1.837
+134,"Directores de servicios profesionales (salud, educación, finanzas)",14075,0.8578,1.0,0.553,1.837
+141,Gerentes de hoteles y restaurantes,3721,0.8904,2.0,0.564,1.837
+142,Gerentes de comercio,23094,0.7891,2.0,0.658,1.837
+143,Otros gerentes de servicios,4202,0.9318,2.0,0.589,1.837
+211,"Físicos, químicos y afines",2325,0.8777,1.0,0.739,1.069
+213,Profesionales en ciencias biológicas,6162,0.8154,1.0,0.675,1.069
+214,Ingenieros (excepto electrotecnología),9714,0.8248,1.75,0.762,1.069
+215,Ingenieros en electrotecnología,1986,0.8916,2.0,0.813,1.069
+216,"Arquitectos, urbanistas y diseñadores",20815,0.7751,1.0,0.667,1.069
+221,Médicos,951,0.8389,1.0,0.519,1.069
+222,Profesionales de enfermería y partería,11808,0.5537,1.0,0.536,1.069
+225,Veterinarios,605,0.807,1.0,0.486,1.069
+226,"Otros profesionales de la salud (dentistas, farmacéuticos, kinesiólogos)",14482,0.6359,1.0,0.41,1.069
+231,Profesores de universidades y educación superior,12494,0.8213,1.0,0.828,1.069
+232,Profesores de formación profesional,7275,0.8162,1.0,0.744,1.069
+233,Profesores de enseñanza media,48160,0.5019,1.0,0.567,1.069
+234,Profesores de básica y educadores de párvulos,15168,0.6378,1.0,0.539,1.069
+235,Otros profesionales de la enseñanza,17360,0.8786,1.0,0.638,1.069
+241,"Especialistas en finanzas (contadores, analistas)",13385,0.756,2.0,0.805,1.069
+242,"Especialistas en administración y gestión (RR.HH., consultores)",18033,0.8623,1.0,0.712,1.069
+243,"Profesionales de ventas, marketing y relaciones públicas",37977,0.7999,1.0,0.88,1.069
+251,Desarrolladores y analistas de software,16070,0.6926,1.0,0.924,1.069
+252,Especialistas en bases de datos y redes,6032,0.8116,1.25,0.912,1.069
+261,Profesionales en derecho,4781,0.8009,1.0,0.555,1.069
+262,"Archivistas, bibliotecarios y curadores",2853,0.9161,1.0,0.761,1.069
+263,Especialistas en ciencias sociales y religiosas,22359,0.8026,1.0,0.703,1.069
+264,"Autores, periodistas y lingüistas",13934,0.7996,1.0,0.953,1.069
+265,Artistas creativos e interpretativos,13552,0.8478,1.0,0.58,1.069
+311,Técnicos en ciencias físicas e ingeniería,26178,0.7885,1.0,0.625,0.868
+312,"Supervisores en minería, industria y construcción",8136,0.8414,2.0,0.596,0.868
+313,Técnicos en control de procesos,3831,0.9308,1.0,0.266,0.868
+314,Técnicos en ciencias biológicas y afines,2380,0.8815,1.0,0.556,0.868
+315,Técnicos y controladores en navegación marítima y aeronáutica,1347,0.9177,1.0,0.376,0.868
+321,Técnicos médicos y farmacéuticos,5869,0.8242,1.0,0.394,0.868
+322,Técnicos de enfermería y partería,709,0.7922,1.0,0.159,0.868
+324,Técnicos y asistentes veterinarios,603,0.8784,0.75,0.235,0.868
+325,Otros técnicos de la salud,8989,0.8383,1.0,0.351,0.868
+331,Técnicos en finanzas y matemáticas,23669,0.7042,1.0,0.814,0.868
+332,Agentes comerciales y corredores,16565,0.8657,1.5,0.839,0.868
+333,Agentes de servicios comerciales,15709,0.8859,1.0,0.723,0.868
+334,Secretarios administrativos y especializados,136955,0.7093,1.0,0.831,0.868
+335,"Agentes de la administración pública (aduanas, impuestos)",2357,0.9624,1.0,0.536,0.868
+341,"Técnicos en servicios jurídicos, sociales y religiosos",41965,0.7278,1.0,0.639,0.868
+342,Trabajadores del deporte y acondicionamiento físico,14693,0.8008,1.0,0.471,0.868
+343,"Técnicos en actividades culturales, artísticas y culinarias",25797,0.813,1.0,0.624,0.868
+351,Técnicos en operaciones y soporte de TIC,10288,0.8063,1.0,0.919,0.868
+352,Técnicos en telecomunicaciones y radiodifusión,2354,0.8999,1.0,0.5,0.868
+411,Oficinistas generales,7295,0.9213,1.0,0.838,0.663
+412,Secretarios (general),14565,0.844,1.0,0.846,0.663
+413,Operadores de máquinas de oficina y digitadores,4162,0.9233,0.75,0.925,0.663
+421,"Cajeros de banco, cobradores y afines",9370,0.9286,1.0,0.843,0.663
+422,"Empleados de información al cliente (call center, recepción)",45486,0.8355,1.0,0.86,0.663
+431,Auxiliares contables y financieros,26417,0.8734,1.0,0.831,0.663
+432,Empleados de registro de materiales y transporte,10001,0.9193,1.0,0.627,0.663
+441,Otro personal de apoyo administrativo,23943,0.8825,1.0,0.845,0.663
+511,"Personal de viajes, guías y azafatas",5668,0.9094,1.0,0.638,0.499
+512,Cocineros,7422,0.7539,1.0,0.35,0.499
+513,Camareros y bármanes,51929,0.8168,1.0,0.444,0.499
+514,Peluqueros y especialistas en belleza,17566,0.7231,1.0,0.284,0.499
+515,Supervisores de mantenimiento y limpieza de edificios,4669,0.9317,1.0,0.471,0.499
+516,Otros trabajadores de servicios personales,9697,0.8829,1.0,0.441,0.499
+521,Vendedores callejeros y de mercados,614,0.9801,1.0,0.616,0.499
+522,Vendedores de comercios,156800,0.7175,1.0,0.671,0.499
+523,Cajeros y expendedores de boletos,30263,0.8538,1.0,0.537,0.499
+524,"Otros vendedores (telemarketing, demostradores)",27551,0.8965,1.0,0.744,0.499
+531,Cuidadores de niños y auxiliares de maestros,52656,0.6686,1.0,0.571,0.499
+532,Trabajadores de cuidados personales en salud,15441,0.6593,1.0,0.144,0.499
+541,Personal de protección y seguridad,8988,0.8484,1.0,0.428,0.499
+611,Agricultores calificados,5512,0.8768,1.0,0.287,
+612,Criadores de animales,425,0.9184,1.0,0.271,
+711,Oficiales de la construcción (obra gruesa),8495,0.8348,1.0,0.148,0.553
+712,Oficiales de la construcción (terminaciones),13363,0.8083,1.0,0.148,0.553
+713,Pintores y limpiadores de fachadas,4802,0.7952,1.0,0.184,0.553
+721,"Soldadores, chaperos y montadores de estructuras",13281,0.798,1.0,0.264,0.553
+722,Herreros y herramentistas,12206,0.8391,1.0,0.264,0.553
+723,Mecánicos y reparadores de máquinas,19252,0.7734,1.0,0.258,0.553
+731,Artesanos,4782,0.8918,1.0,0.308,0.553
+732,Oficiales de artes gráficas,8207,0.8363,1.0,0.375,0.553
+741,Instaladores y reparadores de equipos eléctricos,12786,0.7332,1.0,0.437,0.553
+742,Instaladores y reparadores en electrónica y telecomunicaciones,7645,0.858,1.0,0.44,0.553
+751,Oficiales de procesamiento de alimentos,8782,0.858,1.0,0.289,0.553
+752,Oficiales del tratamiento de la madera y ebanistas,2444,0.8861,1.0,0.303,0.553
+753,Oficiales de la confección,3893,0.927,1.0,0.212,0.553
+754,Otros oficiales y artesanos,7499,0.9232,1.0,0.261,0.553
+811,Operadores de instalaciones mineras,3821,0.9098,1.0,0.108,0.683
+812,Operadores de procesamiento de metales,2515,0.911,1.0,0.264,0.683
+813,Operadores de productos químicos y fotográficos,2546,0.9435,1.0,0.262,0.683
+814,"Operadores de máquinas de caucho, papel y plástico",3952,0.9488,1.0,0.261,0.683
+815,Operadores de máquinas textiles y de cuero,7501,0.9124,1.0,0.212,0.683
+816,Operadores de máquinas de alimentos,11837,0.9015,1.0,0.289,0.683
+817,Operadores de procesamiento de madera y papel,1639,0.9075,1.0,0.303,0.683
+818,Otros operadores de máquinas,11791,0.8989,1.0,0.261,0.683
+821,Ensambladores,11978,0.9074,1.0,0.203,0.683
+831,Maquinistas de locomotoras,622,0.9442,1.0,0.404,0.683
+832,"Conductores de autos, camionetas y motos",9489,0.8671,1.0,0.462,0.683
+833,Conductores de camiones y buses,15049,0.7305,1.0,0.462,0.683
+834,Operadores de maquinaria móvil,18912,0.7672,1.0,0.171,0.683
+835,Marineros de cubierta,578,0.8944,1.0,0.197,0.683
+911,Limpiadores y asistentes domésticos y de oficinas,42991,0.735,1.0,0.197,0.448
+912,"Limpiadores de vehículos, ventanas y ropa",4118,0.9396,1.0,0.181,0.448
+921,"Peones agropecuarios, pesqueros y forestales",14429,0.8425,1.0,0.271,0.448
+931,Peones de la minería y la construcción,7478,0.8706,1.0,0.074,0.448
+932,Peones de la industria manufacturera,40488,0.8141,1.0,0.173,0.448
+933,Peones del transporte y almacenamiento,78178,0.7667,1.0,0.189,0.448
+941,Ayudantes de preparación de alimentos,36353,0.8119,1.0,0.253,0.448
+951,Trabajadores ambulantes de servicios,1334,0.971,1.0,0.441,0.448
+952,Vendedores ambulantes (excepto comida),534,0.9636,1.0,0.616,0.448
+961,Recolectores de desechos,2261,0.9418,1.0,0.206,0.448
+962,"Otras ocupaciones elementales (mensajeros, conserjes)",14787,0.9192,1.0,0.32,0.448
