@@ -65,10 +65,14 @@ PARAMS: dict[str, Par] = {
     "IA_QUINTIL": Par(0.8, D, "Brynjolfsson, Chandar y Chen 2025: compara el quintil más expuesto"),
     # --- capacitación
     "CURSO_SUELDO": Par(0.006, D, "Comisión revisora del sistema de capacitación 2011 (vía BCN 2019, p. 7): franquicia SENCE, +0,6% de sueldo; sin efecto en empleo"),
+    "CURSO_HORAS": Par(140, D, "Comisión revisora 2011: el efecto aparece solo en cursos de más de 140 horas; 140/52 horas semanales que salen del tiempo libre"),
     # --- magíster
-    "MAG_PREMIO": Par(0.07, R, "DIPRES 2026, becarios Magíster Nacional: prima de USD 150 mensuales al séptimo año; llevada a porcentaje del sueldo"),
-    "MAG_ARANCEL": Par(4_210_070, D, "U. de Chile, Facultad de Filosofía y Humanidades: arancel anual 2026 de sus magísteres (un programa de referencia; falta promedio nacional)"),
-    "MAG_ANIOS": Par(2, D, "U. de Chile: los magísteres pagan como mínimo dos años de arancel"),
+    "MAG_PRIMA": Par({"selectiva": 0.093, "no_selectiva": 0.003}, R,
+                     "DIPRES 2026, Radiografía de la formación de postgrado, figura C1 (p. 47): USD 199 al mes (promedio t5-t7) en universidades competitivas y USD 6 en t7 en las demás (IC incluye 0); llevado a % con la prima promedio USD 150 = 7%"),
+    "MAG_EN_ESTUDIO": Par({"selectiva": [-0.003, -0.021], "no_selectiva": [-0.055, -0.090]}, R,
+                          "DIPRES 2026, figura C1: renta en el año de adjudicación y el siguiente (competitivas -6 y -46 USD, no significativo; no competitivas -118 y -193 USD, significativo); misma conversión a %"),
+    "MAG_UNIVERSIDADES": Par("tabla", D, "SIES, oferta académica 2026: arancel anual y duración medianos de los magísteres de cada universidad (data/magister.json); "
+                                          "selectiva = más de la mitad de sus estudiantes en el 30% superior de la PAES 2024 y 2025 (regla de DIPRES 2026 replicada con datos de DEMRE)"),
     # --- emprender
     "EMP_INGRESO": Par({"media": 0.632, "tecnica": 0.648, "universitaria": 0.579, "postgrado": 0.657}, D,
                        ESI + ": ingreso de cuenta propia sobre asalariado comparable"),
@@ -108,7 +112,7 @@ PARAMS: dict[str, Par] = {
     "TASA_AHORRO": Par("tabla", D, "INE, IX EPF 2021-22: tasa de ahorro y gasto per cápita por quintil de ingreso (tablas.json)"),
     # --- frecuencia con que la gente toma cada decisión (lo que muestra 'gente como tú')
     "FRECUENCIA": Par({
-        "buscar_pega": 0.148, "trabajar_mas": {"18-29": 0.046, "30-44": 0.042, "45-59": 0.053}, "magister": 0.0345,
+        "buscar_pega": 0.148, "magister": 0.0345,
         "sabatico": {"18-29": 0.0037, "30-44": 0.0017, "45-59": 0.0014}, "emprender": {"18-29": 0.0179, "30-44": 0.0134, "45-59": 0.0092},
         "aceptar_oferta": 0.162, "volver_empleo": 0.284,
     }, D, "Buscar: SCE (EE.UU.); trabajar 50+ horas: ESI; postgrado: ELSOC; pausa y emprender: EPS; aceptar oferta: SCE; cerrar negocio: EPS"),

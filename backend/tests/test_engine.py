@@ -47,17 +47,18 @@ def test_ofertas_reproducen_la_sce():
 
 
 def test_suerte_compartida_entre_decisiones():
-    """Con la misma suerte, trabajar más no cambia a quién despiden: solo cambia el tiempo con tu gente."""
-    a, b = (simular(PERFIL, [d], n=2000, seed=3)[0] for d in ("seguir", "trabajar_mas"))
+    """Con la misma suerte, un curso no cambia a quién despiden: solo sube el sueldo 0,6% y quita tiempo libre."""
+    a, b = (simular(PERFIL, [d], n=2000, seed=3)[0] for d in ("seguir", "capacitarte"))
     assert np.array_equal(a.ev["despido"], b.ev["despido"])
-    assert np.allclose(a.sueldo, b.sueldo)
-    assert (b.social[b.sit == EMP] < a.social[b.sit == EMP]).all()
+    sigue = (a.sit == EMP) & (b.sit == EMP) & ~a.ev["despido"]
+    assert np.allclose(b.sueldo[b.ev["curso"]], a.sueldo[b.ev["curso"]] * 1.006)
+    assert (b.social[b.ev["curso"]] < a.social[b.ev["curso"]]).all() and sigue.any()
 
 
 def test_paso_no_modifica_la_entrada():
     e = Estado.desde_perfil(PERFIL, 50)
     antes = e.sueldo.copy()
-    paso(e, "trabajar_mas", Ctx(PERFIL, Suerte(1, 50)))
+    paso(e, "capacitarte", Ctx(PERFIL, Suerte(1, 50)))
     assert np.array_equal(e.sueldo, antes) and e.t == 0
 
 

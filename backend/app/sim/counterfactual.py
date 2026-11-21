@@ -47,6 +47,7 @@ class Opcion:
     p_mejor: float = 0.0          # futuros en que gana más que 'seguir', con la misma suerte
     p_peor: float = 0.0
     delta_ingreso: float = 0.0
+    delta_ingreso_rango: list = field(default_factory=lambda: [0.0, 0.0])   # p10 y p90 de la diferencia, futuro por futuro
     delta_animo: float = 0.0
     gemelos: float | None = None  # fracción de gente de tu edad que toma esta decisión cada año (dato)
     gemelos_texto: str = ""
@@ -57,7 +58,13 @@ class Opcion:
 
 
 def nombre_decision(decision: str) -> str:
-    return CATALOGO[decision.split(":")[0]].nombre
+    clave, _, arg = decision.partition(":")
+    if clave == "magister":
+        from app.sim.decisions import normalizar
+        from app.sim.tables import tablas
+
+        return f"Magíster ({tablas().universidades[normalizar(decision)[1]]['nombre']})"
+    return CATALOGO[clave].nombre
 
 
 def _plata(x: float) -> str:
@@ -65,28 +72,38 @@ def _plata(x: float) -> str:
     return f"${a / 1e6:.1f} M".replace(".", ",") if a >= 1e6 else f"${a / 1e3:.0f} mil"
 
 
-def _efectos(dec: str, r: dict, base: dict, sueldo: float) -> list[dict]:
-    """Qué cambia con esta carta frente a 'seguir': plata a todo el horizonte, bienestar al cierre del primer año."""
+def _efectos(dec: str, r: dict, base: dict, sueldo: float, yo: Estado) -> list[dict]:
+    """Chips de una carta frente a 'seguir', futuro por futuro con la misma suerte:
+    1) cómo sale la apuesta, 2) el rango de plata, 3) lo que cambia en tu vida, 4) el riesgo principal."""
     out = []
+    dif = r["ingreso"] - base["ingreso"]
+    mejor, peor = float((dif > 0.005 * base["ingreso"]).mean()), float((dif < -0.005 * base["ingreso"]).mean())
+    lo, hi = (float(x) for x in np.percentile(dif, [10, 90]))
+    if (mejor >= 0.02 or peor >= 0.02) and max(abs(lo), abs(hi)) >= 0.02 * sueldo:
+        if mejor >= 0.95:
+            out.append({"texto": "Ganas más en casi todos tus futuros", "tono": "mas"})
+        elif peor >= 0.95:
+            out.append({"texto": "Ganas menos en casi todos tus futuros", "tono": "menos"})
+        else:
+            out.append({"texto": f"Ganas más en {100 * mejor:.0f}% · menos en {100 * peor:.0f}%", "tono": "mas" if mejor > peor else "menos"})
+    signo = lambda x: ("+" if x > 0 else "−") + _plata(x)  # noqa: E731
+    if max(abs(lo), abs(hi)) >= 0.02 * sueldo:
+        txt = f"{signo(hi)} al mes" if abs(hi - lo) < 0.02 * sueldo else f"{signo(lo)} a {signo(hi)} al mes"
+        out.append({"texto": txt, "tono": "mas" if lo + hi > 0 else "menos"})
+    if dec in ("aceptar_oferta", "buscar_pega") and yo.antig[0] >= 1:
+        out.append({"texto": f"Pierdes {yo.antig[0]:.0f} años de antigüedad", "tono": "menos"})
     if dec == "capacitarte":
         out.append({"texto": "+0,6% de sueldo (evaluación SENCE)", "tono": "neutro"})
-    if dec == "buscar_pega":
-        out.append({"texto": f"Te cambias en {100 * r['primero'].ev['cambio'].mean():.0f}% de los futuros", "tono": "neutro"})
-    d = float(np.median(r["ingreso"] - base["ingreso"]))
-    if abs(d) >= 0.02 * sueldo:
-        out.append({"texto": f"{'+' if d > 0 else '−'}{_plata(d)} al mes", "tono": "mas" if d > 0 else "menos"})
-    d = float(np.median(r["ahorros"] - base["ahorros"]))
-    if abs(d) >= 1.5 * sueldo:
-        out.append({"texto": f"Ahorros {'+' if d > 0 else '−'}{_plata(d)}", "tono": "mas" if d > 0 else "menos"})
-    for campo, etiqueta, minimo in (("animo", "Satisfacción", 1.5), ("social", "Tiempo con tu gente", 3)):
+    for campo, etiqueta, minimo in (("animo", "Satisfacción", 1.5), ("social", "Tiempo con tu gente", 1.5)):
         d = float(np.median(getattr(r["primero"], campo)) - np.median(getattr(base["primero"], campo)))
         if abs(d) >= minimo:
             out.append({"texto": f"{etiqueta} {'+' if d > 0 else '−'}{abs(d):.0f}", "tono": "mas" if d > 0 else "menos"})
-    for campo, etiqueta in (("deuda", "Riesgo de deuda"), ("cesantia", "Riesgo de quedar sin pega"), ("depresion", "Riesgo de depresión")):
-        p, p0 = float(r[campo].mean()), float(base[campo].mean())
-        if p - p0 >= 0.03:
-            out.append({"texto": f"{etiqueta} {100 * p:.0f}%", "tono": "menos"})
-    return out[:5]
+    riesgos = [(float(r[c].mean()) - float(base[c].mean()), float(r[c].mean()), t) for c, t in
+               (("deuda", "Riesgo de deuda"), ("cesantia", "Riesgo de quedar sin pega"), ("depresion", "Riesgo de depresión"))]
+    sube, p, t = max(riesgos)
+    if sube >= 0.03:
+        out.append({"texto": f"{t} {100 * p:.0f}%", "tono": "menos"})
+    return out[:4]
 
 
 def menu(yo: Estado, perfil: Perfil, horizonte: int = 5, n: int = 1000, seed: int = 7, todas: bool = False, **_) -> list[Opcion]:
@@ -110,7 +127,8 @@ def menu(yo: Estado, perfil: Perfil, horizonte: int = 5, n: int = 1000, seed: in
             ahorros=pct(r["ahorros"]), p_deuda=float(r["deuda"].mean()),
             p_mejor=float((r["ingreso"] > base["ingreso"] * 1.005).mean()), p_peor=float((r["ingreso"] < base["ingreso"] * 0.995).mean()),
             delta_ingreso=float(np.median(r["ingreso"] - base["ingreso"])), delta_animo=float(np.median(r["animo"] - base["animo"])),
-            gemelos=frecuencia(dec, yo, perfil), gemelos_texto=texto_frecuencia(dec, frecuencia(dec, yo, perfil)), efectos=[] if dec == "seguir" else _efectos(dec, r, base, sueldo),
+            delta_ingreso_rango=[float(x) for x in np.percentile(r["ingreso"] - base["ingreso"], [10, 90])],
+            gemelos=frecuencia(dec, yo, perfil), gemelos_texto=texto_frecuencia(dec, frecuencia(dec, yo, perfil)), efectos=[] if dec == "seguir" else _efectos(dec, r, base, sueldo, yo),
         ))
     return out
 

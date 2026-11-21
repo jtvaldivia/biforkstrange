@@ -6,6 +6,7 @@ import numpy as np
 
 from app.sim.params import P
 from app.sim.state import CES, EMP, EMPR, Estado
+from app.sim.tables import tablas
 
 
 @dataclass(frozen=True)
@@ -20,9 +21,8 @@ class Decision:
 CATALOGO: dict[str, Decision] = {d.clave: d for d in [
     Decision("seguir", "Seguir igual", "Dejas que el año corra sin cambiar nada.", (EMP, CES, EMPR), "base"),
     Decision("buscar_pega", "Buscar otra pega", "Mandas currículums y vas a entrevistas. Te llegan más ofertas y aceptas mejoras más chicas.", (EMP,), "trabajo"),
-    Decision("trabajar_mas", "Ponerte la camiseta", "Un año a 55 horas semanales. Ves menos a tu gente; los datos no muestran que te asciendan más.", (EMP,), "trabajo"),
     Decision("capacitarte", "Hacer un curso SENCE", "Un curso de más de 140 horas que tu empresa paga con la franquicia tributaria.", (EMP,), "crecer"),
-    Decision("magister", "Hacer un magíster", "Dos años estudiando mientras trabajas, pagando el arancel. Al titularte, sube tu sueldo.", (EMP,), "crecer"),
+    Decision("magister", "Hacer un magíster", "Estudias mientras trabajas y pagas el arancel. Al titularte, la prima depende de la universidad.", (EMP,), "crecer"),
     Decision("sabatico", "Año sabático", "Renuncias y paras un año. Vives de tus ahorros y vuelves a buscar con un hueco en el currículum.", (EMP,), "riesgo"),
     Decision("emprender", "Emprender", "Dejas el empleo y partes algo propio. En Chile, la mayoría gana menos que empleada; pocos ganan mucho.", (EMP, CES), "riesgo"),
     Decision("volver_empleo", "Cerrar y volver a emplearte", "Cierras el emprendimiento y sales a buscar trabajo.", (EMPR,), "trabajo"),
@@ -33,9 +33,16 @@ ALIAS = {"cambiar_pega": "buscar_pega", "estudiar": "magister"}
 
 
 def normalizar(texto: str) -> tuple[str, int]:
-    clave = ALIAS.get(texto.strip(), texto.strip())
+    """'magister:86' -> ('magister', índice de la universidad con código SIES 86). Sin código, la que más magísteres ofrece."""
+    clave, _, arg = texto.strip().partition(":")
+    clave = ALIAS.get(clave, clave)
     if clave not in CATALOGO:
         raise ValueError(f"Decisión desconocida: {texto}")
+    if clave == "magister":
+        tb = tablas()
+        if arg and arg not in tb.uni_idx:
+            raise ValueError(f"Universidad desconocida: {arg}")
+        return clave, tb.uni_idx[arg] if arg else tb.uni_defecto
     return clave, -1
 
 
@@ -49,14 +56,13 @@ class Intencion:
     volver: np.ndarray
     capacita: np.ndarray
     acepta: np.ndarray
+    universidad: int = -1
 
 
 def intencion(e: Estado, clave: str, destino: int = -1) -> Intencion:
     """Aplica la decisión solo en los universos donde es posible; en el resto equivale a 'seguir'."""
     emp, ces, empr = e.sit == EMP, e.sit == CES, e.sit == EMPR
-    i = Intencion(np.full(e.n, P.HORAS_BASE), *(np.zeros(e.n, bool) for _ in fields(Intencion)[1:]))
-    if clave == "trabajar_mas":
-        i.horas[emp] = 55.0
+    i = Intencion(np.full(e.n, P.HORAS_BASE), *(np.zeros(e.n, bool) for _ in fields(Intencion)[1:-1]), universidad=destino)
     campo, donde = {
         "buscar_pega": ("busca", emp), "magister": ("magister", emp & ~e.postgrado & (e.estudia == 0)), "sabatico": ("sabatico", emp),
         "emprende": ("emprende", emp | ces), "emprender": ("emprende", emp | ces), "volver_empleo": ("volver", empr),

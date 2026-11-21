@@ -62,6 +62,9 @@ class Tablas:
         # a qué ocupación directiva se asciende desde cada una (-1 si no hay)
         dirig = np.where(self.es_directivo[None, :], self.T, 0)
         self.jefatura_dest = np.where(dirig.max(1) > 0, dirig.argmax(1), -1)
+        self.universidades = json.loads((Path(__file__).parent / "data" / "magister.json").read_text(encoding="utf-8"))["universidades"]
+        self.uni_idx = {u["codigo"]: k for k, u in enumerate(self.universidades)}
+        self.uni_defecto = max(range(len(self.universidades)), key=lambda k: self.universidades[k]["n"])   # la que más magísteres ofrece
         self.mult_rubro = t["ine"]["MULT_SALIDA_POR_RUBRO"]
         from app.sim.companies import RUBROS
 

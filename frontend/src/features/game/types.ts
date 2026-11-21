@@ -42,6 +42,7 @@ export type Opcion = {
   p_mejor: number;
   p_peor: number;
   delta_ingreso: number;
+  delta_ingreso_rango: [number, number];
   delta_animo: number;
   /** Fracción de la gente de tu edad que toma esta decisión cada año (dato), o null si no hay dato. */
   gemelos: number | null;

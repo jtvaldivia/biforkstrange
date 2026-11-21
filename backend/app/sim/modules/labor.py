@@ -105,7 +105,11 @@ def trabajo(e, i, ctx, ev):
     cierra_vol = i.volver & (e.sit == EMPR)
     e.sit[cierra_vol] = CES
     e.anios_ces[cierra_vol], e.hueco_vol[cierra_vol] = 0, True   # dejar lo propio cuenta como salida voluntaria
-    e.estudia[i.magister & (e.sit == EMP)] = P.MAG_ANIOS
+    empieza_mag = i.magister & (e.sit == EMP)
+    if empieza_mag.any():
+        uni = tb.universidades[i.universidad]
+        e.estudia[empieza_mag] = e.mag_total[empieza_mag] = uni["anios"]
+        e.mag_sel[empieza_mag], e.mag_arancel[empieza_mag] = uni["selectiva"], uni["arancel"]
 
     emp0, ces0, sab0, empr0 = (e.sit == k for k in (EMP, CES, SAB, EMPR))
     ingreso_anual, meses_ces = np.zeros(n), np.zeros(n)
@@ -180,12 +184,15 @@ def trabajo(e, i, ctx, ev):
     e.anios_ces[cierra], e.hueco_vol[cierra] = 0, True
     e.emp_anios[empr0] += 1
 
-    # 6. magíster y capacitación
+    # 6. magíster y capacitación: mientras estudias la renta cambia según la universidad; al titularte, la prima (DIPRES 2026)
     estudia = e.estudia > 0
+    anio_mag = np.clip(e.mag_total - e.estudia, 0, 1)
+    en_estudio = np.where(e.mag_sel, np.array(P.MAG_EN_ESTUDIO["selectiva"])[anio_mag], np.array(P.MAG_EN_ESTUDIO["no_selectiva"])[anio_mag])
+    ingreso_anual = np.where(estudia & (e.sit == EMP), ingreso_anual * (1 + en_estudio), ingreso_anual)
     e.estudia[estudia] -= 1
     titulo = estudia & (e.estudia == 0)
     e.postgrado[titulo] = True
-    e.sueldo[titulo] *= 1 + P.MAG_PREMIO
+    e.sueldo[titulo] *= 1 + np.where(e.mag_sel, P.MAG_PRIMA["selectiva"], P.MAG_PRIMA["no_selectiva"])[titulo]
     curso = i.capacita & (e.sit == EMP)
     e.sueldo[curso] *= 1 + P.CURSO_SUELDO
 

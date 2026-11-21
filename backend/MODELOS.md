@@ -42,7 +42,7 @@ Los perfiles personales van en `backend/perfiles/` y están en `.gitignore` (el 
 | Tipo de empleador | Pyme, grande o Estado del nuevo empleador | Panel ESI 2023-2025 |
 | IA | Jóvenes de hasta 25 años en el quintil más expuesto reciben 19% menos ofertas; sin efecto para el resto | Brynjolfsson, Chandar y Chen 2025; Humlum y Vestergaard (Dinamarca) |
 | Capacitación | Curso SENCE de más de 140 horas: +0,6% de sueldo, sin efecto en empleo | Comisión revisora 2011, vía BCN 2019 |
-| Magíster | +7% de sueldo al titularte; dos años de arancel | DIPRES 2026; arancel de la U. de Chile |
+| Magíster | La carta trae una universidad real (sorteada según cuántos magísteres ofrece). Selectiva: renta casi igual mientras estudias y +9,3% al titularte. No selectiva: la renta baja 5,5% y 9% los dos años de estudio y la prima no se distingue de cero. Arancel y duración de esa universidad | DIPRES 2026, figura C1; SIES oferta 2026; selectividad con la regla de DIPRES aplicada a la PAES 2024-2025 (DEMRE) |
 | Emprender | Ingreso relativo al asalariado comparable con su dispersión; cierre de 31% el primer año | ESI 2023-2025, EPS 2024, Caliendo et al. 2014 |
 | Familia | Pareja, separación e hijos por edad y situación de pareja; las madres pierden ingreso o salen | ELSOC, INE estadísticas vitales, EPS, COES |
 | Finanzas | Gasto según la tasa de ahorro de tu tramo de ingreso, más el costo de cada hijo y el arancel | EPF IX, UNICEF y Ministerio de la Mujer 2025 |
@@ -60,7 +60,7 @@ Los perfiles personales van en `backend/perfiles/` y están en `.gitignore` (el 
 
 ## Lo que se sacó por falta de datos
 
-Pedir aumento (no hay dato del tamaño del aumento), postular a un ascenso, cambiarte de ocupación a voluntad, hacer redes, cuidarte, priorizar a tu gente, pitutos, bajar el ritmo, bajar pretensiones, tener un hijo a voluntad, energía, agotamiento, habilidades, reputación, contactos, intereses del ahorro y de la deuda, y la velocidad de llegada de la IA. Los hijos siguen ocurriendo con las tasas del INE y ELSOC.
+Ponerte la camiseta (en el panel ESI, pasar a 50 o 55 horas no sube el sueldo: −1,5%, ee 4,6%; tampoco la satisfacción ni el paso a jefatura), pedir aumento (no hay dato del tamaño del aumento), postular a un ascenso, cambiarte de ocupación a voluntad, hacer redes, cuidarte, priorizar a tu gente, pitutos, bajar el ritmo, bajar pretensiones, tener un hijo a voluntad, energía, agotamiento, habilidades, reputación, contactos, intereses del ahorro y de la deuda, y la velocidad de llegada de la IA. Los hijos siguen ocurriendo con las tasas del INE y ELSOC.
 
 ## Límites que conviene decir en la demo
 
@@ -69,7 +69,8 @@ Pedir aumento (no hay dato del tamaño del aumento), postular a un ascenso, camb
 - El sueldo relativo entre ocupaciones solo distingue los grandes grupos de la ESI.
 - El modelo no tiene shocks propios al sueldo: no hay un número chileno que los separe de los cambios y despidos que ya simula. Por eso la dispersión del sueldo de quien se queda en su empleo es menor que en la ESI (`make validar` lo muestra).
 - Los síntomas depresivos se sortean cada año sin persistencia: ELSOC da la incidencia, no la duración.
-- El arancel del magíster es de un programa de la U. de Chile; falta un promedio nacional oficial.
+- La prima del magíster por tipo de universidad sale de digitalizar un gráfico de DIPRES (±5 USD) y el propio informe dice en otra parte que la diferencia entre grupos no es significativa.
+- No hay datos de prima por jornada (vespertina o diurna): la jornada solo se informa.
 - El modelo valida distribuciones, no la vida de una persona.
 
 ## Regenerar las tablas

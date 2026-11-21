@@ -62,7 +62,7 @@ def narrar(antes: Estado, e: Estado, perfil: Perfil, decision: str = "seguir") -
         out.append(f"Te ascendieron a {NIVELES[int(e.nivel[0])]} en {emp(e)}.")
     if si("encuentra"):
         out.append(f"Encontraste trabajo en {emp(e)} tras {e.meses_ces[0]:.0f} meses de búsqueda: {_M(_sueldo(e))} al mes.")
-    if antes.sit[0] == CES and e.sit[0] == CES and not si("pausa"):
+    if antes.sit[0] == CES and e.sit[0] == CES and not si("pausa") and not si("emprende"):
         out.append("Buscaste todo el año y no salió nada.")
     if si("cambia_ocup"):
         out.append(f"El trabajo nuevo es en otra ocupación: {tb.nombres[int(e.ocup[0])].split(' (')[0].lower()}.")
@@ -75,7 +75,7 @@ def narrar(antes: Estado, e: Estado, perfil: Perfil, decision: str = "seguir") -
     if si("cierra_emp"):
         out.append("El emprendimiento cerró. Vuelves a buscar trabajo.")
     if si("titulo"):
-        out.append(f"Terminaste el magíster. Tu sueldo queda en {_M(_sueldo(e))}.")
+        out.append(f"Terminaste el magíster. Tu sueldo queda en {_M(_sueldo(e))}." + ("" if e.mag_sel[0] else " En una universidad no selectiva, los datos no muestran prima."))
     elif si("estudia"):
         out.append("Un año más de magíster, estudiando mientras trabajas.")
     if si("curso"):
@@ -91,7 +91,7 @@ def narrar(antes: Estado, e: Estado, perfil: Perfil, decision: str = "seguir") -
     if e.ahorros[0] < 0 <= antes.ahorros[0]:
         out.append("Se te acabaron los ahorros: empiezas a endeudarte.")
     if not out:
-        out.append({"trabajar_mas": "Un año de jornadas de 55 horas. Viste menos a tu gente."}.get(clave, "Año sin sobresaltos."))
+        out.append("Año sin sobresaltos.")
     return out
 
 

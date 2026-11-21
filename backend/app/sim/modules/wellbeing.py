@@ -11,7 +11,8 @@ def bienestar(e, i, ctx, ev):
     u = lambda k: ctx.suerte.u(e.t, k)  # noqa: E731
     trabaja = e.horas > 0
     # tiempo con tu gente (ENUT)
-    e.social = np.where(trabaja, 100 * P.SOCIAL_HORA ** np.maximum(e.horas - 45, 0), 100.0)
+    horas_libres_usadas = np.maximum(e.horas - 45, 0) + ev["curso"] * P.CURSO_HORAS / 52
+    e.social = np.where(trabaja, 100 * P.SOCIAL_HORA ** horas_libres_usadas, 100.0)
     # síntomas depresivos del año según horas (ELSOC); la cesantía los sube
     p = np.where(trabaja, _por_horas(e.horas), P.DEPRESION_OCUPADOS) + P.DEPRESION_CESANTE * (e.sit == CES)
     e.depresion = u("depresion") < p

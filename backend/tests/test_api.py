@@ -10,7 +10,7 @@ def test_list_decisions(client):
 
 
 def test_run_and_fetch(client):
-    res = client.post("/api/simulations", json={"decisiones": ["seguir", "trabajar_mas"], "seed": 1})
+    res = client.post("/api/simulations", json={"decisiones": ["seguir", "capacitarte"], "seed": 1})
     assert res.status_code == 200
     body = res.json()
     assert body["edad_final"] == 27 and "ahorros_p50" in body["trayectoria"][0]

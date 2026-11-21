@@ -4,7 +4,7 @@
  */
 import { useState } from "react";
 import {
-  BigNumber, Button, DecisionArt, DecisionList, Heading, Indicator, LifePathHero, LinesChart, Meta, Narrative, NightBand, Panel,
+  BigNumber, Button, DecisionArt, DecisionList, Heading, Indicator, LifePathHero, LinesChart, Meta, Narrative, Panel,
   Pill, Row, Screen, ScreenFooter, ScreenHeader, Segmented, SlowReveal, Stack, SunCard, Tag, Text,
   type DecisionTag,
 } from "@/shared/ui";
@@ -205,7 +205,6 @@ function Resultado({ juego, antes }: { juego: Juego; antes: Ficha }) {
   const { historial } = juego.partida!;
   const t = historial[historial.length - 1];
   const duro = t.yo.situacion === "sin trabajo" || t.eventos.some((e) => /despidieron|depresivos|separaste|endeudarte|cerró/.test(e));
-  const dif = t.yo.ahorros - t.sombra.ahorros;
 
   return (
     <Screen tone={duro ? "noche" : "dia"} key={historial.length}>
@@ -229,15 +228,6 @@ function Resultado({ juego, antes }: { juego: Juego; antes: Ficha }) {
       )}
       <Trabajo f={t.yo} />
       <Atributos ficha={t.yo} antes={antes} label="Cómo cambiaron tus atributos" />
-      <NightBand>
-        <Stack gap={6}>
-          <Meta>Tu sombra</Meta>
-          <Text size="sm">
-            {`El gemelo que nunca cambia nada, con tu misma suerte: ${resumenFicha(t.sombra)} `}
-            {Math.abs(dif) < 500_000 ? "Van a la par." : `Tú vas ${plata(Math.abs(dif))} ${dif > 0 ? "arriba" : "abajo"} en ahorros.`}
-          </Text>
-        </Stack>
-      </NightBand>
       <ScreenFooter>
         <Stack gap={10}>
           <Button onClick={juego.seguir}>{t.yo.edad >= 50 ? "Ver el final" : `Jugar ${t.yo.anio}`}</Button>
@@ -252,13 +242,11 @@ function Resultado({ juego, antes }: { juego: Juego; antes: Ficha }) {
 
 /* 4 · Fin de la partida */
 function Resumen({ juego, sueldo0, inicial }: { juego: Juego; sueldo0: number; inicial: Ficha }) {
-  const { historial, yo, sombra, logros } = juego.partida!;
+  const { historial, yo, logros } = juego.partida!;
   const fichas = [inicial, ...historial.map((t) => t.yo)];
   const inds = fichas.map((f) => indicadores(f, sueldo0));
   const mios = indicadores(yo, sueldo0);
-  const suyos = indicadores(sombra, sueldo0);
   const felicidad = Math.round((mios.dinero + mios.carrera + mios.bienestar + mios.vida) / 4);
-  const felicidadSombra = Math.round((suyos.dinero + suyos.carrera + suyos.bienestar + suyos.vida) / 4);
   const anios = historial.length;
 
   return (
@@ -270,10 +258,7 @@ function Resumen({ juego, sueldo0, inicial }: { juego: Juego; sueldo0: number; i
       <SunCard>
         <Meta>Tu vida, en un número</Meta>
         <BigNumber value={felicidad} unit="/ 100" animate />
-        <Text>
-          {`Promedio de dinero, carrera, bienestar y vida personal. Tu sombra, que no cambió nada, quedó en ${felicidadSombra}. `}
-          {felicidad > felicidadSombra ? "Tus decisiones sumaron." : felicidad < felicidadSombra ? "Sin moverte te habría ido mejor." : "Quedaron iguales."}
-        </Text>
+        <Text>Promedio de dinero, carrera, bienestar y vida personal al cierre de la partida.</Text>
       </SunCard>
       <Stack as="section" gap={10}>
         <Heading level={3} as="h2">{`Logros: ${logros.length}`}</Heading>
@@ -302,24 +287,12 @@ function Resumen({ juego, sueldo0, inicial }: { juego: Juego; sueldo0: number; i
           />
         </Stack>
       )}
-      <Stack as="section" gap={12}>
-        <Stack gap={4}>
-          <Heading level={3} as="h2">
-            Tú contra tu sombra
-          </Heading>
-          <Text size="sm">Misma persona y misma suerte. La única diferencia son tus jugadas. Cada barra muestra cuánto le sacaste o te sacó.</Text>
-        </Stack>
-        <Stack gap={6}>
-          <span className="vd-camino">
-            <Tag tone="accent">Tú</Tag>
-            {resumenFicha(yo)}
-          </span>
-          <span className="vd-camino">
-            <Tag>Sombra</Tag>
-            {resumenFicha(sombra)}
-          </span>
-        </Stack>
-        <Atributos ficha={yo} antes={sombra} label="Tus atributos contra los de tu sombra" />
+      <Stack as="section" gap={10}>
+        <Heading level={3} as="h2">
+          Cómo terminas
+        </Heading>
+        <Trabajo f={yo} />
+        <Atributos ficha={yo} antes={inicial} label="Tus atributos al final contra cómo partiste" />
       </Stack>
       <Stack as="section" gap={10}>
         <Heading level={3} as="h2">

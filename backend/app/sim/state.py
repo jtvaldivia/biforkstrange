@@ -48,6 +48,9 @@ class Estado:
     emp_q: np.ndarray      # calidad persistente del emprendimiento (z)
     postgrado: np.ndarray
     estudia: np.ndarray    # años de magíster que quedan
+    mag_total: np.ndarray  # años que dura el magíster en curso
+    mag_sel: np.ndarray    # el magíster en curso es de una universidad selectiva
+    mag_arancel: np.ndarray
     penal_hijo: np.ndarray
     horas: np.ndarray
     animo: np.ndarray      # satisfacción con la vida, 0-100
@@ -78,7 +81,7 @@ class Estado:
             sueldo=f(p.sueldo), cicatriz=f(0.0), mult_rubro=f(tb.mult_rubro.get(p.rubro, 1.0)),
             rubro=f(RUBROS.index(p.rubro if p.rubro in RUBROS else RUBRO_DEFECTO), np.int8), empresa=f(0, np.int16),
             anios_ces=f(0, np.int16), hueco_vol=f(False, bool), emp_anios=f(0, np.int16), emp_q=f(0.0),
-            postgrado=f(p.edu == "postgrado", bool), estudia=f(0, np.int8), penal_hijo=f(0.0), horas=f(P.HORAS_BASE if trabaja else 0.0),
+            postgrado=f(p.edu == "postgrado", bool), estudia=f(0, np.int8), mag_total=f(0, np.int8), mag_sel=f(False, bool), mag_arancel=f(0.0), penal_hijo=f(0.0), horas=f(P.HORAS_BASE if trabaja else 0.0),
             animo=f(por_tramo(P.ANIMO_BASE, p.edad)), salud=f(por_tramo(P.SALUD_BASE, p.edad)), depresion=f(False, bool),
             social=f(100.0), ahorros=f(p.ahorros - p.deuda_estudios), gasto=f(gasto), pareja=f(p.pareja, bool),
             hijos=f(p.hijos, np.int8), edad_hijo=f(3.0 if p.hijos else 99.0),

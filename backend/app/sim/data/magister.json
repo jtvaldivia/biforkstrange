@@ -1,0 +1,515 @@
+{
+"fuente": "SIES, oferta académica 2026 (magísteres vigentes con estudiantes nuevos): arancel anual y duración medianos por universidad; selectividad replicando la regla de DIPRES 2026 con PAES 2024-2025 de DEMRE (datos_laborales/scripts/modelo/magister_*.py)",
+"universidades": [
+{
+"codigo": "23",
+"nombre": "Universidad Adolfo Ibáñez",
+"sigla": "UAI",
+"selectiva": true,
+"n": 75,
+"arancel": 8546030,
+"anios": 2,
+"frac_no_diurna": 0.493
+},
+{
+"codigo": "86",
+"nombre": "Pontificia Universidad Católica de Chile",
+"sigla": "UC",
+"selectiva": true,
+"n": 131,
+"arancel": 5864000,
+"anios": 2,
+"frac_no_diurna": 0.45
+},
+{
+"codigo": "88",
+"nombre": "Universidad Técnica Federico Santa María",
+"sigla": "UTFSM",
+"selectiva": true,
+"n": 20,
+"arancel": 7110000,
+"anios": 2,
+"frac_no_diurna": 0.15
+},
+{
+"codigo": "34",
+"nombre": "Universidad de los Andes",
+"sigla": "UANDES",
+"selectiva": true,
+"n": 36,
+"arancel": 4598578,
+"anios": 2,
+"frac_no_diurna": 0.417
+},
+{
+"codigo": "70",
+"nombre": "Universidad de Chile",
+"sigla": "UCH",
+"selectiva": true,
+"n": 124,
+"arancel": 4876162,
+"anios": 2,
+"frac_no_diurna": 0.5
+},
+{
+"codigo": "87",
+"nombre": "Universidad de Concepción",
+"sigla": "UDEC",
+"selectiva": true,
+"n": 72,
+"arancel": 4378000,
+"anios": 2,
+"frac_no_diurna": 0.278
+},
+{
+"codigo": "71",
+"nombre": "Universidad de Santiago de Chile",
+"sigla": "USACH",
+"selectiva": true,
+"n": 45,
+"arancel": 2948420,
+"anios": 2,
+"frac_no_diurna": 0.711
+},
+{
+"codigo": "3",
+"nombre": "Universidad Diego Portales",
+"sigla": "UDP",
+"selectiva": true,
+"n": 32,
+"arancel": 3491666,
+"anios": 2,
+"frac_no_diurna": 0.812
+},
+{
+"codigo": "45",
+"nombre": "Universidad del Desarrollo",
+"sigla": "UDD",
+"selectiva": true,
+"n": 33,
+"arancel": 4883446,
+"anios": 2,
+"frac_no_diurna": 0.606
+},
+{
+"codigo": "89",
+"nombre": "Pontificia Universidad Católica de Valparaíso",
+"sigla": "PUCV",
+"selectiva": true,
+"n": 42,
+"arancel": 3125000,
+"anios": 2,
+"frac_no_diurna": 0.69
+},
+{
+"codigo": "76",
+"nombre": "Universidad de la Frontera",
+"sigla": "UFRO",
+"selectiva": true,
+"n": 30,
+"arancel": 2725000,
+"anios": 2,
+"frac_no_diurna": 0.1
+},
+{
+"codigo": "78",
+"nombre": "Universidad de Talca",
+"sigla": "UTAL",
+"selectiva": false,
+"n": 25,
+"arancel": 3176278,
+"anios": 2,
+"frac_no_diurna": 0.44
+},
+{
+"codigo": "74",
+"nombre": "Universidad de la Serena",
+"sigla": "ULS",
+"selectiva": false,
+"n": 7,
+"arancel": 2528500,
+"anios": 2,
+"frac_no_diurna": 0.286
+},
+{
+"codigo": "91",
+"nombre": "Universidad Católica del Norte",
+"sigla": "UCN",
+"selectiva": false,
+"n": 27,
+"arancel": 3322500,
+"anios": 2,
+"frac_no_diurna": 0.481
+},
+{
+"codigo": "10",
+"nombre": "Universidad Mayor",
+"sigla": "UMAYOR",
+"selectiva": false,
+"n": 34,
+"arancel": 2930000,
+"anios": 2,
+"frac_no_diurna": 0.971
+},
+{
+"codigo": "72",
+"nombre": "Universidad de Valparaíso",
+"sigla": "UV",
+"selectiva": false,
+"n": 48,
+"arancel": 3000000,
+"anios": 2,
+"frac_no_diurna": 0.688
+},
+{
+"codigo": "75",
+"nombre": "Universidad del Bío-Bío",
+"sigla": "UBB",
+"selectiva": false,
+"n": 25,
+"arancel": 2791000,
+"anios": 2,
+"frac_no_diurna": 0.24
+},
+{
+"codigo": "92",
+"nombre": "Universidad Católica del Maule",
+"sigla": "UCM",
+"selectiva": false,
+"n": 19,
+"arancel": 2748000,
+"anios": 2,
+"frac_no_diurna": 0.211
+},
+{
+"codigo": "90",
+"nombre": "Universidad Austral de Chile",
+"sigla": "UACH",
+"selectiva": false,
+"n": 42,
+"arancel": 3011000,
+"anios": 2,
+"frac_no_diurna": 0.714
+},
+{
+"codigo": "93",
+"nombre": "Universidad Católica de la Santisima Concepción",
+"sigla": "UCSC",
+"selectiva": false,
+"n": 26,
+"arancel": 3535000,
+"anios": 2,
+"frac_no_diurna": 0.846
+},
+{
+"codigo": "20",
+"nombre": "Universidad Andrés Bello",
+"sigla": "UNAB",
+"selectiva": false,
+"n": 58,
+"arancel": 6825000,
+"anios": 2,
+"frac_no_diurna": 0.897
+},
+{
+"codigo": "895",
+"nombre": "Universidad de O'higgins",
+"sigla": "UOH",
+"selectiva": false,
+"n": 6,
+"arancel": 3307500,
+"anios": 2,
+"frac_no_diurna": 0.5
+},
+{
+"codigo": "73",
+"nombre": "Universidad de Antofagasta",
+"sigla": "UANT",
+"selectiva": false,
+"n": 6,
+"arancel": 2600000,
+"anios": 2,
+"frac_no_diurna": 0.0
+},
+{
+"codigo": "77",
+"nombre": "Universidad de Magallanes",
+"sigla": "UMAG",
+"selectiva": false,
+"n": 7,
+"arancel": 3535000,
+"anios": 2,
+"frac_no_diurna": 0.857
+},
+{
+"codigo": "2",
+"nombre": "Universidad Finis Terrae",
+"sigla": "UFT",
+"selectiva": false,
+"n": 13,
+"arancel": 2825000,
+"anios": 2,
+"frac_no_diurna": 0.846
+},
+{
+"codigo": "39",
+"nombre": "Universidad San Sebastián",
+"sigla": "USS",
+"selectiva": false,
+"n": 56,
+"arancel": 3645000,
+"anios": 2,
+"frac_no_diurna": 0.875
+},
+{
+"codigo": "31",
+"nombre": "Universidad Autónoma de Chile",
+"sigla": "UA",
+"selectiva": false,
+"n": 66,
+"arancel": 5490000,
+"anios": 2,
+"frac_no_diurna": 0.955
+},
+{
+"codigo": "80",
+"nombre": "Universidad de Tarapacá",
+"sigla": "UTA",
+"selectiva": false,
+"n": 10,
+"arancel": 3000000,
+"anios": 2,
+"frac_no_diurna": 0.3
+},
+{
+"codigo": "69",
+"nombre": "Universidad Alberto Hurtado",
+"sigla": "UAH",
+"selectiva": false,
+"n": 30,
+"arancel": 2540000,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "79",
+"nombre": "Universidad de Atacama",
+"sigla": "UDA",
+"selectiva": false,
+"n": 11,
+"arancel": 3240000,
+"anios": 2,
+"frac_no_diurna": 0.455
+},
+{
+"codigo": "94",
+"nombre": "Universidad Católica de Temuco",
+"sigla": "UCT",
+"selectiva": false,
+"n": 7,
+"arancel": 2289000,
+"anios": 2,
+"frac_no_diurna": 0.714
+},
+{
+"codigo": "85",
+"nombre": "Universidad Tecnológica Metropolitana",
+"sigla": "UTEM",
+"selectiva": false,
+"n": 14,
+"arancel": 3325000,
+"anios": 2,
+"frac_no_diurna": 0.857
+},
+{
+"codigo": "82",
+"nombre": "Universidad Metropolitana de Ciencias de la Educación",
+"sigla": "UMCE",
+"selectiva": false,
+"n": 12,
+"arancel": 3216000,
+"anios": 2,
+"frac_no_diurna": 0.833
+},
+{
+"codigo": "50",
+"nombre": "Universidad Bernardo O'Higgins",
+"sigla": "UBO",
+"selectiva": false,
+"n": 7,
+"arancel": 2750000,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "4",
+"nombre": "Universidad Central de Chile",
+"sigla": "UCENTRAL",
+"selectiva": false,
+"n": 31,
+"arancel": 2965200,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "81",
+"nombre": "Universidad Arturo Prat",
+"sigla": "UNAP",
+"selectiva": false,
+"n": 9,
+"arancel": 2223500,
+"anios": 2,
+"frac_no_diurna": 0.667
+},
+{
+"codigo": "84",
+"nombre": "Universidad de los Lagos",
+"sigla": "ULAG",
+"selectiva": false,
+"n": 10,
+"arancel": 2440000,
+"anios": 2,
+"frac_no_diurna": 0.0
+},
+{
+"codigo": "38",
+"nombre": "Universidad Adventista de Chile",
+"sigla": "UNACH",
+"selectiva": false,
+"n": 3,
+"arancel": 2757000,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "13",
+"nombre": "Universidad Santo Tomas",
+"sigla": "UST",
+"selectiva": false,
+"n": 13,
+"arancel": 2908350,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "83",
+"nombre": "Universidad de Playa Ancha de Ciencias de la Educacion",
+"sigla": "UPA",
+"selectiva": false,
+"n": 10,
+"arancel": 2500000,
+"anios": 2,
+"frac_no_diurna": 0.4
+},
+{
+"codigo": "1",
+"nombre": "Universidad Gabriela Mistral",
+"sigla": "UGM",
+"selectiva": false,
+"n": 18,
+"arancel": 6401000,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "896",
+"nombre": "Universidad de Aysén",
+"sigla": "UAYSEN",
+"selectiva": false,
+"n": 1,
+"arancel": 5000000,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "42",
+"nombre": "Universidad Católica Cardenal Raul Silva Henriquez",
+"sigla": "UCSH",
+"selectiva": false,
+"n": 1,
+"arancel": 2135250,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "11",
+"nombre": "Universidad Academia de Humanismo Cristiano",
+"sigla": "UACADEMIA",
+"selectiva": false,
+"n": 5,
+"arancel": 4500000,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "19",
+"nombre": "Universidad de las Americas",
+"sigla": "UDLA",
+"selectiva": false,
+"n": 17,
+"arancel": 4680000,
+"anios": 2,
+"frac_no_diurna": 0.941
+},
+{
+"codigo": "674",
+"nombre": "Academia Nacional de Estudios Politicos y Estrategicos Anepe",
+"sigla": "",
+"selectiva": false,
+"n": 1,
+"arancel": 2750000,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "46",
+"nombre": "Universidad de Aconcagua",
+"sigla": "",
+"selectiva": false,
+"n": 1,
+"arancel": 2921625,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "26",
+"nombre": "Universidad de Artes, Ciencias y Comunicacion - Uniacc",
+"sigla": "",
+"selectiva": false,
+"n": 3,
+"arancel": 4500000,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "22",
+"nombre": "Universidad de Viña del Mar",
+"sigla": "",
+"selectiva": false,
+"n": 13,
+"arancel": 5454649,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "9",
+"nombre": "Universidad del Alba",
+"sigla": "",
+"selectiva": false,
+"n": 3,
+"arancel": 3956000,
+"anios": 2,
+"frac_no_diurna": 1.0
+},
+{
+"codigo": "68",
+"nombre": "Universidad Miguel de Cervantes",
+"sigla": "",
+"selectiva": false,
+"n": 3,
+"arancel": 3570000,
+"anios": 2,
+"frac_no_diurna": 1.0
+}
+]
+}

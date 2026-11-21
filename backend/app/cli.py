@@ -102,11 +102,10 @@ def mostrar_turno(t: dict) -> None:
         print(f"  • {linea}")
     for logro in t["logros"]:
         print(f"  ★ Logro: {logro}")
-    mostrar_ficha(t["yo"], "Tú:      ")
-    mostrar_ficha(t["sombra"], "Sombra:  ")
+    mostrar_ficha(t["yo"])
     n = t["nube_eventos"]
     print(f"{DIM}  En los 1.000 futuros de este año: despido {porc(n['despido'])}, cambio de pega {porc(n['cambio'])}, ascenso {porc(n['ascenso'])}, "
-          f"síntomas depresivos {porc(n['depresion'])}, hijo {porc(n['hijo'])}. La sombra es tu gemelo que nunca cambia nada, con tu misma suerte.{FIN}")
+          f"síntomas depresivos {porc(n['depresion'])}, hijo {porc(n['hijo'])}.{FIN}")
 
 
 def cmd_perfil(a) -> None:
@@ -294,7 +293,7 @@ def main() -> None:
     p = comun(sub.add_parser("jugar", help="partida interactiva, una decisión por año"))
     p.add_argument("--horizonte", type=int, default=5)
     p.add_argument("--hasta", type=int, default=50, help="edad final")
-    p.add_argument("--auto", help="juega solo con estas decisiones, p. ej. 'trabajar_mas*2,magister'")
+    p.add_argument("--auto", help="juega solo con estas decisiones, p. ej. 'capacitarte*2,magister'")
     p.add_argument("--todas", action="store_true", help="muestra todas las decisiones posibles, no solo las cartas del año")
     p.set_defaults(fn=cmd_jugar)
     p = comun(sub.add_parser("comparar", help="planes completos con la misma suerte"))
