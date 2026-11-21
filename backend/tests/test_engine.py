@@ -88,7 +88,7 @@ def test_mano_del_anio_es_corta_y_trae_oportunidades():
     vistas = set()
     for seed in range(12):
         ops = menu(Estado.desde_perfil(PERFIL), PERFIL, horizonte=2, n=200, seed=seed)
-        assert ops[0].decision == "seguir" and 3 <= len(ops) <= 5
+        assert ops[0].decision == "seguir" and 2 <= len(ops) <= 3
         assert len({o.decision for o in ops}) == len(ops)
         vistas |= {o.decision for o in ops}
     assert {"aceptar_oferta", "postular_ascenso"} & vistas and len(vistas) >= 8

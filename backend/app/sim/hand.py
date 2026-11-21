@@ -1,6 +1,7 @@
-"""La mano del año: en vez de mostrar todas las decisiones posibles, el juego reparte pocas
-cartas. Siempre está 'seguir'; se suman las oportunidades que el año trae (una oferta con
-nombre, un cupo de ascenso) y dos o tres acciones elegidas según cómo está el gemelo."""
+"""La mano del año: en vez de mostrar todas las decisiones posibles, el juego reparte tres
+cartas. Siempre está 'seguir'; si el año trae una oportunidad (una oferta con nombre, un cupo
+de ascenso) ocupa una carta, y el resto son acciones elegidas según cómo está el gemelo,
+cada una de un grupo distinto."""
 
 import numpy as np
 
@@ -13,7 +14,7 @@ from app.sim.profile import NIVELES, TAMANOS, Perfil
 from app.sim.state import CES, EMP, EMPR, Estado
 from app.sim.tables import tablas
 
-MAX_CARTAS = 5
+MAX_CARTAS = 3   # seguir + dos jugadas, como un dilema de cartas
 _TIPO = {"startup": "una startup", "pyme": "una pyme", "grande": "una empresa grande", "estado": "el Estado"}
 
 
@@ -79,7 +80,11 @@ def mano(yo: Estado, perfil: Perfil, ctx: Ctx) -> list[dict]:
         cartas.append({"decision": "postular_ascenso", "nombre": f"Postular a {sube}", "tipo": "oportunidad",
                        "descripcion": f"Se abrió un cupo de {sube} en {nombre_empresa(int(yo.empresa[0]), perfil.empresa)}. Si no quedas, te quedas donde estás."})
 
-    for k, grupo in enumerate(_pesos(yo, perfil)):
+    cartas = cartas[:MAX_CARTAS]
+    grupos = _pesos(yo, perfil)
+    orden = sorted(range(len(grupos)), key=lambda k: su.escalar(t, f"orden_{k}"))   # qué grupos salen este año varía
+    for k in orden:
+        grupo = grupos[k]
         if len(cartas) >= MAX_CARTAS or not grupo:
             continue
         claves, pesos = list(grupo), np.array(list(grupo.values()))

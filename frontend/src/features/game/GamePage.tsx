@@ -10,7 +10,7 @@ import {
 } from "@/shared/ui";
 import { arte, atributos, cargo, indicadores, nivelIA, plata, resumenFicha } from "./formato";
 import { PERFIL_EJEMPLO } from "./perfilEjemplo";
-import type { EscenarioIA, Ficha, Opcion, Perfil } from "./types";
+import type { Ficha, Opcion, Perfil } from "./types";
 import { useGame } from "./useGame";
 
 const CLAVE_PERFIL = "biforkstrange.perfil";
@@ -28,7 +28,6 @@ function leerPerfilGuardado(): string {
 function Inicio({ juego }: { juego: Juego }) {
   const [fuente, setFuente] = useState<"ejemplo" | "mio">(leerPerfilGuardado() ? "mio" : "ejemplo");
   const [texto, setTexto] = useState(leerPerfilGuardado());
-  const [ia, setIa] = useState<EscenarioIA>("base");
   const [errorPerfil, setErrorPerfil] = useState("");
 
   const empezar = () => {
@@ -47,7 +46,7 @@ function Inicio({ juego }: { juego: Juego }) {
       }
     }
     setErrorPerfil("");
-    juego.empezar(perfil, ia);
+    juego.empezar(perfil, "base");
   };
 
   return (
@@ -56,7 +55,7 @@ function Inicio({ juego }: { juego: Juego }) {
       <LifePathHero />
       <Stack gap={12}>
         <Heading level={1}>Vive tu vida laboral antes de vivirla.</Heading>
-        <Text>Cada año te tocan unas pocas jugadas: una oferta, un ascenso, un curso, tu gente. Eliges una y ves qué te pasa.</Text>
+        <Text>Cada año te tocan tres cartas: seguir como vas o dos jugadas. Eliges una y ves qué te pasa.</Text>
       </Stack>
       <Row gap={6}>
         <Tag>Una decisión por año</Tag>
@@ -98,21 +97,6 @@ function Inicio({ juego }: { juego: Juego }) {
           )}
         </Stack>
       </Panel>
-      <Stack gap={8}>
-        <Heading level={3} as="h2">
-          ¿Qué tan rápido llega la IA?
-        </Heading>
-        <Segmented
-          label="Velocidad de adopción de la IA"
-          value={ia}
-          onChange={setIa}
-          options={[
-            { value: "lenta", label: "Lenta" },
-            { value: "base", label: "Normal" },
-            { value: "rapida", label: "Rápida" },
-          ]}
-        />
-      </Stack>
       {(errorPerfil || juego.error) && <Text size="sm">⚠ {errorPerfil || juego.error}</Text>}
       <ScreenFooter>
         <Button onClick={empezar} disabled={juego.cargando}>
