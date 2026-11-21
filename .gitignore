@@ -4,3 +4,7 @@ __pycache__/
 node_modules/
 dist/
 .DS_Store
+
+# perfiles personales: el repo es público
+backend/perfiles/*.json
+!backend/perfiles/ejemplo.json

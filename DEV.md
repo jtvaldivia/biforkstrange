@@ -19,17 +19,21 @@ Las dependencias van en una sola dirección: `api → services → (sim, reposit
 
 | Capa | Qué contiene |
 |---|---|
-| `sim/` | Dominio puro (numpy, sin FastAPI ni DB). `state.py` es el estado vectorizado, `engine.py` el loop Monte Carlo, `metrics.py` los resúmenes por año. |
-| `sim/decisions/` | Una clase por decisión. Se registran solas al heredar de `Decision`. |
+| `sim/` | Dominio puro (numpy, sin FastAPI ni DB): el motor de simulación. Ver [`backend/MODELOS.md`](backend/MODELOS.md). |
+| `sim/modules/` | Un archivo por módulo anual: trabajo, familia, finanzas, bienestar y red de contactos. |
+| `sim/data/` | Tablas agregadas que usa el motor. Se regeneran con `make datos` desde la carpeta de microdatos, que no va al repo. |
+| `cli.py` | Terminal para probar el simulador: `make jugar`, `make menu`, `make comparar`. |
 | `schemas/` | Modelos Pydantic de entrada y salida de la API. |
 | `repositories/` | Persistencia detrás de un `Protocol`: Supabase o memoria. |
 | `services/` | Casos de uso que orquestan motor y repositorio. |
 | `api/` | Rutas delgadas. `deps.py` es el único lugar que elige implementaciones. |
 | `core/` | Configuración y clientes externos. |
 
-**Agregar una decisión:** crear una subclase en `sim/decisions/catalog.py` con `key`, `label` y `apply()` (o heredar de `ParametricDecision` y fijar tres números). Aparece sola en `GET /api/decisions`.
+**Agregar una decisión:** sumarla a `CATALOGO` e `intencion()` en `sim/decisions.py` y hacer que el módulo que corresponda lea esa intención. Aparece sola en `GET /api/decisions` y en el menú del juego.
 
-**Agregar un atributo del gemelo:** sumarlo a `State` (o usar `state.extra`) y resumirlo en `metrics.py`.
+**Agregar un atributo del gemelo:** sumarlo a `Estado` en `sim/state.py`, moverlo en un módulo y resumirlo en `sim/metrics.py`.
+
+**Agregar o cambiar un parámetro:** va en `sim/params.py`, con su fuente y marcado como dato, derivado o supuesto.
 
 ## Frontend (`frontend/src`)
 
@@ -55,7 +59,7 @@ Las escenas animadas usan un reloj CSS (`--vd-t`): pon `scene="once"` en el `Scr
 
 ## Plantilla
 
-El proyecto sale de `template/` con cookiecutter. Para cambiar la estructura base, edita la plantilla y regenera desde la carpeta padre:
+El proyecto salió de `template/` con cookiecutter. La plantilla ya no está al día: no tiene el kit de UI ni el motor de simulación, así que regenerar con `-f` sobrescribe trabajo. Úsala solo para crear un proyecto nuevo:
 
 ```bash
 cookiecutter --no-input -f -o .. template

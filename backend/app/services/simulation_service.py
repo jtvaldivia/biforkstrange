@@ -1,7 +1,6 @@
 from app.repositories.simulations import SimulationRepository
 from app.schemas.simulation import SimulationIn, SimulationOut
 from app.sim.engine import simulate
-from app.sim.state import Twin
 
 
 class SimulationService:
@@ -10,12 +9,7 @@ class SimulationService:
         self.default_runs = default_runs
 
     def run(self, body: SimulationIn, user_id: str | None = None) -> SimulationOut:
-        result = simulate(
-            Twin(**body.twin.model_dump()),
-            body.decisiones,
-            body.n_runs or self.default_runs,
-            body.seed,
-        )
+        result = simulate(body.twin, body.decisiones, body.n_runs or self.default_runs, body.seed, perfil=body.perfil)
         sim_id = self.repo.save(body.model_dump(), result, user_id)
         return SimulationOut(id=sim_id, **result)
 
