@@ -36,8 +36,10 @@ def sugerir_destinos(ocup: int, nivel: int = 2, k: int = 3) -> list[int]:
     if nivel < 2:
         af[tb.es_directivo] = 0
     cand = np.flatnonzero(af >= 0.75)
-    if cand.size < k:
-        cand = np.argsort(-af)[: max(k, 5)]
+    if cand.size < k:   # pocas ocupaciones muy afines: se acepta cualquiera sobre el azar
+        cand = np.flatnonzero(af > 0.5)
+    if cand.size == 0:
+        return []
     cand = cand[np.argsort(-af[cand])]
     familia = lambda i: tb.codigos[i][:2]  # noqa: E731
     out = [int(cand[0])]

@@ -43,7 +43,7 @@ def narrar(antes: Estado, e: Estado) -> list[str]:
         out.append("Te despidieron. " + (f"Encontraste otro trabajo a los {meses:.0f} meses, con sueldo de {m(e.sueldo[0] * float(np.exp(-e.cicatriz[0])))}."
                                           if si("reempleo_mismo_anio") else f"Terminas el año sin trabajo ({meses:.0f} meses buscando)."))
     if si("cambio"):
-        out.append(f"Te llegó una oferta mejor y te cambiaste: de {m(antes.sueldo[0])} a {m(e.sueldo[0])}.")
+        out.append(f"Te llegó una oferta mejor y te cambiaste de trabajo. Cierras el año ganando {m(e.sueldo[0])} al mes.")
     if si("ascenso"):
         out.append(f"Te ascendieron a {NIVELES[int(e.nivel[0])]}." + (f" Ahora tu rol es: {tb.nombres[int(e.ocup[0])]}." if si("a_jefatura") else ""))
     if si("aumento"):

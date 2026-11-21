@@ -43,6 +43,8 @@ Las dependencias van en una sola dirección: `api → services → (sim, reposit
 
 Importa con el alias `@/` (apunta a `src/`).
 
+Rutas (sin router por ahora): `/` es el juego conectado al motor (`features/game`, usa `POST /api/juego/turno`), `/ui` el catálogo del kit y `/simple` la prueba mínima de la API. Si el puerto 8000 está ocupado, levanta el backend en otro y pásaselo al frontend: `VITE_API_URL=http://localhost:8010 npm run dev`.
+
 ### Kit de UI (`shared/ui`)
 
 Componentes del Claude Design "Gemelo Laboral · simulador de vida". Todo se importa desde `@/shared/ui`; los estilos (`shared/ui/styles/vida.css`, clases `vd-*`) se cargan una vez en `main.tsx`. La paleta vive en las variables de `:root` de ese archivo.

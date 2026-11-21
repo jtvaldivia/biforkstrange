@@ -1,0 +1,25 @@
+import type { Perfil } from "./types";
+
+/** Perfil ficticio para probar sin datos propios (el mismo de backend/perfiles/ejemplo.json). */
+export const PERFIL_EJEMPLO: Perfil = {
+  formato: "bifurca.perfil",
+  version: 1,
+  nombre: "Camila",
+  edad: 28,
+  sexo: "m",
+  situacion: "trabajando",
+  carrera: "Ingeniería Comercial",
+  institucion: "universidad",
+  tipo_empleador: "grande",
+  rubro: "Finanzas y seguros",
+  nivel: "semi senior",
+  sueldo_liquido_mensual: 1400000,
+  ahorros: 4000000,
+  deuda_estudios: 0,
+  hijos: 0,
+  pareja: true,
+  contactos: 30,
+  riesgo: 25,
+  ambicion: 55,
+  big5: { O: -0.3, C: 0.3, E: -0.8, A: 0.3, N: 1.2 },
+};
