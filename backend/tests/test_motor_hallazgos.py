@@ -84,7 +84,9 @@ def test_dos_ofertas_en_el_mismo_anio_se_sortean_por_separado():
         # el guion nombra los eventos sin el número de pega: al aceptar la primera oferta, la oferta pasa a `@1`
         v.dados.u = lambda anio, sitio, _d=v.dados: _d.guion.get(re.sub(r"@\d+", "", sitio),
                                                                  Dados(6, _d._reales.gemelo).u(anio, sitio))
-        reg = v.vivir_anio(Guion({"oferta_externa": "cambiar"}, con_cartas=True), carta="oferta_externa")
+        # si la pega nueva es una startup que cierra, la cesantía se vive ese mismo año
+        reg = v.vivir_anio(Guion({"oferta_externa": "cambiar", "cesantia": "buscar", "oferta_en_cesantia": "rechazar"},
+                                 con_cartas=True), carta="oferta_externa")
         ofertas = [x["resultado"] for x in reg["decisiones"] if x["decision"] == "oferta_externa"]
         assert len(ofertas) == 2
         pares.append(ofertas[0] == ofertas[1])

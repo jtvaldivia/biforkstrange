@@ -4,15 +4,7 @@ Todo lo que un simulador necesita para vivir una carrera en Chile de los 18 a lo
 
 Versión 1.0.0, 21 de noviembre de 2026.
 
-| Qué | Cuántos |
-|---|---|
-| Decisiones | 37, con 89 opciones y 132 resultados posibles |
-| Eventos (pasan solos) | 10 |
-| Parámetros con fuente y rango | 65 (27 dato, 28 mixto, 3 sintético, 7 supuesto) |
-| Variables de estado | 86 |
-| Tablas CSV | 50, con 3.860 filas |
-| Fuentes citadas | 78 |
-| Objetivos de validación | 38 |
+Los conteos cambian cada vez que alguien agrega algo, así que no se copian aquí: `python3 -I simulador/referencia/validar.py` dice cuántas decisiones, eventos, parámetros, variables, tablas y fuentes hay, y `make supuestos` cuántos parámetros son dato, mixto, sintético o supuesto.
 
 ## Archivos
 
@@ -103,7 +95,7 @@ Cada decisión, opción, evento y parámetro trae `calidad`:
 - **sintetico**: sorteado o calibrado con semilla fija a partir de una distribución real (ESI, INE, Get on Board, SIES), pero no medido para esa unidad. Ejemplo: el sueldo relativo de una empresa del catálogo. Cada número sintético tiene un parámetro de dispersión que se puede llevar a cero.
 - **supuesto**: sin fuente. Hay que decirlo si se muestra a un jurado.
 
-De las 87 opciones, 38 son supuesto. La mayoría son las opciones de no hacer nada ("quedarte", "no"), que no mueven el estado. Las decisiones que dependen casi solo de supuestos son `practica`, `intercambio`, `jefatura`, `bootcamp` y `volver_a_chile`.
+Muchas opciones son supuesto. La mayoría son las opciones de no hacer nada ("quedarte", "no"), que no mueven el estado. Las decisiones que dependen casi solo de supuestos son `practica`, `intercambio`, `jefatura`, `bootcamp` y `volver_a_chile`.
 
 En `fuentes.json`, `verificacion` dice si el número salió del archivo original (descargado), del paper (leído en la fuente), de un resumen o de prensa (por confirmar).
 
@@ -136,7 +128,7 @@ python3 -I simulador/referencia/paridad.py /tmp/casos.json && node simulador/ref
 
 `internacional_jobhop.py` necesita pyarrow; se corrió con la rueda que estaba en la caché de uv.
 
-El validador revisa que cada expresión respete la gramática, que use variables, parámetros, tablas y columnas que existen, que cada fuente citada esté en `fuentes.json` y que cada `luego` apunte a algo. Después evalúa todo el catálogo en miles de estados al azar y exige pesos positivos, probabilidades entre 0 y 1 que no sumen más de 1, y efectos con números finitos o categorías válidas. Última corrida: 290 expresiones y 4.000 estados, sin errores. La paridad dio 57.000 de 57.000 casos iguales entre Python y JavaScript.
+El validador revisa que cada expresión respete la gramática, que use variables, parámetros, tablas y columnas que existen, que cada fuente citada esté en `fuentes.json` y que cada `luego` apunte a algo. Después evalúa todo el catálogo en miles de estados al azar y exige pesos positivos, probabilidades entre 0 y 1 que no sumen más de 1, y efectos con números finitos o categorías válidas. La paridad compara caso por caso el evaluador de Python con el de JavaScript.
 
 ## Lo que falta
 

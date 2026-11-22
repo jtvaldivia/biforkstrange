@@ -52,18 +52,6 @@
    ]
   },
   {
-   "id": "REAJUSTE_REAL",
-   "valor": 0.0173,
-   "unidad": "tasa anual",
-   "descripcion": "Crecimiento real del sueldo de toda la economía. Úsalo solo si el simulador muestra pesos del futuro.",
-   "fuente": "ine_ir",
-   "calidad": "dato",
-   "rango": [
-    0.0037,
-    0.0309
-   ]
-  },
-  {
    "id": "P_DESPIDO",
    "valor": {
     "18-29": 0.0529,
@@ -253,18 +241,6 @@
    ]
   },
   {
-   "id": "CAIDA_REEMPLEO",
-   "valor": 0.15,
-   "unidad": "fracción",
-   "descripcion": "Pérdida de sueldo al volver a trabajar tras un despido, en años siguientes.",
-   "fuente": "couch_placzek_2010",
-   "calidad": "mixto",
-   "rango": [
-    0.08,
-    0.25
-   ]
-  },
-  {
    "id": "PENAL_HUECO",
    "valor": 0.571,
    "unidad": "multiplicador",
@@ -273,18 +249,6 @@
    "calidad": "dato",
    "rango": [
     0.5,
-    0.75
-   ]
-  },
-  {
-   "id": "PENAL_PAUSA_ELEGIDA",
-   "valor": 0.556,
-   "unidad": "multiplicador",
-   "descripcion": "Llamados tras una pausa para cuidar: 5% contra 9% tras un despido.",
-   "fuente": "weisshaar_2018",
-   "calidad": "mixto",
-   "rango": [
-    0.45,
     0.75
    ]
   },
@@ -543,18 +507,6 @@
    ]
   },
   {
-   "id": "FUNDADOR_MEDIANA",
-   "valor": 0.65,
-   "unidad": "fracción",
-   "descripcion": "Ganancia mediana del emprendedor a 10 años respecto de un empleado comparable.",
-   "fuente": "hamilton_2000",
-   "calidad": "mixto",
-   "rango": [
-    0.55,
-    0.8
-   ]
-  },
-  {
    "id": "SOBREVIVE_1",
    "valor": 0.8,
    "unidad": "probabilidad",
@@ -591,18 +543,6 @@
    ]
   },
   {
-   "id": "VC_FUNDADOR_CERO",
-   "valor": 0.75,
-   "unidad": "proporción",
-   "descripcion": "Fundadores con capital de riesgo que salen con cero.",
-   "fuente": "hall_woodward_2010",
-   "calidad": "mixto",
-   "rango": [
-    0.65,
-    0.8
-   ]
-  },
-  {
    "id": "YC_ADQUIRIDA",
    "valor": 0.242,
    "unidad": "proporción",
@@ -631,18 +571,6 @@
     1.8,
     3.53
    ]
-  },
-  {
-   "id": "PREMIO_CIUDAD_GRANDE",
-   "valor": [
-    0.1,
-    0.35
-   ],
-   "unidad": "fracción",
-   "descripcion": "Alza al llegar a la ciudad grande y a 10 años.",
-   "fuente": "delaroca_puga_2017",
-   "calidad": "mixto",
-   "rango": null
   },
   {
    "id": "MORT_GOMPERTZ",
@@ -1194,6 +1122,1229 @@
    "unidad": "tasa",
    "descripcion": "Alza extra del sueldo en Minería durante un auge del cobre. Supuesto del equipo.",
    "fuente": "sp_cobre_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "SKILL_POR_ANIO",
+   "valor": 1.5,
+   "unidad": "puntos de skill (0-100) por año",
+   "descripcion": "Oficio que suma un año trabajado (empleado, independiente o fundador), multiplicado por el aprendizaje de la persona. Regla del cierre de año del motor.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "PAGO_DEUDA_ESTUDIOS",
+   "valor": 0.1,
+   "unidad": "fracción del sueldo",
+   "descripcion": "Parte del sueldo que se va cada mes a pagar el crédito de estudios. Es el tope de la cuota del CAE (10% de la renta) aplicado a todos: el pago real puede ser menor.",
+   "fuente": "ley_20634",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "PRIMA_PERSONAL_RANGO",
+   "valor": [
+    0.6,
+    3.0
+   ],
+   "unidad": "veces la mediana [mín, máx]",
+   "descripcion": "Cuánto de lo que ganas sobre la mediana de tu edad y educación viaja contigo cuando una regla fija el sueldo desde una tabla nacional (informal, otra ocupación, por tu cuenta). Se acota a este rango.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "REPETIR_CARTA",
+   "valor": 0.3,
+   "unidad": "multiplicador por vez ya vista",
+   "descripcion": "Solo en la partida de la persona: cada vez que ya le tocó una carta, esa carta pesa 0,3 veces en el sorteo, para que no se repita la misma pregunta año tras año. Las copias y la cohorte no lo usan (la población calibrada no se toca).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ANIOS_HUECO",
+   "valor": 2,
+   "unidad": "años",
+   "descripcion": "Cuántos años pesa una pausa elegida (sabático) al buscar trabajo: mientras dura, las ofertas llegan menos y pagan menos (PENAL_HUECO).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_INDEPENDIENTE_BUSCA_EMPLEO",
+   "valor": 0.055,
+   "unidad": "probabilidad anual",
+   "descripcion": "Chance anual de que un independiente salga a buscar empleo. El paquete no tiene salida del trabajo por cuenta propia; sin ella nadie vuelve a ser empleado y la cohorte termina con la mitad de independientes (en Chile, 13% a 24%). Calibrada para que la cohorte cuadre los independientes a los 45-49 (docs/motor/VALIDACION.md).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "INDEPENDIENTE_DE_PASO",
+   "valor": 2.0,
+   "unidad": "multiplicador",
+   "descripcion": "Quien ya volvió una vez de trabajar por su cuenta a un empleo (historia del CV) sale a buscar empleo este múltiplo de veces más seguido que P_INDEPENDIENTE_BUSCA_EMPLEO.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "INDEPENDIENTE_VETERANO",
+   "valor": 0.5,
+   "unidad": "multiplicador",
+   "descripcion": "Quien lleva ANOS_VETERANO años o más por su cuenta (historia del CV) sale a buscar empleo este múltiplo de P_INDEPENDIENTE_BUSCA_EMPLEO.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ANOS_VETERANO",
+   "valor": 5,
+   "unidad": "años",
+   "descripcion": "Años por cuenta propia desde los que el trabajo independiente cuenta como la forma de trabajar de la persona (INDEPENDIENTE_VETERANO).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "RECESION_DESPIDO",
+   "valor": 1.4,
+   "unidad": "multiplicador",
+   "descripcion": "Cuánto sube la probabilidad de perder el trabajo en un año de recesión.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "TOPE_INDEMNIZACION_ANIOS",
+   "valor": 11,
+   "unidad": "años",
+   "descripcion": "Tope de años de servicio que paga la indemnización por despido (un sueldo por año).",
+   "fuente": "codigo_trabajo",
+   "calidad": "dato",
+   "rango": null
+  },
+  {
+   "id": "ALZA_PUBLICO",
+   "valor": 0.8,
+   "unidad": "multiplicador",
+   "descripcion": "En el sector público, el sueldo crece con la edad esta fracción de lo que crece en la ESI (escalas fijas y menos dispersión).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ALZA_RUIDO_SD",
+   "valor": 0.03,
+   "unidad": "desviación estándar anual",
+   "descripcion": "Ruido del alza en un año normal (sin golpe): normal con esta desviación. Junto con GOLPE_INGRESO reproduce la cola gruesa de los cambios de ingreso.",
+   "fuente": "guvenen_2021",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "GOLPE_INGRESO",
+   "valor": [
+    -0.05,
+    0.08
+   ],
+   "unidad": "[media, desviación estándar]",
+   "descripcion": "Cambio del sueldo en un año con golpe negativo de ingreso (P_GOLPE_INGRESO): normal con esta media y desviación.",
+   "fuente": "guvenen_2021",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "RECESION_ALZA",
+   "valor": -0.015,
+   "unidad": "puntos de alza",
+   "descripcion": "Lo que una recesión le resta al alza anual del sueldo.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ALZA_ANUAL_MAX",
+   "valor": 0.25,
+   "unidad": "tasa anual",
+   "descripcion": "Tope del alza anual en la misma pega: el alza va de 0 (en pesos de hoy el sueldo no baja) a este máximo.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ASCENSO_MEDIA",
+   "valor": 0.5,
+   "unidad": "multiplicador",
+   "descripcion": "Quien tiene solo educación media asciende desde semi senior a esta fracción de la tasa de ASCENSO.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "SKILL_REFERENCIA",
+   "valor": 50,
+   "unidad": "puntos de skill (0-100)",
+   "descripcion": "Oficio de referencia: el ascenso y el remoto para afuera suben o bajan según cuánto se aleja el skill de este valor.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ASCENSO_POR_SKILL",
+   "valor": 0.0006,
+   "unidad": "probabilidad por punto de skill",
+   "descripcion": "Cuánto suma a la probabilidad anual de ascenso cada punto de skill sobre SKILL_REFERENCIA.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ASCENSO_STARTUP",
+   "valor": 0.05,
+   "unidad": "probabilidad anual",
+   "descripcion": "Lo que suma a la probabilidad de ascenso trabajar en una startup (se crece más rápido).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ASCENSO_PUBLICO",
+   "valor": 0.04,
+   "unidad": "probabilidad anual",
+   "descripcion": "Lo que resta a la probabilidad de ascenso trabajar en el Estado (escalafón).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ASCENSO_MARCADO",
+   "valor": 0.06,
+   "unidad": "probabilidad anual",
+   "descripcion": "Lo que resta a la probabilidad de ascenso estar mal evaluado por tu jefatura (contraoferta fallida, licencia).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ASCENSO_PROB_RANGO",
+   "valor": [
+    0.01,
+    0.4
+   ],
+   "unidad": "probabilidad anual [mín, máx]",
+   "descripcion": "Rango de la probabilidad anual de ascenso.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ASCENSO_PARCIAL",
+   "valor": 0.5,
+   "unidad": "multiplicador",
+   "descripcion": "A media jornada, la probabilidad de ascenso es esta fracción de la de jornada completa.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "MESES_PENAL_HUECO",
+   "valor": 8,
+   "unidad": "meses",
+   "descripcion": "Meses sin trabajo en que los llamados a entrevista bajan hasta PENAL_HUECO (de 7% a 4% al mes).",
+   "fuente": "kroft_2013",
+   "calidad": "dato",
+   "rango": null
+  },
+  {
+   "id": "RECESION_ENCONTRAR",
+   "valor": 0.85,
+   "unidad": "multiplicador",
+   "descripcion": "En recesión, la probabilidad de encontrar trabajo o de que llegue una oferta estando cesante es esta fracción de la normal.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "RED_REFERENCIA",
+   "valor": 30,
+   "unidad": "puntos de red (0-100)",
+   "descripcion": "Red de contactos de referencia: las ofertas estando cesante llegan más o menos según cuánto se aleja la red de este valor.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "RED_ESCALA_OFERTAS",
+   "valor": 400,
+   "unidad": "puntos de red",
+   "descripcion": "Con cuánta red sobre RED_REFERENCIA las ofertas estando cesante llegan el doble: cada punto suma 1/400.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "OFERTA_CESANTE_PROB_RANGO",
+   "valor": [
+    0.02,
+    0.6
+   ],
+   "unidad": "probabilidad mensual [mín, máx]",
+   "descripcion": "Rango de la probabilidad mensual de que llegue una oferta estando cesante.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "OFERTA_CESANTE_SUELDO",
+   "valor": [
+    0.78,
+    1.06
+   ],
+   "unidad": "fracción del último sueldo [mín, máx]",
+   "descripcion": "Sueldo de una oferta estando cesante, uniforme entre estas fracciones de lo que ganabas. Une los rangos de las antiguas opciones tomar lo primero (0,78-0,9) y esperar algo de tu nivel (0,93-1,06); quien vuelve entra ganando menos.",
+   "fuente": "couch_placzek_2010",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "MESES_CESANTE_OFERTA_BAJA",
+   "valor": 6,
+   "unidad": "meses",
+   "descripcion": "Desde estos meses buscando (el séptimo mes en adelante), las ofertas pagan OFERTA_CESANTE_LARGA veces menos.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "OFERTA_CESANTE_LARGA",
+   "valor": 0.93,
+   "unidad": "multiplicador",
+   "descripcion": "Sueldo de las ofertas tras MESES_CESANTE_OFERTA_BAJA meses buscando, respecto de las de antes.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "OFERTA_CON_HUECO",
+   "valor": 0.93,
+   "unidad": "multiplicador",
+   "descripcion": "Sueldo de las ofertas a quien tiene un hueco elegido en el CV (sabático), respecto de las demás.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ANIMO_ANIO_BUSCANDO",
+   "valor": -2,
+   "unidad": "puntos de ánimo al año",
+   "descripcion": "Ánimo que se pierde en un año entero buscando trabajo; se reparte por mes.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "GASTO_CESANTE",
+   "valor": 0.5,
+   "unidad": "fracción",
+   "descripcion": "Parte del ingreso perdido (lo que no repone el seguro, 1 − COBERTURA_SEGURO) que sale del ahorro cada mes buscando: el resto se ajusta con menos gasto. Con 0,5 el ahorro cae 44% del sueldo al mes, cerca del 42% en que cae el ingreso (Carranza 2025).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "OFERTAS_POR_CAMBIO",
+   "valor": 1.5,
+   "unidad": "ofertas por cambio de empleador",
+   "descripcion": "Llegan más ofertas de las que se aceptan: la tasa de ofertas es P_CAMBIO_EMPLEADOR por este factor, ajustado para que los cambios de empleador por edad cuadren con la EPS 2024 (20,2/14,1/10,9% contra 21,8/13,8/10,2%).",
+   "fuente": "eps_2024",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "IA_REESTRUCTURA_MAX",
+   "valor": 0.5,
+   "unidad": "probabilidad anual",
+   "descripcion": "Tope de la probabilidad anual de una reestructuración por IA.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_MESES_REEMPLEO",
+   "valor": 9,
+   "unidad": "meses",
+   "descripcion": "Meses del año que le quedan, en promedio, a quien pierde la pega por una reestructuración con IA para reemplearse ese mismo año.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_REEMPLEO_MAX",
+   "valor": 0.95,
+   "unidad": "probabilidad",
+   "descripcion": "Tope de la probabilidad de reemplearse el mismo año tras una reestructuración por IA.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_REEMPLEO_SUELDO",
+   "valor": [
+    0.85,
+    1.02
+   ],
+   "unidad": "fracción del sueldo [mín, máx]",
+   "descripcion": "Sueldo de la pega nueva tras una reestructuración por IA, uniforme entre estas fracciones del anterior.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "YC_ANIOS_COHORTE",
+   "valor": 8,
+   "unidad": "años",
+   "descripcion": "Años, en promedio, en que se mide el 29,9% de startups cerradas de las cohortes YC 2012-2019 (YC_CERRADA): sirve para anualizarlo.",
+   "fuente": "yc_directorio",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "ANIMO_META_BUSCANDO",
+   "valor": -4,
+   "unidad": "puntos de ánimo",
+   "descripcion": "El ánimo vuelve a su nivel (ANIMO_META) con estos puntos menos mientras buscas trabajo.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "ANIMO_META_DEUDA",
+   "valor": -3,
+   "unidad": "puntos de ánimo",
+   "descripcion": "El ánimo vuelve a su nivel (ANIMO_META) con estos puntos menos mientras tienes deudas (ahorro negativo).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "RECESION_TITULADO_SUELDO",
+   "valor": 0.91,
+   "unidad": "multiplicador",
+   "descripcion": "Sueldo de quien se titula en recesión respecto de quien se titula en un año normal.",
+   "fuente": "oreopoulos_2012",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "RECESION_TITULADO_RECUPERA",
+   "valor": 0.009,
+   "unidad": "tasa anual",
+   "descripcion": "Alza extra al año, durante 10 años, con que quien se titula en recesión recupera la brecha.",
+   "fuente": "oreopoulos_2012",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "SIGUE_CARRERA_MAX",
+   "valor": 0.97,
+   "unidad": "probabilidad",
+   "descripcion": "Tope de la probabilidad de seguir en la carrera un año más.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "RETENCION_ACADEMICA",
+   "valor": 0.9,
+   "unidad": "fracción",
+   "descripcion": "La retención de primer año se divide por esto: supone que un décimo de quienes dejan la carrera lo decide y el resto es fracaso académico.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "HORAS_TRABAJO_ESTUDIANDO",
+   "valor": 20,
+   "unidad": "horas a la semana",
+   "descripcion": "Horas que trabaja a la semana quien trabaja mientras estudia.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "MAGISTER_ANIOS_RESPALDO",
+   "valor": {
+    "chile": 2,
+    "afuera": 1
+   },
+   "unidad": "años",
+   "descripcion": "Duración del magíster cuando la universidad no la informa: 2 años en Chile, 1 afuera.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "BOOTCAMP_CONSERVA",
+   "valor": 0.85,
+   "unidad": "fracción del último sueldo",
+   "descripcion": "Tras un bootcamp, el sueldo nuevo no baja de esta fracción de lo que ganabas.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "GETONBRD_JUNIOR_USD",
+   "valor": 1375,
+   "unidad": "USD al mes",
+   "descripcion": "Mediana del sueldo junior en las ofertas tech de Get on Board.",
+   "fuente": "getonbrd_api",
+   "calidad": "dato",
+   "rango": null
+  },
+  {
+   "id": "BOOTCAMP_DESCUENTO_REMOTO",
+   "valor": 0.9,
+   "unidad": "multiplicador",
+   "descripcion": "El sueldo de un junior recién salido de un bootcamp es esta fracción de la mediana junior de Get on Board.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "VOLVER_A_ESTUDIAR_DEJA",
+   "valor": 0.5,
+   "unidad": "fracción",
+   "descripcion": "Quien deja el título técnico de noche en segundo año paga esta parte de COSTO_VOLVER_A_ESTUDIAR.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "EMPLEABILIDAD_SIN_CARRERA",
+   "valor": 0.7,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de quedar en la primera pega de quien no tiene carrera del catálogo (en vez de la empleabilidad al primer año de su carrera).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_EDAD_CASTIGO_JOVEN",
+   "valor": 25,
+   "unidad": "años",
+   "descripcion": "Hasta esta edad la primera pega lleva ia_castigo_joven (el golpe de la IA a los jóvenes en ocupaciones expuestas con la incertidumbre de IA apagada; Brynjolfsson mide a los de 22 a 25). Con ella prendida, el golpe lo lleva ia_encontrar hasta IA_EDAD_JOVEN.",
+   "fuente": "brynjolfsson_2025",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "PRIMERA_PEGA_PROB_RANGO",
+   "valor": [
+    0.05,
+    0.97
+   ],
+   "unidad": "probabilidad [mín, máx]",
+   "descripcion": "Rango de la probabilidad de quedar en la primera pega.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "PRIMERA_PEGA_GRANDE",
+   "valor": 0.9,
+   "unidad": "multiplicador",
+   "descripcion": "Una empresa grande es más selectiva: quedar en una es esta fracción de la probabilidad base.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "PRIMERA_PEGA_CAE_PYME",
+   "valor": 0.65,
+   "unidad": "fracción",
+   "descripcion": "De quienes no quedan en la empresa grande, esta parte entra igual a una pyme el mismo año.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "PRIMERA_PEGA_PYME",
+   "valor": 0.1,
+   "unidad": "probabilidad",
+   "descripcion": "Lo que suma a la probabilidad de quedar en la primera pega postular a una pyme.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "PRIMERA_PEGA_SUELDO",
+   "valor": {
+    "grande": 1.06,
+    "cae_pyme": 0.92,
+    "pyme": 0.95,
+    "startup": 0.94
+   },
+   "unidad": "multiplicador",
+   "descripcion": "Primer sueldo según dónde entras, respecto de la mediana de tu carrera o de tu edad y educación: la empresa grande paga más.",
+   "fuente": "arellano_bover_2024",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "POSTULACIONES_ESTADO",
+   "valor": 60,
+   "unidad": "postulaciones al año",
+   "descripcion": "Concursos del Estado a los que postula al año quien busca su primera pega ahí; la probabilidad de ganar es esto sobre los postulantes por seleccionado.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "CONCURSO_ESTADO_PROB_RANGO",
+   "valor": [
+    0.05,
+    0.7
+   ],
+   "unidad": "probabilidad [mín, máx]",
+   "descripcion": "Rango de la probabilidad de ganar un concurso del Estado en el año.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "EMPRESA_NIVEL",
+   "valor": [
+    0.3,
+    1,
+    4
+   ],
+   "unidad": "veces MICRO_MEDIANA [p10, p50, p90]",
+   "descripcion": "Nivel de ganancia de una empresa nueva respecto de la mediana de un microemprendedor: lognormal con estos percentiles.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "CAMBIO_SUELDO_MEJORA",
+   "valor": [
+    1.05,
+    1.25
+   ],
+   "unidad": "multiplicador [mín, máx]",
+   "descripcion": "Sueldo nuevo cuando el cambio de empleador mejora el sueldo, uniforme en este rango (en la SCE, el p75 de la mejor oferta es 1,11 veces el sueldo actual).",
+   "fuente": "nyfed_sce",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "CAMBIO_SUELDO_IGUAL_O_PEOR",
+   "valor": [
+    0.85,
+    1.02
+   ],
+   "unidad": "multiplicador [mín, máx]",
+   "descripcion": "Sueldo nuevo cuando el cambio de empleador no mejora el sueldo, uniforme en este rango (en la SCE, el p25 de la mejor oferta es 0,86).",
+   "fuente": "nyfed_sce",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "CONTRAOFERTA_SUELDO",
+   "valor": [
+    1.05,
+    1.12
+   ],
+   "unidad": "multiplicador [mín, máx]",
+   "descripcion": "Alza cuando tu empleador iguala la oferta externa, uniforme en este rango.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "CONTRAOFERTA_TE_VAS_SUELDO",
+   "valor": [
+    1.0,
+    1.2
+   ],
+   "unidad": "multiplicador [mín, máx]",
+   "descripcion": "Sueldo nuevo cuando no te igualan la oferta y te vas, uniforme en este rango.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_OFERTA_BUSCANDO",
+   "valor": 0.35,
+   "unidad": "probabilidad anual",
+   "descripcion": "Probabilidad de que te llegue una oferta buscando trabajo estando empleado, con red cero (29,9% de los que buscan recibió una en 4 semanas; 34,5% contando las no concretadas).",
+   "fuente": "fmst_2017",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "RED_ESCALA_BUSQUEDA",
+   "valor": 300,
+   "unidad": "puntos de red",
+   "descripcion": "Cada punto de red suma 1/300 a la probabilidad de oferta al buscar estando empleado.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "BUSCAR_OFERTA_PROB_RANGO",
+   "valor": [
+    0.2,
+    0.7
+   ],
+   "unidad": "probabilidad [mín, máx]",
+   "descripcion": "Rango de la probabilidad de oferta al buscar estando empleado.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "JEFATURA_ALZA_EXTRA",
+   "valor": 0.05,
+   "unidad": "tasa",
+   "descripcion": "Lo que suma al alza de un ascenso aceptar una jefatura cuando te va bien.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_REMOTO_QUEDA",
+   "valor": 0.15,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de quedar en un trabajo remoto para afuera con skill de referencia y sin inglés.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "SKILL_ESCALA_REMOTO",
+   "valor": 200,
+   "unidad": "puntos de skill",
+   "descripcion": "Cada punto de skill sobre SKILL_REFERENCIA suma 1/200 a la probabilidad de quedar en un remoto para afuera.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "REMOTO_INGLES",
+   "valor": 0.1,
+   "unidad": "probabilidad",
+   "descripcion": "Lo que suma hablar inglés a la probabilidad de quedar en un remoto para afuera.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "REMOTO_PROB_RANGO",
+   "valor": [
+    0.05,
+    0.6
+   ],
+   "unidad": "probabilidad [mín, máx]",
+   "descripcion": "Rango de la probabilidad de quedar en un remoto para afuera.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_CAMBIO_RUBRO",
+   "valor": 0.4,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de entrar a otro rubro al intentarlo, con red cero.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "RED_ESCALA_RUBRO",
+   "valor": 250,
+   "unidad": "puntos de red",
+   "descripcion": "Cada punto de red suma 1/250 a la probabilidad de entrar a otro rubro.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "CAMBIO_RUBRO_PROB_RANGO",
+   "valor": [
+    0.2,
+    0.7
+   ],
+   "unidad": "probabilidad [mín, máx]",
+   "descripcion": "Rango de la probabilidad de entrar a otro rubro.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "CAMBIO_RUBRO_DESCUENTO",
+   "valor": 0.95,
+   "unidad": "multiplicador",
+   "descripcion": "Al cambiarte de rubro entras ganando esta fracción de lo que paga el rubro nuevo: descuenta la falta de experiencia en el rubro, que pesa poco controlando por la ocupación.",
+   "fuente": "kambourov_manovskii_2009",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "CAMBIO_OCUPACION_INTENTO",
+   "valor": 3,
+   "unidad": "multiplicador",
+   "descripcion": "Convierte la frecuencia de un destino entre quienes cambian de ocupación en la probabilidad de lograrlo al intentarlo.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "CAMBIO_OCUPACION_PROB_RANGO",
+   "valor": [
+    0.02,
+    0.6
+   ],
+   "unidad": "probabilidad [mín, máx]",
+   "descripcion": "Rango de la probabilidad de lograr cambiarte de ocupación.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "CAMBIO_OCUPACION_DESCUENTO",
+   "valor": 0.9,
+   "unidad": "multiplicador",
+   "descripcion": "Al empezar en otra ocupación ganas esta fracción de su mediana: 5 años en la misma ocupación suben el sueldo 12% a 20%.",
+   "fuente": "kambourov_manovskii_2009",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "STARTUP_ACCIONES_SUELDOS",
+   "valor": [
+    0.5,
+    3
+   ],
+   "unidad": "años de sueldo [mín, máx]",
+   "descripcion": "Lo que pagan tus acciones si la startup crece y llevas STARTUP_VESTING_ANIOS años: uniforme entre estos años de sueldo.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "STARTUP_VESTING_ANIOS",
+   "valor": 4,
+   "unidad": "años",
+   "descripcion": "Años en la startup desde los que tus acciones pagan algo (vesting).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "STARTUP_CIERRA_EN_ANIOS",
+   "valor": [
+    1,
+    4
+   ],
+   "unidad": "años [mín, máx]",
+   "descripcion": "Si la startup va a cerrar, cierra en un número entero de años al azar en este rango.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "STARTUP_SUELDO_ENTRADA",
+   "valor": 0.9,
+   "unidad": "multiplicador",
+   "descripcion": "Sueldo al entrar a una startup respecto del que tenías: los contratados por una startup ganan 8% menos que personas similares en firmas establecidas.",
+   "fuente": "sorenson_2021",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "INDEPENDIENTE_CONSERVA",
+   "valor": 0.9,
+   "unidad": "fracción del último sueldo",
+   "descripcion": "Si independizarte funciona, ganas al menos esta fracción de tu sueldo anterior (o la mediana de cuenta propia formal de tu edad, si es más).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "VOLVER_CONTRATO_PROB_RANGO",
+   "valor": [
+    0.08,
+    0.95
+   ],
+   "unidad": "probabilidad [mín, máx]",
+   "descripcion": "Rango de la probabilidad de encontrar un empleo con contrato en el año, trabajando por tu cuenta.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "VOLVER_CONTRATO_PROB_MAX",
+   "valor": 0.9,
+   "unidad": "probabilidad",
+   "descripcion": "Tope final de la probabilidad de volver a un empleo con contrato en el año.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "VOLVER_CONTRATO_SUELDO",
+   "valor": [
+    0.78,
+    0.9
+   ],
+   "unidad": "fracción del último sueldo con contrato [mín, máx]",
+   "descripcion": "Sueldo al volver a un empleo con contrato, uniforme en este rango: quien vuelve entra ganando menos.",
+   "fuente": "couch_placzek_2010",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "EMPRESA_ANIOS_DOBLA",
+   "valor": 4,
+   "unidad": "años",
+   "descripcion": "La ganancia de tu empresa crece con sus años: en este número de años se dobla respecto de su nivel.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "EMPRESA_CIERRE_SUELDOS",
+   "valor": 3,
+   "unidad": "meses de sueldo de referencia",
+   "descripcion": "Lo que pierdes de tu ahorro al cerrar tu empresa.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "LEVANTA_CONSERVA",
+   "valor": 0.8,
+   "unidad": "fracción del sueldo de referencia",
+   "descripcion": "Si levantas capital, te pagas al menos esta fracción de tu último sueldo de empleado.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_VENDER_CON_FONDOS",
+   "valor": 0.3,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de vender tu empresa si levantó capital.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_VENDER_SIN_FONDOS",
+   "valor": 0.1,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de vender tu empresa si no levantó capital.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "VENTA_EMPRESA_SUELDOS",
+   "valor": [
+    0.5,
+    3,
+    30
+   ],
+   "unidad": "años de sueldo [p10, p50, p90]",
+   "descripcion": "Lo que recibes al vender tu empresa: lognormal en años de tu sueldo, con estos percentiles (la mayoría vende por poco; unos pocos, por mucho).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_EMIGRAR",
+   "valor": 0.25,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de conseguir visa y trabajo afuera sin inglés ni skill.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "EMIGRAR_INGLES",
+   "valor": 0.25,
+   "unidad": "probabilidad",
+   "descripcion": "Lo que suma hablar inglés a la probabilidad de conseguir visa y trabajo afuera.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "SKILL_ESCALA_EMIGRAR",
+   "valor": 400,
+   "unidad": "puntos de skill",
+   "descripcion": "Cada punto de skill suma 1/400 a la probabilidad de conseguir visa y trabajo afuera.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "EMIGRAR_PROB_RANGO",
+   "valor": [
+    0.1,
+    0.8
+   ],
+   "unidad": "probabilidad [mín, máx]",
+   "descripcion": "Rango de la probabilidad de conseguir visa y trabajo afuera.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "PREMIO_RETORNO",
+   "valor": 1.11,
+   "unidad": "multiplicador",
+   "descripcion": "Quien vuelve de EE.UU. o Canadá gana 11% más que un comparable que nunca se fue (7% en promedio, 10% con postgrado).",
+   "fuente": "barrett_goggin_2010",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "P_LICENCIA_MARCA",
+   "valor": 0.2,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de que tu jefatura te marque (te evalúe peor) por una licencia de salud mental aprobada.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_TRABAJA_ESTUDIANDO_COMPATIBLE",
+   "valor": 0.75,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de que trabajar mientras estudias no atrase la carrera.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_PRACTICA_QUEDA",
+   "valor": 0.35,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de que te ofrezcan quedarte al terminar la práctica.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_MAGISTER_TERMINA_BECA",
+   "valor": 0.85,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de terminar un magíster con beca, a tiempo completo.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_MAGISTER_TERMINA_VESPERTINO",
+   "valor": 0.75,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de terminar un magíster vespertino mientras trabajas.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_DOCTORADO_TERMINA",
+   "valor": 0.7,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de terminar el doctorado.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_VOLVER_A_ESTUDIAR_TITULA",
+   "valor": 0.55,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de titularte al volver a estudiar de noche.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_TE_QUEDAS_SIN_CONTRAOFERTA",
+   "valor": 0.5,
+   "unidad": "probabilidad",
+   "descripcion": "Si negocias con la oferta y no te la igualan, probabilidad de quedarte (si no, te vas).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_JEFATURA_RESULTA",
+   "valor": 0.75,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de que te vaya bien al aceptar una jefatura.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_HIBRIDO_APRUEBAN",
+   "valor": 0.6,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de que te aprueben trabajar híbrido.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_MEDIA_JORNADA_APRUEBAN",
+   "valor": 0.65,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de que te aprueben la media jornada.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_INDEPENDIENTE_FUNCIONA",
+   "valor": 0.6,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de armar tu cartera de clientes al independizarte con boleta.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_PROYECTO_TRACCIONA",
+   "valor": 0.2,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de que un proyecto paralelo consiga clientes en el año.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_LEVANTAR_CAPITAL",
+   "valor": 0.1,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de levantar capital para tu empresa en el año.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_SABATICO_VUELVE_BIEN",
+   "valor": 0.6,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de volver bien de un sabático.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_AGUANTA_SIN_LICENCIA",
+   "valor": 0.6,
+   "unidad": "probabilidad",
+   "descripcion": "Probabilidad de aguantar sin licencia cuando estás agotado.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "JEFATURA_ALZA_MAL",
+   "valor": 1.08,
+   "unidad": "multiplicador",
+   "descripcion": "Sueldo al aceptar una jefatura que no te resulta: el alza de entrar al cargo, sin el premio de que te vaya bien.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "SKILL_POR_DECISION",
+   "valor": {
+    "trabajar_estudiando": 2,
+    "practica": 4,
+    "startup": 4
+   },
+   "unidad": "puntos de skill",
+   "descripcion": "Oficio que suma una vez una decisión: trabajar mientras estudias, aprender en la práctica, un año en una startup que sigue.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "RED_POR_DECISION",
+   "valor": {
+    "practica_queda": 8,
+    "practica_aprende": 6,
+    "intercambio": 5,
+    "invertir": 10,
+    "no_invertir": -2
+   },
+   "unidad": "puntos de red",
+   "descripcion": "Contactos que suma (o resta) una vez una decisión: la práctica, un intercambio, invertir o no en tu red.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "COSTO_INVERTIR_EN_RED",
+   "valor": 300000,
+   "unidad": "pesos",
+   "descripcion": "Lo que gastas en un año invirtiendo en tu red (eventos, cursos, viajes).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "DOCTORADO_ANIOS",
+   "valor": {
+    "termina": 4,
+    "abandona": 2
+   },
+   "unidad": "años",
+   "descripcion": "Años que pasan en el doctorado: 4 si lo terminas, 2 si lo abandonas.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "COSTO_EMIGRAR",
+   "valor": {
+    "consigue": 6000000,
+    "vuelve": 3000000
+   },
+   "unidad": "pesos",
+   "descripcion": "Lo que gastas al emigrar: si consigues visa y trabajo, y si no resulta.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "COSTO_SABATICO",
+   "valor": {
+    "vuelve_bien": 8000000,
+    "cuesta_volver": 9000000
+   },
+   "unidad": "pesos",
+   "descripcion": "Lo que gastas en un sabático: si vuelves bien, y si te cuesta volver.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "SABATICO_MESES_HUECO",
+   "valor": 6,
+   "unidad": "meses",
+   "descripcion": "Meses que cuenta como cesante quien vuelve de un sabático y le cuesta volver: el hueco en el CV.",
+   "fuente": "equipo",
    "calidad": "supuesto",
    "rango": null
   }

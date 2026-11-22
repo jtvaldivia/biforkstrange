@@ -393,7 +393,7 @@
      "resultados": [
       {
        "id": "sigue",
-       "prob": "min(0.97, tabla('mifuturo_carreras', 'retencion_ano1', 'carrera_id', carrera_id) / 0.9)",
+       "prob": "min(k('SIGUE_CARRERA_MAX'), tabla('mifuturo_carreras', 'retencion_ano1', 'carrera_id', carrera_id) / k('RETENCION_ACADEMICA'))",
        "texto": "Pasas a segundo año.",
        "tono": "bueno",
        "efectos": []
@@ -518,14 +518,14 @@
      "resultados": [
       {
        "id": "compatible",
-       "prob": 0.75,
+       "prob": "k('P_TRABAJA_ESTUDIANDO_COMPATIBLE')",
        "texto": "Te las arreglas.",
        "tono": "bueno",
        "efectos": [
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": "12 * tabla_o(tabla('esi_jornada', 'p50_hora_parcial', 'sexo', 'todos', 'banda_edad', '18-24'), 'esi_jornada', 'p50_hora_parcial', 'sexo', sexo_txt, 'banda_edad', '18-24') * 20 * 4.33"
+         "valor": "12 * tabla_o(tabla('esi_jornada', 'p50_hora_parcial', 'sexo', 'todos', 'banda_edad', '18-24'), 'esi_jornada', 'p50_hora_parcial', 'sexo', sexo_txt, 'banda_edad', '18-24') * k('HORAS_TRABAJO_ESTUDIANDO') * 4.33"
         },
         {
          "var": "energia",
@@ -535,7 +535,7 @@
         {
          "var": "skill",
          "op": "suma",
-         "valor": 2
+         "valor": "k('SKILL_POR_DECISION', 'trabajar_estudiando')"
         }
        ]
       },
@@ -548,7 +548,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": "12 * tabla_o(tabla('esi_jornada', 'p50_hora_parcial', 'sexo', 'todos', 'banda_edad', '18-24'), 'esi_jornada', 'p50_hora_parcial', 'sexo', sexo_txt, 'banda_edad', '18-24') * 20 * 4.33"
+         "valor": "12 * tabla_o(tabla('esi_jornada', 'p50_hora_parcial', 'sexo', 'todos', 'banda_edad', '18-24'), 'esi_jornada', 'p50_hora_parcial', 'sexo', sexo_txt, 'banda_edad', '18-24') * k('HORAS_TRABAJO_ESTUDIANDO') * 4.33"
         },
         {
          "var": "semestres_restantes",
@@ -617,7 +617,7 @@
      "resultados": [
       {
        "id": "queda",
-       "prob": 0.35,
+       "prob": "k('P_PRACTICA_QUEDA')",
        "texto": "Te ofrecen quedarte al titularte.",
        "tono": "bueno",
        "efectos": [
@@ -629,7 +629,7 @@
         {
          "var": "red",
          "op": "suma",
-         "valor": 8
+         "valor": "k('RED_POR_DECISION', 'practica_queda')"
         }
        ]
       },
@@ -642,12 +642,12 @@
         {
          "var": "red",
          "op": "suma",
-         "valor": 6
+         "valor": "k('RED_POR_DECISION', 'practica_aprende')"
         },
         {
          "var": "skill",
          "op": "suma",
-         "valor": 4
+         "valor": "k('SKILL_POR_DECISION', 'practica')"
         }
        ]
       }
@@ -739,7 +739,7 @@
         {
          "var": "red",
          "op": "suma",
-         "valor": 5
+         "valor": "k('RED_POR_DECISION', 'intercambio')"
         },
         {
          "var": "ingles",
@@ -796,7 +796,7 @@
      "resultados": [
       {
        "id": "termina",
-       "prob": 0.85,
+       "prob": "k('P_MAGISTER_TERMINA_BECA')",
        "texto": "Te titulas de magíster.",
        "tono": "bueno",
        "efectos": [
@@ -860,7 +860,7 @@
      "resultados": [
       {
        "id": "termina",
-       "prob": 0.75,
+       "prob": "k('P_MAGISTER_TERMINA_VESPERTINO')",
        "texto": "Terminas el magíster.",
        "tono": "bueno",
        "efectos": [
@@ -872,7 +872,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": "-(si(tabla_o('Chile', 'universidades', 'pais', 'universidad_id', universidad_destino) == 'Chile', tabla_o(0, 'sies_magister_2026', 'arancel_anual', 'universidad_id', universidad_destino), k('USD') * tabla_o(0, 'universidades', 'arancel_magister_usd', 'universidad_id', universidad_destino)) * si(tabla_o('Chile', 'universidades', 'pais', 'universidad_id', universidad_destino) == 'Chile', tabla_o(2, 'sies_magister_2026', 'anios', 'universidad_id', universidad_destino), tabla_o(1, 'universidades', 'anios_magister', 'universidad_id', universidad_destino)))"
+         "valor": "-(si(tabla_o('Chile', 'universidades', 'pais', 'universidad_id', universidad_destino) == 'Chile', tabla_o(0, 'sies_magister_2026', 'arancel_anual', 'universidad_id', universidad_destino), k('USD') * tabla_o(0, 'universidades', 'arancel_magister_usd', 'universidad_id', universidad_destino)) * si(tabla_o('Chile', 'universidades', 'pais', 'universidad_id', universidad_destino) == 'Chile', tabla_o(k('MAGISTER_ANIOS_RESPALDO', 'chile'), 'sies_magister_2026', 'anios', 'universidad_id', universidad_destino), tabla_o(k('MAGISTER_ANIOS_RESPALDO', 'afuera'), 'universidades', 'anios_magister', 'universidad_id', universidad_destino)))"
         },
         {
          "var": "energia",
@@ -979,7 +979,7 @@
      "resultados": [
       {
        "id": "termina",
-       "prob": 0.7,
+       "prob": "k('P_DOCTORADO_TERMINA')",
        "texto": "Te doctoras.",
        "tono": "bueno",
        "efectos": [
@@ -1001,7 +1001,7 @@
         {
          "var": "edad",
          "op": "suma",
-         "valor": 4
+         "valor": "k('DOCTORADO_ANIOS', 'termina')"
         }
        ]
       },
@@ -1024,7 +1024,7 @@
         {
          "var": "edad",
          "op": "suma",
-         "valor": 2
+         "valor": "k('DOCTORADO_ANIOS', 'abandona')"
         }
        ]
       }
@@ -1119,7 +1119,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "max(sueldo_ref * 0.85, k('USD') * 1375 * 0.9)"
+         "valor": "max(sueldo_ref * k('BOOTCAMP_CONSERVA'), k('USD') * k('GETONBRD_JUNIOR_USD') * k('BOOTCAMP_DESCUENTO_REMOTO'))"
         },
         {
          "var": "ocupacion",
@@ -1228,7 +1228,7 @@
      "resultados": [
       {
        "id": "titula",
-       "prob": 0.55,
+       "prob": "k('P_VOLVER_A_ESTUDIAR_TITULA')",
        "texto": "Vas a titularte: terminas en tres años, estudiando de noche.",
        "tono": "bueno",
        "efectos": [
@@ -1269,7 +1269,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": "-k('COSTO_VOLVER_A_ESTUDIAR') * 0.5"
+         "valor": "-k('COSTO_VOLVER_A_ESTUDIAR') * k('VOLVER_A_ESTUDIAR_DEJA')"
         },
         {
          "var": "energia",
@@ -1334,7 +1334,7 @@
      "resultados": [
       {
        "id": "queda",
-       "prob": "clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), 0.7) * si(y(edad <= 25, exposicion_ia >= k('IA_EXPUESTA')), ia_castigo_joven, 1) * si(recesion, 0.85, 1), 0.05, 0.97) * 0.9",
+       "prob": "clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), k('EMPLEABILIDAD_SIN_CARRERA')) * si(y(edad <= k('IA_EDAD_CASTIGO_JOVEN'), exposicion_ia >= k('IA_EXPUESTA')), ia_castigo_joven, 1) * si(recesion, k('RECESION_ENCONTRAR'), 1), k('PRIMERA_PEGA_PROB_RANGO', 0), k('PRIMERA_PEGA_PROB_RANGO', 1)) * k('PRIMERA_PEGA_GRANDE')",
        "texto": "Entras a una empresa grande.",
        "tono": "bueno",
        "efectos": [
@@ -1356,7 +1356,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "(k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * 1.06) * tabla_o(1, 'universidades', 'prima_pregrado', 'universidad_id', universidad_id)"
+         "valor": "(k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * k('PRIMERA_PEGA_SUELDO', 'grande')) * tabla_o(1, 'universidades', 'prima_pregrado', 'universidad_id', universidad_id)"
         },
         {
          "var": "primer_grande",
@@ -1367,7 +1367,7 @@
       },
       {
        "id": "cae_pyme",
-       "prob": "(1 - clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), 0.7) * si(y(edad <= 25, exposicion_ia >= k('IA_EXPUESTA')), ia_castigo_joven, 1) * si(recesion, 0.85, 1), 0.05, 0.97) * 0.9) * 0.65",
+       "prob": "(1 - clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), k('EMPLEABILIDAD_SIN_CARRERA')) * si(y(edad <= k('IA_EDAD_CASTIGO_JOVEN'), exposicion_ia >= k('IA_EXPUESTA')), ia_castigo_joven, 1) * si(recesion, k('RECESION_ENCONTRAR'), 1), k('PRIMERA_PEGA_PROB_RANGO', 0), k('PRIMERA_PEGA_PROB_RANGO', 1)) * k('PRIMERA_PEGA_GRANDE')) * k('PRIMERA_PEGA_CAE_PYME')",
        "texto": "No quedas, pero entras a una pyme.",
        "tono": "neutro",
        "efectos": [
@@ -1389,7 +1389,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "(k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * 0.92) * tabla_o(1, 'universidades', 'prima_pregrado', 'universidad_id', universidad_id)"
+         "valor": "(k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * k('PRIMERA_PEGA_SUELDO', 'cae_pyme')) * tabla_o(1, 'universidades', 'prima_pregrado', 'universidad_id', universidad_id)"
         }
        ]
       },
@@ -1426,7 +1426,7 @@
      "resultados": [
       {
        "id": "queda",
-       "prob": "clamp(clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), 0.7) * si(y(edad <= 25, exposicion_ia >= k('IA_EXPUESTA')), ia_castigo_joven, 1) * si(recesion, 0.85, 1), 0.05, 0.97) + 0.1, 0.05, 0.97)",
+       "prob": "clamp(clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), k('EMPLEABILIDAD_SIN_CARRERA')) * si(y(edad <= k('IA_EDAD_CASTIGO_JOVEN'), exposicion_ia >= k('IA_EXPUESTA')), ia_castigo_joven, 1) * si(recesion, k('RECESION_ENCONTRAR'), 1), k('PRIMERA_PEGA_PROB_RANGO', 0), k('PRIMERA_PEGA_PROB_RANGO', 1)) + k('PRIMERA_PEGA_PYME'), k('PRIMERA_PEGA_PROB_RANGO', 0), k('PRIMERA_PEGA_PROB_RANGO', 1))",
        "texto": "Entras a una pyme.",
        "tono": "bueno",
        "efectos": [
@@ -1448,7 +1448,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "(k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * 0.95) * tabla_o(1, 'universidades', 'prima_pregrado', 'universidad_id', universidad_id)"
+         "valor": "(k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * k('PRIMERA_PEGA_SUELDO', 'pyme')) * tabla_o(1, 'universidades', 'prima_pregrado', 'universidad_id', universidad_id)"
         }
        ]
       },
@@ -1484,7 +1484,7 @@
      "resultados": [
       {
        "id": "queda",
-       "prob": "clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), 0.7) * si(y(edad <= 25, exposicion_ia >= k('IA_EXPUESTA')), ia_castigo_joven, 1) * si(recesion, 0.85, 1), 0.05, 0.97)",
+       "prob": "clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), k('EMPLEABILIDAD_SIN_CARRERA')) * si(y(edad <= k('IA_EDAD_CASTIGO_JOVEN'), exposicion_ia >= k('IA_EXPUESTA')), ia_castigo_joven, 1) * si(recesion, k('RECESION_ENCONTRAR'), 1), k('PRIMERA_PEGA_PROB_RANGO', 0), k('PRIMERA_PEGA_PROB_RANGO', 1))",
        "texto": "Entras a una startup.",
        "tono": "bueno",
        "efectos": [
@@ -1511,7 +1511,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "(k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * 0.94) * tabla_o(1, 'universidades', 'prima_pregrado', 'universidad_id', universidad_id)"
+         "valor": "(k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * k('PRIMERA_PEGA_SUELDO', 'startup')) * tabla_o(1, 'universidades', 'prima_pregrado', 'universidad_id', universidad_id)"
         }
        ]
       },
@@ -1542,7 +1542,7 @@
      "resultados": [
       {
        "id": "gana",
-       "prob": "clamp(60 / tabla('estado_estamentos', 'postulantes_por_seleccionado', 'estamento', estamento), 0.05, 0.7)",
+       "prob": "clamp(k('POSTULACIONES_ESTADO') / tabla('estado_estamentos', 'postulantes_por_seleccionado', 'estamento', estamento), k('CONCURSO_ESTADO_PROB_RANGO', 0), k('CONCURSO_ESTADO_PROB_RANGO', 1))",
        "texto": "Ganas el concurso.",
        "tono": "bueno",
        "efectos": [
@@ -1665,7 +1665,7 @@
         {
          "var": "base_empresa",
          "op": "fija",
-         "valor": "k('MICRO_MEDIANA') * azar_lognormal(0.3, 1, 4)"
+         "valor": "k('MICRO_MEDIANA') * azar_lognormal(k('EMPRESA_NIVEL', 0), k('EMPRESA_NIVEL', 1), k('EMPRESA_NIVEL', 2))"
         }
        ],
        "luego": "seguir_con_tu_empresa"
@@ -1816,7 +1816,7 @@
         {
          "var": "base_empresa",
          "op": "fija",
-         "valor": "k('MICRO_MEDIANA') * azar_lognormal(0.3, 1, 4)"
+         "valor": "k('MICRO_MEDIANA') * azar_lognormal(k('EMPRESA_NIVEL', 0), k('EMPRESA_NIVEL', 1), k('EMPRESA_NIVEL', 2))"
         }
        ],
        "luego": "seguir_con_tu_empresa"
@@ -1881,7 +1881,7 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "azar_uniforme(1.05, 1.25) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
+         "valor": "azar_uniforme(k('CAMBIO_SUELDO_MEJORA', 0), k('CAMBIO_SUELDO_MEJORA', 1)) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
         },
         {
          "var": "antiguedad",
@@ -1905,7 +1905,7 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "azar_uniforme(0.85, 1.02) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
+         "valor": "azar_uniforme(k('CAMBIO_SUELDO_IGUAL_O_PEOR', 0), k('CAMBIO_SUELDO_IGUAL_O_PEOR', 1)) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
         },
         {
          "var": "antiguedad",
@@ -1941,13 +1941,13 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "azar_uniforme(1.05, 1.12)"
+         "valor": "azar_uniforme(k('CONTRAOFERTA_SUELDO', 0), k('CONTRAOFERTA_SUELDO', 1))"
         }
        ]
       },
       {
        "id": "no_igualan",
-       "prob": 0.5,
+       "prob": "k('P_TE_QUEDAS_SIN_CONTRAOFERTA')",
        "texto": "No te igualan y te quedas.",
        "tono": "neutro",
        "efectos": [
@@ -1972,7 +1972,7 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "azar_uniforme(1.0, 1.2) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
+         "valor": "azar_uniforme(k('CONTRAOFERTA_TE_VAS_SUELDO', 0), k('CONTRAOFERTA_TE_VAS_SUELDO', 1)) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
         },
         {
          "var": "antiguedad",
@@ -2053,7 +2053,7 @@
      "resultados": [
       {
        "id": "oferta",
-       "prob": "clamp(0.35 + red / 300, 0.2, 0.7)",
+       "prob": "clamp(k('P_OFERTA_BUSCANDO') + red / k('RED_ESCALA_BUSQUEDA'), k('BUSCAR_OFERTA_PROB_RANGO', 0), k('BUSCAR_OFERTA_PROB_RANGO', 1))",
        "texto": "Te llega una oferta.",
        "tono": "bueno",
        "efectos": [
@@ -2173,7 +2173,8 @@
          "op": "suma",
          "valor": 10
         }
-       ]
+       ],
+       "luego": "cesantia"
       }
      ],
      "fuentes": [
@@ -2423,7 +2424,7 @@
      "resultados": [
       {
        "id": "bien",
-       "prob": 0.75,
+       "prob": "k('P_JEFATURA_RESULTA')",
        "texto": "Te va bien como jefatura.",
        "tono": "bueno",
        "efectos": [
@@ -2435,7 +2436,7 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "1 + azar_uniforme(k('ALZA_ASCENSO', 0), k('ALZA_ASCENSO', 1)) + 0.05"
+         "valor": "1 + azar_uniforme(k('ALZA_ASCENSO', 0), k('ALZA_ASCENSO', 1)) + k('JEFATURA_ALZA_EXTRA')"
         },
         {
          "var": "energia",
@@ -2458,7 +2459,7 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": 1.08
+         "valor": "k('JEFATURA_ALZA_MAL')"
         },
         {
          "var": "animo",
@@ -2527,7 +2528,7 @@
      "resultados": [
       {
        "id": "queda",
-       "prob": "clamp(0.15 + (skill - 50) / 200 + si(ingles, 0.1, 0), 0.05, 0.6)",
+       "prob": "clamp(k('P_REMOTO_QUEDA') + (skill - k('SKILL_REFERENCIA')) / k('SKILL_ESCALA_REMOTO') + si(ingles, k('REMOTO_INGLES'), 0), k('REMOTO_PROB_RANGO', 0), k('REMOTO_PROB_RANGO', 1))",
        "texto": "Te contratan remoto desde Chile.",
        "tono": "bueno",
        "efectos": [
@@ -2617,7 +2618,7 @@
      "resultados": [
       {
        "id": "si",
-       "prob": 0.6,
+       "prob": "k('P_HIBRIDO_APRUEBAN')",
        "texto": "Te lo aprueban.",
        "tono": "bueno",
        "efectos": [
@@ -2721,7 +2722,7 @@
      "resultados": [
       {
        "id": "si",
-       "prob": 0.65,
+       "prob": "k('P_MEDIA_JORNADA_APRUEBAN')",
        "texto": "Te la aprueban.",
        "tono": "bueno",
        "efectos": [
@@ -2831,7 +2832,7 @@
      "resultados": [
       {
        "id": "entra",
-       "prob": "clamp(0.4 + red / 250, 0.2, 0.7)",
+       "prob": "clamp(k('P_CAMBIO_RUBRO') + red / k('RED_ESCALA_RUBRO'), k('CAMBIO_RUBRO_PROB_RANGO', 0), k('CAMBIO_RUBRO_PROB_RANGO', 1))",
        "texto": "Entras al nuevo rubro.",
        "tono": "bueno",
        "efectos": [
@@ -2848,7 +2849,7 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "tabla_o(tabla('esi_ingreso_rubro_edad', 'p50', 'rubro', rubro_destino, 'banda_edad', '18-54'), 'esi_ingreso_rubro_edad', 'p50', 'rubro', rubro_destino, 'banda_edad', banda7) / tabla_o(tabla('esi_ingreso_rubro_edad', 'p50', 'rubro', rubro, 'banda_edad', '18-54'), 'esi_ingreso_rubro_edad', 'p50', 'rubro', rubro, 'banda_edad', banda7) * 0.95"
+         "valor": "tabla_o(tabla('esi_ingreso_rubro_edad', 'p50', 'rubro', rubro_destino, 'banda_edad', '18-54'), 'esi_ingreso_rubro_edad', 'p50', 'rubro', rubro_destino, 'banda_edad', banda7) / tabla_o(tabla('esi_ingreso_rubro_edad', 'p50', 'rubro', rubro, 'banda_edad', '18-54'), 'esi_ingreso_rubro_edad', 'p50', 'rubro', rubro, 'banda_edad', banda7) * k('CAMBIO_RUBRO_DESCUENTO')"
         }
        ]
       },
@@ -2927,7 +2928,7 @@
      "resultados": [
       {
        "id": "logra",
-       "prob": "clamp(tabla('jobhop_transiciones', 'prob', 'origen', ocupacion, 'destino', ocupacion_destino) * 3, 0.02, 0.6)",
+       "prob": "clamp(tabla('jobhop_transiciones', 'prob', 'origen', ocupacion, 'destino', ocupacion_destino) * k('CAMBIO_OCUPACION_INTENTO'), k('CAMBIO_OCUPACION_PROB_RANGO', 0), k('CAMBIO_OCUPACION_PROB_RANGO', 1))",
        "texto": "Logras el cambio: partes de cero en tu nuevo oficio, con el sueldo de quien empieza en él.",
        "tono": "neutro",
        "efectos": [
@@ -2939,7 +2940,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "(tabla_o(tabla('esi_ingreso_ocupacion', 'p50', 'ciuo08_1d', si(ocupacion_destino == 0, 10, ocupacion_destino), 'banda_edad', '18-54'), 'esi_ingreso_ocupacion', 'p50', 'ciuo08_1d', si(ocupacion_destino == 0, 10, ocupacion_destino), 'banda_edad', banda7) * 0.9) * prima_personal"
+         "valor": "(tabla_o(tabla('esi_ingreso_ocupacion', 'p50', 'ciuo08_1d', si(ocupacion_destino == 0, 10, ocupacion_destino), 'banda_edad', '18-54'), 'esi_ingreso_ocupacion', 'p50', 'ciuo08_1d', si(ocupacion_destino == 0, 10, ocupacion_destino), 'banda_edad', banda7) * k('CAMBIO_OCUPACION_DESCUENTO')) * prima_personal"
         },
         {
          "var": "nivel",
@@ -3263,7 +3264,7 @@
         {
          "var": "red",
          "op": "suma",
-         "valor": 10
+         "valor": "k('RED_POR_DECISION', 'invertir')"
         },
         {
          "var": "energia",
@@ -3273,7 +3274,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": -300000
+         "valor": "-k('COSTO_INVERTIR_EN_RED')"
         }
        ]
       }
@@ -3297,7 +3298,7 @@
         {
          "var": "red",
          "op": "suma",
-         "valor": -2
+         "valor": "k('RED_POR_DECISION', 'no_invertir')"
         }
        ]
       }
@@ -3349,13 +3350,13 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": 0.9
+         "valor": "k('STARTUP_SUELDO_ENTRADA')"
         },
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": "sueldo * 12 * azar_uniforme(0.5, 3)",
-         "cuando": "anos_en_startup >= 4",
+         "valor": "sueldo * 12 * azar_uniforme(k('STARTUP_ACCIONES_SUELDOS', 0), k('STARTUP_ACCIONES_SUELDOS', 1))",
+         "cuando": "anos_en_startup >= k('STARTUP_VESTING_ANIOS')",
          "en_anios": 4,
          "aviso": {
           "nombre": "Compran tu startup",
@@ -3383,12 +3384,12 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": 0.9
+         "valor": "k('STARTUP_SUELDO_ENTRADA')"
         },
         {
          "var": "cierra_en",
          "op": "fija",
-         "valor": "azar_entero(1, 4)"
+         "valor": "azar_entero(k('STARTUP_CIERRA_EN_ANIOS', 0), k('STARTUP_CIERRA_EN_ANIOS', 1))"
         }
        ]
       },
@@ -3406,12 +3407,12 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": 0.9
+         "valor": "k('STARTUP_SUELDO_ENTRADA')"
         },
         {
          "var": "skill",
          "op": "suma",
-         "valor": 4
+         "valor": "k('SKILL_POR_DECISION', 'startup')"
         }
        ]
       }
@@ -3481,7 +3482,7 @@
      "resultados": [
       {
        "id": "funciona",
-       "prob": 0.6,
+       "prob": "k('P_INDEPENDIENTE_FUNCIONA')",
        "texto": "Armas tu cartera de clientes.",
        "tono": "bueno",
        "efectos": [
@@ -3498,7 +3499,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "max(sueldo * 0.9, tabla_o(tabla('esi_ingreso_categoria_formalidad', 'p50', 'categoria', 'cuenta_propia', 'banda_edad', '18-54', 'formalidad', 'formal'), 'esi_ingreso_categoria_formalidad', 'p50', 'categoria', 'cuenta_propia', 'banda_edad', banda7, 'formalidad', 'formal'))"
+         "valor": "max(sueldo * k('INDEPENDIENTE_CONSERVA'), tabla_o(tabla('esi_ingreso_categoria_formalidad', 'p50', 'categoria', 'cuenta_propia', 'banda_edad', '18-54', 'formalidad', 'formal'), 'esi_ingreso_categoria_formalidad', 'p50', 'categoria', 'cuenta_propia', 'banda_edad', banda7, 'formalidad', 'formal'))"
         },
         {
          "var": "animo",
@@ -3591,7 +3592,7 @@
      "resultados": [
       {
        "id": "encuentra",
-       "prob": "clamp(clamp((1 - exp(-12 / k('MESES_CESANTIA', banda3))) * si(recesion, 0.85, 1) * (1 + (red - 30) / 400), 0.08, 0.95), 0, 0.9)",
+       "prob": "clamp(clamp((1 - exp(-12 / k('MESES_CESANTIA', banda3))) * si(recesion, k('RECESION_ENCONTRAR'), 1) * (1 + (red - k('RED_REFERENCIA')) / k('RED_ESCALA_OFERTAS')), k('VOLVER_CONTRATO_PROB_RANGO', 0), k('VOLVER_CONTRATO_PROB_RANGO', 1)), 0, k('VOLVER_CONTRATO_PROB_MAX'))",
        "texto": "Vuelves a un trabajo con contrato.",
        "tono": "bueno",
        "efectos": [
@@ -3608,7 +3609,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "max(si(sueldo_ref > 0, sueldo_ref, tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7)) * azar_uniforme(0.78, 0.9), sueldo)"
+         "valor": "max(si(sueldo_ref > 0, sueldo_ref, tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7)) * azar_uniforme(k('VOLVER_CONTRATO_SUELDO', 0), k('VOLVER_CONTRATO_SUELDO', 1)), sueldo)"
         },
         {
          "var": "antiguedad",
@@ -3730,7 +3731,7 @@
         {
          "var": "base_empresa",
          "op": "fija",
-         "valor": "k('MICRO_MEDIANA') * azar_lognormal(0.3, 1, 4)"
+         "valor": "k('MICRO_MEDIANA') * azar_lognormal(k('EMPRESA_NIVEL', 0), k('EMPRESA_NIVEL', 1), k('EMPRESA_NIVEL', 2))"
         }
        ],
        "luego": "seguir_con_tu_empresa"
@@ -3750,7 +3751,7 @@
      "resultados": [
       {
        "id": "tracciona",
-       "prob": 0.2,
+       "prob": "k('P_PROYECTO_TRACCIONA')",
        "texto": "Tu proyecto consigue clientes. Ahora decides si te lanzas.",
        "tono": "bueno",
        "efectos": [
@@ -3862,7 +3863,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "si(base_empresa > 0, base_empresa, k('MICRO_MEDIANA')) * azar_lognormal(1 / (1 + k('EMPRESA_RUIDO_ANUAL')), 1, 1 + k('EMPRESA_RUIDO_ANUAL')) * (1 + empresa_anos / 4)"
+         "valor": "si(base_empresa > 0, base_empresa, k('MICRO_MEDIANA')) * azar_lognormal(1 / (1 + k('EMPRESA_RUIDO_ANUAL')), 1, 1 + k('EMPRESA_RUIDO_ANUAL')) * (1 + empresa_anos / k('EMPRESA_ANIOS_DOBLA'))"
         }
        ]
       },
@@ -3885,7 +3886,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": "-sueldo_ref * 3"
+         "valor": "-sueldo_ref * k('EMPRESA_CIERRE_SUELDOS')"
         },
         {
          "var": "animo",
@@ -3914,7 +3915,7 @@
      "resultados": [
       {
        "id": "levanta",
-       "prob": 0.1,
+       "prob": "k('P_LEVANTAR_CAPITAL')",
        "texto": "Levantas capital.",
        "tono": "bueno",
        "efectos": [
@@ -3926,7 +3927,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "max(sueldo, sueldo_ref * 0.8)"
+         "valor": "max(sueldo, sueldo_ref * k('LEVANTA_CONSERVA'))"
         }
        ]
       },
@@ -3956,14 +3957,14 @@
      "resultados": [
       {
        "id": "vende",
-       "prob": "si(empresa_fondos, 0.3, 0.1)",
+       "prob": "si(empresa_fondos, k('P_VENDER_CON_FONDOS'), k('P_VENDER_SIN_FONDOS'))",
        "texto": "Vendes tu empresa.",
        "tono": "bueno",
        "efectos": [
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": "sueldo * 12 * azar_lognormal(0.5, 3, 30)"
+         "valor": "sueldo * 12 * azar_lognormal(k('VENTA_EMPRESA_SUELDOS', 0), k('VENTA_EMPRESA_SUELDOS', 1), k('VENTA_EMPRESA_SUELDOS', 2))"
         },
         {
          "var": "estado",
@@ -4052,7 +4053,7 @@
      "resultados": [
       {
        "id": "consigue",
-       "prob": "clamp(0.25 + si(ingles, 0.25, 0) + skill / 400, 0.1, 0.8)",
+       "prob": "clamp(k('P_EMIGRAR') + si(ingles, k('EMIGRAR_INGLES'), 0) + skill / k('SKILL_ESCALA_EMIGRAR'), k('EMIGRAR_PROB_RANGO', 0), k('EMIGRAR_PROB_RANGO', 1))",
        "texto": "Consigues visa y trabajo.",
        "tono": "bueno",
        "efectos": [
@@ -4074,7 +4075,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": -6000000
+         "valor": "-k('COSTO_EMIGRAR', 'consigue')"
         },
         {
          "var": "tiempo_con_tu_gente",
@@ -4098,7 +4099,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": -3000000
+         "valor": "-k('COSTO_EMIGRAR', 'vuelve')"
         }
        ]
       }
@@ -4292,7 +4293,7 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "1 / k('PREMIO_EEUU') * 1.11"
+         "valor": "1 / k('PREMIO_EEUU') * k('PREMIO_RETORNO')"
         },
         {
          "var": "tiempo_con_tu_gente",
@@ -4373,7 +4374,7 @@
      "resultados": [
       {
        "id": "vuelve_bien",
-       "prob": 0.6,
+       "prob": "k('P_SABATICO_VUELVE_BIEN')",
        "texto": "Vuelves con energía y sales a buscar trabajo.",
        "tono": "bueno",
        "efectos": [
@@ -4410,7 +4411,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": -8000000
+         "valor": "-k('COSTO_SABATICO', 'vuelve_bien')"
         }
        ]
       },
@@ -4453,12 +4454,12 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": -9000000
+         "valor": "-k('COSTO_SABATICO', 'cuesta_volver')"
         },
         {
          "var": "meses_cesante",
          "op": "suma",
-         "valor": 6
+         "valor": "k('SABATICO_MESES_HUECO')"
         }
        ]
       }
@@ -4541,7 +4542,7 @@
          "var": "marcado",
          "op": "fija",
          "valor": 1,
-         "cuando": "azar() < 0.2"
+         "cuando": "azar() < k('P_LICENCIA_MARCA')"
         }
        ]
       },
@@ -4581,7 +4582,7 @@
      "resultados": [
       {
        "id": "aguanta",
-       "prob": 0.6,
+       "prob": "k('P_AGUANTA_SIN_LICENCIA')",
        "texto": "Aguantas.",
        "tono": "neutro",
        "efectos": [

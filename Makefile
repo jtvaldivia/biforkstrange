@@ -1,4 +1,4 @@
-.PHONY: install back prod front test perfil simular jugar comparar dudas validar supuestos empresas universidades logos transiciones
+.PHONY: install back prod front test jugar comparar dudas validar supuestos empresas universidades logos transiciones
 install:
 	cd backend && uv sync
 	cd frontend && npm install
@@ -11,19 +11,11 @@ front:
 	cd frontend && npm run dev
 test:
 	cd backend && uv run pytest -q -n auto
-# Trayectoria laboral desde el terminal. Ej: make perfil OCUPACION=4 EDAD=24
-OCUPACION ?= 2
-EDAD ?= 30
-SUELDO ?= 900000
-DECISIONES ?= seguir,seguir,cambiar_pega,seguir,seguir
-perfil:
-	cd backend && uv run python -m app.cli perfil --ocupacion $(OCUPACION) --edad $(EDAD)
-simular:
-	cd backend && uv run python -m app.cli simular --ocupacion $(OCUPACION) --edad $(EDAD) --sueldo $(SUELDO) --decisiones $(DECISIONES) $(if $(SEED),--seed $(SEED))
 # El juego desde el terminal (motor del paquete). Ej: make jugar DUDA=unirse_a_startup SEMILLA=7
 #   make jugar DUDA=emprender AUTO=1        partida completa sin teclado
 #   make jugar DUDA=renunciar ELECCIONES=1,2,1 AUTO=1
 #   make comparar DUDA=cambiar_de_rubro RUBRO=Salud NIVEL=2 SUELDO_JUEGO=2000000
+EDAD ?= 30
 SEXO ?= m
 EDU ?= universitaria
 RUBRO ?= Servicios profesionales

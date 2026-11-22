@@ -1,11 +1,12 @@
 """Quién decide en una vida.
 
 - `Jugador`: responde con una lista de elecciones; cuando se acaba, la vida se detiene.
-- `Inercia`: los gemelos después de una carta. No reciben cartas ("si después de
-  esto no haces nada especial"), pero cuando la vida los obliga a elegir (quedan
-  cesantes, les llega una oferta) responden como la gente suele responder.
+- `Inercia`: no recibe cartas ("si después de esto no haces nada especial"), pero
+  cuando la vida obliga a elegir (cesantía, una oferta) responde como la gente suele
+  responder. Las copias la usaban después de la decisión que se compara; hoy usan
+  `Poblacion` (`GEMELOS_CON_DECISIONES` en gemelos.py, decisión 4).
 - `Poblacion`: además recibe cartas y las responde con la frecuencia con que la
-  gente toma esas decisiones. Es la cohorte de validación.
+  gente toma esas decisiones. Es la cohorte de validación y lo que viven las copias.
 - `Fija`: toma una opción dada en la primera decisión y después delega.
 
 Los pesos son supuestos del equipo, calibrados contra las frecuencias de las

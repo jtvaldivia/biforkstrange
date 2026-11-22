@@ -41,7 +41,8 @@ def _valor(v) -> str:
 
 def texto(r: dict, ancho: int = 100) -> str:
     c = r["por_calidad"]
-    lineas = [f"{r['total']} parámetros: {c.get('dato', 0)} dato, {c.get('mixto', 0)} mixtos y {c.get('supuesto', 0)} supuestos del equipo.",
+    lineas = [f"{r['total']} parámetros: {c.get('dato', 0)} dato, {c.get('mixto', 0)} mixtos, {c.get('sintetico', 0)} sintéticos "
+              f"y {c.get('supuesto', 0)} supuestos del equipo.",
               "Países de las fuentes (dato y mixto): " + ", ".join(f"{p} {n}" for p, n in sorted(r["por_pais"].items(), key=lambda x: -x[1])),
               ""]
     actual = None

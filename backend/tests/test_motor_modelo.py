@@ -39,7 +39,7 @@ def test_el_alza_anual_descuenta_el_ascenso_promedio_de_su_tramo_de_edad():
     """Sin ruido (todo en su valor central), el alza es el crecimiento ESI menos el ascenso promedio por su alza."""
     e = vida(Perfil(edad=35, tipo_empleador="pyme")).e
     expr = pq().eventos["alza_anual"]["resultados"][0]["efectos"][0]["valor"]
-    sin_ruido = expr.replace("si(azar() < 0.9, 0.03 * azar_normal(), -0.05 + 0.08 * azar_normal())", "0")
+    sin_ruido = expr.replace("si(azar() < 1 - k('P_GOLPE_INGRESO'), k('ALZA_RUIDO_SD') * azar_normal(), k('GOLPE_INGRESO', 0) + k('GOLPE_INGRESO', 1) * azar_normal())", "0")
     assert sin_ruido != expr
     for edad in (27, 35, 47):
         estado = pq().derivar({**e, "edad": edad, "recesion": 0, "anos_titulado": 10})

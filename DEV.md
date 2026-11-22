@@ -11,7 +11,7 @@ make front   # http://localhost:5173
 make test
 ```
 
-No hay base de datos: el juego no guarda estado en el servidor y las corridas de `/api/simulations` viven en memoria.
+No hay base de datos: el juego no guarda estado en el servidor.
 
 ## Producción (Render)
 
@@ -42,30 +42,26 @@ Variables de entorno:
 `ANTHROPIC_API_KEY`); una variable de entorno pesa más que el `.env`.
 
 El juego no guarda estado entre llamadas, así que cualquier proceso puede atender cualquier request. Lo
-único en memoria por proceso es el historial de `/api/simulations`: con varios procesos, una corrida
-guardada en uno no aparece en otro, y se pierde al reiniciar.
+único en memoria por proceso es el caché de comparaciones (`partida.py`), que se rehace si falta.
 
 ## Backend (`backend/app`)
 
-Las dependencias van en una sola dirección: `api → services → (sim, repositories)`.
+Las dependencias van en una sola dirección: `api → services → sim`.
 
 | Capa | Qué contiene |
 |---|---|
-| `sim/` | Dominio puro (numpy, sin FastAPI ni DB). `state.py` es el estado vectorizado, `engine.py` el loop Monte Carlo, `metrics.py` los resúmenes por año. |
-| `sim/decisions/` | Una clase por decisión. Se registran solas al heredar de `Decision`. |
+| `sim/motor/` | El motor del juego (abajo). Dominio puro, sin FastAPI. |
+| `sim/data/` | El panel ELSOC que usa la validación (`motor/validacion.py`). |
 | `schemas/` | Modelos Pydantic de entrada y salida de la API. |
-| `repositories/` | Persistencia detrás de un `Protocol` (hoy, en memoria). |
-| `services/` | Casos de uso que orquestan motor y repositorio. |
-| `api/` | Rutas delgadas. `deps.py` es el único lugar que elige implementaciones. |
+| `services/` | Lo que usa Claude: leer el perfil y narrar. |
+| `api/` | Rutas delgadas. |
 | `core/` | Configuración y clientes externos. |
 
-**Agregar una decisión:** crear una subclase en `sim/decisions/catalog.py` con `key`, `label` y `apply()` (o heredar de `ParametricDecision` y fijar tres números). Aparece sola en `GET /api/decisions`.
-
-**Agregar un atributo de la copia:** sumarlo a `State` (o usar `state.extra`) y resumirlo en `metrics.py`.
+**Agregar una decisión:** va en el paquete (`backend/simulador/decisiones.json`), no en el código. Ver [docs/COMO-FUNCIONA.md](docs/COMO-FUNCIONA.md).
 
 ### Motor del juego (`backend/app/sim/motor`)
 
-El juego corre sobre el paquete de datos de `backend/simulador/` (37 decisiones, 10 eventos, 65 parámetros, 50 tablas). El motor no reescribe esas reglas: las ejecuta. Para cambiar una probabilidad o un efecto se edita el paquete, no el código.
+El juego corre sobre el paquete de datos de `backend/simulador/` (decisiones, eventos, parámetros y tablas; los conteos, con `make supuestos`). El motor no reescribe esas reglas: las ejecuta. Para cambiar una probabilidad o un efecto se edita el paquete, no el código.
 
 | Archivo | Qué hace |
 |---|---|
@@ -92,8 +88,6 @@ make supuestos CALIDAD=supuesto    # qué números siguen siendo supuestos del e
 Las empresas reales están en `backend/data/empresas/` y se regeneran con `backend/scripts/datos_empresas.py`. Son referencia: la historia de cada carta usa empresas ficticias (`narrativa.py`) para no inventar hechos sobre empresas que existen.
 
 Los supuestos que pone el motor (lo que el paquete no define) están listados en `docs/motor/TICKETS.md`; el resultado de la validación, en `docs/motor/VALIDACION.md`.
-
-El esqueleto anterior (`sim/engine.py`, `sim/decisions/`, `sim/labor.py`) sigue en `make simular`, pero el juego ya no lo usa.
 
 ## Frontend (`frontend/src`)
 

@@ -317,14 +317,14 @@ def test_en_la_cesantia_tus_gemelos_salen_como_saliste_tu(rasgo, opcion):
 
 
 def test_independiente_veterano_o_de_paso():
-    from app.sim.motor.motor import P_INDEPENDIENTE_BUSCA_EMPLEO, p_independiente_busca_empleo
+    from app.sim.motor.motor import p_independiente_busca_empleo
     from app.sim.motor.paquete import paquete
     from app.sim.motor.perfil import Perfil, estado_inicial
 
     def p(**perfil):
         return p_independiente_busca_empleo(estado_inicial(Perfil(estado="independiente", **perfil), paquete()))
 
-    assert P_INDEPENDIENTE_BUSCA_EMPLEO == 0.055 and p() == 0.055  # sin historia, la tasa calibrada de siempre
+    assert paquete().k("P_INDEPENDIENTE_BUSCA_EMPLEO") == 0.055 and p() == 0.055  # sin historia, la tasa calibrada
     assert p(anos_independiente=4) == 0.055 and p(anos_independiente=5) == pytest.approx(0.0275)
     assert p(freelance_entre_pegas=1) == pytest.approx(0.11)
     assert p(freelance_entre_pegas=1, anos_independiente=8) == pytest.approx(0.11)  # ya volvió una vez: manda eso

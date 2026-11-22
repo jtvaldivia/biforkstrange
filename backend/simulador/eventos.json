@@ -8,7 +8,7 @@
    "nombre": "Despido o fin de contrato",
    "categoria": "trabajo",
    "cuando": "y(estado == 'empleado', tipo_empleador != 'extranjero')",
-   "prob_anual": "k('P_SEPARACION', banda3) * k('MULT_DESPIDO_TIPO', tipo_empleador) * si(tipo_empleador == 'publico', 1, k('MULT_DESPIDO_RUBRO', rubro, 1)) * si(recesion, 1.4, 1) * tabla_o(1, 'empresas_catalogo', 'mult_despido', 'empresa_id', empresa_id) * si(y(ia_burbuja, o(tipo_empleador == 'startup', rubro == 'Información y comunicaciones')), k('BURBUJA_DESPIDO'), 1) * si(y(auge_cobre, en(rubro, 'Minería', 'Construcción')), k('AUGE_COBRE_DESPIDO'), 1)",
+   "prob_anual": "k('P_SEPARACION', banda3) * k('MULT_DESPIDO_TIPO', tipo_empleador) * si(tipo_empleador == 'publico', 1, k('MULT_DESPIDO_RUBRO', rubro, 1)) * si(recesion, k('RECESION_DESPIDO'), 1) * tabla_o(1, 'empresas_catalogo', 'mult_despido', 'empresa_id', empresa_id) * si(y(ia_burbuja, o(tipo_empleador == 'startup', rubro == 'Información y comunicaciones')), k('BURBUJA_DESPIDO'), 1) * si(y(auge_cobre, en(rubro, 'Minería', 'Construcción')), k('AUGE_COBRE_DESPIDO'), 1)",
    "resultados": [
     {
      "id": "cesante",
@@ -34,7 +34,7 @@
       {
        "var": "ahorro",
        "op": "suma",
-       "valor": "sueldo * min(antiguedad, 11)"
+       "valor": "sueldo * min(antiguedad, k('TOPE_INDEMNIZACION_ANIOS'))"
       },
       {
        "var": "animo",
@@ -52,13 +52,13 @@
     "couch_placzek_2010"
    ],
    "calidad": "dato",
-   "notas": "La indemnización (un sueldo por año, tope 11) solo corresponde a despido por necesidades de la empresa; el simulador puede separarla del fin de contrato con eps_terminos_empleo. Ya no hay recontrato automático el mismo año: quien encuentra trabajo rápido lo hace por las ofertas mes a mes (oferta_cesante). Tampoco se descuenta CAIDA_REEMPLEO al despedirte: las ofertas ya traen la baja de sueldo (78% a 106% de lo que ganabas, y menos desde el mes 7). Va primero entre los eventos del año: si pierdes el trabajo, ese año ya no te toca alza ni ascenso (antes podían salir las tres noticias juntas)."
+   "notas": "La indemnización (un sueldo por año, tope 11) solo corresponde a despido por necesidades de la empresa; el simulador puede separarla del fin de contrato con eps_terminos_empleo. Ya no hay recontrato automático el mismo año: quien encuentra trabajo rápido lo hace por las ofertas mes a mes (oferta_cesante). Tampoco se descuenta la caída de sueldo al reemplearse (Couch y Placzek 2010): las ofertas ya traen la baja de sueldo (78% a 106% de lo que ganabas, y menos desde el mes 7). Va primero entre los eventos del año: si pierdes el trabajo, ese año ya no te toca alza ni ascenso (antes podían salir las tres noticias juntas). El mes del despido se sortea al pasar el evento y queda fijo en la vida: las copias que se comparan desde la cesantía lo heredan."
   },
   {
    "id": "alza_anual",
    "nombre": "Alza anual del sueldo",
    "categoria": "trabajo",
-   "cuando": "estado == 'empleado'",
+   "cuando": "y(estado == 'empleado', antiguedad >= 1)",
    "prob_anual": 1,
    "resultados": [
     {
@@ -70,7 +70,7 @@
       {
        "var": "sueldo",
        "op": "multiplica",
-       "valor": "1 + clamp(si(y(anos_titulado < 4, carrera_id >= 0), crecimiento_carrera, crecimiento_esi) * si(tipo_empleador == 'publico', 0.8, 1) - k('ASCENSO_POBLACION', banda7) * (k('ALZA_ASCENSO', 0) + k('ALZA_ASCENSO', 1)) / 2 + si(azar() < 0.9, 0.03 * azar_normal(), -0.05 + 0.08 * azar_normal()) + si(recesion, -0.015, 0) + si(y(auge_cobre, rubro == 'Minería'), k('AUGE_COBRE_ALZA'), 0), 0, 0.25)"
+       "valor": "1 + clamp(si(y(anos_titulado < 4, carrera_id >= 0), crecimiento_carrera, crecimiento_esi) * si(tipo_empleador == 'publico', k('ALZA_PUBLICO'), 1) - k('ASCENSO_POBLACION', banda7) * (k('ALZA_ASCENSO', 0) + k('ALZA_ASCENSO', 1)) / 2 + si(azar() < 1 - k('P_GOLPE_INGRESO'), k('ALZA_RUIDO_SD') * azar_normal(), k('GOLPE_INGRESO', 0) + k('GOLPE_INGRESO', 1) * azar_normal()) + si(recesion, k('RECESION_ALZA'), 0) + si(y(auge_cobre, rubro == 'Minería'), k('AUGE_COBRE_ALZA'), 0), 0, k('ALZA_ANUAL_MAX'))"
       }
      ]
     }
@@ -81,7 +81,7 @@
     "guvenen_2021"
    ],
    "calidad": "mixto",
-   "notas": "crecimiento_esi = p50 de la banda siguiente / p50 de la actual en esi_perfil_edad_edu, anualizado. crecimiento_carrera usa ingreso_bruto_ano1..5 de la carrera. Se descuenta el ascenso promedio de la población (ASCENSO_POBLACION por el alza media de un ascenso), porque el perfil por edad ya lo incluye; el ascenso de cada persona lo paga el evento ascenso. Así quien asciende más que el promedio gana más y, en promedio, el ascenso no se cuenta dos veces."
+   "notas": "crecimiento_esi = p50 de la banda siguiente / p50 de la actual en esi_perfil_edad_edu, anualizado. crecimiento_carrera usa ingreso_bruto_ano1..5 de la carrera. Se descuenta el ascenso promedio de la población (ASCENSO_POBLACION por el alza media de un ascenso), porque el perfil por edad ya lo incluye; el ascenso de cada persona lo paga el evento ascenso. Así quien asciende más que el promedio gana más y, en promedio, el ascenso no se cuenta dos veces. Solo para quien ya llevaba al menos un año en esa pega (antiguedad >= 1): quien entró este año (una oferta, un recontrato tras un despido, su primera pega) gana lo que dijo su oferta, sin alza encima."
   },
   {
    "id": "alza_independiente",
@@ -115,7 +115,7 @@
    "nombre": "Ascenso",
    "categoria": "trabajo",
    "cuando": "y(estado == 'empleado', nivel < 4, antiguedad >= 1)",
-   "prob_anual": "clamp(tabla_o(1, 'empresas_catalogo', 'mult_ascenso', 'empresa_id', empresa_id) * (k('ASCENSO', nivel) * si(y(edu == 'media', nivel >= 1), 0.5, 1) + (skill - 50) * 0.0006 + prob_ascenso_extra + si(tipo_empleador == 'startup', 0.05, 0) - si(tipo_empleador == 'publico', 0.04, 0) - si(marcado, 0.06, 0)), 0.01, 0.4) * si(parcial, 0.5, 1)",
+   "prob_anual": "clamp(tabla_o(1, 'empresas_catalogo', 'mult_ascenso', 'empresa_id', empresa_id) * (k('ASCENSO', nivel) * si(y(edu == 'media', nivel >= 1), k('ASCENSO_MEDIA'), 1) + (skill - k('SKILL_REFERENCIA')) * k('ASCENSO_POR_SKILL') + prob_ascenso_extra + si(tipo_empleador == 'startup', k('ASCENSO_STARTUP'), 0) - si(tipo_empleador == 'publico', k('ASCENSO_PUBLICO'), 0) - si(marcado, k('ASCENSO_MARCADO'), 0)), k('ASCENSO_PROB_RANGO', 0), k('ASCENSO_PROB_RANGO', 1)) * si(parcial, k('ASCENSO_PARCIAL'), 1)",
    "resultados": [
     {
      "id": "sube",
@@ -147,7 +147,7 @@
    "categoria": "trabajo",
    "paso": "mes",
    "cuando": "y(o(estado == 'buscando', busca_mientras_informal == 1), primer_empleo == 0, oferta_sueldo == 0)",
-   "prob_mensual": "clamp(k('K_OFERTA_CESANTE') / k('MESES_CESANTIA', banda3) * (1 - (1 - k('PENAL_HUECO')) * min(meses_cesante, 8) / 8) * si(hueco, k('PENAL_HUECO'), 1) * si(recesion, 0.85, 1) * (1 + (red - 30) / 400), 0.02, 0.6)",
+   "prob_mensual": "clamp(k('K_OFERTA_CESANTE') / k('MESES_CESANTIA', banda3) * (1 - (1 - k('PENAL_HUECO')) * min(meses_cesante, k('MESES_PENAL_HUECO')) / k('MESES_PENAL_HUECO')) * si(hueco, k('PENAL_HUECO'), 1) * si(recesion, k('RECESION_ENCONTRAR'), 1) * (1 + (red - k('RED_REFERENCIA')) / k('RED_ESCALA_OFERTAS')), k('OFERTA_CESANTE_PROB_RANGO', 0), k('OFERTA_CESANTE_PROB_RANGO', 1))",
    "resultados": [
     {
      "id": "oferta",
@@ -158,7 +158,7 @@
       {
        "var": "oferta_sueldo",
        "op": "fija",
-       "valor": "sueldo_ref * azar_uniforme(0.78, 1.06) * si(meses_cesante >= 6, 0.93, 1) * si(hueco, 0.93, 1)"
+       "valor": "sueldo_ref * azar_uniforme(k('OFERTA_CESANTE_SUELDO', 0), k('OFERTA_CESANTE_SUELDO', 1)) * si(meses_cesante >= k('MESES_CESANTE_OFERTA_BAJA'), k('OFERTA_CESANTE_LARGA'), 1) * si(hueco, k('OFERTA_CON_HUECO'), 1)"
       }
      ],
      "luego": "tipo_de_oferta"
@@ -194,12 +194,12 @@
       {
        "var": "animo",
        "op": "suma",
-       "valor": "-2 / 12"
+       "valor": "k('ANIMO_ANIO_BUSCANDO') / 12"
       },
       {
        "var": "ahorro",
        "op": "suma",
-       "valor": "sueldo_ref * (k('COBERTURA_SEGURO') - 1) * 0.5"
+       "valor": "sueldo_ref * (k('COBERTURA_SEGURO') - 1) * k('GASTO_CESANTE')"
       }
      ]
     }
@@ -216,7 +216,7 @@
    "nombre": "Te llega una oferta sin buscarla",
    "categoria": "trabajo",
    "cuando": "estado == 'empleado'",
-   "prob_anual": "k('P_CAMBIO_EMPLEADOR', banda3) * 1.5 * (1 + red / 100) * (1 + si(y(ia_v2, ia_tipo == 'aumenta'), k('IA_OFERTAS_AUMENTA', ia_ritmo), 0)) * si(y(auge_cobre, en(rubro, 'Minería', 'Construcción')), k('AUGE_COBRE_OFERTAS'), 1)",
+   "prob_anual": "k('P_CAMBIO_EMPLEADOR', banda3) * k('OFERTAS_POR_CAMBIO') * (1 + red / 100) * (1 + si(y(ia_v2, ia_tipo == 'aumenta'), k('IA_OFERTAS_AUMENTA', ia_ritmo), 0)) * si(y(auge_cobre, en(rubro, 'Minería', 'Construcción')), k('AUGE_COBRE_OFERTAS'), 1)",
    "resultados": [
     {
      "id": "oferta",
@@ -268,18 +268,18 @@
    "nombre": "Tu área se reestructura con IA",
    "categoria": "trabajo",
    "cuando": "y(ia_v2, estado == 'empleado', tipo_empleador != 'extranjero', k('IA_PESO_TIPO', ia_tipo) > 0)",
-   "prob_anual": "clamp(k('P_SEPARACION', banda3) * k('IA_DESPIDO_EXTRA', ia_ritmo) * k('IA_PESO_TIPO', ia_tipo) * ia_rampa, 0, 0.5)",
+   "prob_anual": "clamp(k('P_SEPARACION', banda3) * k('IA_DESPIDO_EXTRA', ia_ritmo) * k('IA_PESO_TIPO', ia_tipo) * ia_rampa, 0, k('IA_REESTRUCTURA_MAX'))",
    "resultados": [
     {
      "id": "reemplea",
-     "prob": "clamp((1 - exp(-9 / k('MESES_CESANTIA', banda3))) * (1 + k('IA_ADAPT_EFECTO') * (2 * adaptabilidad - 1)) * si(recesion, 0.85, 1), 0, 0.95)",
+     "prob": "clamp((1 - exp(-k('IA_MESES_REEMPLEO') / k('MESES_CESANTIA', banda3))) * (1 + k('IA_ADAPT_EFECTO') * (2 * adaptabilidad - 1)) * si(recesion, k('RECESION_ENCONTRAR'), 1), 0, k('IA_REEMPLEO_MAX'))",
      "tono": "malo",
      "texto": "La IA hace parte de lo que hacía tu área y sobran puestos. Pierdes el trabajo, pero encuentras otro el mismo año.",
      "efectos": [
       {
        "var": "sueldo",
        "op": "multiplica",
-       "valor": "azar_uniforme(0.85, 1.02)"
+       "valor": "azar_uniforme(k('IA_REEMPLEO_SUELDO', 0), k('IA_REEMPLEO_SUELDO', 1))"
       },
       {
        "var": "antiguedad",
@@ -318,19 +318,15 @@
       {
        "var": "ahorro",
        "op": "suma",
-       "valor": "sueldo * min(antiguedad, 11)"
+       "valor": "sueldo * min(antiguedad, k('TOPE_INDEMNIZACION_ANIOS'))"
       },
       {
        "var": "animo",
        "op": "suma",
        "valor": "k('ANIMO_CESANTIA')"
-      },
-      {
-       "var": "sueldo_ref",
-       "op": "multiplica",
-       "valor": "1 - k('CAIDA_REEMPLEO')"
       }
-     ]
+     ],
+     "luego": "cesantia"
     }
    ],
    "fuentes": [
@@ -339,7 +335,7 @@
     "manning_aguirre_2026"
    ],
    "calidad": "supuesto",
-   "notas": "Solo pasa con IA rápida (IA_DESPIDO_EXTRA es 0 en lenta y media: el FRI ve el mismo desempleo) y en ocupaciones donde la IA automatiza o es incógnita. Los mismos efectos que separacion_empleo; la adaptabilidad mueve la chance de reemplearse el mismo año."
+   "notas": "Solo pasa con IA rápida (IA_DESPIDO_EXTRA es 0 en lenta y media: el FRI ve el mismo desempleo) y en ocupaciones donde la IA automatiza o es incógnita. Los mismos efectos que separacion_empleo; la adaptabilidad mueve la chance de reemplearse el mismo año. El resultado cesante tiene los mismos efectos que separacion_empleo, también la cesantía desde el mes de la reestructuración, y no descuenta una caída de sueldo al reemplearse: las ofertas ya traen la baja."
   },
   {
    "id": "recesion",
@@ -441,12 +437,12 @@
       {
        "var": "sueldo",
        "op": "multiplica",
-       "valor": 0.91
+       "valor": "k('RECESION_TITULADO_SUELDO')"
       },
       {
        "var": "alza_extra_anual",
        "op": "suma",
-       "valor": 0.009,
+       "valor": "k('RECESION_TITULADO_RECUPERA')",
        "duracion": 10
       }
      ]
@@ -537,7 +533,7 @@
    "nombre": "Tu startup cierra",
    "categoria": "trabajo",
    "cuando": "y(estado == 'empleado', tipo_empleador == 'startup')",
-   "prob_anual": "clamp((1 - pow(1 - k('YC_CERRADA'), 1 / 8)) * tabla_o(1, 'empresas_catalogo', 'mult_cierre', 'empresa_id', empresa_id) * si(ia_burbuja, k('BURBUJA_CIERRE'), 1), 0, 1)",
+   "prob_anual": "clamp((1 - pow(1 - k('YC_CERRADA'), 1 / k('YC_ANIOS_COHORTE'))) * tabla_o(1, 'empresas_catalogo', 'mult_cierre', 'empresa_id', empresa_id) * si(ia_burbuja, k('BURBUJA_CIERRE'), 1), 0, 1)",
    "resultados": [
     {
      "id": "cierra",
@@ -560,14 +556,15 @@
        "op": "fija",
        "valor": 0
       }
-     ]
+     ],
+     "luego": "cesantia"
     }
    ],
    "fuentes": [
     "yc_directorio"
    ],
    "calidad": "mixto",
-   "notas": "Anualiza el 29,9% de cierres en unos 8 años de las cohortes 2012-2019."
+   "notas": "Anualiza el 29,9% de cierres en unos 8 años de las cohortes 2012-2019. Como un despido, encadena la cesantía (luego) desde el mes del cierre: los meses de antes cobras tu sueldo y desde ahí buscas mes a mes."
   },
   {
    "id": "animo_vuelve",
@@ -585,7 +582,7 @@
       {
        "var": "animo",
        "op": "suma",
-       "valor": "(k('ANIMO_META') + si(estado == 'buscando', -4, 0) + si(ahorro < 0, -3, 0) - animo) * k('ANIMO_REVERSION')"
+       "valor": "(k('ANIMO_META') + si(estado == 'buscando', k('ANIMO_META_BUSCANDO'), 0) + si(ahorro < 0, k('ANIMO_META_DEUDA'), 0) - animo) * k('ANIMO_REVERSION')"
       }
      ]
     }

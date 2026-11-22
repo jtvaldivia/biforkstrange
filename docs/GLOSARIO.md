@@ -35,7 +35,7 @@ La persona dentro de un mundo. Sirve para contar ("en este mundo, tu copia se ca
 _No usar_: gemelo, clon, avatar. En el código, `gemelo`, `N_GEMELOS` y `gemelos.py` siguen con el nombre viejo: es solo el identificador, en lo que lee una persona se dice "copia".
 
 **Vida**:
-Los años de una copia en un mundo con una opción (los mismos de la partida). Todas las vidas de un mundo viven la misma recesión el mismo año. Lo de la pega (ascenso, despido, oferta) lo comparten mientras siguen en el mismo trabajo; si una se cambia, tiene su propia suerte en la pega nueva. En cada mundo hay una vida por cada opción de la decisión.
+Lo que vive una copia en un mundo con una opción, desde la decisión hasta la edad con que termina la partida. Todas las vidas de un mundo viven la misma recesión el mismo año. Lo de la pega (ascenso, despido, oferta) lo comparten mientras siguen en el mismo trabajo; si una se cambia, tiene su propia suerte en la pega nueva. En cada mundo hay una vida por cada opción de la decisión.
 _No usar_: trayectoria, rama
 
 **Ganador del mundo**:
