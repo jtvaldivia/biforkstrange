@@ -1,5 +1,5 @@
-# Tests del backend y build del front. Render despliega `produccion`
-# solo si este workflow pasa (autoDeployTrigger: checksPass en render.yaml).
+# Tests del backend y build del front. En un push a `produccion`, si los dos pasan, el job `deploy`
+# despliega en Render y espera a que la API y el front respondan con ese commit.
 name: CI
 
 on:
@@ -34,3 +34,56 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run build
+
+  # CD: solo con push a produccion y con los tests en verde. Necesita dos secrets del repo con los
+  # deploy hooks de Render (servicio > Settings > Deploy Hook): RENDER_DEPLOY_HOOK_API y RENDER_DEPLOY_HOOK_WEB.
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/produccion'
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    environment:
+      name: produccion
+      url: https://bifurca.onrender.com
+    concurrency:
+      group: deploy-produccion
+      cancel-in-progress: false
+    env:
+      HOOK_API: ${{ secrets.RENDER_DEPLOY_HOOK_API }}
+      HOOK_WEB: ${{ secrets.RENDER_DEPLOY_HOOK_WEB }}
+      API_URL: https://bifurca-api.onrender.com
+      WEB_URL: https://bifurca.onrender.com
+    steps:
+      - name: Revisa los deploy hooks
+        run: |
+          if [ -z "$HOOK_API" ] || [ -z "$HOOK_WEB" ]; then
+            echo "::error::Faltan los secrets RENDER_DEPLOY_HOOK_API y RENDER_DEPLOY_HOOK_WEB (Render > servicio > Settings > Deploy Hook)."
+            exit 1
+          fi
+
+      - name: Despliega la API y el front con este commit
+        run: |
+          curl -fsS -X POST -o /dev/null "${HOOK_API}&ref=${GITHUB_SHA}"
+          curl -fsS -X POST -o /dev/null "${HOOK_WEB}&ref=${GITHUB_SHA}"
+
+      - name: Espera a que la API corra este commit
+        run: |
+          # hasta 20 min: el build con uv y el arranque del plan free (que además se duerme) toman varios minutos
+          for i in $(seq 1 80); do
+            commit=$(curl -fsS -m 30 "$API_URL/health" 2>/dev/null | python3 -c 'import sys, json; print(json.load(sys.stdin).get("commit", "-"))' 2>/dev/null || true)
+            if [ "$commit" = "$GITHUB_SHA" ]; then
+              echo "API sana con $GITHUB_SHA"; exit 0
+            fi
+            echo "intento $i: la API responde commit '${commit:-sin respuesta}'"
+            sleep 15
+          done
+          echo "::error::La API no quedó corriendo $GITHUB_SHA en 20 minutos. Revisa el log del deploy en Render."
+          exit 1
+
+      - name: Revisa que el front responda
+        run: |
+          for i in $(seq 1 40); do
+            if curl -fsS -m 30 -o /dev/null "$WEB_URL"; then echo "Front arriba"; exit 0; fi
+            sleep 15
+          done
+          echo "::error::El front no respondió en 10 minutos."
+          exit 1
