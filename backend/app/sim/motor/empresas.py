@@ -196,8 +196,8 @@ def _duros(pq: Paquete, emp: dict, e: dict) -> list[dict]:
     """Cargos que la empresa podría ofrecerle: tipo y rubro de la empresa, nivel actual y educación mínima."""
     nivel, edu = int(e.get("nivel", 0)), EDU_ORDEN.get(e.get("edu", "media"), 0)
     return [c for c in _catalogo(pq)["cargos"]
-            if (c["_tipos"] is None or emp["tipo"] in c["_tipos"])
-            and (c["_rubros"] is None or emp["rubro"] in c["_rubros"])
+            if (c["_tipos"] is None or not emp.get("tipo") or emp["tipo"] in c["_tipos"])
+            and (c["_rubros"] is None or not emp.get("rubro") or emp["rubro"] in c["_rubros"])
             and c["nivel_min"] <= nivel <= c["nivel_max"]
             and (EDU_ORDEN.get(c["edu_min"], 0) <= edu or _por_bootcamp(c, e)) and c["peso"] > 0]
 
@@ -279,6 +279,20 @@ def compatibles(pq: Paquete, emp: dict, e: dict) -> list[dict]:
         if quedan:
             return quedan
     return []
+
+
+def posibles_hoy(pq: Paquete, e: dict) -> list[dict]:
+    """Los cargos del catálogo que calzan con el empleo que la persona tiene hoy fuera del catálogo: los mismos
+    filtros que `compatibles`, con su tipo de empleador y su rubro en vez de los de una empresa (si no los sabe,
+    no filtran). Si escribió su cargo, primero los que comparten una palabra propia con ese nombre."""
+    filas = compatibles(pq, {"tipo": e.get("tipo_empleador") or "", "rubro": e.get("rubro") or ""}, e)
+    propias = _palabras(e.get("cargo_inicial") or "") - _GENERICAS
+    if propias:
+        puntos = {c["cargo_id"]: len(propias & (_palabras(c["nombre"]) - _GENERICAS)) for c in filas}
+        mejor = max(puntos.values(), default=0)
+        if mejor > 0:
+            return [c for c in filas if puntos[c["cargo_id"]] == mejor]
+    return filas
 
 
 def familia_propia(pq: Paquete, e: dict) -> bool:
@@ -422,6 +436,9 @@ def ficha(pq: Paquete, emp: dict | None, car: dict | None) -> dict | None:
     """Lo que se muestra de una empresa: nombre, logo, cargo y sus cifras relativas al rubro."""
     if emp is None:
         return None
+    from app.sim.motor import ia
+
+    tipo_ia = ia.tipo_de_cargo(pq, car["cargo_id"]) if car else None
     return {
         "empresa_id": emp["empresa_id"], "nombre": emp["nombre"], "rubro": emp["rubro"], "tipo": emp["tipo"],
         "pais": emp.get("pais", ""), "dominio": emp.get("dominio", ""), "logo": emp["logo"], "origen": emp.get("origen", ""),
@@ -431,6 +448,8 @@ def ficha(pq: Paquete, emp: dict | None, car: dict | None) -> dict | None:
             "ascenso": round(emp["mult_ascenso"], 3), "cierre": round(emp["mult_cierre"], 3),
             "exposicion_ia": round(car["exposicion_ia"] if car else emp["exposicion_ia"], 3), "horas": int(emp["horas"]),
         },
+        # el tipo OIT del cargo, el mismo que usa el motor, con el texto del paquete (sin cargo no se dice nada)
+        "ia_tipo": tipo_ia, "ia_texto": ia.escenarios()["tipos"][tipo_ia]["carta"] if tipo_ia else None,
         "calidad": "sintetico",
     }
 

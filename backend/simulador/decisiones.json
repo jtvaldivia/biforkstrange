@@ -1881,7 +1881,7 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "azar_uniforme(k('CAMBIO_SUELDO_MEJORA', 0), k('CAMBIO_SUELDO_MEJORA', 1)) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
+         "valor": "azar_uniforme(k('CAMBIO_SUELDO_MEJORA', 0), k('CAMBIO_SUELDO_MEJORA', 1)) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0, ia_anios - ia_reconvertido_anio >= k('IA_PRIMA_ANIOS_MIN')), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
         },
         {
          "var": "antiguedad",
@@ -1891,7 +1891,7 @@
         {
          "var": "ia_prima_cobrada",
          "op": "fija",
-         "valor": "si(y(ia_v2, ia_reconvertido), 1, ia_prima_cobrada)"
+         "valor": "si(y(ia_v2, ia_reconvertido, ia_anios - ia_reconvertido_anio >= k('IA_PRIMA_ANIOS_MIN')), 1, ia_prima_cobrada)"
         }
        ],
        "luego": "tipo_de_empleador"
@@ -1905,7 +1905,7 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "azar_uniforme(k('CAMBIO_SUELDO_IGUAL_O_PEOR', 0), k('CAMBIO_SUELDO_IGUAL_O_PEOR', 1)) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
+         "valor": "azar_uniforme(k('CAMBIO_SUELDO_IGUAL_O_PEOR', 0), k('CAMBIO_SUELDO_IGUAL_O_PEOR', 1)) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0, ia_anios - ia_reconvertido_anio >= k('IA_PRIMA_ANIOS_MIN')), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
         },
         {
          "var": "antiguedad",
@@ -1915,7 +1915,7 @@
         {
          "var": "ia_prima_cobrada",
          "op": "fija",
-         "valor": "si(y(ia_v2, ia_reconvertido), 1, ia_prima_cobrada)"
+         "valor": "si(y(ia_v2, ia_reconvertido, ia_anios - ia_reconvertido_anio >= k('IA_PRIMA_ANIOS_MIN')), 1, ia_prima_cobrada)"
         }
        ],
        "luego": "tipo_de_empleador"
@@ -1972,7 +1972,7 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "azar_uniforme(k('CONTRAOFERTA_TE_VAS_SUELDO', 0), k('CONTRAOFERTA_TE_VAS_SUELDO', 1)) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
+         "valor": "azar_uniforme(k('CONTRAOFERTA_TE_VAS_SUELDO', 0), k('CONTRAOFERTA_TE_VAS_SUELDO', 1)) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0, ia_anios - ia_reconvertido_anio >= k('IA_PRIMA_ANIOS_MIN')), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
         },
         {
          "var": "antiguedad",
@@ -1982,7 +1982,7 @@
         {
          "var": "ia_prima_cobrada",
          "op": "fija",
-         "valor": "si(y(ia_v2, ia_reconvertido), 1, ia_prima_cobrada)"
+         "valor": "si(y(ia_v2, ia_reconvertido, ia_anios - ia_reconvertido_anio >= k('IA_PRIMA_ANIOS_MIN')), 1, ia_prima_cobrada)"
         }
        ],
        "luego": "tipo_de_empleador"
@@ -3145,7 +3145,7 @@
      "id": "programa_largo",
      "nombre": "Un programa largo",
      "requisito": "ia_v2",
-     "detalle": "Más de 140 horas en el año: en Chile, el único tipo de curso que mueve el sueldo. Tu trabajo pasa a ser con la IA, no contra ella, y al cambiarte de pega cobras la prima de saber IA.",
+     "detalle": "Más de 140 horas en el año: en Chile, el único tipo de curso que mueve el sueldo. Tu trabajo pasa a ser con la IA, no contra ella, y cuando te cambies de pega, pasados un par de años, cobras la prima de saber IA.",
      "resultados": [
       {
        "id": "termina",
@@ -3162,6 +3162,11 @@
          "var": "ia_reconvertido",
          "op": "fija",
          "valor": 1
+        },
+        {
+         "var": "ia_reconvertido_anio",
+         "op": "fija",
+         "valor": "si(ia_reconvertido_anio < 0, ia_anios, ia_reconvertido_anio)"
         },
         {
          "var": "energia",
@@ -3215,13 +3220,21 @@
    "evidencia": [
     {
      "fuente": "brynjolfsson_2025",
+     "cifra": "Empleo de 22-25 años 19% más bajo en ocupaciones donde la IA automatiza",
+     "uso": "qué pasa si sigues igual y tu cargo es de los que la IA automatiza",
+     "requisito": "ia_v2"
+    },
+    {
+     "fuente": "brynjolfsson_2025",
      "cifra": "Empleo de 22-25 años 19% más bajo en ocupaciones expuestas",
-     "uso": "castigo de ignorar"
+     "uso": "castigo de ignorar",
+     "requisito": "no(ia_v2)"
     },
     {
      "fuente": "microsoft_ia",
      "cifra": "Aplicabilidad por ocupación y área",
-     "uso": "qué tan expuesta está el área"
+     "uso": "qué tan expuesta está el área",
+     "requisito": "no(ia_v2)"
     },
     {
      "fuente": "sence_comision_2011",
@@ -3232,6 +3245,12 @@
      "fuente": "stephany_teutloff_2024",
      "cifra": "Saber IA paga 21% más al cambiarte (freelancers)",
      "uso": "prima al cambiarte tras un programa largo o liderar la adopción"
+    },
+    {
+     "fuente": "card_kluve_weber_2018",
+     "cifra": "Los programas de capacitación pagan a los 2 o 3 años, casi nada el primero",
+     "uso": "desde cuándo se cobra la prima de saber IA",
+     "requisito": "ia_v2"
     }
    ],
    "calidad": "mixto",
@@ -4997,6 +5016,11 @@
          "var": "ia_reconvertido",
          "op": "fija",
          "valor": 1
+        },
+        {
+         "var": "ia_reconvertido_anio",
+         "op": "fija",
+         "valor": "si(ia_reconvertido_anio < 0, ia_anios, ia_reconvertido_anio)"
         }
        ]
       },

@@ -174,23 +174,17 @@ function textoOferta(p: NonNullable<Vista["pendiente"]>, opcion: string): string
 
 type Narrar = (que: "pendiente" | "historia" | "mundo", signal: AbortSignal, mundo?: number) => Promise<{ items: Narrado[] }>;
 
-function nivelIA(x: number): string {
-  return x >= 0.35 ? "alta" : x >= 0.2 ? "media" : "baja";
-}
-
 export function ofertaTexto(e: EmpresaOferta): string {
   return e.cargo ? `Te ofrecen ser ${e.cargo} en ${e.nombre}.` : `Te ofrecen entrar a ${e.nombre}.`;
 }
 
 /**
  * La empresa real y el cargo que trae la opción. Sus cifras de sueldo, despidos, ascensos y cierre son sintéticas
- * (salen de su rubro y tamaño), así que no se muestran como si fueran de la empresa: solo la exposición a IA, que
- * es la de la ocupación del cargo.
+ * (salen de su rubro y tamaño), así que no se muestran como si fueran de la empresa: solo cómo toca la IA al cargo
+ * (su tipo OIT, el mismo que usa el motor, con el texto que manda el backend).
  */
 function EmpresaLinea({ empresa, texto }: { empresa: EmpresaOferta; texto?: string }) {
-  const c = empresa.cifras;
-  const cifras = [nivelIA(c.exposicion_ia) !== "baja" && `Exposición a IA del cargo ${nivelIA(c.exposicion_ia)}`]
-    .filter((x): x is string => !!x);
+  const cifras = empresa.ia_texto ? [empresa.ia_texto] : [];
   return (
     <span className="jg-empresa">
       <span className="jg-empresa-cabeza">

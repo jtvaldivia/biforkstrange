@@ -26,7 +26,10 @@ TABLAS = Path(__file__).resolve().parents[1] / "simulador" / "tablas"
 TIPO = {"Automation Potential": "automatiza", "Augmentation Potential": "aumenta",
         "The Big Uknown": "incognita", "Not affected": "no_afectado"}
 
-# cargo_id -> (CIUO-08 a 4 dígitos, equivalencia). Asignado por el equipo desde el nombre del cargo.
+# cargo_id -> (CIUO-08 a 4 dígitos, equivalencia). Asignado por el equipo desde el nombre del cargo. El gran grupo
+# (primer dígito) calza con cargos_catalogo.ciuo08_1d: donde chocaban, el equipo corrigió el que estaba mal (Community
+# manager, Asistente de la educación y Supervisor administrativo en el catálogo; Técnico en logística y Operador
+# de planta aquí).
 CARGO_CIUO = {
     0: (1120, "directa"), 1: (1211, "directa"), 2: (1221, "directa"), 3: (1330, "directa"), 4: (1212, "directa"),
     5: (1221, "directa"), 6: (1219, "aproximada"), 7: (1323, "directa"), 8: (1219, "aproximada"), 9: (1345, "directa"),
@@ -41,7 +44,7 @@ CARGO_CIUO = {
     50: (2342, "directa"), 51: (2310, "directa"), 52: (2632, "aproximada"), 53: (2635, "directa"), 54: (2642, "directa"),
     55: (2132, "directa"), 56: (2250, "directa"), 57: (3221, "directa"), 58: (3212, "directa"), 59: (3512, "directa"),
     60: (3123, "directa"), 61: (3257, "directa"), 62: (3142, "directa"), 63: (3322, "directa"), 64: (3312, "directa"),
-    65: (3313, "directa"), 66: (3343, "directa"), 67: (2432, "directa"), 68: (5312, "directa"), 69: (4323, "aproximada"),
+    65: (3313, "directa"), 66: (3343, "directa"), 67: (2432, "directa"), 68: (5312, "directa"), 69: (3331, "aproximada"),
     70: (3359, "aproximada"), 71: (3521, "directa"), 72: (3423, "directa"), 73: (3434, "directa"), 74: (4120, "directa"),
     75: (4110, "directa"), 76: (4211, "directa"), 77: (4222, "directa"), 78: (4226, "directa"), 79: (4313, "directa"),
     80: (4321, "directa"), 81: (3341, "directa"), 82: (5223, "directa"), 83: (5230, "directa"), 84: (5222, "directa"),
@@ -49,7 +52,7 @@ CARGO_CIUO = {
     90: (5141, "directa"), 91: (5413, "directa"), 92: (5244, "directa"), 93: (5111, "directa"), 94: (6111, "directa"),
     95: (6221, "directa"), 96: (6111, "aproximada"), 97: (6210, "directa"), 98: (7112, "directa"), 99: (7411, "directa"),
     100: (7212, "directa"), 101: (7233, "directa"), 102: (7231, "directa"), 103: (7233, "directa"), 104: (7422, "directa"),
-    105: (8332, "directa"), 106: (8331, "directa"), 107: (8111, "aproximada"), 108: (3133, "aproximada"), 109: (8183, "directa"),
+    105: (8332, "directa"), 106: (8331, "directa"), 107: (8111, "aproximada"), 108: (8131, "aproximada"), 109: (8183, "directa"),
     110: (8322, "aproximada"), 111: (8342, "directa"), 112: (9112, "directa"), 113: (9334, "directa"), 114: (9333, "directa"),
     115: (9211, "directa"), 116: (9412, "directa"), 117: (9313, "directa"), 118: (9112, "directa"), 119: (9611, "directa"),
     120: (2413, "aproximada"), 121: (2631, "directa"), 122: (2413, "aproximada"), 123: (3352, "directa"), 124: (2120, "directa"),
@@ -105,8 +108,7 @@ def main(ruta: Path) -> None:
         for c in cargos:
             cod, eq = CARGO_CIUO[int(c["cargo_id"])]
             assert cod in ocup, f"{c['nombre']}: {cod} no está en la OIT"
-            if str(cod)[0] != c["ciuo08_1d"]:  # el catálogo lo pone en otro gran grupo: se avisa, no se cambia
-                print(f"aviso: {c['nombre']} es {cod} en la OIT y grupo {c['ciuo08_1d']} en el catálogo")
+            assert str(cod)[0] == c["ciuo08_1d"], f"{c['nombre']}: {cod} en la OIT y grupo {c['ciuo08_1d']} en el catálogo"
             o = ocup[cod]
             w.writerow({"cargo_id": c["cargo_id"], "nombre": c["nombre"], "ciuo08_4d": cod, "titulo_oit": o["titulo"],
                         "mu_2025": f"{o['mu_2025']:.4f}", "tipo_ia": o["tipo_ia"], "equivalencia": eq})

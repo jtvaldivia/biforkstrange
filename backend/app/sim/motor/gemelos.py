@@ -45,6 +45,12 @@ def escenario_ia(adopcion: float) -> str:
     return "lento" if adopcion < 1 / 3 else "medio" if adopcion < 2 / 3 else "rapido"
 
 
+def evidencia(vida: Vida, decision: dict) -> list[dict]:
+    """La evidencia de la decisión que vale para esta vida: una cifra con `requisito` (p. ej. solo con la
+    incertidumbre de IA prendida) se muestra solo si se cumple, como las opciones."""
+    return [x for x in decision.get("evidencia", []) if not x.get("requisito") or vida.pq.evaluar(x["requisito"], vida.e)]
+
+
 def _vivir(vida: Vida, decision_id: str, opcion: str, parametros: dict, anios: int) -> Vida:
     """Toma la opción y vive hasta cumplir `anios` años más (un doctorado ocupa varios)."""
     despues = (Poblacion if GEMELOS_CON_DECISIONES else Inercia)(pesos_personales(vida.e))
@@ -174,7 +180,7 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
     return {
         "decision": decision_id, "nombre": decision["nombre"], "pregunta": decision["pregunta"],
         "calidad": decision["calidad"], "creencia_vs_dato": decision.get("creencia_vs_dato"),
-        "evidencia": decision.get("evidencia", []),
+        "evidencia": evidencia(vida, decision),
         "gemelos": n, "anios": anios, "base": base, "opciones": salida,
         # en cada mundo, con qué opción terminas ganando más (None: empate); el índice es el número del mundo
         "ganador_por_mundo": [_ganador(f) for f in finales_por_mundo],
