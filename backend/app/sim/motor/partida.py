@@ -12,9 +12,9 @@ from dataclasses import dataclass
 from app.sim.motor import empresas, gemelos
 from app.sim.motor.azar import Dados
 from app.sim.motor.motor import LLEGAN, REPETIR_CARTA, TRANQUILO, FaltaEleccion, Opcion, Vida
+from app.sim.motor.narrativa import narrar
 from app.sim.motor.paquete import Paquete, paquete
 from app.sim.motor.perfil import Perfil, estado_inicial
-from app.sim.motor.narrativa import narrar
 from app.sim.motor.politicas import Jugador, elecciones_internas
 
 ANIOS = 10

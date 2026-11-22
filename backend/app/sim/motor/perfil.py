@@ -5,7 +5,7 @@ resto parte de los valores por defecto de `estado.json` o de los de este archivo
 que son supuestos del equipo y están marcados como tales.
 """
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 
 from app.sim.motor.paquete import K_PROPIOS, Paquete
 
@@ -149,7 +149,7 @@ def tipo_institucion_de(pq: Paquete, universidad_id: str) -> str:
         return ""
     try:
         return str(pq.tabla("universidades", "tipo_institucion", "universidad_id", universidad_id))
-    except Exception:  # noqa: BLE001 - sin catálogo o sin fila
+    except Exception:
         return ""
 
 
@@ -216,7 +216,7 @@ def prima_universidad(pq: Paquete, universidad_id: str) -> float:
         return 1.0
     try:
         return float(pq.tabla("universidades", "prima_pregrado", "universidad_id", universidad_id))
-    except Exception:  # noqa: BLE001 - sin fila o celda vacía (extranjeras): neutra
+    except Exception:
         return 1.0
 
 
@@ -234,7 +234,6 @@ def ocupacion_por_omision(perfil: "Perfil", pq: Paquete) -> int:
 
 
 def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
-    p = asdict(perfil)
     e: dict = {}
     for nombre, v in pq.variables.items():
         if v["inicio"] == "deriva" or v["tipo"] == "eleccion":

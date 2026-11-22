@@ -20,7 +20,6 @@ import numpy as np
 from app.sim.ocupacional.state import State
 from app.sim.ocupacional.tables import banda_idx, tablas
 
-
 DESGASTE_UMBRAL = 0.6
 DESGASTE_PESO = 0.3
 

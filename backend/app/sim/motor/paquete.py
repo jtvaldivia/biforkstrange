@@ -151,7 +151,7 @@ class Paquete:
                 arbol = ref.parsear(expr)
                 usa_azar = any(isinstance(n, ast.Call) and n.func.id in _AZAR for n in ast.walk(arbol))
                 codigo = compile(f"lambda e, R: {_fuente(arbol.body, propios)}", f"<expr {expr[:60]}>", "eval")
-                cache[expr] = (eval(codigo, self._entorno), usa_azar)  # noqa: S307 (gramática validada por parsear)
+                cache[expr] = (eval(codigo, self._entorno), usa_azar)
         return cache[expr]
 
     def evaluar(self, expr, estado, dados=None):

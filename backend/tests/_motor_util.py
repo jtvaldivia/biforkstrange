@@ -10,8 +10,8 @@ y un generador de estados que no pasa por `perfil.py`.
 
 import math
 import os
-import re
 import random
+import re
 
 from app.sim.motor.azar import Dados
 from app.sim.motor.motor import Vida

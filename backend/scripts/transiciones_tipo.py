@@ -110,7 +110,7 @@ def transiciones(h: pd.DataFrame) -> pd.DataFrame:
 def ipf(p0: dict, filas: dict, cols: dict, iter_max: int = 1000) -> tuple[dict, dict]:
     """Escala N[o][d] = filas[o]*p0[o][d] a márgenes filas/cols. Devuelve P(d|o) y factores por columna."""
     n = {o: {d: filas[o] * p0[o][d] for d in cols} for o in filas}
-    b = {d: 1.0 for d in cols}
+    b = dict.fromkeys(cols, 1.0)
     for _ in range(iter_max):
         for d in cols:
             k = cols[d] / sum(n[o][d] for o in filas)

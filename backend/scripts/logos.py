@@ -28,17 +28,18 @@ Uso: uv run --with pillow python -I backend/scripts/logos.py <carpeta datos_labo
 
 from __future__ import annotations
 
+import contextlib
 import csv
 import hashlib
 import io
 import json
 import re
 import sys
+import threading
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
-import threading
-import time
 from concurrent.futures import ThreadPoolExecutor
 from html.parser import HTMLParser
 from pathlib import Path
@@ -120,10 +121,8 @@ def candidatos_sitio(dominio: str, cache: Path) -> list[bytes]:
     urls = []
     if html:
         p = _Links()
-        try:
+        with contextlib.suppress(Exception):  # HTML roto: se usan los íconos que alcanzó a leer
             p.feed(html.decode("utf-8", "ignore"))
-        except Exception:
-            pass
         for _, href in sorted(p.iconos, key=lambda t: -t[0]):
             urls.append(urllib.parse.urljoin(final, href))
         urls.append(urllib.parse.urljoin(final, "/apple-touch-icon.png"))

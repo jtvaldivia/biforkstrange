@@ -88,7 +88,7 @@ _USA_SUELDO = re.compile(r"\bsueldo(_ref)?\b")  # un sueldo nuevo calculado desd
 class FaltaEleccion(Exception):
     """El decisor no tiene respuesta para esta decisión: la vida queda detenida ahí."""
 
-    def __init__(self, decision: dict, opciones: list["Opcion"]):
+    def __init__(self, decision: dict, opciones: list[Opcion]):
         super().__init__(decision["id"])
         self.decision = decision
         self.opciones = opciones
@@ -143,7 +143,7 @@ class Vida:
         self.reparto: dict | None = None
 
     # ------------------------------------------------------------------ copia
-    def clonar(self, dados: Dados | None = None) -> "Vida":
+    def clonar(self, dados: Dados | None = None) -> Vida:
         otra = copy.copy(self)
         otra.e = dict(self.e)
         otra.cola = list(self.cola)
@@ -281,7 +281,7 @@ class Vida:
             self.iniciar_anio(decisor.con_cartas, carta)
         return self.avanzar(decisor)
 
-    def vivir(self, decisor, anios: int) -> "Vida":
+    def vivir(self, decisor, anios: int) -> Vida:
         for _ in range(anios):
             if self.terminada():
                 break

@@ -115,7 +115,7 @@ def _lote(args: tuple[int, int, int]) -> tuple[list[list[tuple]], list[dict]]:
             while vida.e["edad"] < EDAD_FIN:
                 vida.vivir_anio(decisor)
             vidas.append(_filas(vida, "estudiando"))
-        except Exception as exc:  # noqa: BLE001 (una vida que revienta es un hallazgo, no un error del validador)
+        except Exception as exc:
             e = vida.e if vida is not None else {}
             fallas.append({
                 "gemelo": g, "semilla": semilla, "error": f"{type(exc).__name__}: {exc}",

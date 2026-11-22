@@ -10,8 +10,19 @@ import math
 from collections import Counter
 
 import pytest
-from _motor_util import (CARTAS_PERFIL_BASE, EVENTOS_PERSONALES, NADA, DadosGuion, Guion,
-                         fabrica, foto, n, pq, vida, z_binomial)
+from _motor_util import (
+    CARTAS_PERFIL_BASE,
+    EVENTOS_PERSONALES,
+    NADA,
+    DadosGuion,
+    Guion,
+    fabrica,
+    foto,
+    n,
+    pq,
+    vida,
+    z_binomial,
+)
 
 from app.sim.motor.azar import Dados
 from app.sim.motor.motor import TRANQUILO, FaltaEleccion
@@ -228,7 +239,7 @@ def test_luego_evento_a_decision_en_el_mismo_anio():
 
 # ------------------------------------------------------------------ alcance
 def test_alcance_laboral_excluye_el_cancer():
-    assert EVENTOS_PERSONALES <= set(pq().eventos)
+    assert set(pq().eventos) >= EVENTOS_PERSONALES
     laboral, completo = vida(A_LOS_35, alcance="laboral"), vida(A_LOS_35, alcance="completo")
     assert laboral.cartas_posibles() == completo.cartas_posibles() and laboral._forzadas() == completo._forzadas() == []
     # con dados que hacen ocurrir todo lo que puede ocurrir

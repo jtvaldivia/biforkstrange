@@ -14,14 +14,14 @@ con el comando `claude` instalado en la máquina.
 """
 
 import base64
-import types
-import typing
 import binascii
 import io
 import json
 import shutil
 import subprocess
 import tempfile
+import types
+import typing
 from functools import lru_cache
 from typing import Literal
 
@@ -30,9 +30,9 @@ from pydantic import BaseModel, Field, ValidationError, create_model
 
 from app.services.ia.cliente import ERRORES_API, ClaudeNoDisponible, cliente, traducir_error
 from app.services.ia.cliente import hay_credenciales as _hay_credenciales
-from app.sim.motor.paquete import Paquete, paquete
 from app.sim.motor import empresas
 from app.sim.motor.empresas import universidades
+from app.sim.motor.paquete import Paquete, paquete
 from app.sim.motor.perfil import NIVELES, prima_universidad
 
 # Llenar un formulario no necesita razonar: Haiku con poco esfuerzo responde en segundos.
@@ -313,7 +313,7 @@ def desde_api(crudo: BaseModel | dict) -> PerfilLeido:
             valor = None
         elif valor == "si":
             valor = True
-        elif valor == "no" and PerfilLeido.model_fields[nombre].annotation in (bool | None, typing.Optional[bool]):
+        elif valor == "no" and PerfilLeido.model_fields[nombre].annotation in (bool | None, typing.Optional[bool]):  # noqa: UP045  (la anotación puede venir en cualquiera de las dos formas)
             valor = False
         salida[nombre] = valor
     return PerfilLeido(**salida)

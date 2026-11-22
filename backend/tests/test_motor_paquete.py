@@ -41,7 +41,7 @@ class AzarEspejo:
 def _intento(f):
     try:
         return "ok", f()
-    except Exception as x:  # noqa: BLE001 (se compara el tipo del error)
+    except Exception as x:
         return "error", type(x).__name__
 
 

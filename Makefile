@@ -1,4 +1,4 @@
-.PHONY: install back prod front test perfil simular jugar comparar dudas validar supuestos empresas universidades logos transiciones
+.PHONY: install back prod front test lint fmt check perfil simular jugar comparar dudas validar supuestos empresas universidades logos transiciones
 install:
 	cd backend && uv sync
 	cd frontend && npm install
@@ -11,6 +11,14 @@ front:
 	cd frontend && npm run dev
 test:
 	cd backend && uv run pytest -q -n auto
+# Lint y formato del backend (reglas en backend/pyproject.toml). `make fmt` arregla lo que ruff sabe arreglar.
+lint:
+	cd backend && uv run ruff check . && uv run ruff format --check .
+fmt:
+	cd backend && uv run ruff check . --fix && uv run ruff format .
+# Lo que pide AGENTS.md antes de abrir un PR
+check: lint test
+	cd frontend && npm run build
 # Trayectoria laboral desde el terminal. Ej: make perfil OCUPACION=4 EDAD=24
 OCUPACION ?= 2
 EDAD ?= 30

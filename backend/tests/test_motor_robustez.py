@@ -80,7 +80,7 @@ def _catalogo_evaluable(v) -> list[str]:
             aplica = d["aparicion"]["tipo"] != "interna" and p.evaluar(d["cuando"], e)
             peso = p.evaluar(d["aparicion"]["peso"], e)
             opciones = v.opciones(id_) if aplica else []
-        except Exception as x:  # noqa: BLE001
+        except Exception as x:
             malas.append(f"{id_}: {type(x).__name__}: {x}")
             continue
         if not isinstance(peso, (int, float)) or peso < 0:
@@ -94,7 +94,7 @@ def _catalogo_evaluable(v) -> list[str]:
                         suma += pr
                         if not 0 <= pr <= 1:
                             malas.append(f"{id_}/{o.id}/{r['id']}: prob {pr}")
-                except Exception as x:  # noqa: BLE001
+                except Exception as x:
                     malas.append(f"{id_}/{o.id}/{r['id']}: {type(x).__name__}: {x}")
             if suma > 1 + 1e-9:
                 malas.append(f"{id_}/{o.id}: las probabilidades suman {suma:.3f}")
@@ -104,7 +104,7 @@ def _catalogo_evaluable(v) -> list[str]:
         try:
             if p.evaluar(ev["cuando"], e) and not 0 <= p.evaluar(ev["prob_anual"], e) <= 1:
                 malas.append(f"evento {id_}: prob_anual fuera de [0, 1]")
-        except Exception as x:  # noqa: BLE001
+        except Exception as x:
             malas.append(f"evento {id_}: {type(x).__name__}: {x}")
     return malas
 
@@ -124,7 +124,7 @@ def _correr(v, anios: int, fallas: Counter, ejemplo: dict, quien: str, revisar_c
             if revisar_catalogo and v.anio % 4 == 1:
                 for m in _catalogo_evaluable(v):
                     anotar("catálogo: " + m)
-    except Exception as x:  # noqa: BLE001
+    except Exception as x:
         anotar(f"EXCEPCIÓN {type(x).__name__}: {x}")
 
 

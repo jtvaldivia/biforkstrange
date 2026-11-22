@@ -51,15 +51,18 @@ Las dependencias van en una sola dirección: `api → services → (sim, reposit
 
 | Capa | Qué contiene |
 |---|---|
-| `sim/` | Dominio puro (numpy, sin FastAPI ni DB). `state.py` es el estado vectorizado, `engine.py` el loop Monte Carlo, `metrics.py` los resúmenes por año. |
-| `sim/decisions/` | Una clase por decisión. Se registran solas al heredar de `Decision`. |
+| `sim/motor/` | El motor del juego (ver abajo). Dominio puro: sin FastAPI ni DB. |
+| `sim/ocupacional/` | El motor por tablas de ocupación (`/api/simulations`, `/api/ocupaciones`, `make simular`). `state.py` es el estado vectorizado, `engine.py` el loop Monte Carlo, `metrics.py` los resúmenes por año. |
+| `sim/ocupacional/decisions/` | Una clase por decisión. Se registran solas al heredar de `Decision`. |
+| `sim/data/` | Tablas CSV que usan los dos motores. |
 | `schemas/` | Modelos Pydantic de entrada y salida de la API. |
 | `repositories/` | Persistencia detrás de un `Protocol` (hoy, en memoria). |
-| `services/` | Casos de uso que orquestan motor y repositorio. |
-| `api/` | Rutas delgadas. `deps.py` es el único lugar que elige implementaciones. |
-| `core/` | Configuración y clientes externos. |
+| `services/` | Casos de uso que orquestan motor y repositorio. `services/ia/` agrupa lo que llama a Claude (cliente, lectura del CV, narrador, prompt del perfil). |
+| `api/` | Rutas delgadas. `deps.py` es el único lugar que elige implementaciones; `errores.py` traduce errores del dominio a HTTP. |
+| `core/` | Configuración. |
+| `cli/` | `python -m app.cli`: un módulo por grupo de subcomandos (`ocupacional`, `juego`) y su formato. |
 
-**Agregar una decisión:** crear una subclase en `sim/decisions/catalog.py` con `key`, `label` y `apply()` (o heredar de `ParametricDecision` y fijar tres números). Aparece sola en `GET /api/decisions`.
+**Agregar una decisión:** crear una subclase en `sim/ocupacional/decisions/catalog.py` con `key`, `label` y `apply()` (o heredar de `ParametricDecision` y fijar tres números). Aparece sola en `GET /api/decisions`.
 
 **Agregar un atributo de la copia:** sumarlo a `State` (o usar `state.extra`) y resumirlo en `metrics.py`.
 
@@ -93,7 +96,11 @@ Las empresas reales están en `backend/data/empresas/` y se regeneran con `backe
 
 Los supuestos que pone el motor (lo que el paquete no define) están listados en `docs/motor/TICKETS.md`; el resultado de la validación, en `docs/motor/VALIDACION.md`.
 
-El esqueleto anterior (`sim/engine.py`, `sim/decisions/`, `sim/labor.py`) sigue en `/simulacion` y en `make simular`, pero el juego ya no lo usa.
+El esqueleto anterior (`sim/ocupacional/`) sigue en `/simulacion` y en `make simular`, pero el juego ya no lo usa.
+
+### Calidad
+
+`make lint` corre ruff (lint y formato) con las reglas de `backend/pyproject.toml`; `make fmt` arregla lo que se puede arreglar solo. `make check` corre lint, tests y el build del front, lo que pide `AGENTS.md` antes de un PR. El CI corre lint y tests en cada PR a `main`. Para correrlo en cada commit: `uvx pre-commit install`.
 
 ## Frontend (`frontend/src`)
 

@@ -208,8 +208,8 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
         texto = "Llevas años sin parar y {}. ¿Te tomas un año para ti?".format(
             s.uno("sab", ["un amigo se fue a recorrer Sudamérica", "te ofrecen un voluntariado afuera", "te sientes al límite"]))
     elif decision == "doctorado":
-        texto = (f"Un profesor con el que trabajaste te escribe: tiene un cupo en su doctorado y cree que podrías ganar "
-                 f"una beca. Serían cuatro o cinco años.")
+        texto = ("Un profesor con el que trabajaste te escribe: tiene un cupo en su doctorado y cree que podrías ganar "
+                 "una beca. Serían cuatro o cinco años.")
     elif decision == "volver_a_estudiar":
         texto = (f"{cercano.capitalize()} sacó un título técnico estudiando de noche y ahora gana más. "
                  f"Te pasa el dato del instituto. Serían tres o cuatro años, después de la pega.")

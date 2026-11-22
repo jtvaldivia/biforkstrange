@@ -11,10 +11,45 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pytest>=8", "pytest-xdist>=3.6", "httpx>=0.27"]
+dev = [
+    "pytest>=8",
+    "pytest-xdist>=3.6",
+    "httpx>=0.27",
+    "ruff>=0.17.6",
+]
 
 [tool.uv]
 package = false
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+extend-exclude = ["simulador/referencia"]
+
+[tool.ruff.lint]
+# pyflakes, pycodestyle, isort, bugbear, pyupgrade, simplify, comprehensions, ruff
+select = ["F", "E", "W", "I", "B", "UP", "SIM", "C4", "RUF"]
+ignore = [
+  "E501",    # el largo de línea lo cuida el formato, no el lint
+  "RUF001",  # el texto está en español: tildes y comillas tipográficas son intencionales
+  "RUF002",
+  "RUF003",
+  "C408",    # dict(a=1) es legible y se usa a propósito en tablas de parámetros
+  "B905",    # zip sin strict: los largos se validan antes
+  "RUF005",
+  "RUF007",
+  "RUF046",  # int(round(x)) también recibe floats de numpy
+  "SIM108",  # un if/else con comentario por rama se lee mejor que un ternario largo
+]
+
+[tool.ruff.lint.per-file-ignores]
+# lambdas que se llaman en el acto y fixtures con valores por defecto: falsos positivos en tests
+"tests/**" = ["B008", "B011", "B023", "RUF012", "RUF015", "RUF059"]
+# scripts de una vez que leen los crudos: no van a producción
+"scripts/**" = ["SIM115"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]

@@ -5,7 +5,6 @@ import numpy as np
 from app.sim.ocupacional.decisions.base import Decision
 from app.sim.ocupacional.state import State
 
-
 CAIDA_SUELDO_AL_PERDER_EMPLEO = 0.6  # relleno
 
 

@@ -131,7 +131,7 @@ def main(crudos: Path) -> None:
     total_tipo = defaultdict(int)
     for cod, m in matricula.items():
         total_tipo[tipo_de[cod]] += m
-    elegidas = {c for c in mag} | {c for c, t in tipo_de.items() if t == "U" and matricula.get(c)}
+    elegidas = set(mag) | {c for c, t in tipo_de.items() if t == "U" and matricula.get(c)}
     elegidas |= {c for c, m in matricula.items() if tipo_de[c] in ("IP", "CFT") and m >= cfg["umbral_ip_cft"] * total_tipo[tipo_de[c]]}
 
     filas = []

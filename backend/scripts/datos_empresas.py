@@ -85,7 +85,7 @@ def sii(crudos: Path) -> None:
         w.writeheader()
         total = 0
         for tamano, grupo, cuantas in (("grande", grandes, GRANDES_POR_RUBRO), ("pyme", pymes, PYMES_POR_RUBRO)):
-            for rubro, filas in sorted(grupo.items()):
+            for _rubro, filas in sorted(grupo.items()):
                 vistos = set()
                 # Las grandes: las de más trabajadores (las conocidas). Las pymes: las más grandes dentro del tramo.
                 for fila in sorted(filas, key=lambda x: (-x["trabajadores"], x["nombre"])):

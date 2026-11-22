@@ -1,9 +1,12 @@
-import base64
 """Perfil desde un texto. No se llama al modelo: se prueba lo que la app hace con lo que el modelo devuelve."""
+
+import base64
+from pathlib import Path
 
 import pytest
 
 from app.services.ia import perfil as perfil_ia
+from app.services.ia import perfil_doc
 from app.services.ia.perfil import ModeloNoDisponible, PerfilLeido
 
 LEIDO = PerfilLeido(edad=33, sexo="m", edu="universitaria", carrera_id=166, rubro="Finanzas y seguros",
@@ -128,10 +131,6 @@ def test_el_pdf_va_como_documento_a_la_api(monkeypatch):
     assert llamada["model"] == "claude-haiku-5-5" and llamada["thinking"] == {"type": "disabled"}
 
 # ── documento armado por el Claude de la persona ──────────────────────────────
-
-from pathlib import Path
-
-from app.services.ia import perfil_doc
 
 EJEMPLO = (Path(__file__).parents[2] / "docs" / "motor" / "perfil-ejemplo.md").read_text(encoding="utf-8")
 
