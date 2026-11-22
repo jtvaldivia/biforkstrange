@@ -9,12 +9,14 @@ export function Inicio({
   error,
   onEmpezar,
   onContinuar,
+  onComoFunciona,
 }: {
   hayPartida: boolean;
   cargando: boolean;
   error: string | null;
   onEmpezar: () => void;
   onContinuar: () => void;
+  onComoFunciona: () => void;
 }) {
   return (
     <Screen>
@@ -47,6 +49,9 @@ export function Inicio({
         )}
         <Button variant={hayPartida ? "white" : "primary"} onClick={onEmpezar} disabled={cargando}>
           {hayPartida ? "Empezar otra vida" : "Empezar"}
+        </Button>
+        <Button variant="quiet" onClick={onComoFunciona} disabled={cargando}>
+          ¿Cómo funciona?
         </Button>
         <div className="jg-enlaces">
           <a href="/simulacion" className="vd-meta">

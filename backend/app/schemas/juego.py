@@ -21,6 +21,28 @@ class PerfilIn(BaseModel):
     antiguedad: int = Field(2, ge=0, le=40)
     region: Literal["rm", "otra"] = "rm"
     ahorro: float | None = None
+    ingles: int = Field(0, ge=0, le=1)
+    skill: int | None = Field(None, ge=0, le=100)
+    red: int | None = Field(None, ge=0, le=100)
+    estado: Literal["empleado", "independiente", "fundador", "buscando", "estudiando"] = "empleado"
+    meses_cesante: int = Field(0, ge=0, le=120)
+    parcial: int = Field(0, ge=0, le=1)
+    remoto: int = Field(0, ge=0, le=1)
+    usa_ia: int = Field(0, ge=0, le=1)
+    empresa_anos: int = Field(0, ge=0, le=30)
+    empresa_fondos: int = Field(0, ge=0, le=1)
+    anos_por_empleo: float | None = Field(None, gt=0, le=40)
+    rubro_sonado: str | None = None
+    semestres_restantes: int | None = Field(None, ge=0, le=16)
+    anos_en_carrera: int | None = Field(None, ge=0, le=10)
+    volvio_a_su_nivel: int = Field(0, ge=0, le=1)
+    freelance_entre_pegas: int = Field(0, ge=0, le=1)
+    emprendio_antes: int = Field(0, ge=0, le=1)
+    anos_independiente: int | None = Field(None, ge=0, le=40)
+    practica: Literal["", "grande", "pyme", "startup", "publico"] = ""
+    toda_su_carrera_en: Literal["", "publico", "startup"] = ""
+    ascensos_por_ano: float | None = Field(None, ge=0, le=2)
+    empresas_cerradas: int = Field(0, ge=0, le=10)
 
     def a_perfil(self) -> Perfil:
         return Perfil(**self.model_dump())
@@ -55,4 +77,24 @@ class DudasIn(BaseModel):
 class TextoPerfilIn(BaseModel):
     """Lo que la persona escribe o sube sobre sí misma (markdown, currículum pegado, un párrafo)."""
 
-    texto: str = Field(min_length=1, max_length=60_000)
+    texto: str = Field("", max_length=60_000)
+    # un PDF (el CV o el "Guardar como PDF" de LinkedIn) en base64; ~10 MB como máximo
+    pdf: str | None = Field(None, max_length=14_000_000)
+
+
+class PesoCvIn(BaseModel):
+    """El perfil y la duda: se repite la comparación sin cada dato del CV, con la misma semilla."""
+
+    perfil: PerfilIn = PerfilIn()
+    duda: str
+    semilla: int = 0
+    gemelos: int = Field(100, ge=20, le=300)
+
+
+class EnJuegoIn(BaseModel):
+    """El perfil y las dudas que sugiere su CV: cuál tiene más en juego para esta persona."""
+
+    perfil: PerfilIn = PerfilIn()
+    dudas: list[str] = Field(min_length=1, max_length=5)
+    semilla: int = 0
+    gemelos: int = Field(100, ge=20, le=300)

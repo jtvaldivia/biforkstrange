@@ -1,7 +1,7 @@
-# Agarrar la pala
+# Agarra la pala
 
-Las decisiones que más pesan en una carrera no se pueden ensayar: tomarse un año sabático, cambiarse de pega, quedarse hasta tarde todos los días o volver a estudiar. Agarrar la pala te deja probarlas antes.
+¿Te cambias a la startup o te quedas donde estás? ¿Haces el magíster? ¿Renuncias para emprender? Son decisiones que se toman una sola vez, sin ensayo, y nunca sabes cómo te habría ido con la otra.
 
-Armas un gemelo digital con tu punto de partida (edad, sueldo, desgaste y lo que te gusta) y lo haces vivir año a año, de los 18 a los 50. En cada bifurcación eliges qué hace, y el simulador corre miles de futuros posibles con datos reales del mercado laboral chileno. No te da un número: te muestra el rango de lo que puede pasar, desde el mejor caso hasta el desempleo o el burnout.
+Agarra la pala te deja ensayarlas. Armas tu gemelo digital con tu edad, tus estudios, tu pega y tu sueldo (o le pides a tu Claude que lo arme, que ya te conoce) y lo pones frente a la decisión. Tu gemelo la vive en 100 mundos distintos y en cada uno prueba todas las opciones con la misma suerte: la misma recesión, el mismo despido, la misma oferta que llega. Si en un mundo le va mejor cambiándose, fue por cambiarse y no porque le tocó.
 
-Así puedes comparar dos vidas alternativas lado a lado y ver qué decisión te abre caminos y cuál te los cierra, sin pagar el costo de averiguarlo en carne propia.
+Después eliges tú, se tira el dado y vives uno de esos mundos. Las probabilidades salen de encuestas del trabajo en Chile, así que si en la simulación te despiden, es porque a gente como tú la despiden así de seguido.

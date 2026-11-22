@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getDudas, getMundo, getVista } from "../api";
-import type { Duda, Eleccion, ParametrosComparar, Partida, Perfil, Vista } from "../types";
+import type { Duda, DudaSugerida, Eleccion, ParametrosComparar, Partida, Perfil, Vista } from "../types";
 
 export type Fase = "inicio" | "perfil" | "duda" | "carta" | "paso" | "cierre";
 
@@ -100,11 +100,11 @@ export function usePartida() {
   }, []);
 
   /** Perfil listo: se piden las dudas que esa persona puede elegir. */
-  const [dudaSugerida, setDudaSugerida] = useState<string | null>(null);
+  const [dudasSugeridas, setDudasSugeridas] = useState<DudaSugerida[]>([]);
 
-  const verDudas = useCallback(async (p: Perfil, sugerida: string | null = null) => {
+  const verDudas = useCallback(async (p: Perfil, sugeridas: DudaSugerida[] = []) => {
     const mio = ++turno.current;
-    setDudaSugerida(sugerida);
+    setDudasSugeridas(sugeridas);
     setPerfil(p);
     setPartida(null);
     setVista(null);
@@ -128,7 +128,7 @@ export function usePartida() {
     (p: Perfil) => {
       turno.current++;
       setPerfil(p);
-      setDudaSugerida(null);
+      setDudasSugeridas([]);
       setVista(null);
       setPrevia(null);
       const nueva: Partida = { perfil: p, semilla: Math.floor(Math.random() * 1_000_000), duda: null, elecciones: [] };
@@ -221,7 +221,7 @@ export function usePartida() {
   }, []);
 
   return {
-    fase, perfil, partida, vista, previa, dudas, dudaSugerida, cargando, recalculando, error,
+    fase, perfil, partida, vista, previa, dudas, dudasSugeridas, cargando, recalculando, error,
     irAInicio, irAPerfil, verDudas, empezar, empezarAlAzar, continuar, elegir, compararCon, verMundo, seguir, jugarDeNuevo, descartar,
   };
 }

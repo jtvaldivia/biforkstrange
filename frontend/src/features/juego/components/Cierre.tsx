@@ -1,9 +1,11 @@
 import { BigNumber, Button, Heading, Meta, Pill, RangeCompare, Screen, ScreenHeader, Stack, StationTimeline, SunCard, Tag, Text, type Range } from "@/shared/ui";
 import { aniosDe, cargoYSueldo, deCada10, plata, sinSueldo, situacion } from "../textos";
-import type { Anio, Rango, Vista } from "../types";
+import type { Anio, Perfil, Rango, Vista } from "../types";
 import { GEMELOS } from "../api";
 import { Abanico, Info } from "./graficos";
 import { LeyendaCalidad } from "./piezas";
+import { IntuicionResumen } from "./Apuesta";
+import { CompartirResultado } from "./Compartir";
 
 /** Lo más importante del año, en una línea, para la línea de tiempo. */
 function resumenDelAnio(a: Anio): string {
@@ -16,7 +18,16 @@ function resumenDelAnio(a: Anio): string {
 }
 
 /** El cierre: tu vida frente a los gemelos de tu primera decisión. Viene de "8 · Fin de la partida" del kit. */
-export function CierrePantalla({ vista, sueldoInicial, onOtraVida, onCambiarPerfil }: { vista: Vista; sueldoInicial: number; onOtraVida: () => void; onCambiarPerfil: () => void }) {
+export function CierrePantalla({
+  vista, sueldoInicial, onOtraVida, onCambiarPerfil, perfil,
+}: {
+  vista: Vista;
+  sueldoInicial: number;
+  onOtraVida: () => void;
+  onCambiarPerfil: () => void;
+  /** El perfil con que se jugó: para el retrato de la tarjeta que se comparte. */
+  perfil?: Perfil;
+}) {
   const cierre = vista.cierre!;
   const e = cierre.estado;
   const primera = cierre.primera_decision;
@@ -61,6 +72,8 @@ export function CierrePantalla({ vista, sueldoInicial, onOtraVida, onCambiarPerf
           </Text>
         )}
       </SunCard>
+
+      <IntuicionResumen />
 
       {primera && elegida && (
         <Stack as="section" gap={12}>
@@ -117,6 +130,7 @@ export function CierrePantalla({ vista, sueldoInicial, onOtraVida, onCambiarPerf
       )}
       {!primera && <Text size="sm">Tu primera decisión tenía demasiadas opciones para simular los mundos, así que aquí no hay con quién compararte.</Text>}
 
+
       <Stack as="section" gap={10}>
         <Heading level={3} as="h2">
           Tus {vista.anios} años
@@ -125,6 +139,8 @@ export function CierrePantalla({ vista, sueldoInicial, onOtraVida, onCambiarPerf
           <StationTimeline stations={vista.historia.map((a) => ({ when: `${aniosDe(a.edad, a.fin?.edad, edadInicial)} · ${a.edad} años`, what: resumenDelAnio(a) }))} />
         </div>
       </Stack>
+
+      {primera && <CompartirResultado comparacion={primera.comparacion} elegida={primera.elegida} sueldoFinal={cierre.sueldo_final} perfil={perfil} />}
 
       <Stack gap={14}>
         <Button onClick={onOtraVida}>Jugar otra vida</Button>

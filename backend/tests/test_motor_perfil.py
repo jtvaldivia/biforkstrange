@@ -3,7 +3,10 @@
 import pytest
 from _motor_util import pq
 
+from app.sim.motor.azar import Dados
+from app.sim.motor.motor import Vida
 from app.sim.motor.perfil import Perfil, estado_inicial
+from app.sim.motor.politicas import Inercia
 
 
 def _e(**perfil):
@@ -55,3 +58,40 @@ def test_la_carrera_trae_su_area_y_tipo_de_institucion():
     e = _e(carrera_id=int(fila["carrera_id"]))
     assert (e["area"], e["tipo_institucion"]) == (fila["area"], fila["tipo_institucion"])
     assert (_e()["area"], _e()["tipo_institucion"]) == ("", "")
+
+
+# ------------------------------------------------------------------ quien estudia
+ICI = 166  # Ingeniería Civil Industrial: dura 14 semestres en la práctica (mifuturo_carreras)
+
+
+def _estudiante(**extra):
+    return dict(edad=20, estado="estudiando", edu="media", carrera_id=ICI, sueldo=0, rubro="", tipo_empleador="",
+                nivel=0, antiguedad=0) | extra
+
+
+def test_sin_estudiar_una_carrera_no_cambia_nada():
+    """Regla dura: quien no estudia una carrera del catálogo parte como siempre, con 0 semestres."""
+    for e in (_e(), _e(carrera_id=ICI), estado_inicial(Perfil.a_los_18(), pq()),
+              _e(semestres_restantes=4, anos_en_carrera=2)):  # el dato solo cuenta si estudia
+        assert (e["semestres_restantes"], e["anos_en_carrera"]) == (0, 0)
+
+
+def test_quien_estudia_parte_con_lo_que_le_falta():
+    assert pq().tabla("mifuturo_carreras", "duracion_real_semestres", "carrera_id", ICI) == 14
+    e = _e(**_estudiante())  # supuesto: entró a los 18 y va al día
+    assert (e["semestres_restantes"], e["anos_en_carrera"]) == (14 - 4, 2)
+    e = _e(**_estudiante(semestres_restantes=4))  # "egreso esperado" en dos años: el CV manda
+    assert (e["semestres_restantes"], e["anos_en_carrera"]) == (4, 5)
+    e = _e(**_estudiante(anos_en_carrera=0))  # "cursando 1er año"
+    assert (e["semestres_restantes"], e["anos_en_carrera"]) == (14, 0)
+    e = _e(**_estudiante(edad=35))  # mayor que la carrera: igual le queda un año
+    assert (e["semestres_restantes"], e["anos_en_carrera"]) == (2, 6)
+
+
+def test_quien_estudia_ya_no_se_titula_al_primer_anio():
+    """Antes todos partían en 0 semestres: el cierre del año 1 los titulaba."""
+    v = Vida(_e(**_estudiante(semestres_restantes=4)), Dados(0, "t"), pq())
+    v.vivir_anio(Inercia())
+    assert v.e["estado"] == "estudiando" and v.e["semestres_restantes"] == 2
+    v.vivir_anio(Inercia())
+    assert v.e["estado"] != "estudiando" and v.e["edu"] == "universitaria"

@@ -1,21 +1,105 @@
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { type DragEvent, useEffect, useId, useMemo, useRef, useState } from "react";
 import {
-  Button, ChevronLeftIcon, Chip, Heading, IconButton, Panel, Pill, Row, Screen, ScreenFooter, ScreenHeader, Segmented, Slider, Stack, Tag, Text,
+  Button, ChevronLeftIcon, Chip, Heading, IconButton, Meta, Panel, Pill, Row, Screen, ScreenFooter, ScreenHeader, Segmented, Slider, Stack, SunCard, Tag, Text,
 } from "@/shared/ui";
 import { ErrorApi, leerPerfil } from "../api";
-import { EDUCACION, TIPO_EMPLEADOR, pesos, riesgoEnPalabras } from "../textos";
-import type { Catalogo, Perfil, Sexo } from "../types";
+import { EDUCACION, TIPO_EMPLEADOR, pesos } from "../textos";
+import type { Catalogo, DudaSugerida, Perfil, PerfilLeido, Sexo } from "../types";
 import { Cargando, ErrorCaja } from "./piezas";
 import { Trayectoria, type EstadoLectura } from "./Trayectoria";
 
 const SUELDO_MAX = 30_000_000;
+export const SLIDER_MIN = 300_000;
+export const SLIDER_MAX = 8_000_000;
+/** Los rubros que se muestran como chips; el resto queda en "Otro". */
+export const RUBROS_TOP = ["Comercio", "Información y comunicaciones", "Servicios profesionales", "Salud", "Enseñanza", "Finanzas y seguros"];
+const RIESGOS = [
+  { value: "2", label: "Prefiero lo seguro" },
+  { value: "5", label: "Depende" },
+  { value: "8", label: "Me la juego" },
+];
+const riesgoCercano = (r: number) => (r <= 3 ? "2" : r >= 7 ? "8" : "5");
+
+/** Banda de edad de la ESI (18-24, 25-29, …, 50-54). */
+export function banda(edad: number): string {
+  if (edad <= 24) return "18-24";
+  const desde = Math.min(50, Math.floor(edad / 5) * 5);
+  return `${desde}-${desde + 4}`;
+}
 /** Marca de un campo que el texto de la persona no decía y quedó con un valor por defecto. */
 function Revisa({ si }: { si: boolean }) {
   return si ? (
     <Tag tone="sol" className="jg-revisa">
-      No lo decía tu texto, revísalo
+      Supuesto: revísalo
     </Tag>
   ) : null;
+}
+
+/** El atajo: subes tu CV o el PDF de tu LinkedIn y Claude llena el formulario. */
+function SubirCv({ estado, empresa, onPdf }: { estado: EstadoLectura; empresa: PerfilLeido["empresa"]; onPdf: (pdfBase64: string) => void }) {
+  const entrada = useRef<HTMLInputElement>(null);
+  const [errorArchivo, setErrorArchivo] = useState<string | null>(null);
+  const leyendo = estado.fase === "leyendo";
+
+  const subir = (f: File | undefined) => {
+    if (!f) return;
+    setErrorArchivo(null);
+    if (f.type !== "application/pdf" && !/\.pdf$/i.test(f.name)) return setErrorArchivo("Sube un PDF.");
+    if (f.size > 10_000_000) return setErrorArchivo("El PDF pesa más de 10 MB.");
+    const lector = new FileReader();
+    lector.onload = () => typeof lector.result === "string" && onPdf(lector.result);
+    lector.onerror = () => setErrorArchivo("No pudimos abrir el archivo.");
+    lector.readAsDataURL(f);
+  };
+
+  return (
+    <Panel
+      className="jg-subir-cv"
+      onDragOver={(e: DragEvent) => e.preventDefault()}
+      onDrop={(e: DragEvent) => {
+        e.preventDefault();
+        subir(e.dataTransfer.files?.[0]);
+      }}
+    >
+      <Stack gap={4}>
+        <Heading level={3} as="h2">
+          Sube tu CV y nos saltamos el formulario
+        </Heading>
+        <Text size="sm">O el PDF de tu LinkedIn: desde el computador, tu perfil → Recursos → Guardar como PDF.</Text>
+      </Stack>
+      <input
+        ref={entrada}
+        type="file"
+        accept="application/pdf,.pdf"
+        hidden
+        onChange={(e) => {
+          subir(e.target.files?.[0]);
+          e.target.value = "";
+        }}
+      />
+      <Button onClick={() => entrada.current?.click()} disabled={leyendo}>
+        {leyendo ? "Leyendo tu CV…" : "Subir PDF"}
+      </Button>
+      {leyendo && <Cargando>Claude está leyendo tu CV. Mientras, puedes ir revisando abajo.</Cargando>}
+      {errorArchivo && (
+        <div className="jg-error" role="alert">
+          {errorArchivo}
+        </div>
+      )}
+      {estado.fase === "error" && (
+        <div className="jg-error" role="alert">
+          No pudimos leer tu CV. {estado.detalle} Llena el formulario a mano; toma un minuto.
+        </div>
+      )}
+      {estado.fase === "listo" && (
+        <Text size="sm" role="status">
+          <strong>Listo, llenamos lo que decía tu CV.</strong>{" "}
+          {empresa && `Encontramos ${empresa.nombre} en el SII: ${empresa.tamano === "grande" ? "empresa grande" : "pyme"} de ${empresa.trabajadores.toLocaleString("es-CL")} personas. `}
+          {estado.supuestos.length > 0 ? `Falta lo que un CV no dice: ${estado.supuestos.join(", ")}. Lo marcamos abajo.` : "Revisa que calce."}
+        </Text>
+      )}
+    </Panel>
+  );
 }
 
 const sinTildes = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -38,7 +122,7 @@ export function PerfilForm({
   /** Empieza la partida: la primera carta sale al azar, como todas. */
   onListo: (p: Perfil) => void;
   /** Para quien prefiere partir por una duda concreta. */
-  onElegirDuda: (p: Perfil, dudaSugerida: string | null) => void;
+  onElegirDuda: (p: Perfil, sugeridas: DudaSugerida[]) => void;
   cargando?: boolean;
   error?: string | null;
 }) {
@@ -49,12 +133,17 @@ export function PerfilForm({
   const idSueldo = useId();
   const [lectura, setLectura] = useState<EstadoLectura>({ fase: "nada" });
   /** La duda que trajo el documento de tu Claude: se propone en la pantalla siguiente. */
-  const [dudaSugerida, setDudaSugerida] = useState<string | null>(null);
+  const [sugeridas, setSugeridas] = useState<DudaSugerida[]>([]);
   /** Campos con valor por defecto que la persona todavía no revisa. */
   const [marcados, setMarcados] = useState<ReadonlySet<string>>(new Set());
   /** Campos que la persona tocó desde que le pidió a Claude leer: esos no se pisan cuando llega la respuesta. */
   const tocados = useRef(new Set<string>());
   const pedido = useRef(0);
+  /** "Lo que tu gemelo sabe de ti": una línea que arma Claude con hechos del CV. */
+  const [retrato, setRetrato] = useState<string | null>(null);
+  const [empresa, setEmpresa] = useState<PerfilLeido["empresa"]>(null);
+  /** De dónde vino lo que se está leyendo: el PDF de arriba o el texto del panel de Claude. */
+  const [origen, setOrigen] = useState<"pdf" | "texto">("pdf");
   useEffect(() => () => void pedido.current++, []);
 
   const set = <K extends keyof Perfil>(k: K, v: Perfil[K]) => {
@@ -64,12 +153,13 @@ export function PerfilForm({
   };
   const marca = (k: keyof Perfil) => (marcados.has(k) ? "jg-marcado" : undefined);
 
-  const llenarConClaude = async (texto: string) => {
+  const llenarConClaude = async (entrada: string | { pdf: string }) => {
     const mio = ++pedido.current;
     tocados.current = new Set();
-    setLectura({ fase: "leyendo", documento: texto.includes("```gemelo-laboral") });
+    setOrigen(typeof entrada === "string" ? "texto" : "pdf");
+    setLectura({ fase: "leyendo", documento: typeof entrada === "string" && entrada.includes("```gemelo-laboral") });
     try {
-      const r = await leerPerfil(texto);
+      const r = await leerPerfil(entrada);
       if (mio !== pedido.current) return;
       // lo que la persona editó mientras Claude leía se respeta
       const nuevos = Object.fromEntries(Object.entries(r.perfil).filter(([k]) => !tocados.current.has(k))) as Partial<Perfil>;
@@ -77,7 +167,9 @@ export function PerfilForm({
       setP((x) => ({ ...x, ...nuevos }));
       setBusca("");
       setMarcados(new Set(pendientes.map((x) => x.campo)));
-      setDudaSugerida(r.duda);
+      setSugeridas(r.dudas_sugeridas?.length ? r.dudas_sugeridas : r.duda ? [{ decision: r.duda, por_que: "La trajo tu Claude." }] : []);
+      setRetrato(r.retrato ?? null);
+      setEmpresa(r.empresa ?? null);
       setLectura({
         fase: "listo", inferido: r.inferido, supuestos: pendientes.map((x) => x.nombre), avisos: r.avisos ?? [],
         documento: r.via === "documento", duda: r.duda,
@@ -97,6 +189,8 @@ export function PerfilForm({
   }, [catalogo, busca]);
 
   const sueldoValido = p.sueldo > 0 && p.sueldo <= SUELDO_MAX;
+  const rubroOtro = !RUBROS_TOP.includes(p.rubro);
+  const ref = catalogo?.sueldos_ref?.find((f) => f.educacion === p.edu && f.banda === banda(p.edad));
 
   return (
     <Screen>
@@ -110,13 +204,25 @@ export function PerfilForm({
       />
       <Stack>
         <Heading level={1}>Cuéntanos de ti.</Heading>
-        <Text>Con esto armamos a tus gemelos: gente como tú, en tu misma situación. Las decisiones las tomas tú.</Text>
+        <Text>Con esto armamos a tus gemelos. Toma un minuto.</Text>
       </Stack>
 
       {errorCatalogo && <ErrorCaja error={errorCatalogo} />}
       {!catalogo && !errorCatalogo && <Cargando>Cargando alternativas…</Cargando>}
 
-      <Trayectoria estado={lectura} onLlenar={(t) => void llenarConClaude(t)} />
+      {retrato && (
+        <SunCard className="jg-retrato">
+          <Meta>Lo que tu gemelo sabe de ti</Meta>
+          <Text>«{retrato}»</Text>
+        </SunCard>
+      )}
+
+      <SubirCv estado={origen === "pdf" ? lectura : { fase: "nada" }} empresa={empresa} onPdf={(pdf) => void llenarConClaude({ pdf })} />
+
+      <details className="jg-plegable" open={origen === "texto" && lectura.fase !== "nada"}>
+        <summary>¿Usas Claude o tienes tu CV en texto? Pégalo aquí</summary>
+        <Trayectoria estado={origen === "texto" ? lectura : { fase: "nada" }} onLlenar={(t) => void llenarConClaude(t)} />
+      </details>
 
       {catalogo && (
         <>
@@ -198,18 +304,46 @@ export function PerfilForm({
             )}
           </Panel>
 
+          <Stack as="section" className={marca("ingles")}>
+            <span className="jg-etiqueta">¿Podrías trabajar en inglés?</span>
+            <Revisa si={marcados.has("ingles")} />
+            <Segmented<string>
+              label="Inglés"
+              value={String(p.ingles ?? 0)}
+              onChange={(v) => set("ingles", v === "1" ? 1 : 0)}
+              options={[
+                { value: "0", label: "No" },
+                { value: "1", label: "Sí, intermedio o más" },
+              ]}
+            />
+          </Stack>
+
           <Stack as="section" className={marca("rubro")}>
             <label htmlFor={idRubro} className="jg-etiqueta">
               Rubro
             </label>
             <Revisa si={marcados.has("rubro")} />
-            <select id={idRubro} className="jg-campo" value={p.rubro} onChange={(e) => set("rubro", e.target.value)}>
-              {catalogo.rubros.map((r) => (
-                <option key={r} value={r}>
+            <Row>
+              {RUBROS_TOP.filter((r) => catalogo.rubros.includes(r)).map((r) => (
+                <Chip key={r} pressed={p.rubro === r} onToggle={() => set("rubro", r)}>
                   {r}
-                </option>
+                </Chip>
               ))}
-            </select>
+              <Chip pressed={rubroOtro} onToggle={() => !rubroOtro && set("rubro", catalogo.rubros.find((r) => !RUBROS_TOP.includes(r)) ?? p.rubro)}>
+                Otro
+              </Chip>
+            </Row>
+            {rubroOtro && (
+              <select id={idRubro} className="jg-campo" value={p.rubro} onChange={(e) => set("rubro", e.target.value)}>
+                {catalogo.rubros
+                  .filter((r) => !RUBROS_TOP.includes(r))
+                  .map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+              </select>
+            )}
           </Stack>
 
           <Stack as="section" className={marca("tipo_empleador")}>
@@ -238,35 +372,49 @@ export function PerfilForm({
 
           <Stack as="section" className={marca("sueldo")}>
             <Revisa si={marcados.has("sueldo")} />
-            <div className="vd-ind-fila">
-              <label htmlFor={idSueldo} className="jg-etiqueta">
-                Sueldo líquido al mes
-              </label>
-              <span className="vd-ind-v">{sueldoValido ? pesos(p.sueldo) : "entre $1 y $30.000.000"}</span>
-            </div>
-            <input
-              id={idSueldo}
-              className="jg-campo"
-              inputMode="numeric"
-              autoComplete="off"
-              value={p.sueldo ? p.sueldo.toLocaleString("es-CL") : ""}
-              onChange={(e) => set("sueldo", Number(e.target.value.replace(/\D/g, "").slice(0, 9)))}
-              aria-invalid={!sueldoValido}
+            <Slider
+              label="Sueldo líquido al mes"
+              value={Math.min(SLIDER_MAX, Math.max(SLIDER_MIN, p.sueldo))}
+              min={SLIDER_MIN}
+              max={SLIDER_MAX}
+              step={50_000}
+              color="var(--dinero)"
+              onChange={(n) => set("sueldo", n)}
+              display={sueldoValido ? pesos(p.sueldo) : "entre $1 y $30.000.000"}
             />
+            {ref && (
+              <Row gap={8} style={{ alignItems: "center", flexWrap: "wrap" }}>
+                <Text size="sm">
+                  La mitad de la gente de tu edad y estudios gana menos de <strong>{pesos(ref.p50)}</strong>
+                  {sueldoValido && ` · tú estás ${p.sueldo >= ref.p75 ? "entre los que más ganan" : p.sueldo >= ref.p50 ? "sobre la mitad" : p.sueldo >= ref.p25 ? "bajo la mitad" : "entre los que menos ganan"}`}
+                  .
+                </Text>
+                {p.sueldo !== ref.p50 && (
+                  <Chip pressed={false} onToggle={() => set("sueldo", ref.p50)}>
+                    No sé, usa {pesos(ref.p50)}
+                  </Chip>
+                )}
+              </Row>
+            )}
+            <details className="jg-plegable">
+              <summary>Escribir el monto exacto</summary>
+              <input
+                id={idSueldo}
+                className="jg-campo"
+                inputMode="numeric"
+                autoComplete="off"
+                aria-label="Sueldo líquido exacto"
+                value={p.sueldo ? p.sueldo.toLocaleString("es-CL") : ""}
+                onChange={(e) => set("sueldo", Number(e.target.value.replace(/\D/g, "").slice(0, 9)))}
+                aria-invalid={!sueldoValido}
+              />
+            </details>
           </Stack>
 
           <Stack as="section" gap={4} className={marca("riesgo")}>
             <Revisa si={marcados.has("riesgo")} />
-            <Slider
-              label="Cuánto riesgo toleras"
-              value={p.riesgo}
-              min={0}
-              max={10}
-              onChange={(n) => set("riesgo", n)}
-              color="var(--acento)"
-              display={`${p.riesgo} de 10 · ${riesgoEnPalabras(p.riesgo)}`}
-            />
-            <Text size="sm">Con esto elegimos qué destacarte en cada opción: el peor caso o el mejor.</Text>
+            <span className="jg-etiqueta">Si te ofrecen algo incierto…</span>
+            <Segmented<string> label="Tolerancia al riesgo" value={riesgoCercano(p.riesgo)} onChange={(v) => set("riesgo", Number(v))} options={RIESGOS} />
           </Stack>
         </>
       )}
@@ -274,13 +422,12 @@ export function PerfilForm({
       <ScreenFooter>
         {error && <ErrorCaja error={error} />}
         {cargando && <Cargando>Simulando tus mundos y sorteando tu primera carta…</Cargando>}
-        <Button onClick={() => onListo(p)} disabled={!catalogo || !sueldoValido || cargando}>
-          Empezar mi partida
+        <Button onClick={() => onElegirDuda(p, sugeridas)} disabled={!catalogo || !sueldoValido || cargando}>
+          {sugeridas.length ? "Ver las dudas que te sugerimos" : "Elegir mi duda"}
         </Button>
-        <Button variant="quiet" onClick={() => onElegirDuda(p, dudaSugerida)} disabled={!catalogo || !sueldoValido || cargando}>
-          {dudaSugerida ? "Partir por la duda que trajo tu Claude" : "Prefiero elegir mi primera duda"}
+        <Button variant="quiet" onClick={() => onListo(p)} disabled={!catalogo || !sueldoValido || cargando}>
+          Que me toque una al azar
         </Button>
-        <Text size="sm">La primera carta sale al azar, como todas: entre las decisiones que calzan con tu situación.</Text>
       </ScreenFooter>
     </Screen>
   );

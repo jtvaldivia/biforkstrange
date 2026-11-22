@@ -42,64 +42,50 @@ def _dudas_laborales(pq: Paquete) -> list[dict]:
             if d["aparicion"]["tipo"] == "carta" and id_ not in DECISIONES_PERSONALES]
 
 
+SITUACIONES = {"empleado": "empleado", "empleada": "empleado", "independiente": "independiente", "freelance": "independiente",
+               "fundador": "fundador", "fundadora": "fundador", "emprendedor": "fundador", "buscando": "buscando",
+               "cesante": "buscando", "estudiando": "estudiando", "estudiante": "estudiando"}
+USO_IA = {"no": False, "no uso": False, "nunca": False, "a veces": True, "aveces": True, "seguido": True,
+          "todos los dias": True, "diario": True, "si": True}
+
+
 @lru_cache(maxsize=1)
 def prompt(pq: Paquete | None = None) -> str:
-    """El prompt que la persona le pega a su Claude."""
+    """El prompt que la persona le pega a su Claude o ChatGPT. Corto: pide lo que un CV no dice."""
     pq = pq or paquete()
     rubros = [r for r in pq.variables["rubro"]["dominio"] if r]
-    ocupaciones = sorted({(int(f["origen"]), f["origen_nombre"]) for f in pq.filas("jobhop_transiciones")})
     dudas = _dudas_laborales(pq)
     lineas = [
-        "Voy a usar Gemelo Laboral, un simulador que muestra cómo les va en 10 años a 100 \"gemelos\" míos "
-        "(misma persona, otra suerte) según las decisiones de carrera que tome en Chile. Necesito que armes "
-        "mi perfil con lo que sabes de mí por nuestras conversaciones y tus memorias.",
+        "Voy a jugar Agarrar la pala, un simulador de carrera en Chile: 100 \"gemelos\" míos viven 10 años "
+        "con cada decisión. Con lo que sabes de mí por nuestras conversaciones, llena este bloque.",
         "",
-        "Cómo hacerlo:",
-        "1. Usa solo lo que sabes de mí o lo que yo te diga. No inventes: un dato inventado se verá como mío.",
-        "2. Si no sabes algo importante (sobre todo mi sueldo, mi tolerancia al riesgo o la duda que tengo), "
-        "pregúntamelo antes de escribir el documento: en un solo mensaje, con preguntas cortas. Si no te "
-        "respondo, deja ese campo en ?.",
-        "3. Después escribe el documento con este formato exacto (el bloque y los nombres de los campos "
-        "tal cual, porque la app los lee sin interpretar):",
+        "Reglas:",
+        "- Solo lo que sabes o lo que yo te diga. Si no sabes algo, pon ?. No inventes.",
+        "- Nada de salud, pareja, familia ni nada que yo no quiera compartir.",
+        "- Si te falta mi sueldo o mi duda, pregúntamelo en un mensaje corto antes de escribir.",
+        "- Responde solo con el bloque, tal cual:",
         "",
         "```" + BLOQUE,
-        "edad: <años>",
-        "sexo: <h o m>",
-        "estudios: <media, tecnica, universitaria o postgrado: el nivel más alto TERMINADO>",
-        "carrera: <nombre de mi título de pregrado o técnico, o ? si no tengo>",
-        "institucion: <U, IP o CFT: dónde estudié esa carrera>",
-        "rubro: <uno de la lista de rubros, copiado exacto: el rubro de mi EMPLEADOR, no de mi oficio>",
-        "tipo_empresa: <grande, pyme, startup, publico o extranjero>",
-        "cargo: <número de la lista de cargos>",
         "sueldo_liquido: <pesos líquidos al mes, solo números>",
-        "riesgo: <de 0 a 10, cuánto riesgo estoy dispuesto a tomar en mi carrera>",
-        "ocupacion: <número de la lista de tipos de trabajo: lo que HAGO>",
-        "antiguedad: <años completos en mi empleador actual>",
-        "region: <rm si trabajo en la Región Metropolitana, otra si no>",
-        "duda: <el código de la duda que más me da vueltas hoy, de la lista de dudas>",
+        "duda: <el código de la lista de dudas que más me da vueltas hoy>",
+        "situacion: <empleado, independiente, fundador, buscando o estudiando>",
+        "riesgo: <0 a 10: cuánto riesgo tomo en mi carrera>",
+        "ingles: <si o no: ¿podría trabajar en inglés?>",
+        "ia: <no uso, a veces o todos los dias: cuánto uso IA en mi trabajo>",
+        "proyecto: <mi proyecto paralelo o idea de negocio, en una línea, o ?>",
+        "afuera: <si o no: ¿me gustaría trabajar o vivir fuera de Chile?>",
+        "rubro_sonado: <un rubro de la lista al que me cambiaría, o ?>",
+        "intereses: <3 a 5 temas que me apasionan, separados por coma>",
+        "retrato: <una línea sobre mí, en segunda persona, sin datos sensibles>",
         "```",
         "",
-        "## Cómo lo deduje",
-        "- <una línea por cada campo que no te dije literalmente: de dónde lo sacaste>",
+        "Si los sabes, puedes agregar en el mismo bloque: edad, estudios (media, tecnica, universitaria o "
+        "postgrado), cargo (Junior, Semi senior, Senior, Jefatura o Gerencia), rubro y tipo_empresa (grande, "
+        "pyme, startup, publico o extranjero).",
         "",
-        "Reglas de los campos:",
-        "- Todo describe mi situación de HOY: el trabajo que tengo ahora, no los anteriores.",
-        "- tipo_empresa: grande = privada de 200 personas o más; pyme = privada más chica; startup = empresa "
-        "joven de base tecnológica que busca crecer rápido; publico = el Estado; extranjero = trabajo desde "
-        "Chile para una empresa de afuera.",
-        "- sueldo_liquido: si solo sabes el bruto, el líquido es cerca de 82% del bruto; dilo en \"Cómo lo deduje\".",
-        "- Si un campo no se puede saber, escribe ? en vez de adivinar.",
+        "Rubros: " + "; ".join(rubros) + ".",
         "",
-        "Rubros:", *[f"- {r}" for r in rubros],
-        "",
-        "Cargos:", *[f"- {i}: {n}" for i, n in enumerate(NIVELES)],
-        "  (3 = tener personas a cargo; 4 = dirigir un área o la empresa)",
-        "",
-        "Tipos de trabajo (ocupacion):", *[f"- {g}: {n}" for g, n in ocupaciones],
-        "",
-        "Dudas (código: pregunta):", *[f"- {d['id']}: {d['pregunta']}" for d in dudas],
-        "",
-        "Responde solo con el documento (o con tus preguntas, si te falta algo).",
+        "Dudas: " + "; ".join(f"{d['id']} ({d['nombre']})" for d in dudas) + ".",
     ]
     return "\n".join(lineas)
 
@@ -181,6 +167,14 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
     opcion("estudios", "edu", ESTUDIOS, "estudios")
     opcion("tipo_empresa", "tipo_empleador", TIPOS, "tipo de empresa")
     opcion("region", "region", REGIONES, "región")
+    opcion("ingles", "ingles", {"si": True, "no": False}, "inglés")
+    opcion("situacion", "situacion", SITUACIONES, "situación")
+    if "ia" in c:
+        leido["usa_ia"] = USO_IA.get(_normal(c["ia"]))
+    numero("experiencia", "anios_experiencia", "experiencia")
+    numero("empleadores", "empleadores", "empleadores")
+    if c.get("empresa") and _normal(c["empresa"]) not in _VACIO:
+        leido["empresa_actual"] = c["empresa"]
     for campo, destino, nombre in (("cargo", "nivel", "cargo"), ("sueldo_liquido", "sueldo", "sueldo"),
                                    ("riesgo", "riesgo", "riesgo"), ("ocupacion", "ocupacion", "tipo de trabajo"),
                                    ("antiguedad", "antiguedad", "antigüedad")):
@@ -188,8 +182,8 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
     if "cargo" in c and leido.get("nivel") is None:  # también acepta el nombre del cargo
         por_nombre = {_normal(n): i for i, n in enumerate(NIVELES)}
         leido["nivel"] = por_nombre.get(_normal(c["cargo"]))
-        if leido["nivel"] is not None:
-            avisos.pop()
+        if leido["nivel"] is not None:  # el aviso de "no es un número" ya no aplica
+            avisos[:] = [a for a in avisos if not a.startswith("cargo:")]
     if "rubro" in c:
         rubros = {_normal(r): r for r in pq.variables["rubro"]["dominio"] if r}
         leido["rubro"] = rubros.get(_normal(c["rubro"])) or next(
@@ -210,15 +204,46 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
         if leido.get(campo) is not None and resultado["perfil"].get(campo) != leido[campo]:
             avisos.append(f"{campo}: {leido[campo]} está fuera de rango; se usó un valor por defecto.")
 
-    duda = None
-    if "duda" in c:
-        from app.sim.motor.partida import dudas_posibles
-        from app.sim.motor.perfil import Perfil
+    rubros_validos = {_normal(r): r for r in pq.variables["rubro"]["dominio"] if r}
+    sonado = rubros_validos.get(_normal(c.get("rubro_sonado", ""))) or next(
+        (r for k, r in rubros_validos.items() if c.get("rubro_sonado") and _normal(c["rubro_sonado"]) in k), None)
+    if sonado and sonado != resultado["perfil"]["rubro"]:
+        resultado["perfil"]["rubro_sonado"] = sonado
 
+    from app.sim.motor.partida import dudas_posibles
+    from app.sim.motor.perfil import Perfil
+
+    posibles = {d["decision"]: d for d in dudas_posibles(Perfil(**resultado["perfil"]), pq)}
+    # La duda que trajo, y las que se desprenden de lo que contó (plantillas, sin modelo)
+    candidatas: list[tuple[str, str]] = []
+    if "duda" in c:
         codigo = _normal(c["duda"]).replace(" ", "_")
-        posibles = {d["decision"] for d in dudas_posibles(Perfil(**resultado["perfil"]), pq)}
         if codigo in posibles:
-            duda = codigo
+            candidatas.append((codigo, "Es la que te da vueltas, según tu Claude."))
         else:
             avisos.append(f"duda: «{c['duda']}» no es una duda posible para este perfil; elígela en la lista.")
-    return {**resultado, "duda": duda, "avisos": avisos}
+    if c.get("proyecto"):
+        candidatas += [("emprender", f"Tienes un proyecto: {c['proyecto'][:90]}."),
+                       ("independizarse", f"Tienes un proyecto: {c['proyecto'][:90]}.")]
+    if _normal(c.get("afuera", "")) in ("si", "s"):
+        candidatas += [("remoto_para_afuera", "Te gustaría trabajar para afuera."),
+                       ("emigrar", "Te gustaría vivir fuera de Chile.")]
+    if sonado and sonado != resultado["perfil"]["rubro"]:
+        candidatas.append(("cambiar_de_rubro", f"Te atrae {sonado}."))
+    if leido.get("usa_ia") is False:
+        candidatas.append(("aprender_ia", "Todavía no usas IA en tu trabajo."))
+    vistas, sugeridas = set(), []
+    for decision, por_que in candidatas:
+        if decision in posibles and decision not in vistas:
+            vistas.add(decision)
+            sugeridas.append({"decision": decision, "nombre": posibles[decision]["nombre"], "por_que": por_que})
+    intereses = [x.strip() for x in re.split(r"[,;]", c.get("intereses", "")) if x.strip()][:5]
+    # Qué campos del perfil dijo de verdad (para sumarlos a lo del CV sin pisarlo con valores por defecto)
+    a_perfil = {"situacion": ["estado"], "anios_experiencia": ["skill"], "empleadores": ["red"],
+                "empresa_actual": ["tipo_empleador", "rubro"] if resultado.get("empresa") else []}
+    dados = sorted({k for campo, v in leido.items() if v is not None for k in a_perfil.get(campo, [campo])
+                    if k in resultado["perfil"]} | ({"rubro_sonado"} if "rubro_sonado" in resultado["perfil"] else set())
+                   | ({"anos_por_empleo"} if resultado["perfil"].get("anos_por_empleo") else set()))
+    return {**resultado, "duda": sugeridas[0]["decision"] if sugeridas else None, "dudas_sugeridas": sugeridas[:3],
+            "retrato": c.get("retrato") or resultado.get("retrato"), "intereses": intereses,
+            "proyecto": c.get("proyecto"), "dados": dados, "avisos": avisos}

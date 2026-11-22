@@ -6,7 +6,7 @@ import { CierrePantalla } from "./components/Cierre";
 import { ComoFunciona } from "./components/ComoFunciona";
 import { DudaPicker } from "./components/DudaPicker";
 import { Inicio } from "./components/Inicio";
-import { PerfilForm } from "./components/PerfilForm";
+import { Onboarding } from "./components/Onboarding";
 import { QuePaso } from "./components/QuePaso";
 import { useCatalogo } from "./hooks/useCatalogo";
 import { usePartida } from "./hooks/usePartida";
@@ -49,17 +49,18 @@ function Juego() {
     );
   }
   if (j.fase === "perfil") {
-    return <PerfilForm inicial={j.perfil} catalogo={catalogo} errorCatalogo={errorCatalogo} onVolver={j.irAInicio} onListo={j.empezarAlAzar} onElegirDuda={j.verDudas} cargando={j.cargando} error={j.error} />;
+    return <Onboarding inicial={j.perfil} catalogo={catalogo} errorCatalogo={errorCatalogo} onVolver={j.irAInicio} onListo={j.empezarAlAzar} onElegirDuda={j.verDudas} cargando={j.cargando} error={j.error} />;
   }
   if (j.fase === "duda") {
     return (
-      <DudaPicker dudas={j.dudas} sugerida={j.dudaSugerida} cargando={j.cargando} error={j.error} onVolver={j.irAPerfil} onElegir={j.empezar} />
+      <DudaPicker perfil={j.perfil} dudas={j.dudas} sugeridas={j.dudasSugeridas} cargando={j.cargando} error={j.error} onVolver={j.irAPerfil} onElegir={j.empezar} />
     );
   }
   if (j.fase === "carta" && j.vista?.pendiente) {
     return (
       <Carta
         vista={j.vista}
+        partida={j.partida}
         riesgo={j.perfil.riesgo}
         cargando={j.cargando}
         recalculando={j.recalculando}
@@ -72,7 +73,16 @@ function Juego() {
     );
   }
   if (j.fase === "paso" && j.vista) return <QuePaso previa={j.previa} vista={j.vista} sueldoInicial={sueldoInicial} onSeguir={j.seguir} />;
-  if (j.fase === "cierre" && j.vista?.cierre) return <CierrePantalla vista={j.vista} sueldoInicial={sueldoInicial} onOtraVida={j.jugarDeNuevo} onCambiarPerfil={j.irAPerfil} />;
+  if (j.fase === "cierre" && j.vista?.cierre)
+    return (
+      <CierrePantalla
+        vista={j.vista}
+        sueldoInicial={sueldoInicial}
+        perfil={j.partida?.perfil ?? j.perfil}
+        onOtraVida={j.jugarDeNuevo}
+        onCambiarPerfil={j.irAPerfil}
+      />
+    );
   if (j.fase !== "inicio") {
     // no debería pasar: una fase sin los datos que necesita
     return (
@@ -93,7 +103,11 @@ function Juego() {
       cargando={j.cargando}
       error={j.error}
       onContinuar={j.continuar}
-      onEmpezar={() => setTutorial("antes")}
+      onEmpezar={() => {
+        j.descartar();
+        j.irAPerfil();
+      }}
+      onComoFunciona={() => setTutorial("antes")}
     />
   );
 }

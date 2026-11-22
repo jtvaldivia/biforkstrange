@@ -11,7 +11,7 @@ from statistics import median, quantiles
 from app.sim.motor.azar import Dados
 from app.sim.motor.motor import Vida
 from app.sim.motor.perfil import NIVELES
-from app.sim.motor.politicas import Fija, Inercia, opcion_base, parametros_por_defecto
+from app.sim.motor.politicas import Fija, Inercia, opcion_base, parametros_por_defecto, pesos_personales
 
 N_GEMELOS = 100
 HORIZONTE = 10
@@ -28,7 +28,7 @@ def _rango(valores: list[float]) -> dict:
 
 def _vivir(vida: Vida, decision_id: str, opcion: str, parametros: dict, anios: int) -> Vida:
     """Toma la opción y vive hasta cumplir `anios` años más (un doctorado ocupa varios)."""
-    decisor = Fija(decision_id, opcion, parametros, Inercia())
+    decisor = Fija(decision_id, opcion, parametros, Inercia(pesos_personales(vida.e)))
     edad_final = vida.e["edad"] + anios
     if not vida.cola:
         vida.iniciar_anio(con_cartas=False, carta=decision_id)

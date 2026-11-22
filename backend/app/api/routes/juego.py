@@ -6,9 +6,9 @@ from functools import lru_cache
 
 from fastapi import APIRouter, HTTPException, Query
 
-from app.schemas.juego import DudasIn, MundoIn, PartidaIn, TextoPerfilIn
+from app.schemas.juego import DudasIn, EnJuegoIn, MundoIn, PartidaIn, PesoCvIn, TextoPerfilIn
 from app.services import perfil_ia
-from app.sim.motor import partida, supuestos, validacion
+from app.sim.motor import partida, peso, supuestos, validacion
 from app.sim.motor.paquete import paquete
 from app.sim.motor.perfil import NIVELES
 
@@ -30,6 +30,12 @@ def catalogo():
             {"carrera_id": int(f["carrera_id"]), "carrera": f["carrera"], "tipo_institucion": f["tipo_institucion"],
              "area": f["area"]}
             for f in pq.filas("mifuturo_carreras")
+        ],
+        # sueldo líquido de gente con la misma edad y estudios (ESI 2025): la referencia del slider de sueldo
+        "sueldos_ref": [
+            {"educacion": f["educacion"], "banda": f["banda"],
+             **{p: int(round(float(f[p]), -4)) for p in ("p25", "p50", "p75")}}  # redondeado a $10.000
+            for f in pq.filas("esi_perfil_edad_edu")
         ],
     }
 
@@ -102,8 +108,35 @@ def perfil_desde_texto(body: TextoPerfilIn):
     Claude sin que estuviera literal (`inferido`). Con 503, el cliente muestra el formulario a mano.
     """
     try:
-        return perfil_ia.perfil_desde_texto(body.texto, date.today().isoformat())
+        pdf = perfil_ia.pdf_desde_base64(body.pdf) if body.pdf else None
+        return perfil_ia.perfil_desde_texto(body.texto, date.today().isoformat(), pdf=pdf)
     except perfil_ia.ModeloNoDisponible as error:
         raise HTTPException(503, str(error)) from error
     except ValueError as error:
         raise HTTPException(422, str(error)) from error
+
+
+@router.post("/peso-cv")
+def peso_del_cv(body: PesoCvIn):
+    """Lo que vale cada línea de tu CV en tu duda: la misma comparación, con los mismos dados, sin ese dato.
+
+    Devuelve los datos que más mueven el resultado (en cuántos mundos gana cada opción y su sueldo típico,
+    con el dato y sin él). Con la misma semilla y gemelos, "con" coincide con la carta de la duda.
+    """
+    try:
+        return peso.peso_cv(body.perfil.a_perfil(), body.duda, body.semilla, body.gemelos)
+    except (ValueError, KeyError) as error:
+        raise HTTPException(422, str(error)) from error
+
+
+@router.post("/dudas-en-juego")
+def dudas_en_juego(body: EnJuegoIn):
+    """De las dudas que sugiere el CV, cuánto se juega la persona en cada una y cuál es la que más.
+
+    Corre la comparación de cada duda (las que no aplican a este perfil se saltan) y marca en
+    `mas_en_juego` la de mayor rango entre la mala y la buena suerte, sobre el sueldo típico de quedarse.
+    """
+    try:
+        return peso.en_juego(body.perfil.a_perfil(), tuple(body.dudas), body.semilla, body.gemelos)
+    except KeyError as error:
+        raise HTTPException(422, f"no existe la decisión {error}") from error

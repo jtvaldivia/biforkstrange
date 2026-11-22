@@ -44,6 +44,21 @@ BUSQUEDAS = frozenset({"cesantia", "primera_pega"})
 # El paquete no tiene salida del trabajo por cuenta propia. Sin ella nadie vuelve a ser
 # empleado y la cohorte termina con la mitad de independientes (en Chile, 13% a 24%).
 P_INDEPENDIENTE_BUSCA_EMPLEO = 0.055
+# Según su historia (del CV, si la trae). Supuesto del equipo, sin dato detrás: quien ya volvió una vez
+# de trabajar por su cuenta a un empleo vuelve el doble de seguido; quien lleva 5 años o más por su
+# cuenta, la mitad. Sin historia, la tasa de arriba, calibrada para la cohorte.
+INDEPENDIENTE_DE_PASO = 2.0
+INDEPENDIENTE_VETERANO, ANOS_VETERANO = 0.5, 5
+
+
+def p_independiente_busca_empleo(e: dict) -> float:
+    """Chance anual de que un independiente salga a buscar empleo. Lee la historia del CV que trae el estado
+    (`freelance_entre_pegas`: ya volvió una vez a la planilla; `anos_independiente`), que no es del paquete."""
+    if e.get("freelance_entre_pegas"):
+        return P_INDEPENDIENTE_BUSCA_EMPLEO * INDEPENDIENTE_DE_PASO
+    if e.get("anos_independiente", 0) >= ANOS_VETERANO:
+        return P_INDEPENDIENTE_BUSCA_EMPLEO * INDEPENDIENTE_VETERANO
+    return P_INDEPENDIENTE_BUSCA_EMPLEO
 
 
 class FaltaEleccion(Exception):
@@ -419,7 +434,7 @@ class Vida:
             if e["cierra_en"] == 0 and e["estado"] == "empleado" and e["tipo_empleador"] == "startup":
                 self._evento("startup_cierra", directo=True)
                 e = self.e
-        if e["estado"] == "independiente" and self.dados.u(self.anio, "independiente:vuelve") < P_INDEPENDIENTE_BUSCA_EMPLEO:
+        if e["estado"] == "independiente" and self.dados.u(self.anio, "independiente:vuelve") < p_independiente_busca_empleo(e):
             e.update(estado="buscando", sueldo=0.0, primer_empleo=1 if e["sueldo_ref"] <= 0 else 0)
         if e["deja_de_trabajar"]:
             if e["sueldo"] > 0:

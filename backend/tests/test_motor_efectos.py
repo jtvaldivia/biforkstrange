@@ -131,15 +131,29 @@ def test_prob_ascenso_derivada_es_la_del_evento_ascenso():
     0 si el evento no aplica (sin antigüedad, o sin empleo)."""
     assert vida(Perfil(nivel=1)).e["prob_ascenso"] == pytest.approx(0.08)
     assert vida(Perfil(nivel=0), skill=60).e["prob_ascenso"] == pytest.approx(0.10 + 10 * 0.0006)
-    assert vida(Perfil(nivel=1, edu="media")).e["prob_ascenso"] == pytest.approx(0.04)
+    # oficio 50 explícito: sin dato, quien terminó la media a los 18 tiene a los 30 el oficio de 12 años de experiencia
+    assert vida(Perfil(nivel=1, edu="media", skill=50)).e["prob_ascenso"] == pytest.approx(0.04)
     assert vida(Perfil(nivel=1, tipo_empleador="startup")).e["prob_ascenso"] == pytest.approx(0.13)
     assert vida(Perfil(nivel=1, tipo_empleador="publico")).e["prob_ascenso"] == pytest.approx(0.04)
     assert vida(Perfil(nivel=1), parcial=1).e["prob_ascenso"] == pytest.approx(0.04)
-    assert vida(Perfil(nivel=1), horas=55).e["prob_ascenso"] == pytest.approx(0.08 + 0.0064)  # ASCENSO_HORAS: panel ESI
+    # prob_ascenso_extra se suma tal cual (por ejemplo ASCENSO_HORAS, que escribe trabajar_mas_horas)
+    assert vida(Perfil(nivel=1), prob_ascenso_extra=0.0064).e["prob_ascenso"] == pytest.approx(0.08 + 0.0064)
     assert vida(Perfil(nivel=3), marcado=1).e["prob_ascenso"] == pytest.approx(0.01)  # piso del clamp
     assert vida(Perfil(nivel=1, antiguedad=0)).e["prob_ascenso"] == 0.0
     assert vida(Perfil(nivel=4)).e["prob_ascenso"] == 0.0
     assert vida(Perfil(nivel=1, estado="buscando")).e["prob_ascenso"] == 0.0
+
+
+def test_quedarse_hasta_tarde_suma_el_ascenso_por_horas_una_sola_vez():
+    """trabajar_mas_horas fija 55 horas y suma ASCENSO_HORAS (0,0064, panel ESI) a prob_ascenso_extra; el
+    ascenso lee prob_ascenso_extra, así que sube 0,0064 una vez, como cuando leía horas >= 55, y vuelve al año siguiente."""
+    v = vida(Perfil(nivel=1), DadosGuion())
+    v.iniciar_anio(con_cartas=False)
+    si = next(o for o in pq().decisiones["trabajar_mas_horas"]["opciones"] if o["id"] == "si")
+    v._aplicar(si["resultados"][0]["efectos"], "lab")
+    assert v.e["horas"] == 55 and v.e["prob_ascenso"] == pytest.approx(0.08 + 0.0064)
+    _cerrar(v)
+    assert v.e["horas"] == 44 and v.e["prob_ascenso_extra"] == pytest.approx(0)
 
 
 # ------------------------------------------------------------------ duración

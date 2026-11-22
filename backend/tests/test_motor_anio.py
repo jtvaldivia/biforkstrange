@@ -493,7 +493,7 @@ def test_separacion_no_aplica_al_empleo_extranjero_ni_a_quien_no_es_empleada():
     ("ascenso", dict(nivel=1), {}, {}, 0.08),
     ("ascenso", dict(nivel=0), {}, {}, 0.10),
     ("ascenso", dict(nivel=2), dict(skill=80), {}, 0.05 + 30 * 0.0006),
-    ("ascenso", dict(nivel=1), dict(horas=55), {}, 0.08 + 0.0064),  # ASCENSO_HORAS: panel ESI
+    ("ascenso", dict(nivel=1), dict(prob_ascenso_extra=0.0064), {}, 0.08 + 0.0064),  # ASCENSO_HORAS: panel ESI
     ("oferta_llega", dict(edad=35), {}, {}, 0.1377 * 1.5 * 1.3),
     ("oferta_llega", dict(edad=25), dict(red=80), {}, 0.2178 * 1.5 * 1.8),
     ("startup_cierra", dict(tipo_empleador="startup"), {}, {}, 1 - (1 - 0.299) ** (1 / 8)),

@@ -14,6 +14,10 @@ riesgo: 4
 ocupacion: 2
 antiguedad: 3
 region: rm
+ingles: si
+experiencia: 9
+empleadores: 3
+empresa: Fintual
 duda: emprender
 ```
 

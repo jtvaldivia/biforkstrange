@@ -1,4 +1,4 @@
-# Agarrar la pala: desarrollo
+# Agarra la pala: desarrollo
 
 ## Arranque
 

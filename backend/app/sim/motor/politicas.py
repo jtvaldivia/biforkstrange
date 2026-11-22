@@ -56,6 +56,64 @@ PESOS_CARTAS: dict[str, dict[str, float]] = {
     "sabatico": {"irse": 0.05},
     "ahorro": {"mucho": 0.20, "gastar": 0.20},
 }
+# Cuántos años dura una pega en Chile, en la mediana (supuesto del equipo, en línea con la EPS)
+ANOS_POR_EMPLEO_TIPICO = 3.0
+
+
+# Cuánto peso suma cada rasgo de tu historia a la opción que se le parece cuando quedas cesante
+# (supuestos del equipo, sin dato detrás: la dirección sale del CV, el tamaño es nuestro).
+CESANTIA_POR_HISTORIA = {
+    "volvio_a_su_nivel": ("nivel", 0.15),      # ya esperó más de 6 meses y volvió a un cargo igual o mayor
+    "freelance_entre_pegas": ("informal", 0.12),  # ya hizo boletas entre una pega y otra
+    "emprendio_antes": ("emprender", 0.06),    # ya tuvo una empresa propia
+}
+# Dónde hizo la práctica, y cuánto peso suma a buscar la primera pega en ese tipo de empleador (supuesto)
+PRIMERA_PEGA_POR_PRACTICA = {"grande": ("grande", 0.13), "publico": ("estado", 0.10)}
+# Quien ya cerró empresas sabe cerrar: +0,05 a "cerrar" por cada una, hasta +0,15 (supuesto del equipo)
+CERRAR_POR_EMPRESA_CERRADA, CERRAR_MAX = 0.05, 0.15
+
+
+def _mover(pesos: dict[str, float], opcion: str, cuanto: float) -> dict[str, float]:
+    """Suma `cuanto` a una opción y se lo quita a las demás en proporción a su peso (siguen sumando 1)."""
+    resto = sum(p for o, p in pesos.items() if o != opcion)
+    cuanto = min(cuanto, resto)
+    return {o: round(p + cuanto if o == opcion else p * (1 - cuanto / resto), 4) for o, p in pesos.items()}
+
+
+def pesos_personales(e: dict) -> dict[str, dict[str, float]]:
+    """Los gemelos se parecen a ti: responden a lo que la vida les pone delante como tú ya respondiste.
+
+    Cada rasgo viene del CV y pasa por el estado (`perfil.HISTORIA`); sin él quedan los pesos de la
+    población, exactamente. Supuestos del equipo:
+    - oferta_externa: la probabilidad de cambiarse escala con 3 años / tus años por pega, entre la mitad
+      y 1,8 veces.
+    - cesantia: cada rasgo de `CESANTIA_POR_HISTORIA` suma peso a la opción que se le parece.
+    - primera_pega: una práctica en una empresa grande o en el Estado suma peso a postular ahí
+      (`practica` solo llega al estado de quien estudia o busca su primer empleo).
+    - seguir_con_tu_empresa: cada empresa que ya cerró suma peso a cerrar la de ahora.
+    """
+    salida: dict[str, dict[str, float]] = {}
+    anos = e.get("anos_por_empleo")
+    if anos:
+        base = PESOS_FORZADAS["oferta_externa"]
+        cambiar = min(0.65, max(0.15, base["cambiar"] * min(1.8, max(0.5, ANOS_POR_EMPLEO_TIPICO / anos))))
+        salida["oferta_externa"] = {"cambiar": round(cambiar, 3), "contraoferta": base["contraoferta"],
+                                    "quedarse": round(1 - cambiar - base["contraoferta"], 3)}
+    cesantia = PESOS_FORZADAS["cesantia"]
+    for rasgo, (opcion, cuanto) in CESANTIA_POR_HISTORIA.items():
+        if e.get(rasgo):
+            cesantia = _mover(cesantia, opcion, cuanto)
+    if cesantia is not PESOS_FORZADAS["cesantia"]:
+        salida["cesantia"] = cesantia
+    if e.get("practica") in PRIMERA_PEGA_POR_PRACTICA:
+        opcion, cuanto = PRIMERA_PEGA_POR_PRACTICA[e["practica"]]
+        salida["primera_pega"] = _mover(PESOS_FORZADAS["primera_pega"], opcion, cuanto)
+    if e.get("empresas_cerradas"):
+        cuanto = min(CERRAR_MAX, CERRAR_POR_EMPRESA_CERRADA * e["empresas_cerradas"])
+        salida["seguir_con_tu_empresa"] = _mover(PESOS_FORZADAS["seguir_con_tu_empresa"], "cerrar", cuanto)
+    return salida
+
+
 # Opción que equivale a no hacer nada, donde no es la última de la lista
 STATU_QUO = {"oferta_externa": "quedarse", "ahorro": "normal"}
 
@@ -93,8 +151,10 @@ def elecciones_internas(vida: Vida, opcion: Opcion) -> list[dict]:
         filas = {f["rubro"]: f for f in pq.filas("esi_ingreso_rubro_edad") if f["banda_edad"] == "18-54"}
         salida.append({"variable": "rubro_destino", "pregunta": "¿A qué rubro?", "alternativas": [
             {"valor": r, "nombre": r, "prob": float(filas[r]["share_ocupados_banda"] or 0) if r in filas else 0.0,
-             # la carta pregunta por "un rubro que paga más": por defecto, el de mayor sueldo mediano
-             "preferencia": float(filas[r]["p50"] or 0) if r in filas else 0.0}
+             # la carta pregunta por "un rubro que paga más": por defecto, el de mayor sueldo mediano,
+             # salvo que la persona haya contado a qué rubro se cambiaría
+             "preferencia": (1e12 if r == e.get("rubro_sonado") else
+                             float(filas[r]["p50"] or 0) if r in filas else 0.0)}
             for r in pq.variables["rubro"]["dominio"] if r and r != e["rubro"]]})
     if "ocupacion_destino" in usadas:
         nombres = {int(f["origen"]): f["origen_nombre"] for f in pq.filas("jobhop_transiciones")}

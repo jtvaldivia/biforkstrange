@@ -37,7 +37,7 @@
    "nombre": "Ascenso",
    "categoria": "trabajo",
    "cuando": "y(estado == 'empleado', nivel < 4, antiguedad >= 1)",
-   "prob_anual": "clamp(k('ASCENSO', nivel) * si(y(edu == 'media', nivel >= 1), 0.5, 1) + (skill - 50) * 0.0006 + si(horas >= 55, k('ASCENSO_HORAS'), 0) + si(tipo_empleador == 'startup', 0.05, 0) - si(tipo_empleador == 'publico', 0.04, 0) - si(marcado, 0.06, 0), 0.01, 0.4) * si(parcial, 0.5, 1)",
+   "prob_anual": "clamp(k('ASCENSO', nivel) * si(y(edu == 'media', nivel >= 1), 0.5, 1) + (skill - 50) * 0.0006 + prob_ascenso_extra + si(tipo_empleador == 'startup', 0.05, 0) - si(tipo_empleador == 'publico', 0.04, 0) - si(marcado, 0.06, 0), 0.01, 0.4) * si(parcial, 0.5, 1)",
    "resultados": [
     {
      "id": "sube",
