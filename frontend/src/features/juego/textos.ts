@@ -15,25 +15,6 @@ export function plata(n: number): string {
   return pesos(n);
 }
 
-/** Proporción dicha en simple: "1 de cada 3", "casi todos". */
-export function deCada(p: number): string {
-  if (p <= 0) return "ninguno";
-  if (p >= 1) return "todos";
-  if (p < 0.05) return "menos de 1 de cada 10";
-  if (p > 0.95) return "casi todos";
-  let mejor = { n: 1, d: 2, error: Infinity };
-  for (const d of [2, 3, 4, 5, 10]) {
-    for (let n = 1; n < d; n++) {
-      const error = Math.abs(n / d - p);
-      if (error < mejor.error - 1e-9) mejor = { n, d, error };
-    }
-  }
-  return `${mejor.n} de cada ${mejor.d}`;
-}
-
-/** Siempre sobre 10, para comparar opciones entre sí: "7 de cada 10". */
-export const deCada10 = (p: number) => `${Math.round(p * 10)} de cada 10`;
-
 /** Los datos del perfil que se preguntan en el onboarding: si no los dijiste, quedan como supuesto. */
 export const CAMPOS_PERFIL: Record<string, string> = {
   edad: "edad", sexo: "sexo", edu: "estudios", tipo_empleador: "tipo de empresa", nivel: "cargo", rubro: "rubro", sueldo: "sueldo", ingles: "inglés",
@@ -93,12 +74,6 @@ export const cargoYSueldo = (e: Estado, corto = false) =>
   sinSueldo(e)
     ? situacion(e.estado)
     : `${e.rol || e.cargo}${!corto && e.empresa ? ` en ${e.empresa}` : ""} · ${corto ? plata(e.sueldo) : pesos(e.sueldo)}`;
-
-export function riesgoEnPalabras(r: number): string {
-  if (r <= 3) return "prefiero lo seguro";
-  if (r >= 7) return "me la juego";
-  return "depende";
-}
 
 const ARTE_CATEGORIA: Record<string, DecisionArtKind> = {
   estudios: "magister",
@@ -243,8 +218,6 @@ export function primeraFrase(texto: string): string {
   const m = texto.match(/^(.+?[.!?])(\s|$)/);
   return (m ? m[1] : texto).trim();
 }
-
-export const sinPunto = (s: string) => s.replace(/[.\s]+$/, "");
 
 export const mayuscula = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 

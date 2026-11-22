@@ -1,9 +1,9 @@
 import { Button, Meta, Narrative, NightBand, Panel, Pill, Screen, ScreenFooter, ScreenHeader, SlowReveal, Stack, Text, YearTicker, cssVars } from "@/shared/ui";
-import { TIPO_EMPLEADOR, aniosDe, cargoYSueldo, conSigno, deCada, deCada10, deCien, pesos, plata, porciento, sinSueldo, situacion } from "../textos";
-import type { Anio, Estado, Narrado, Vista } from "../types";
+import { TIPO_EMPLEADOR, aniosDe, cargoYSueldo, conSigno, pesos, plata, porciento, sinSueldo, situacion } from "../textos";
+import type { Anio, DecisionTomada, Estado, Narrado, Vista } from "../types";
 import { useNarracion } from "../hooks/useNarracion";
 import { GEMELOS } from "../api";
-import { DadoEnJuego, Info, LineaSueldo, Ruleta, sinMovimiento, type Casilla } from "./graficos";
+import { Info, LineaSueldo, Ruleta, sinMovimiento, type Casilla } from "./graficos";
 import { Noticia, Salir } from "./piezas";
 import { ComoCambioTuSueldo, TuIngreso } from "./Plata";
 import { TiraMeses, mesesDelAnio } from "./BuscandoTrabajo";
@@ -32,11 +32,41 @@ function porQueBajo(antes: Estado, ahora: Estado, despido: boolean): string {
   return "En el mismo trabajo el alza anual nunca es negativa. Si bajó, es por algo que elegiste o te pasó este año, como menos horas o un cambio de cargo.";
 }
 
+/** Bajo este cambio (±2%), el sueldo se cuenta como "casi igual": así la frase y el número no se contradicen. */
+const CASI_IGUAL = 0.02;
+
+/** Un año con algo que se mostró con su %: desde el segundo, la ayuda del % ya se vio. */
+const conPorcentaje = (a: Anio, primero: boolean) => a.eventos.some((e) => !e.rutina && !e.directo) || a.decisiones.length > (primero ? 1 : 0);
+
+/**
+ * El texto del resultado del dado, coherente con lo que de verdad pasó con el sueldo. "Ganas lo mismo o menos"
+ * describe el resultado antes de sortear el empleador nuevo; si con él terminas ganando más, se dice eso.
+ */
+function textoDado(dado: DecisionTomada, tramo: Anio | undefined, finAnio?: number): string {
+  if (!/mismo o menos/i.test(dado.texto) || dado.sueldo_antes === undefined || !(dado.sueldo_antes > 0)) return dado.texto;
+  // el sorteo del empleador que sigue a la decisión es parte del mismo cambio de sueldo
+  const siguen = tramo ? tramo.decisiones.slice(tramo.decisiones.indexOf(dado) + 1) : [];
+  let despues = dado.sueldo_despues;
+  for (const d of siguen) {
+    if (d.decision !== "tipo_de_empleador") break;
+    despues = d.sueldo_despues ?? despues;
+  }
+  if (despues === undefined || !(despues > 0)) return dado.texto;
+  const cambio = despues / dado.sueldo_antes - 1;
+  if (cambio >= CASI_IGUAL) return `Al final ganas ${Math.round(cambio * 100)}% más que antes.`;
+  // el cambio en sí no sube el sueldo, pero el alza del año puede dejarte arriba: se dicen las dos cosas
+  const delAnio = finAnio !== undefined && finAnio > 0 ? finAnio / dado.sueldo_antes - 1 : 0;
+  if (delAnio >= CASI_IGUAL) return `El cambio no te sube el sueldo, pero con el alza del año terminas ganando ${Math.round(delAnio * 100)}% más.`;
+  if (Math.abs(cambio) < CASI_IGUAL) return "Ganas casi lo mismo que antes.";
+  return dado.texto;
+}
+
 function Quedaste({ antes, ahora, recorrido, espera, despido }: { antes: Estado | undefined; ahora: Estado; recorrido: { edad: number; sueldo: number }[]; espera: number; despido: boolean }) {
   const cargo = antes && antes.cargo !== ahora.cargo ? `${antes.cargo} → ${ahora.cargo}` : ahora.cargo;
   const donde = [TIPO_EMPLEADOR[ahora.tipo_empleador] ?? ahora.tipo_empleador, ahora.rubro].filter(Boolean).join(" · ");
   const comparable = antes && !sinSueldo(antes) && !sinSueldo(ahora);
   const delta = comparable ? ahora.sueldo - antes!.sueldo : 0;
+  const casiIgual = comparable && Math.abs(delta) < CASI_IGUAL * antes!.sueldo;
   return (
     <Panel className="jg-despues" style={cssVars({ "--jg-espera": `${espera}s` })}>
       <Meta>Cómo quedaste · {ahora.edad} años</Meta>
@@ -44,7 +74,8 @@ function Quedaste({ antes, ahora, recorrido, espera, despido }: { antes: Estado 
         <span className="jg-cambio-num">
           {sinSueldo(ahora) ? "Sin sueldo" : pesos(ahora.sueldo)}
         </span>
-        {comparable && Math.abs(delta) >= 1000 && (
+        {comparable && delta !== 0 && casiIgual && <span className="jg-delta">casi igual</span>}
+        {comparable && !casiIgual && (
           <span className="jg-delta" data-signo={delta > 0 ? "mas" : "menos"}>
             {conSigno(delta)} al mes
           </span>
@@ -91,7 +122,8 @@ export function QuePaso({
   /** Los eventos de cada año contados por Claude; sin él (o si falla) queda el texto del paquete. */
   onNarrar?: (que: "historia", signal: AbortSignal) => Promise<{ items: Narrado[] }>;
 }) {
-  const { textos: narrados, listo } = useNarracion(onNarrar ? (signal) => onNarrar("historia", signal) : null, `${vista.historia.length}:${vista.anio_en_curso?.decisiones.length ?? 0}`);
+  // el resultado ya está decidido: se muestra de inmediato; lo que cuenta Claude reemplaza la plantilla cuando llega
+  const { textos: narrados } = useNarracion(onNarrar ? (signal) => onNarrar("historia", signal) : null, `${vista.historia.length}:${vista.anio_en_curso?.decisiones.length ?? 0}`);
   const tramos = loNuevo(previa, vista).filter((a) => a.fin || a.decisiones.length > 0 || a.eventos.some((e) => !e.rutina));
   const dado = tramos[0]?.decisiones[0];
   const cerrados = tramos.filter((a) => a.fin);
@@ -116,7 +148,9 @@ export function QuePaso({
   if (vista.anio_en_curso && !sinSueldo(vista.estado) && ultimo && ultimo.sueldo !== vista.estado.sueldo)
     recorrido.push({ edad: vista.estado.edad, sueldo: vista.estado.sueldo });
   const despido = tramos.some((a) => a.eventos.some((e) => e.evento === "separacion_empleo"));
-  const conProbabilidad = tramos.some((a) => a.eventos.some((e) => !e.rutina && !e.directo) || a.decisiones.length > (a === tramos[0] ? 1 : 0));
+  const conProbabilidad = tramos.some((a) => conPorcentaje(a, a === tramos[0]));
+  // la ayuda del % va solo el primer año en que aparece un %
+  const yaVioPorcentaje = (previa?.historia ?? []).some((a) => conPorcentaje(a, true));
   const proximo = Math.min(vista.anio + 1, vista.anios);
   // una ronda puede ocupar varios años (un doctorado, cinco): se cuentan por edad
   const edades: number[] = [];
@@ -129,16 +163,6 @@ export function QuePaso({
     : siguiente ? `Siguiente: ${siguiente.nombre}` : "Seguir";
   const boton = vista.terminada ? "Ver cómo terminaste" : mismoAnio ? queSigue : `Seguir al año ${proximo}`;
 
-  // el dado sigue girando hasta que Claude cuenta el año: las noticias se muestran una vez y no cambian
-  // mientras Claude cuenta el año sigue la misma escena de la carta: la ficha buscando, o la espera corta si era segura
-  if (!listo)
-    return (
-      <DadoEnJuego
-        casillas={hayRuleta ? casillas : []}
-        titulo={`Mundo ${GEMELOS + 1} · ${primero ? `${primero.edad} años` : `año ${proximo}`}`}
-        texto={hayRuleta ? undefined : "Contando tu año…"}
-      />
-    );
 
   return (
     <Screen tone={noche ? "noche" : "dia"} gap={16} className="jg-quepaso" key={`${vista.historia.length}:${vista.anio_en_curso?.decisiones.length ?? 0}`}>
@@ -165,14 +189,8 @@ export function QuePaso({
             </>
           )}
           <SlowReveal delay={espera}>
-            <Narrative strong>{dado.texto}</Narrative>
+            <Narrative strong>{textoDado(dado, primero, sinSueldo(vista.estado) ? undefined : vista.estado.sueldo)}</Narrative>
           </SlowReveal>
-          {/* sin dado (el resultado era seguro) no hay nada que contar: "era seguro" se leía como "esta opción es segura" */}
-          {(hayRuleta || dado.prob < 0.995) && (
-            <SlowReveal delay={espera + 0.1}>
-              <Text size="sm">{hayRuleta ? `Pasó en ${deCien(tocada!.prob)} mundos.` : `Pasa en ${deCien(dado.prob)} mundos.`}</Text>
-            </SlowReveal>
-          )}
         </Stack>
       )}
 
@@ -219,7 +237,7 @@ export function QuePaso({
         );
       })}
 
-      {conProbabilidad && (
+      {conProbabilidad && !yaVioPorcentaje && (
         <Info pregunta="¿Qué es el % junto a cada noticia?">
           Qué tan probable era que te pasara eso, a alguien en tu situación. Por ejemplo, «4% al año» junto a un despido: de cada 100 personas como tú, a
           unas 4 las despiden en un año. Junto a una decisión, es qué tan probable era el resultado que te tocó. Los «de 100 mundos», en cambio, cuentan en
@@ -235,8 +253,13 @@ export function QuePaso({
       )}
 
       <Quedaste antes={previa?.estado} ahora={vista.estado} recorrido={recorrido} espera={espera + 0.3} despido={despido} />
-      <ComoCambioTuSueldo tramos={tramos} antes={previa?.estado} ahora={vista.estado} />
-      <TuIngreso tramos={tramos} ahora={vista.estado} />
+      <details className="jg-plegable">
+        <summary>Ver detalle de tu plata</summary>
+        <Stack gap={12}>
+          <ComoCambioTuSueldo tramos={tramos} antes={previa?.estado} ahora={vista.estado} />
+          <TuIngreso tramos={tramos} ahora={vista.estado} />
+        </Stack>
+      </details>
 
       <ScreenFooter>
         <Button variant={vista.terminada ? "sol" : "primary"} onClick={onSeguir}>

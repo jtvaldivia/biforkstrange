@@ -15,7 +15,7 @@ const ORDENADOS = [...FINALES].sort((a, b) => "mas igual menos".indexOf(a) - "ma
 
 const PASOS = [
   {
-    titulo: "Este eres tú, hoy.",
+    titulo: "Tú, hoy.",
     texto: "Cómo te va depende de lo que elijas y de la suerte.",
   },
   {
@@ -172,9 +172,9 @@ export function ComoFunciona({ onListo, onVolver, textoListo = "Armar mi perfil"
           </>
         ) : (
           <>
-            <span><i data-final="mas" /><b>{CUENTA.mas}</b> de {GEMELOS}: mejor con una</span>
+            <span><i data-final="mas" /><b>{CUENTA.mas}</b> de {GEMELOS}: mejor si te cambias</span>
             <span><i data-final="igual" /><b>{CUENTA.igual}</b> igual</span>
-            <span><i data-final="menos" /><b>{CUENTA.menos}</b> mejor con la otra</span>
+            <span><i data-final="menos" /><b>{CUENTA.menos}</b> mejor si te quedas</span>
           </>
         )}
       </div>

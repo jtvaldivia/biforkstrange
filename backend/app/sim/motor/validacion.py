@@ -24,7 +24,8 @@ Cada meta lleva `calidad`: "validacion" (el motor no usa ese número), "parcial"
 `politicas.py` se ajustaron contra ella) o "insumo" (el motor lee ese mismo número:
 reproducirlo no valida nada).
 
-Uso: `python -m app.sim.motor.validacion [n] [semilla]`.
+Uso: `python -m app.sim.motor.validacion [n] [semilla]`, o `--precalcular` para dejar guardada
+la que sirve el endpoint (n=1000, semilla 0).
 """
 
 from __future__ import annotations
@@ -375,6 +376,59 @@ def validar(n: int = N_COHORTE, semilla: int = 0, procesos: int | None = None) -
     }
 
 
+# La validación que sirve el endpoint, calculada al construir el deploy (`render.yaml` corre
+# `python -m app.sim.motor.validacion --precalcular`). En el servidor de 0,1 CPU simularla en la
+# primera llamada tardaba más de un minuto. La huella dice con qué motor y paquete se calculó:
+# si cambiaron, el archivo no se usa y el endpoint vuelve a simular.
+PRECALCULADA = Path(__file__).resolve().parent / "validacion_precalculada.json"
+N_PRECALCULADA = 1000
+
+
+def huella() -> str:
+    """Hash del paquete de reglas y del código del motor: lo que cambia el resultado de la validación."""
+    import hashlib
+
+    backend = Path(__file__).resolve().parents[3]
+    archivos = sorted(
+        [*(backend / "simulador").rglob("*.json"), *(backend / "simulador").rglob("*.csv"),
+         *(backend / "simulador").rglob("*.py"), *Path(__file__).resolve().parent.glob("*.py")]
+    )
+    h = hashlib.sha256()
+    for a in archivos:
+        h.update(str(a.relative_to(backend)).encode())
+        h.update(a.read_bytes())
+    return h.hexdigest()[:16]
+
+
+def para_api(resultado: dict) -> dict:
+    """Lo que devuelve el endpoint: sin la lista de fallas ni el conteo de decisiones."""
+    return {k: v for k, v in resultado.items() if k not in ("fallas", "decisiones")}
+
+
+def precalcular(n: int = N_PRECALCULADA, semilla: int = 0) -> Path:
+    import json
+
+    datos = {"huella": huella(), "resultado": para_api(validar(n, semilla))}
+    PRECALCULADA.write_text(json.dumps(datos, ensure_ascii=False))
+    return PRECALCULADA
+
+
+def precalculada(n: int, semilla: int) -> dict | None:
+    """La validación guardada en el deploy, si es de este n, esta semilla y este mismo motor."""
+    import json
+
+    if not PRECALCULADA.exists():
+        return None
+    try:
+        datos = json.loads(PRECALCULADA.read_text())
+    except (OSError, ValueError):
+        return None
+    r = datos.get("resultado", {})
+    if r.get("n") != n or r.get("semilla") != semilla or datos.get("huella") != huella():
+        return None
+    return r
+
+
 def _fmt(v: float | None, plata: bool) -> str:
     if v is None:
         return "s/d"
@@ -422,6 +476,9 @@ def tabla(r: dict) -> str:
 
 def main(argv: list[str] | None = None) -> None:
     argv = sys.argv[1:] if argv is None else argv
+    if argv[:1] == ["--precalcular"]:
+        print(f"Validación guardada en {precalcular()}")
+        return
     n = int(argv[0]) if argv else N_COHORTE
     semilla = int(argv[1]) if len(argv) > 1 else 0
     print(tabla(validar(n, semilla)))

@@ -793,7 +793,7 @@ class Vida:
         if id_ in ALZAS and sueldo_antes > 0 and abs(self.e["sueldo"] - sueldo_antes) < 1:
             # el sueldo es en pesos de hoy: un alza de 0 es un año en que solo te reajustaron por inflación.
             # Se cuenta como noticia, para que el sueldo igual al peso no parezca un error.
-            anotado.update(texto=SOLO_IPC, rutina=False, directo=True)
+            anotado.update(texto=SOLO_IPC, rutina=False, directo=True, solo_ipc=True)
         if id_ == MES_BUSCANDO:
             self.meses_buscando += 1
             self._meses_buscando_anio += 1

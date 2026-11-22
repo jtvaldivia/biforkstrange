@@ -414,3 +414,34 @@ def test_en_la_cesantia_vives_la_empresa_que_mostro_la_oferta():
         vistos += 1
         iguales += vida.e["empresa_id"] == mostrada["empresa_id"]
     assert vistos >= 10 and iguales == vistos
+
+
+def test_la_oferta_sigue_la_linea_del_cargo_que_escribiste_aunque_el_rubro_diga_otro_oficio():
+    """Una analista de datos en Comercio: sin ocupación declarada, el rubro la deja en CIUO 3 y ningún cargo de
+    datos es de ese grupo. Antes se le ofrecía "Asistente de gerencia"; ahora, un cargo de datos."""
+    from app.sim.motor import empresas
+    from app.sim.motor.paquete import paquete
+    from app.sim.motor.perfil import Perfil, estado_inicial
+
+    pq = paquete()
+    e = estado_inicial(Perfil(cargo_nombre="Analista de datos semi senior", rubro="Comercio", nivel=2,
+                              edu="universitaria", tipo_empleador="grande"), pq)
+    lider = next(x for x in empresas._catalogo(pq)["empresas"] if "Lider" in x["nombre"])
+    cargos = empresas.compatibles(pq, lider, e)
+    assert cargos and {c["familia"] for c in cargos} == {"datos"}
+
+
+def test_con_trabajo_no_te_ofrecen_el_mismo_cargo_que_ya_tienes():
+    from app.sim.motor import empresas
+    from app.sim.motor.azar import Dados
+    from app.sim.motor.paquete import paquete
+    from app.sim.motor.perfil import Perfil, estado_inicial
+
+    pq = paquete()
+    e = estado_inicial(Perfil(cargo_nombre="Analista de datos", rubro="Comercio", nivel=2, edu="universitaria",
+                              tipo_empleador="grande"), pq)
+    lider = next(x for x in empresas._catalogo(pq)["empresas"] if "Lider" in x["nombre"])
+    e["cargo_id"] = next(c["cargo_id"] for c in empresas.compatibles(pq, lider, e) if c["nombre"] == "Analista de datos")
+    for semilla in range(40):
+        car = empresas.sortear_cargo(pq, Dados(semilla, 0), 1, "oferta", lider, e, otro_que_el_actual=True)
+        assert car["cargo_id"] != e["cargo_id"]

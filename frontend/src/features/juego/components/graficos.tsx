@@ -1,24 +1,11 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { cssVars, cx } from "@/shared/ui";
 import { GEMELOS } from "../api";
 import { minuscula, plata } from "../textos";
-import type { Tono } from "../types";
+import type { Rango, Tono } from "../types";
+import { RangoSueldo } from "./piezas";
 
 export const sinMovimiento = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-/** Reparte `total` puntos según las proporciones, sin que el redondeo sume de más o de menos. */
-export function repartir(partes: number[], total = 100): number[] {
-  const suma = partes.reduce((a, b) => a + b, 0) || 1;
-  const exactos = partes.map((p) => (p / suma) * total);
-  const enteros = exactos.map(Math.floor);
-  let faltan = total - enteros.reduce((a, b) => a + b, 0);
-  const orden = exactos.map((e, i) => ({ i, resto: e - Math.floor(e) })).sort((a, b) => b.resto - a.resto);
-  for (const { i } of orden) {
-    if (faltan-- <= 0) break;
-    enteros[i]++;
-  }
-  return enteros;
-}
 
 /** Una explicación que se abre al tocar el "?": información extra sin ocupar la pantalla. */
 export function Info({ pregunta, children }: { pregunta: string; children: ReactNode }) {
@@ -40,36 +27,6 @@ export function Info({ pregunta, children }: { pregunta: string; children: React
 }
 
 export type Reparto = { mas: number; igual: number; menos: number };
-
-/**
- * Los gemelos de una opción, de a 100: cada punto son 5 gemelos. Verde terminó ganando más que su par
- * de la opción base, gris igual, naranjo menos. Sin `reparto` (la opción base) son todos neutros.
- */
-export function NubeGemelos({ reparto, etiqueta }: { reparto: Reparto | null; etiqueta: string }) {
-  const [mas, igual] = reparto ? repartir([reparto.mas, reparto.igual, reparto.menos]) : [0, 100];
-  return (
-    <span className="jg-nube" role="img" aria-label={etiqueta}>
-      {Array.from({ length: 100 }, (_, i) => (
-        <i
-          key={i}
-          data-tipo={!reparto ? "base" : i < mas ? "mas" : i < mas + igual ? "igual" : "menos"}
-          style={cssVars({ "--jg-i": (i % 10) + Math.floor(i / 10) })}
-        />
-      ))}
-    </span>
-  );
-}
-
-export function LeyendaNube({ reparto, nombre, contra }: { reparto: Reparto; nombre: string; contra: string }) {
-  const [mas, igual, menos] = repartir([reparto.mas, reparto.igual, reparto.menos]);
-  return (
-    <span className="jg-leyenda">
-      <span><i data-tipo="mas" />en <b>{mas}</b> ganas más con «{nombre}»</span>
-      <span><i data-tipo="igual" />en <b>{igual}</b> terminas igual</span>
-      <span><i data-tipo="menos" />en <b>{menos}</b> ganas más con «{contra}»</span>
-    </span>
-  );
-}
 
 export type PuntoAbanico = { edad: number; p10: number; p50: number; p90: number };
 
@@ -198,30 +155,6 @@ export function ProgresoAnios({ actual, total }: { actual: number; total: number
   );
 }
 
-/** Un número que sube o baja hasta su valor en vez de aparecer de golpe. */
-export function Contador({ desde, hasta, formato, espera = 0, ms = 900 }: { desde: number; hasta: number; formato: (n: number) => string; espera?: number; ms?: number }) {
-  const [n, setN] = useState(sinMovimiento() ? hasta : desde);
-  const cuadro = useRef(0);
-  useEffect(() => {
-    if (sinMovimiento() || desde === hasta) {
-      setN(hasta);
-      return;
-    }
-    setN(desde);
-    let inicio = 0;
-    const paso = (t: number) => {
-      if (!inicio) inicio = t + espera;
-      const k = Math.min(1, Math.max(0, (t - inicio) / ms));
-      const suave = 1 - Math.pow(1 - k, 3);
-      setN(desde + (hasta - desde) * suave);
-      if (k < 1) cuadro.current = requestAnimationFrame(paso);
-    };
-    cuadro.current = requestAnimationFrame(paso);
-    return () => cancelAnimationFrame(cuadro.current);
-  }, [desde, hasta, espera, ms]);
-  return <span style={{ fontVariantNumeric: "tabular-nums" }}>{formato(n)}</span>;
-}
-
 export type Casilla = { id: string; texto: string; prob: number; tono: Tono };
 
 /**
@@ -266,11 +199,17 @@ export function Ruleta({ casillas, salio }: { casillas: Casilla[]; salio: string
  * y la ficha buscando dónde caer. Sin resultados que sortear (una opción segura) es solo una espera corta.
  * Es la misma pista que la ruleta del resultado: ahí la ficha cae donde te tocó.
  */
-export function DadoEnJuego({ casillas, titulo, texto }: { casillas: Casilla[]; titulo: string; texto?: string }) {
+export function DadoEnJuego({ casillas, titulo, texto, onSalir }: { casillas: Casilla[]; titulo: string; texto?: string; onSalir?: () => void }) {
   const total = casillas.reduce((a, c) => a + c.prob, 0) || 1;
   const hay = casillas.length > 1;
   return (
     <div className="jg-dado-pantalla" data-sorteo={hay} role="status" aria-live="polite">
+      {/* si el motor tarda o no responde, siempre hay una salida: la partida queda guardada */}
+      {onSalir && (
+        <button type="button" className="jg-ayuda jg-dado-salir" onClick={onSalir}>
+          Salir
+        </button>
+      )}
       <span className="ap-titulo">{titulo}</span>
       {hay ? (
         <div className="jg-dado-cuerpo">
@@ -333,5 +272,39 @@ export function LineaSueldo({ puntos }: { puntos: { edad: number; sueldo: number
       <text x={X0} y={H - 6} className="jg-abanico-sub">{e0} años · {plata(puntos[0].sueldo)}</text>
       <text x={X1} y={H - 6} textAnchor="end" className="jg-abanico-sub">{e1} años</text>
     </svg>
+  );
+}
+
+/**
+ * El sueldo final de cada opción en una sola escala: del 10% al 90% de sus mundos, con la mediana marcada y los
+ * extremos en pesos. `tu` marca tu sueldo una sola vez, con una raya que cruza todas las opciones.
+ */
+export function RangosOpciones({ opciones, tu }: { opciones: { id: string; nombre: string; rango: Rango; color?: string; nota?: string }[]; tu?: number }) {
+  if (opciones.length === 0) return null;
+  const tope = Math.max(tu ?? 0, ...opciones.map((o) => o.rango.p90), 1) * 1.05;
+  const enPct = (n: number) => Math.min(100, Math.max(0, (n / tope) * 100));
+  return (
+    <div style={{ position: "relative", display: "grid", gap: 14 }}>
+      {opciones.map((o) => (
+        <div key={o.id} style={{ display: "grid", gap: 4 }}>
+          <span className="jg-chico">
+            <i className="jg-color" style={{ background: o.color }} aria-hidden="true" /> {o.nombre}
+            {o.nota && ` · ${o.nota}`}
+          </span>
+          <RangoSueldo rango={o.rango} tope={tope} color={o.color} />
+        </div>
+      ))}
+      {tu !== undefined && (
+        <span
+          aria-label={`Tu sueldo: ${plata(tu)}`}
+          role="img"
+          style={{ position: "absolute", top: 0, bottom: 18, left: `${enPct(tu)}%`, borderLeft: "2px dashed var(--sol, #f5b800)", pointerEvents: "none" }}
+        >
+          <span className="jg-chico" style={{ position: "absolute", top: -16, transform: enPct(tu) > 85 ? "translateX(-100%)" : "translateX(-50%)", whiteSpace: "nowrap", fontWeight: 700 }}>
+            tú
+          </span>
+        </span>
+      )}
+    </div>
   );
 }

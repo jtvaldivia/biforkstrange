@@ -5,7 +5,7 @@ import {
 } from "@/shared/ui";
 import { getPrompt, textoError } from "../api";
 import { MANUAL, type Onboarding as OnboardingEstado } from "../hooks/useBorrador";
-import { EDUCACION, TIPO_EMPLEADOR, pesos } from "../textos";
+import { EDUCACION, TIPO_EMPLEADOR, pesos, situacion } from "../textos";
 import type { Catalogo, DudaSugerida, Perfil, Sexo } from "../types";
 import { Cargando, ErrorCaja } from "./piezas";
 import { PerfilForm, RUBROS_TOP, SLIDER_MAX, SLIDER_MIN, TuPega, banda } from "./PerfilForm";
@@ -14,9 +14,6 @@ import { PerfilForm, RUBROS_TOP, SLIDER_MAX, SLIDER_MIN, TuPega, banda } from ".
 const ELEGIR: Record<string, (keyof Perfil)[]> = { tu: ["sexo", "edu"], pega: ["tipo_empleador", "nivel", "rubro"], plata: ["ingles"] };
 /** Los sliders siempre tienen un valor: cuentan como respuesta al pasar de tarjeta. */
 const DESLIZAR: Record<string, (keyof Perfil)[]> = { tu: ["edad"], plata: ["sueldo"] };
-const SITUACION: Record<string, string> = {
-  independiente: "Independiente", fundador: "Fundador", buscando: "Buscando trabajo", estudiando: "Estudiando",
-};
 const FRASES = ["Leyendo tu experiencia…", "Buscando tu empresa en el SII…", "Contando tus años de trabajo…", "Eligiendo tus dudas…"];
 
 /**
@@ -85,16 +82,13 @@ export function Onboarding({
           o.aplicarFormulario(perfil);
           o.verCompleto(false);
         }}
-        onLeido={o.anotarLectura}
         onListo={(perfil) => {
           o.aplicarFormulario(perfil, true);
           onListo(perfil);
         }}
-        onElegirDuda={(perfil, suyas) => {
+        onElegirDuda={(perfil) => {
           o.aplicarFormulario(perfil, true);
-          // las que trajo el formulario primero, después las de tus fuentes, sin repetir
-          const todas = [...suyas, ...sugeridas].filter((d, k, xs) => xs.findIndex((x) => x.decision === d.decision) === k).slice(0, 3);
-          onElegirDuda(perfil, todas);
+          onElegirDuda(perfil, sugeridas);
         }}
         cargando={cargando}
         error={error}
@@ -513,7 +507,7 @@ function Ficha({
     ["rubro", p.rubro],
     ["sueldo", pesos(p.sueldo)],
     ["ingles", p.ingles ? "Inglés" : undefined],
-    ["estado", p.estado && p.estado !== "empleado" ? SITUACION[p.estado] : undefined],
+    ["estado", p.estado && p.estado !== "empleado" ? situacion(p.estado) : undefined],
     ["remoto", p.remoto ? "Remoto" : undefined],
     ["parcial", p.parcial ? "Media jornada" : undefined],
     ["usa_ia", p.usa_ia ? "Usa IA" : undefined],
@@ -577,7 +571,7 @@ function Ficha({
 function Tarjeta({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <Stack gap={18} className="ob-tarjeta">
-      <Heading level={2}>{titulo}</Heading>
+      <Heading level={2} as="h1">{titulo}</Heading>
       {children}
     </Stack>
   );

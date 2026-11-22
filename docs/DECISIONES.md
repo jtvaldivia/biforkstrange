@@ -72,9 +72,9 @@ La partida parte con una decisión al azar, como las demás. Elegir la primera d
 
 ## 11. Empresas reales solo como ejemplo
 
-Las empresas reales (SII, Get on Board, Y Combinator, empleospublicos.cl) aparecen como ejemplo al lado de una opción. La historia de cada decisión usa empresas ficticias.
+Las empresas reales del catálogo (SII, Get on Board, Y Combinator, empleospublicos.cl) aparecen como ejemplo en las ofertas, con el aviso de que sus cifras y lo que les pasa son simulados. Un despido o un cierre se cuenta siempre con una empresa ficticia, en la plantilla y cuando narra Claude (`narrador_ia.py` lo valida).
 
-**Por qué.** La simulación trabaja con rubro, tamaño y tipo de empleador, no con empresas. Si la historia usara una empresa real, el juego inventaría hechos sobre ella ("la startup cierra").
+**Por qué.** La simulación trabaja con rubro, tamaño y tipo de empleador, no con empresas. Una oferta con un nombre conocido se entiende mejor, pero si un evento malo usara una empresa real, el juego inventaría hechos sobre ella ("la startup cierra").
 
 ## 12. La partida no se guarda
 

@@ -1,11 +1,5 @@
 /* Juego: lo que se compone encima del kit (clases vd-*) sin tocarlo. Usa sus variables de color. */
 
-/* La carta necesita ancho para poner las opciones lado a lado en escritorio */
-@media (min-width: 760px) {
-  .vd-pantalla.jg-ancha { max-width: 940px; }
-  .jg-ancha .jg-columna { max-width: 560px; }
-}
-
 /* Campos de texto y listas del perfil */
 .jg-campo { width: 100%; min-height: 48px; padding: 0 14px; border: 2px solid var(--tinta); border-radius: 14px; background: var(--papel); color: var(--tinta); font: 500 16px/22px var(--font); }
 .jg-campo:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
@@ -16,32 +10,12 @@ select.jg-campo { appearance: none; background-image: linear-gradient(45deg, tra
 .jg-resultados button:first-child { border-top: 0; }
 .jg-resultados button:hover { background: var(--niebla); }
 .jg-resultados small { font: 400 12px/16px var(--font); color: var(--suave); }
-
-/* Opciones lado a lado */
-.jg-opciones { display: grid; grid-template-columns: repeat(var(--jg-n, 2), minmax(0, 1fr)); gap: 12px; align-items: stretch; padding: 10px 8px 6px 0; }
-.jg-opciones[data-cargando="true"], .jg-opciones-cortas[data-cargando="true"] { opacity: .55; transition: opacity .2s ease; }
-@media (max-width: 759px) {
-  /* En teléfono caben dos; con tres o cuatro se desliza hacia el lado */
-  .jg-opciones[data-muchas="true"] { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(148px, 42%); overflow-x: auto; scroll-snap-type: x proximity; margin-right: -20px; padding-right: 20px; }
-  .jg-opciones[data-muchas="true"] > * { scroll-snap-align: start; }
-}
-.vd-opcion.jg-opcion { flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 12px; }
-.jg-opcion-cabeza { display: flex; flex-direction: column; gap: 4px; }
-.jg-opcion-bloque { display: flex; flex-direction: column; gap: 3px; padding-top: 10px; border-top: 1.5px solid var(--linea); }
-.jg-opcion-num { font: 700 22px/26px var(--font); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.jg-opciones-cortas[data-cargando="true"] { opacity: .55; transition: opacity .2s ease; }
 .jg-chico { font: 400 12px/16px var(--font); color: var(--suave); }
 .jg-fuerte { font: 600 14px/18px var(--font); color: var(--tinta); }
 .jg-frase { font: 500 13px/18px var(--font); color: var(--tinta); }
 .jg-destacado { padding: 8px 10px; border-radius: 10px; background: var(--sol); color: var(--sobre-sol); font: 600 13px/18px var(--font); }
 .jg-extremos { display: flex; justify-content: space-between; gap: 6px; font: 500 11px/14px var(--mono); color: var(--suave); font-variant-numeric: tabular-nums; }
-.jg-pista-tu { background: transparent; }
-.jg-pista-tu span { position: absolute; top: -1px; width: 14px; height: 14px; margin-left: -7px; border: 2px solid var(--tinta); border-radius: 50%; background: var(--sol); }
-
-/* Tabla del porqué */
-.jg-tabla { width: 100%; border-collapse: collapse; font: 400 14px/20px var(--font); }
-.jg-tabla th { padding: 0 8px 6px 0; text-align: left; vertical-align: bottom; font: 500 11px/14px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--suave); }
-.jg-tabla td { padding: 8px 8px 8px 0; border-top: 1.5px solid var(--linea); vertical-align: top; }
-.jg-tabla td:not(:first-child), .jg-tabla th:not(:first-child) { white-space: nowrap; text-align: right; padding-right: 0; padding-left: 8px; font-variant-numeric: tabular-nums; }
 
 /* Filas "nombre: valor" de cómo quedaste */
 .jg-datos { display: flex; flex-direction: column; }
@@ -67,16 +41,14 @@ select.jg-campo { appearance: none; background-image: linear-gradient(45deg, tra
 @keyframes jg-pulso { from { transform: scale(.6); opacity: .4; } to { transform: scale(1); opacity: 1; } }
 .jg-error { padding: 12px 14px; border: 2px dashed var(--tinta); border-radius: 14px; font: 500 14px/20px var(--font); }
 /* Pie con la acción principal siempre a la vista en pantallas largas */
+/* el foco no queda tapado por el pie fijo (WCAG 2.4.11) */
+html:has(.jg-pie-fijo) { scroll-padding-bottom: 170px; }
 .jg-pie-fijo { position: sticky; bottom: 0; z-index: 2; margin-top: auto; padding: 12px 0 16px; margin-bottom: -16px; display: flex; flex-direction: column; gap: 10px; background: linear-gradient(to bottom, transparent, var(--papel) 14px); }
-@media (min-width: 760px) { .jg-ancha .jg-pie-fijo > * { max-width: 420px; width: 100%; margin-left: auto; margin-right: auto; } }
+/* lo último de la carta puede subir por sobre la barra fija */
+.jg-opciones-cortas, .jg-plegable { scroll-margin-bottom: 96px; }
 /* Fondo detrás de la columna de la pantalla */
 .jg-fondo { min-height: 100dvh; background: var(--niebla); }
 .jg-vivido .vd-paso { padding: 9px 0; }
-/* Cinco o seis opciones lado a lado (la cesantía) */
-@media (min-width: 760px) { .vd-pantalla.jg-muy-ancha { max-width: 1240px; } }
-.jg-tabla td:last-child:not(:nth-child(2)), .jg-tabla th:last-child:not(:nth-child(2)) { white-space: normal; }
-/* Tu trayectoria: texto para que Claude llene el perfil */
-textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; font: 400 15px/22px var(--font); }
 .jg-plegable { border: 1.5px solid var(--linea); border-radius: 14px; background: var(--papel); }
 .jg-plegable summary { padding: 10px 14px; font: 600 14px/20px var(--font); cursor: pointer; }
 .jg-plegable summary:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; border-radius: 12px; }
@@ -84,11 +56,6 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 /* el título recibe el foco al cambiar de pantalla (para lectores de pantalla): sin el anillo del teclado */
 .jg-pantalla h1[tabindex="-1"]:focus, .jg-pantalla h2[tabindex="-1"]:focus { outline: none; }
 .jg-aviso-perfil { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
-.jg-revisa { align-self: flex-start; white-space: normal; height: auto; min-height: 22px; padding-top: 3px; padding-bottom: 3px; line-height: 1.3; }
-.jg-marcado { padding: 10px 12px; margin: 0 -12px; border-radius: 14px; background: color-mix(in srgb, var(--sol) 22%, transparent); }
-
-/* La historia de la carta: quién te escribe y desde qué empresa */
-.jg-situacion { font-size: 17px; line-height: 25px; color: var(--tinta, inherit); border-left: 3px solid var(--acento); padding-left: 12px; }
 
 /* ───────── Gráficos y animaciones del juego ───────── */
 .jg-fondo { --jg-mas: var(--dinero); --jg-igual: var(--apagado); --jg-menos: var(--bienestar); }
@@ -99,13 +66,8 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-info-boton i { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border: 1.5px solid currentColor; border-radius: 50%; font: 700 10px/1 var(--mono); font-style: normal; }
 .jg-info-boton:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; border-radius: 6px; }
 .jg-info-caja { display: block; padding: 10px 12px; border-radius: 12px; background: var(--acento-suave); color: var(--tinta); font: 400 13px/19px var(--font); animation: vd-subir .35s var(--ease) both; }
-
-/* Nube de gemelos: 100 puntos, cada uno son 5 gemelos */
-.jg-nube { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 3px; max-width: 190px; }
-.jg-nube i { aspect-ratio: 1; border-radius: 50%; background: var(--jg-igual); animation: jg-punto .45s var(--rebote) calc(var(--jg-i, 0) * 28ms + 120ms) both; }
-.jg-nube i[data-tipo="mas"], .jg-leyenda i[data-tipo="mas"] { background: var(--jg-mas); }
-.jg-nube i[data-tipo="menos"], .jg-leyenda i[data-tipo="menos"] { background: var(--jg-menos); }
-.jg-nube i[data-tipo="base"] { background: transparent; border: 1.5px solid var(--control); }
+.jg-leyenda i[data-tipo="mas"] { background: var(--jg-mas); }
+.jg-leyenda i[data-tipo="menos"] { background: var(--jg-menos); }
 @keyframes jg-punto { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: none; } }
 .jg-leyenda { display: flex; flex-direction: column; gap: 2px; font: 400 13px/18px var(--font); color: var(--tinta); }
 .jg-leyenda > span { display: flex; align-items: center; gap: 6px; }
@@ -114,7 +76,6 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-delta { align-self: flex-start; padding: 3px 8px; border-radius: 999px; font: 600 12px/16px var(--font); font-variant-numeric: tabular-nums; background: var(--niebla); color: var(--tinta); }
 .jg-delta[data-signo="mas"] { background: color-mix(in srgb, var(--jg-mas) 16%, var(--papel)); }
 .jg-delta[data-signo="menos"] { background: color-mix(in srgb, var(--jg-menos) 22%, var(--papel)); }
-.jg-opcion-num { animation: vd-subir .6s var(--ease) both; }
 
 /* Abanico: sueldo año a año */
 .jg-abanico { display: block; width: 100%; height: auto; overflow: visible; }
@@ -164,9 +125,6 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 
 /* Secciones de la carta */
 .jg-seccion { display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1.5px solid var(--linea); border-radius: 16px; background: var(--papel); }
-.jg-fila-opcion { display: flex; flex-direction: column; gap: 5px; padding-top: 10px; border-top: 1.5px solid var(--linea); }
-.jg-fila-opcion:first-of-type { border-top: 0; padding-top: 0; }
-.jg-fila-opcion[data-foco="true"] > .jg-fuerte::after { content: " · la que tienes marcada"; font-weight: 400; color: var(--suave); }
 .jg-plegable > :not(summary) { padding: 0 14px 12px; }
 .jg-plegable > .vd-pila { padding-top: 2px; }
 .jg-resultado { display: flex; flex-direction: column; gap: 6px; padding: 10px 0; border-top: 1.5px solid var(--linea); }
@@ -237,28 +195,9 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-como-pasos i { width: 8px; height: 8px; border-radius: 50%; background: var(--linea); transition: background-color .3s ease, width .3s var(--ease); }
 .jg-como-pasos i[data-activo="true"] { width: 22px; border-radius: 999px; background: var(--tinta); }
 
-/* Cargando: gemelos que van viviendo */
-.jg-viviendo { display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 3px; }
-.jg-viviendo i { aspect-ratio: 1; border-radius: 50%; background: var(--acento); animation: jg-viviendo 1.2s ease-in-out calc(var(--jg-i) * 45ms) infinite alternate; }
-@keyframes jg-viviendo { from { opacity: .15; transform: scale(.6); } to { opacity: 1; transform: none; } }
-
 @media (prefers-reduced-motion: reduce) {
   .jg-abanico-medio, .jg-abanico-tu, .jg-abanico-tu-borde { stroke-dashoffset: 0; }
   .jg-como-gemelos i { transition: none; }
-}
-
-/* Tarjeta de opción: veredicto arriba, sueldo y nube lado a lado cuando cabe */
-.jg-veredicto { margin-top: 4px; font: 600 14px/19px var(--font); color: var(--tinta); }
-.vd-opcion.jg-opcion { container-type: inline-size; }
-.jg-opcion-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; padding-top: 10px; border-top: 1.5px solid var(--linea); }
-.jg-opcion-cuerpo .jg-opcion-bloque { padding-top: 0; border-top: 0; gap: 5px; }
-@container (max-width: 250px) {
-  .jg-opcion-cuerpo { grid-template-columns: minmax(0, 1fr); }
-  .jg-opcion-cuerpo .jg-opcion-bloque + .jg-opcion-bloque { padding-top: 10px; border-top: 1.5px solid var(--linea); }
-}
-@media (max-width: 759px) {
-  /* En teléfono las opciones van una bajo la otra: ninguna queda cortada */
-  .jg-opciones, .jg-opciones[data-muchas="true"] { grid-template-columns: minmax(0, 1fr); grid-auto-flow: row; grid-auto-columns: auto; overflow: visible; margin-right: 0; padding-right: 8px; }
 }
 
 /* Portada: una fila de gemelos que se van coloreando */
@@ -269,16 +208,12 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-mini i[data-final="menos"] { --jg-c: var(--jg-menos); }
 @keyframes jg-mini { 0%, 15% { background: var(--tinta); transform: scale(.7); } 40%, 85% { background: var(--jg-c); transform: none; } 100% { background: var(--tinta); transform: scale(.7); } }
 
-/* La situación llega como un mensaje: primero "escribiendo…", después el texto */
+/* La situación llega como un mensaje; mientras Claude la escribe, dos líneas de espera */
 .jg-mensaje { position: relative; align-self: flex-start; max-width: 560px; padding: 12px 16px; border: 2px solid var(--tinta); border-radius: 18px 18px 18px 4px; background: var(--acento-suave); animation: vd-entrar .5s var(--ease) both; }
-.jg-mensaje-texto { margin: 0; font: 500 16px/24px var(--font); color: var(--tinta); animation: vd-aparecer .5s ease 1s both; }
-.jg-mensaje-escribiendo { position: absolute; left: 16px; top: 18px; display: flex; gap: 5px; animation: jg-irse .2s ease .95s both; }
-.jg-mensaje-escribiendo i { width: 8px; height: 8px; border-radius: 50%; background: var(--suave); animation: jg-escribir .6s ease-in-out infinite alternate; }
-.jg-mensaje-escribiendo i:nth-child(2) { animation-delay: .15s; }
-.jg-mensaje-escribiendo i:nth-child(3) { animation-delay: .3s; }
-@keyframes jg-escribir { from { transform: translateY(0); opacity: .4; } to { transform: translateY(-4px); opacity: 1; } }
-@keyframes jg-irse { to { opacity: 0; visibility: hidden; } }
-@media (prefers-reduced-motion: reduce) { .jg-mensaje-escribiendo { display: none; } }
+.jg-mensaje-texto { margin: 0; font: 500 16px/24px var(--font); color: var(--tinta); animation: vd-aparecer .5s ease both; }
+.jg-mensaje-espera { display: flex; flex-direction: column; gap: 8px; width: min(320px, 70vw); padding: 4px 0; }
+.jg-mensaje-espera i { height: 10px; border-radius: 5px; background: var(--linea); animation: jg-pulso 1s ease-in-out infinite alternate; }
+.jg-mensaje-espera i:last-child { width: 60%; }
 .jg-como { height: auto; padding: 14px; }
 .jg-como-gemelos { position: static; inset: auto; }
 
@@ -287,23 +222,13 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-ruleta-ficha { top: -30px; width: 24px; height: 24px; margin-left: -12px; border-radius: 50%; box-shadow: none; }
 .jg-ruleta-ficha::after { content: ""; position: absolute; left: 50%; top: 100%; width: 3px; height: 42px; margin-left: -1.5px; background: var(--tinta); border-radius: 2px; }
 
-/* La opción base también está simulada: puntos llenos, sin color de comparación */
-.jg-nube i[data-tipo="base"] { background: var(--suave); border: 0; }
-
 /* La simulación, aparte de las opciones */
 .jg-simulacion { background: var(--niebla); border-color: transparent; }
 .jg-duelo { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1.5px solid var(--linea); }
-.jg-duelo .jg-nube { max-width: 240px; gap: 4px; }
 .jg-duelo .jg-leyenda { font-size: 14px; }
 .jg-simulacion .jg-partes-barra { background: var(--papel); }
-.jg-duelo { display: grid; grid-template-columns: minmax(110px, 200px) minmax(0, 1fr); gap: 8px 16px; align-items: center; }
+.jg-duelo { display: grid; grid-template-columns: minmax(110px, 280px) minmax(0, 1fr); gap: 8px 16px; align-items: center; }
 .jg-duelo > * { grid-column: 1 / -1; }
-.jg-duelo > .jg-nube { grid-column: 1; }
-.jg-duelo > .jg-nube + .jg-leyenda { grid-column: 2; }
-
-/* Ajustes de la segunda ronda de prueba */
-.jg-rango-solo .jg-extremos { display: none; }
-.jg-falta { border: 2px solid var(--tinta); background: color-mix(in srgb, var(--sol) 22%, var(--papel)); scroll-margin: 90px; }
 .jg-ruleta-ficha { top: -34px; width: 28px; height: 28px; margin-left: -14px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font: 400 24px/1 var(--font); color: var(--tinta); }
 .jg-ruleta-ficha::after { height: 6px; }
 .jg-ruleta-pista { margin-top: 34px; }
@@ -334,21 +259,8 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-como-leyenda i[data-suceso="dado"] { width: 0; height: 12px; border: 0; border-left: 1.5px dashed var(--suave); border-radius: 0; margin: 0 4px; }
 /* los puntos son mundos: sin color hasta que se cuentan (paso 4) */
 .jg-como[data-paso="2"] .jg-como-gemelos i[data-final] { background: var(--tinta); animation: none; }
-/* En teléfono la leyenda va bajo la nube: al lado no cabe */
-.jg-duelo .jg-nube { max-width: 200px; }
 .jg-duelo .jg-leyenda > span { align-items: baseline; flex-wrap: wrap; }
 .jg-duelo .jg-leyenda > span > i { align-self: center; }
-@media (max-width: 759px) {
-  .jg-duelo > .jg-nube + .jg-leyenda { grid-column: 1 / -1; }
-}
-
-/* Mientras se vive tu año: el dado rodando y lo que se está viendo en tu mundo */
-.jg-pensando { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 24px; background: var(--noche); color: var(--sobre-noche); animation: vd-aparecer .25s ease both; }
-.jg-pensando-mundo { font: 500 13px/16px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--noche-suave); }
-.jg-pensando-dado { display: flex; align-items: center; justify-content: center; width: 120px; height: 120px; border: 3px solid var(--sobre-sol); border-radius: 28px; background: var(--sol); color: var(--sobre-sol); font: 400 92px/1 var(--font); box-shadow: 0 0 0 10px color-mix(in srgb, var(--sol) 22%, transparent); animation: jg-rodar .6s ease-in-out infinite; }
-@keyframes jg-rodar { 0%, 100% { transform: rotate(-9deg) translateY(0); } 50% { transform: rotate(9deg) translateY(-10px); } }
-.jg-pensando-frase { min-height: 56px; max-width: 320px; text-align: center; font: 500 20px/28px var(--font); animation: vd-subir .35s var(--ease) both; }
-@media (prefers-reduced-motion: reduce) { .jg-pensando-dado { animation: none; } }
 
 /* La empresa real y el cargo de la opción, con sus cifras sintéticas */
 .jg-logo { flex: none; box-sizing: border-box; border-radius: 8px; object-fit: contain; background: var(--logo-fondo); box-shadow: inset 0 0 0 1px var(--linea); }
@@ -357,12 +269,11 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-empresa-cabeza { display: flex; gap: 10px; align-items: center; }
 .jg-empresa-texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .jg-empresa-cifras { display: flex; flex-wrap: wrap; gap: 4px 10px; font: 500 12px/16px var(--font); }
-.jg-con-logo { display: flex; gap: 8px; align-items: flex-start; }
 .jg-mundo-historia { margin: 6px 0 0; font: 400 13px/19px var(--font); }
 
 /* Mundos explorables: un punto por mundo, del color de la opción que gana en él */
 .jg-color { display: inline-block; width: 11px; height: 11px; margin-right: 7px; border-radius: 50%; vertical-align: 1px; }
-.jg-mundos { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; max-width: 220px; }
+.jg-mundos { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; max-width: 280px; } /* puntos de 24 px (WCAG 2.5.8) */
 .jg-mundo-punto { aspect-ratio: 1; padding: 0; border: 0; border-radius: 50%; background: var(--jg-igual); cursor: pointer; animation: jg-punto .45s var(--rebote) calc(var(--jg-i, 0) * 28ms + 120ms) both; transition: transform .15s var(--ease), box-shadow .15s ease; }
 .jg-mundo-punto:hover { transform: scale(1.25); }
 .jg-mundo-punto:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
@@ -386,7 +297,7 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-mundo-suceso[data-tono="malo"] i { background: var(--jg-menos); }
 
 /* Ajustes de claridad: panel del mundo con lo común una sola vez, y montos y años que no se cortan */
-.jg-plata, .jg-mundo-sueldo, .jg-opcion-num { white-space: nowrap; }
+.jg-plata, .jg-mundo-sueldo { white-space: nowrap; }
 .jg-mundo-anios li { grid-template-columns: 58px minmax(0, 1fr); }
 .jg-mundo-anio { white-space: nowrap; }
 .jg-mundo-comun { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--niebla); }
@@ -399,16 +310,6 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-mundo-suceso[data-tono="neutro"] i { background: var(--papel); }
 .jg-mundo-ancla { scroll-margin: 80px; }
 @media (min-width: 760px) { .jg-mundo-vidas { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); } }
-
-/* Por qué te tocó la carta, y lo que puede pasar con cada opción (el dado que vas a tirar) */
-.jg-por-que { display: flex; gap: 8px; align-items: flex-start; font: 400 13px/18px var(--font); color: var(--suave); }
-.jg-por-que > span { flex: none; font-size: 18px; line-height: 18px; color: var(--tinta); }
-.jg-probs { display: flex; flex-direction: column; gap: 4px; }
-.jg-prob { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 7px; align-items: baseline; font: 400 13px/18px var(--font); }
-.jg-prob i { width: 9px; height: 9px; border: 1.5px solid var(--tinta); border-radius: 50%; background: var(--papel); align-self: center; }
-.jg-prob[data-tono="bueno"] i { background: var(--sol); }
-.jg-prob[data-tono="malo"] i { background: var(--tinta); }
-.jg-prob b { font: 600 12px/18px var(--mono); white-space: nowrap; }
 
 /* Lo que vale cada línea de tu CV: con el dato y sin él, barras que crecen una línea tras otra */
 .jg-peso-linea { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1.5px solid var(--linea); animation: jg-peso-entra .5s var(--ease) calc(var(--jg-i) * 140ms) both; }
@@ -434,9 +335,6 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-hoja-item[aria-pressed="true"] { background: var(--sol); color: var(--sobre-sol); --suave: #3A3B40; border-color: var(--sobre-sol); font-weight: 600; }
 .jg-hoja-item:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
 .jg-hoja-item small { flex: none; font: 600 11px/1 var(--mono); letter-spacing: .02em; color: var(--suave); }
-
-/* La carta mientras Claude la escribe: tapa la plantilla con una espera simple */
-.jg-preparando { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: var(--papel); animation: vd-aparecer .2s ease both; }
 
 /* Tu recorrido en el cierre: un tramo por cargo y empresa, como en un perfil laboral */
 .jg-recorrido { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; border: 2px solid var(--tinta); border-radius: 18px; background: var(--papel); overflow: hidden; }
@@ -473,12 +371,6 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-propuesta-ver { align-self: flex-start; margin-top: 2px; }
 .jg-propuesta-dato { color: var(--media); font-size: .9em; }
 .jg-propuesta-dato small { color: var(--suave); }
-.jg-propuesta-botones { margin-top: 6px; }
-
-/* Lo que te juegas con una opción frente a la de referencia (no confundir con la Apuesta antes de mirar) */
-.jg-juegas { display: flex; flex-direction: column; gap: 2px; padding-top: 10px; border-top: 1px solid var(--linea); }
-.jg-juegas-mejor { color: var(--dinero); }
-.jg-juegas-peor { color: var(--vida); }
 
 /* Oferta en corto: dos botones del mismo peso, para que la pantalla no empuje a quedarse */
 .jg-dos-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -505,8 +397,6 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-marcador-num { font: 400 12px/16px var(--font); color: var(--suave); }
 .jg-marcador-num b { font: 700 18px/20px var(--font); color: var(--tinta); font-variant-numeric: tabular-nums; margin-right: 2px; }
 .jg-marcador[data-lider="true"] .jg-marcador-num b { color: var(--tinta); }
-.jg-minimundos { display: grid; grid-template-columns: repeat(50, minmax(0, 1fr)); gap: 1.5px; max-width: 220px; }
-.jg-minimundos i { aspect-ratio: 1; border-radius: 50%; background: var(--linea); }
 .jg-escenarios { display: flex; flex-direction: column; }
 .jg-escenarios > span { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 7px 0; border-top: 1.5px solid var(--linea); font: 400 13px/18px var(--font); color: var(--suave); }
 .jg-escenarios > span:first-child { border-top: 0; }
@@ -536,6 +426,7 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-dado-cuerpo { display: flex; flex-direction: column; gap: 14px; width: min(420px, 100%); }
 .jg-dado-eti { font: 700 22px/28px var(--font); }
 .jg-dado-pantalla .ap-texto { align-self: center; }
+.jg-dado-salir { position: absolute; top: 16px; right: 16px; }
 .jg-ficha-busca { animation: jg-ficha-busca 1.1s ease-in-out infinite alternate; }
 @keyframes jg-ficha-busca { from { left: 4%; } to { left: 96%; } }
 .jg-ruleta-ficha:not(.jg-ficha-busca) { animation: jg-ficha-cae 1.1s cubic-bezier(.2, .9, .25, 1.12) both; }
@@ -549,8 +440,6 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 @media (max-width: 430px) {
   .jg-carta-pregunta { font-size: 21px; line-height: 27px; }
 }
-
-.jg-sin-duda { min-height: 64px; font-size: 18px; }
 
 /* Sin trabajo: la tira de los 12 meses */
 .jg-meses { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; margin: 0; padding: 0; list-style: none; }

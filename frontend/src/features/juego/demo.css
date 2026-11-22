@@ -1,21 +1,7 @@
-/* Apuesta antes de mirar y la tarjeta para compartir. Aparte de juego.css para no pisar a nadie. */
-
-/* ── Apuesta antes de mirar ─────────────────────────────────────────────── */
-.jg-apuesta { border-color: var(--acento); background: color-mix(in srgb, var(--acento-suave) 55%, var(--papel)); }
-.jg-apuesta-acciones { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
-.jg-apuesta-acciones .jg-ayuda { align-self: center; }
-.jg-apuesta-revela { animation: jg-revelar .5s var(--ease) both; }
-.jg-apuesta-barras { display: grid; grid-template-columns: auto 1fr 2.5em; align-items: center; gap: 8px 10px; }
-.jg-apuesta-barras b { font: 700 17px/1 var(--font); text-align: right; font-variant-numeric: tabular-nums; }
-.jg-apuesta-pista { position: relative; height: 12px; border-radius: 999px; background: var(--niebla, #F1F1EE); overflow: hidden; }
-.jg-apuesta-pista i { position: absolute; inset: 0 auto 0 0; border-radius: 999px; transform-origin: left center; animation: jg-llenar .9s var(--ease) both; }
-.jg-apuesta-pista i[data-tipo="apuesta"] { background: var(--tinta); opacity: .55; }
-.jg-apuesta-pista i[data-tipo="real"] { animation-delay: .35s; }
-@keyframes jg-revelar { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
-@keyframes jg-llenar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-
+/* La tarjeta para compartir. Aparte de juego.css para no pisar a nadie. */
 
 /* ── Tarjeta para compartir ─────────────────────────────────────────────── */
+@keyframes jg-revelar { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
 .jg-compartir { display: flex; flex-direction: column; gap: 10px; }
 .jg-compartir-vista { max-width: 100%; border-radius: 16px; border: 1.5px solid var(--linea); animation: jg-revelar .45s var(--ease) both; }
 /* La tarjeta se arma fuera de la pantalla y se fotografía: colores fijos, no los del tema. */

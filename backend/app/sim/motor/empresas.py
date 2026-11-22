@@ -258,24 +258,45 @@ def compatibles(pq: Paquete, emp: dict, e: dict) -> list[dict]:
         return (c["_areas"] is not None and len(c["_areas"]) == 1 and area not in c["_areas"]
                 and not _por_bootcamp(c, e))
 
-    duros = [c for c in _duros(pq, emp, e) if (ocup < 0 or c["ciuo08_1d"] == ocup) and not profesion_ajena(c)]
+    todos = [c for c in _duros(pq, emp, e) if not profesion_ajena(c)]
+    duros = [c for c in todos if ocup < 0 or c["ciuo08_1d"] == ocup]
     familias = set(familias_de(pq, e))
 
     def del_area(c):
         return c["_areas"] is None or (area and area in c["_areas"])
 
-    for filtro in (lambda c: c.get("familia") in familias and del_area(c), lambda c: c.get("familia") in familias,
-                   del_area, lambda c: True):
-        quedan = [c for c in duros if filtro(c)]
+    de_su_familia = (lambda c: c.get("familia") in familias and del_area(c), lambda c: c.get("familia") in familias)
+    tandas = [(duros, f) for f in de_su_familia]
+    if familia_propia(pq, e):
+        # Su línea de trabajo sale de su propio cargo (el que escribió o uno del catálogo). Si ningún cargo de esa
+        # línea tiene su grupo ocupacional, el grupo se infirió mal (sin dato, `ocupacion_por_omision` lo saca del
+        # rubro: una analista de datos en Comercio queda en CIUO 3) y pesa más su cargo: se le ofrece uno de su
+        # línea antes que uno de otra (a esa analista le ofrecían "Asistente de gerencia").
+        tandas += [(todos, f) for f in de_su_familia]
+    tandas += [(duros, del_area), (duros, lambda c: True)]
+    for grupo, filtro in tandas:
+        quedan = [c for c in grupo if filtro(c)]
         if quedan:
             return quedan
     return []
 
 
-def sortear_cargo(pq: Paquete, dados: Dados, anio: int, sitio: str, emp: dict | None, e: dict) -> dict | None:
+def familia_propia(pq: Paquete, e: dict) -> bool:
+    """Si la línea de trabajo de la persona sale de su cargo (del catálogo o el que escribió) y no solo de su
+    carrera o de su rubro."""
+    car = cargo(pq, e.get("cargo_id", -1))
+    return bool((car is not None and car.get("familia")) or e.get("familia_inicial"))
+
+
+def sortear_cargo(pq: Paquete, dados: Dados, anio: int, sitio: str, emp: dict | None, e: dict,
+                  otro_que_el_actual: bool = False) -> dict | None:
+    """Un cargo compatible, en proporción a `peso`. Con `otro_que_el_actual`, sin el cargo que ya tiene (si
+    queda alguno)."""
     if emp is None:
         return None
     filas = compatibles(pq, emp, e)
+    if otro_que_el_actual:
+        filas = [c for c in filas if c["cargo_id"] != e.get("cargo_id", -1)] or filas
     if not filas:
         return None
     return filas[dados.elegir(anio, sitio, [c["peso"] for c in filas])]
@@ -422,7 +443,10 @@ def oferta(vida, decision_id: str, opcion_id: str, ocurrencia: int) -> dict | No
     tipo, rubro = destino
     sitio = sitio_empresa(origen_decision(decision_id, ocurrencia, opcion_id))
     emp = sortear_empresa(vida.pq, vida.dados, vida.anio, sitio, tipo, rubro, vida.e)
-    car = sortear_cargo(vida.pq, vida.dados, vida.anio, sitio + ":cargo", emp, vida.e)
+    # quien tiene trabajo no recibe una oferta para el mismo cargo que ya tiene (le llegaba "Asistente de
+    # gerencia" otra vez, en otra empresa y pagando menos); cesante, el mismo cargo es justo lo que busca
+    car = sortear_cargo(vida.pq, vida.dados, vida.anio, sitio + ":cargo", emp, vida.e,
+                        otro_que_el_actual=vida.e.get("estado") == "empleado")
     return ficha(vida.pq, emp, car)
 
 

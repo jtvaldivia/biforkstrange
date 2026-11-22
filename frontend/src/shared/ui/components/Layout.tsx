@@ -1,15 +1,9 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
-import { sceneClass, type SceneMode } from "../scene";
 import { cssVars, cx } from "../tokens";
 
 type ScreenProps = HTMLAttributes<HTMLDivElement> & {
   /** `noche` para oficina, túnel y momentos duros: un tinte frío del mismo tema, no un fondo invertido. */
   tone?: "dia" | "noche";
-  /**
-   * Activa el reloj de escena (ver scene.ts) para pantallas con <TravelScene>, <OfficeScene>
-   * o elementos con `revealAt`. Cambia la `key` del Screen para volver a correrla.
-   */
-  scene?: SceneMode;
   /** Separación vertical entre bloques (px). */
   gap?: number;
   /** Más margen lateral (pantallas de relato, como "Lo que no vuelve"). */
@@ -17,10 +11,10 @@ type ScreenProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 /** Pantalla completa de la app: columna de teléfono, fondo y tipografía del kit. */
-export function Screen({ tone = "dia", gap = 20, wide, scene, className, style, ...rest }: ScreenProps) {
+export function Screen({ tone = "dia", gap = 20, wide, className, style, ...rest }: ScreenProps) {
   return (
     <div
-      className={cx("vd", "vd-pantalla", tone === "noche" && "vd-noche", wide && "vd-pantalla--ancha", sceneClass(scene), className)}
+      className={cx("vd", "vd-pantalla", tone === "noche" && "vd-noche", wide && "vd-pantalla--ancha", className)}
       style={{ ...cssVars({ "--vd-gap": `${gap}px` }), ...style }}
       {...rest}
     />

@@ -1,14 +1,12 @@
-import { type DragEvent, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import {
-  Button, ChevronLeftIcon, Chip, Heading, IconButton, Meta, Panel, Pill, Row, Screen, ScreenFooter, ScreenHeader, Segmented, Slider, Stack, SunCard, Tag, Text,
+  Button, ChevronLeftIcon, Chip, Heading, IconButton, Panel, Pill, Row, Screen, ScreenFooter, ScreenHeader, Segmented, Slider, Stack, Text,
 } from "@/shared/ui";
-import { ErrorApi, leerPerfil } from "../api";
 import { EDUCACION, TIPO_EMPLEADOR, pesos } from "../textos";
-import type { Catalogo, DudaSugerida, Perfil, PerfilLeido, Sexo } from "../types";
+import type { Catalogo, Perfil, Sexo } from "../types";
 import { Logo } from "./Logo";
 import { Info } from "./graficos";
 import { Cargando, ErrorCaja } from "./piezas";
-import { Trayectoria, type EstadoLectura } from "./Trayectoria";
 
 const SUELDO_MAX = 30_000_000;
 export const SLIDER_MIN = 300_000;
@@ -28,16 +26,6 @@ export function banda(edad: number): string {
   const desde = Math.min(50, Math.floor(edad / 5) * 5);
   return `${desde}-${desde + 4}`;
 }
-/** Marca de un campo que el texto de la persona no decía y quedó con un valor por defecto. */
-function Revisa({ si }: { si: boolean }) {
-  return si ? (
-    <Tag tone="sol" className="jg-revisa">
-      Supuesto: revísalo
-    </Tag>
-  ) : null;
-}
-
-/** El atajo: subes tu CV o el PDF de tu LinkedIn y Claude llena el formulario. */
 /** Tu empresa y tu cargo de hoy, con su nombre. Opcionales: solo sirven para contar tu historia, no mueven números. */
 export function TuPega({ p, set }: { p: Perfil; set: (k: "empresa_nombre" | "cargo_nombre", v: string) => void }) {
   const idEmpresa = useId();
@@ -73,86 +61,6 @@ export function TuPega({ p, set }: { p: Perfil; set: (k: "empresa_nombre" | "car
   );
 }
 
-function SubirCv({
-  estado, empresa, catalogo, onPdf,
-}: {
-  estado: EstadoLectura;
-  empresa: PerfilLeido["empresa"];
-  catalogo?: PerfilLeido["empresa_catalogo"];
-  onPdf: (pdfBase64: string) => void;
-}) {
-  const entrada = useRef<HTMLInputElement>(null);
-  const [errorArchivo, setErrorArchivo] = useState<string | null>(null);
-  const leyendo = estado.fase === "leyendo";
-
-  const subir = (f: File | undefined) => {
-    if (!f) return;
-    setErrorArchivo(null);
-    if (f.type !== "application/pdf" && !/\.pdf$/i.test(f.name)) return setErrorArchivo("Sube un PDF.");
-    if (f.size > 10_000_000) return setErrorArchivo("El PDF pesa más de 10 MB.");
-    const lector = new FileReader();
-    lector.onload = () => typeof lector.result === "string" && onPdf(lector.result);
-    lector.onerror = () => setErrorArchivo("No pudimos abrir el archivo.");
-    lector.readAsDataURL(f);
-  };
-
-  return (
-    <Panel
-      className="jg-subir-cv"
-      onDragOver={(e: DragEvent) => e.preventDefault()}
-      onDrop={(e: DragEvent) => {
-        e.preventDefault();
-        subir(e.dataTransfer.files?.[0]);
-      }}
-    >
-      <Stack gap={4}>
-        <Heading level={3} as="h2">
-          Llénalo con tu CV
-        </Heading>
-        <Text size="sm">O tu LinkedIn: perfil → Recursos → Guardar como PDF.</Text>
-      </Stack>
-      <input
-        ref={entrada}
-        type="file"
-        accept="application/pdf,.pdf"
-        hidden
-        onChange={(e) => {
-          subir(e.target.files?.[0]);
-          e.target.value = "";
-        }}
-      />
-      <Button onClick={() => entrada.current?.click()} disabled={leyendo}>
-        {leyendo ? "Leyendo tu CV…" : "Subir PDF"}
-      </Button>
-      {leyendo && <Cargando frases={["Claude está leyendo tu CV…", "Mientras, revisa abajo."]} cada={3000} />}
-      {errorArchivo && (
-        <div className="jg-error" role="alert">
-          {errorArchivo}
-        </div>
-      )}
-      {estado.fase === "error" && (
-        <div className="jg-error" role="alert">
-          No pudimos leer tu CV. {estado.detalle} Llénalo a mano abajo.
-        </div>
-      )}
-      {estado.fase === "listo" && (
-        <Stack gap={2} role="status">
-          <Text size="sm" className={catalogo ? "jg-con-logo" : undefined}>
-            {catalogo && <Logo carpeta="empresas" id={catalogo.empresa_id} nombre={catalogo.nombre} grupo={catalogo.rubro} hay={catalogo.logo} tamano={28} />}
-            <strong>Listo, llenamos lo que decía tu CV.</strong>
-          </Text>
-          {empresa && (
-            <Text size="sm">
-              {empresa.nombre}: {empresa.tamano === "grande" ? "empresa grande" : "pyme"}, {empresa.trabajadores.toLocaleString("es-CL")} personas (SII).
-            </Text>
-          )}
-          <Text size="sm">{estado.supuestos.length > 0 ? "Revisa lo marcado abajo." : "Revisa que calce."}</Text>
-        </Stack>
-      )}
-    </Panel>
-  );
-}
-
 const sinTildes = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 /** Tu perfil: los 9 campos. Viene de la pantalla "2 · Sobre ti" del kit. */
@@ -163,7 +71,6 @@ export function PerfilForm({
   onReintentarCatalogo,
   onReintentar,
   onVolver,
-  onLeido,
   onListo,
   onElegirDuda,
   cargando = false,
@@ -177,12 +84,10 @@ export function PerfilForm({
   onReintentar?: () => void;
   /** Vuelve atrás con lo editado: no se pierde. */
   onVolver: (p: Perfil) => void;
-  /** Lo que leyó Claude aquí (tu CV o lo de tu Claude): para el retrato y las dudas sugeridas. */
-  onLeido?: (r: PerfilLeido, origen: "pdf" | "texto") => void;
-  /** Empieza la partida: la primera carta sale al azar, como todas. */
+  /** Empieza sin una duda: la primera carta sale al azar, como todas. */
   onListo: (p: Perfil) => void;
-  /** Para quien prefiere partir por una duda concreta. */
-  onElegirDuda: (p: Perfil, sugeridas: DudaSugerida[]) => void;
+  /** Sigue a elegir la duda con el perfil corregido. */
+  onElegirDuda: (p: Perfil) => void;
   cargando?: boolean;
   error?: string | null;
 }) {
@@ -193,59 +98,9 @@ export function PerfilForm({
   const idUniversidad = useId();
   const idRubro = useId();
   const idSueldo = useId();
-  const [lectura, setLectura] = useState<EstadoLectura>({ fase: "nada" });
-  /** La duda que trajo el documento de tu Claude: se propone en la pantalla siguiente. */
-  const [sugeridas, setSugeridas] = useState<DudaSugerida[]>([]);
-  /** Campos con valor por defecto que la persona todavía no revisa. */
-  const [marcados, setMarcados] = useState<ReadonlySet<string>>(new Set());
-  /** Campos que la persona tocó desde que le pidió a Claude leer: esos no se pisan cuando llega la respuesta. */
-  const tocados = useRef(new Set<string>());
-  const pedido = useRef(0);
-  /** "Lo que tu gemelo sabe de ti": una línea que arma Claude con hechos del CV. */
-  const [retrato, setRetrato] = useState<string | null>(null);
-  const [empresa, setEmpresa] = useState<PerfilLeido["empresa"]>(null);
-  const [empresaCatalogo, setEmpresaCatalogo] = useState<PerfilLeido["empresa_catalogo"]>(null);
-  /** De dónde vino lo que se está leyendo: el PDF de arriba o el texto del panel de Claude. */
-  const [origen, setOrigen] = useState<"pdf" | "texto">("pdf");
-  useEffect(() => () => void pedido.current++, []);
-
   const set = <K extends keyof Perfil>(k: K, v: Perfil[K]) => {
-    tocados.current.add(k);
-    setMarcados((m) => (m.has(k) ? new Set([...m].filter((x) => x !== k)) : m));
     setP((x) => ({ ...x, [k]: v }));
   };
-  const marca = (k: keyof Perfil) => (marcados.has(k) ? "jg-marcado" : undefined);
-
-  const llenarConClaude = async (entrada: string | { pdf: string }) => {
-    const mio = ++pedido.current;
-    tocados.current = new Set();
-    setOrigen(typeof entrada === "string" ? "texto" : "pdf");
-    setLectura({ fase: "leyendo", documento: typeof entrada === "string" && entrada.includes("```gemelo-laboral") });
-    try {
-      const r = await leerPerfil(entrada);
-      if (mio !== pedido.current) return;
-      // lo que la persona editó mientras Claude leía se respeta
-      const nuevos = Object.fromEntries(Object.entries(r.perfil).filter(([k]) => !tocados.current.has(k))) as Partial<Perfil>;
-      const pendientes = r.supuestos.filter((x) => !tocados.current.has(x.campo));
-      setP((x) => ({ ...x, ...nuevos }));
-      setBusca("");
-      setMarcados(new Set(pendientes.map((x) => x.campo)));
-      setSugeridas(r.dudas_sugeridas?.length ? r.dudas_sugeridas : r.duda ? [{ decision: r.duda, por_que: "La trajo tu Claude." }] : []);
-      setRetrato(r.retrato ?? null);
-      setEmpresa(r.empresa ?? null);
-      onLeido?.(r, typeof entrada === "string" ? "texto" : "pdf");
-      setEmpresaCatalogo(r.empresa_catalogo ?? null);
-      setLectura({
-        fase: "listo", inferido: r.inferido, supuestos: pendientes.map((x) => x.nombre), avisos: r.avisos ?? [],
-        documento: r.via === "documento", duda: r.duda,
-      });
-    } catch (e) {
-      if (mio !== pedido.current) return;
-      const err = e instanceof ErrorApi ? e : new ErrorApi(0, e instanceof Error ? e.message : String(e));
-      setLectura({ fase: "error", status: err.status, detalle: err.detalle });
-    }
-  };
-
   const carrera = catalogo?.carreras.find((c) => c.carrera_id === p.carrera_id);
   const universidad = catalogo?.universidades?.find((u) => u.universidad_id === p.universidad_id);
   const universidadesEncontradas = useMemo(() => {
@@ -282,30 +137,14 @@ export function PerfilForm({
       {errorCatalogo && <ErrorCaja error={errorCatalogo} onReintentar={onReintentarCatalogo} />}
       {!catalogo && !errorCatalogo && <Cargando>Cargando opciones…</Cargando>}
 
-      {retrato && (
-        <SunCard className="jg-retrato">
-          <Meta>Tu gemelo</Meta>
-          <Text>«{retrato}»</Text>
-        </SunCard>
-      )}
-
-      <SubirCv estado={origen === "pdf" ? lectura : { fase: "nada" }} empresa={empresa} catalogo={empresaCatalogo} onPdf={(pdf) => void llenarConClaude({ pdf })} />
-
-      <details className="jg-plegable" open={origen === "texto" && lectura.fase !== "nada"}>
-        <summary>Pegar tu CV en texto o armarlo con Claude</summary>
-        <Trayectoria estado={origen === "texto" ? lectura : { fase: "nada" }} onLlenar={(t) => void llenarConClaude(t)} />
-      </details>
-
       {catalogo && (
         <>
-          <Stack gap={6} className={marca("edad")}>
-            <Revisa si={marcados.has("edad")} />
+          <Stack gap={6}>
             <Slider label="Edad" value={p.edad} min={18} max={50} onChange={(n) => set("edad", n)} display={`${p.edad} años`} />
           </Stack>
 
-          <Stack as="section" className={marca("sexo")}>
+          <Stack as="section">
             <span className="jg-etiqueta">Sexo</span>
-            <Revisa si={marcados.has("sexo")} />
             <Segmented<Sexo>
               label="Sexo"
               value={p.sexo}
@@ -317,9 +156,8 @@ export function PerfilForm({
             />
           </Stack>
 
-          <Stack as="section" className={marca("edu")}>
+          <Stack as="section">
             <span className="jg-etiqueta">Estudios terminados</span>
-            <Revisa si={marcados.has("edu")} />
             <Row>
               {catalogo.educacion.map((e) => (
                 <Chip key={e} pressed={p.edu === e} onToggle={() => set("edu", e)}>
@@ -425,9 +263,8 @@ export function PerfilForm({
             </Panel>
           )}
 
-          <Stack as="section" className={marca("ingles")}>
+          <Stack as="section">
             <span className="jg-etiqueta">¿Podrías trabajar en inglés?</span>
-            <Revisa si={marcados.has("ingles")} />
             <Segmented<string>
               label="Inglés"
               value={String(p.ingles ?? 0)}
@@ -439,11 +276,10 @@ export function PerfilForm({
             />
           </Stack>
 
-          <Stack as="section" className={marca("rubro")}>
+          <Stack as="section">
             <label htmlFor={idRubro} className="jg-etiqueta">
               Rubro
             </label>
-            <Revisa si={marcados.has("rubro")} />
             <Row>
               {RUBROS_TOP.filter((r) => catalogo.rubros.includes(r)).map((r) => (
                 <Chip key={r} pressed={p.rubro === r} onToggle={() => set("rubro", r)}>
@@ -471,9 +307,8 @@ export function PerfilForm({
             <TuPega p={p} set={set} />
           </Stack>
 
-          <Stack as="section" className={marca("tipo_empleador")}>
+          <Stack as="section">
             <span className="jg-etiqueta">Tipo de empresa</span>
-            <Revisa si={marcados.has("tipo_empleador")} />
             <Row>
               {catalogo.tipos_empleador.map((t) => (
                 <Chip key={t} pressed={p.tipo_empleador === t} onToggle={() => set("tipo_empleador", t)}>
@@ -483,9 +318,8 @@ export function PerfilForm({
             </Row>
           </Stack>
 
-          <Stack as="section" className={marca("nivel")}>
+          <Stack as="section">
             <span className="jg-etiqueta">Nivel de tu cargo</span>
-            <Revisa si={marcados.has("nivel")} />
             <Row>
               {catalogo.niveles.map((n) => (
                 <Chip key={n.nivel} pressed={p.nivel === n.nivel} onToggle={() => set("nivel", n.nivel)}>
@@ -495,8 +329,7 @@ export function PerfilForm({
             </Row>
           </Stack>
 
-          <Stack as="section" className={marca("sueldo")}>
-            <Revisa si={marcados.has("sueldo")} />
+          <Stack as="section">
             <Slider
               label="Sueldo líquido al mes"
               value={Math.min(SLIDER_MAX, Math.max(SLIDER_MIN, p.sueldo))}
@@ -533,8 +366,7 @@ export function PerfilForm({
             </details>
           </Stack>
 
-          <Stack as="section" gap={4} className={marca("riesgo")}>
-            <Revisa si={marcados.has("riesgo")} />
+          <Stack as="section" gap={4}>
             <span className="jg-etiqueta">Si te ofrecen algo incierto…</span>
             <Segmented<string> label="Tolerancia al riesgo" value={riesgoCercano(p.riesgo)} onChange={(v) => set("riesgo", Number(v))} options={RIESGOS} />
           </Stack>
@@ -544,12 +376,12 @@ export function PerfilForm({
       <ScreenFooter>
         {error && <ErrorCaja error={error} onReintentar={onReintentar} />}
         {cargando && <Cargando frases={["Simulando tus mundos…", "Sorteando tu primera carta…"]} />}
-        <Button onClick={() => onElegirDuda(p, sugeridas)} disabled={!catalogo || !sueldoValido || cargando}>
-          {sugeridas.length ? "Ver mis dudas" : "Elegir mi duda"}
+        <Button onClick={() => onElegirDuda(p)} disabled={!catalogo || !sueldoValido || cargando}>
+          Elegir mi duda
         </Button>
-        <Button variant="quiet" onClick={() => onListo(p)} disabled={!catalogo || !sueldoValido || cargando}>
-          Que me toque una al azar
-        </Button>
+        <button type="button" className="ob-link" onClick={() => onListo(p)} disabled={!catalogo || !sueldoValido || cargando}>
+          Empezar sin una duda
+        </button>
       </ScreenFooter>
     </Screen>
   );

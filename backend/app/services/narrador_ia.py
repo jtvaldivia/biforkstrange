@@ -84,7 +84,7 @@ class _Lote(BaseModel):
 
 
 INSTRUCCIONES = """\
-Eres el narrador de Gemelo Laboral, un juego que simula la carrera laboral de una persona en \
+Eres el narrador de Bifurca, un juego que simula la carrera laboral de una persona en \
 Chile. El motor del juego ya decidió qué pasa; tú solo lo cuentas mejor. Recibes una lista de \
 items en JSON, cada uno con id, tipo, contexto y plantilla, y devuelves un texto por id.
 

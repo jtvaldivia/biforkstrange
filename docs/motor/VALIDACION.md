@@ -1,8 +1,21 @@
 # El motor frente a Chile (M6)
 
-Reproducir, desde `backend/`: `python -m app.sim.motor.validacion [n] [semilla]` (5.000 personas, 10 a 12 segundos). Tests: `pytest tests/test_motor_validacion.py` (7 segundos).
+Reproducir, desde `backend/`: `python -m app.sim.motor.validacion [n] [semilla]` (5.000 personas, unos 35 segundos con varios núcleos). Tests: `pytest tests/test_motor_validacion.py` (7 segundos).
 
-## Resumen
+## Estado actual (22 de noviembre de 2026, main)
+
+5.000 personas, semillas 0 y 1, con `python -m app.sim.motor.validacion 5000 <semilla>`. Las dos semillas dan lo mismo.
+
+- **33 de 37 metas cuadran.** Sin contar insumos ni metas calibradas, 17 de 18.
+- **Desocupación por edad: 6 de 6**, con error máximo de 2,8 puntos (25-29). El motor no usa ese número; sale de los despidos y de la duración de la cesantía.
+- **Sueldos medianos:** a menos de 10% de Chile de los 18 a los 44 años (−8% a +9%). A los 45-49 el motor se pasa: 912 mil contra 780 mil (+17%, la tolerancia es 15%).
+- **Fallan además tres metas calibradas:** empleo público a los 35-39 (13% contra 16,7%) y empleadores y cuenta propia a los 35-39 (14% contra 18,7%) y a los 45-49 (18% contra 23,9%).
+- **ELSOC, que no es insumo: 4 de 6.** El motor manda a la cesantía a 8,4% de los ocupados de 18-29 al año (ELSOC: 4,2%) y saca de la cesantía a 70% de los de 30-44 (ELSOC: 49% a 60%).
+- El endpoint `/api/juego/validacion` sirve la cohorte de 1.000 personas con semilla 0, calculada al construir el deploy.
+
+Los puntos de abajo son la historia: cómo se llegó aquí, en orden. Las cifras de cada punto son las de ese momento.
+
+## Historia
 
 1. **25 de 37 metas cuadran** (26 con otra semilla). Antes de calibrar cuadraban 18 (19 y 16 con otras semillas).
 2. **Las 7 metas que se ganaron son todas de conducta calibrada**: educación, independientes y cambio de empleador. Calibrar no mejoró ninguna meta que el motor no use: ahí eran 9 de 18 y siguen siendo 9 de 18.
@@ -13,9 +26,9 @@ Reproducir, desde `backend/`: `python -m app.sim.motor.validacion [n] [semilla]`
 7. **Empresas, cargos y escenario de IA (22 de noviembre de 2026).** Con el catálogo de empresas (`empresas_catalogo.csv`), los cargos y el escenario de IA sorteado por gemelo cuadran 24 de 37 metas con la semilla 0, contra 25 sin ellos. Solo cambia de estado la de asalariados públicos a los 45-49: queda en 10,1%, que ya estaba documentada como al borde. Ese cambio no viene del sueldo: con el multiplicador de sueldo en 1 sale igual. El multiplicador de sueldo de cada empresa se normaliza con media geométrica 1, porque las metas son medianas. Con media aritmética 1, los sueldos medianos bajaban entre 2% y 3,5%. Con media geométrica quedan a menos de 2% de los de antes.
 8. **Arreglos del motor (rama `fix/motor-bugs`).** `cesantia/rapido` ya no sube con los meses que lleva buscando (sumaba hasta +0,3; `MESES_CESANTIA` supone una salida constante). Con eso la salida de la cesantía a los 30-44 baja de 68,6% a 67,1% (semilla 1: 68,0% a 66,5%) y entra en la tolerancia: ELSOC cuadra 6 de 6. Las metas quedan en 24 de 37 con 5.000 personas y semillas 0 y 1, antes y después. Los demás arreglos de la rama (duda con forzadas, bootcamp encadenado, estudiante sin carrera, primer empleo, nivel al titularse, emigrar solo con trabajo) mueven las metas menos de un punto.
 
-8. **El alza anual ya no baja el sueldo (22 de noviembre de 2026).** El alza de quien sigue en su pega tenía ruido que podía dejarla negativa: en 3 de cada 10 años en la misma pega, el sueldo bajaba. Ahora el piso del alza es cero (`alza_anual` en `eventos.json`). Con la semilla 0 cuadran 31 de 37 metas, contra 24: los seis sueldos medianos, de los 18 a los 49 años, quedan a menos de 13% de Chile, y el 25% más alto a los 45-49 también cuadra. Siguen fallando el 25% más bajo a los 25-29 y a los 35-39 (los independientes), el empleo público y el cambio de empleador. La tabla de abajo es de antes de este cambio.
+9. **El alza anual ya no baja el sueldo (22 de noviembre de 2026).** El alza de quien sigue en su pega tenía ruido que podía dejarla negativa: en 3 de cada 10 años en la misma pega, el sueldo bajaba. Ahora el piso del alza es cero (`alza_anual` en `eventos.json`). Con la semilla 0 cuadran 31 de 37 metas, contra 24: los seis sueldos medianos, de los 18 a los 49 años, quedan a menos de 13% de Chile, y el 25% más alto a los 45-49 también cuadra. Siguen fallando el 25% más bajo a los 25-29 y a los 35-39 (los independientes), el empleo público y el cambio de empleador. La tabla de abajo es de antes de este cambio.
 
-9. **Decisiones del modelo (rama `fix/modelo-decisiones`).** Cuatro reglas que decidió el equipo, una por commit. Metas con 5.000 personas, semillas 0 y 1:
+10. **Decisiones del modelo (rama `fix/modelo-decisiones`).** Cuatro reglas que decidió el equipo, una por commit. Metas con 5.000 personas, semillas 0 y 1:
 
    | Cambio | Metas (s0 / s1) | ELSOC (s0 / s1) | Sueldo mediano 30-34 / 45-49 (s0) |
    |---|---|---|---|
@@ -229,6 +242,7 @@ Ya corregido por otro ticket mientras se hacía esta validación: quien salía d
 
 ## Qué decir en la pantalla
 
-- "25 de 37 metas cuadran" es cierto, pero 8 de esas 25 son insumos y 8 son conductas calibradas. Las otras 9 son las 6 de desocupación y 3 de sueldos.
-- La frase honesta: **"La desocupación por edad cuadra sin haberla usado (6 de 6). La educación, los independientes y los cambios de empleador cuadran porque se calibraron. Los sueldos todavía no: quedan 12% a 32% bajo Chile."**
+- "33 de 37 metas cuadran" es cierto, pero parte son insumos (el motor lee ese número) y parte conductas calibradas. Sin esas, cuadran 17 de 18.
+- La frase honesta: **"La desocupación por edad cuadra sin haberla usado (6 de 6). Los sueldos medianos quedan a menos de 10% de Chile hasta los 44 años y a los 45-49 el motor se pasa 17%. Contra ELSOC, que no usamos, cuadran 4 de 6: despedimos de más a los jóvenes."**
+- Ojo con lo que es casi contable: en estado estacionario la desocupación depende de cuánta gente entra y sale de la cesantía, y esas dos tasas son insumos (EPS). Que cuadre dice que el motor arma bien los flujos, no que prediga algo nuevo.
 - Los pesos son supuestos del equipo ajustados a frecuencias de encuestas. No son datos.

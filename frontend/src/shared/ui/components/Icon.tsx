@@ -46,12 +46,3 @@ export function MoonIcon({ size = 20, ...p }: IconProps) {
     </svg>
   );
 }
-
-export function PhoneIcon({ size = 14, ...p }: IconProps) {
-  return (
-    <svg {...base(size, 2.5)} {...p}>
-      <rect x="6" y="2" width="12" height="20" rx="3" />
-      <path d="M11 18h2" />
-    </svg>
-  );
-}

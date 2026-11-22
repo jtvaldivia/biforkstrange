@@ -50,8 +50,6 @@ export const getNarracion = (
     signal: opciones.signal,
   });
 
-export const TEXTO_MAX = 60_000;
-
 /** El prompt que la persona pega en su propio Claude para que le arme su perfil. */
 export const getPrompt = () => http<{ prompt: string }>("/api/juego/prompt");
 

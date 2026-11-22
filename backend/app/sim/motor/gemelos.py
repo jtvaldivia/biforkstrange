@@ -150,7 +150,11 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
         salida.append({
             "opcion": o.id, "nombre": o.nombre, "detalle": o.detalle, "calidad": o.calidad,
             "es_base": es_base, "parametros": usados[o.id],
+            # `sueldo` cuenta con $0 a quien termina sin trabajo o estudiando (así se comparan las opciones): con 8 de
+            # 100 cesantes, su 10% cae a la mitad. `sueldo_con_trabajo` es el rango solo entre quienes ganan algo
+            # al final; los que no, están en `sin_trabajo_al_final`.
             "sueldo": _rango(sueldos),
+            "sueldo_con_trabajo": _rango([x for x in sueldos if x > 0] or sueldos),
             "ingreso_total": _rango([v.ingreso_total - ingreso0 for v in vidas]),
             # cesante, la búsqueda se vive mes a mes: cuenta quien pasó al menos un mes buscando
             "paso_por_cesantia": sum(1 for v in vidas if v.meses_buscando > meses0 or v.anios_buscando > buscando0) / n,
@@ -163,7 +167,7 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
             **_contra_base([] if es_base else list(zip(sueldos, sueldos_base))),
             "por_resultado": por_resultado,
             "trayectoria": trayectoria,
-            **({"sueldos": sorted(round(x) for x in sueldos)} if crudo else {}),
+            **({"sueldos": sorted(round(x) for x in sueldos), "sueldos_por_mundo": list(sueldos)} if crudo else {}),
         })
     finales_por_mundo = [{o.id: finales[o.id][g].sueldo_al_final() for o in opciones} for g in range(n)]
     return {

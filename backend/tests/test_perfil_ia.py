@@ -685,7 +685,7 @@ def test_el_comando_local_corre_aislado_y_sin_guardar_el_cv(monkeypatch):
     assert args[args.index("--tools") + 1] == ""  # ninguna herramienta
     assert json.loads(args[args.index("--mcp-config") + 1]) == {"mcpServers": {}}
     # las instrucciones van como system prompt; el texto de la persona, solo por stdin
-    assert "Eres parte de Gemelo Laboral" in args[args.index("--system-prompt") + 1]
+    assert "Eres parte de Bifurca" in args[args.index("--system-prompt") + 1]
     assert not any("contadora" in a for a in args) and "contadora" in llamada["input"]
     assert not os.path.exists(llamada["cwd"])  # el directorio temporal se borra al terminar
 

@@ -31,9 +31,8 @@
   --sobre-noche: #1D1E22;
   --noche-suave: #55576A;
 
-  /* Los cuatro indicadores */
+  /* Colores de datos: dinero, bienestar, vida */
   --dinero: #17794B;
-  --carrera: #2447F9;
   --bienestar: #F08A1C;
   --vida: #D6336C;
 
@@ -73,7 +72,7 @@
     --acento: #8FA2FF; --sobre-acento: #14151A; --acento-suave: #262B4D;
     --sol: #FFC83D; --sobre-sol: #1D1E22;
     --noche: #0F1228; --noche-2: #1C2040; --noche-linea: #363C66; --sobre-noche: #F2F2EF; --noche-suave: #A9AAB2;
-    --dinero: #4CC38A; --carrera: #8FA2FF; --bienestar: #F08A1C; --vida: #FF7FA8;
+    --dinero: #4CC38A; --bienestar: #F08A1C; --vida: #FF7FA8;
     --violeta: #A98CFF; --turquesa: #2FC4CE; --apagado: #6B6D78;
     --sombra: #5B5D69; --sombra-noche: #5B5D69; --borde-noche: #363C66;
     --velo: rgb(0 0 0 / .62);
@@ -86,7 +85,7 @@
   --acento: #8FA2FF; --sobre-acento: #14151A; --acento-suave: #262B4D;
   --sol: #FFC83D; --sobre-sol: #1D1E22;
   --noche: #0F1228; --noche-2: #1C2040; --noche-linea: #363C66; --sobre-noche: #F2F2EF; --noche-suave: #A9AAB2;
-  --dinero: #4CC38A; --carrera: #8FA2FF; --bienestar: #F08A1C; --vida: #FF7FA8;
+  --dinero: #4CC38A; --bienestar: #F08A1C; --vida: #FF7FA8;
   --violeta: #A98CFF; --turquesa: #2FC4CE; --apagado: #6B6D78;
   --sombra: #5B5D69; --sombra-noche: #5B5D69; --borde-noche: #363C66;
   --velo: rgb(0 0 0 / .62);
@@ -118,18 +117,12 @@ html { background: var(--papel); color: var(--tinta); }
 .vd-caja { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 16px; background: var(--niebla); }
 .vd-tarjeta-sol { display: flex; flex-direction: column; gap: 8px; padding: 20px; border: 2px solid #1D1E22; border-radius: 20px; }
 .vd-banda-noche { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 16px; }
-.vd-leyenda { display: flex; flex-wrap: wrap; gap: 6px 16px; }
-.vd-leyenda-item { display: flex; align-items: center; gap: 6px; font: 400 13px/18px var(--font); color: var(--suave); }
-.vd-perdido { display: flex; align-items: center; gap: 10px; font: 500 15px/22px var(--font); }
-.vd-perdido .vd-punto { flex: none; }
 .vd-relato { margin: 0; font: 500 20px/28px var(--font); color: var(--media); }
 .vd-relato--fuerte { font-weight: 600; color: var(--tinta); }
 .vd-ind-fila { display: flex; justify-content: space-between; align-items: baseline; }
 .vd-rango-campo { display: flex; flex-direction: column; }
 .vd-num-fila { display: flex; align-items: baseline; gap: 8px; }
 .vd-num-unidad { font: 500 18px/24px var(--mono); }
-.vd-camino { display: flex; align-items: center; gap: 8px; font: 500 14px/18px var(--font); }
-.vd-truncar { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .vd-noti-texto { min-width: 0; display: flex; flex-direction: column; }
 .vd-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
@@ -206,131 +199,21 @@ html { background: var(--papel); color: var(--tinta); }
 .vd-tag--sol { background: var(--sol); color: var(--sobre-sol); }
 
 /* ───────── Indicadores ───────── */
-.vd-inds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
-.vd-ind { display: flex; flex-direction: column; gap: 5px; }
-.vd-ind-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 .vd-ind-n { font: 600 13px/16px var(--font); }
-.vd-ind-d { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 999px; background: var(--tinta); color: var(--papel); font: 600 11px/1 var(--mono); font-variant-numeric: tabular-nums; animation: vd-pop .5s var(--rebote) .7s both; }
-.vd-ind-d--baja { background: transparent; color: var(--tinta); border: 1.5px dashed var(--tinta); }
 .vd-ind-v { font: 500 12px/16px var(--mono); color: var(--suave); font-variant-numeric: tabular-nums; }
-.vd-barra { position: relative; display: block; height: 12px; border: 2px solid var(--tinta); border-radius: 999px; background: var(--papel); overflow: hidden; }
-.vd-barra i { position: absolute; left: 0; top: 0; bottom: 0; transform-origin: left center; animation: vd-crecer .8s var(--ease) .15s both; }
-/* lo que se perdio: tramo rayado */
-.vd-barra u { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, var(--tinta) 0 1.5px, transparent 1.5px 5px); opacity: .55; animation: vd-aparecer .6s ease .8s both; }
-/* donde estaba antes */
-.vd-barra b { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--tinta); }
 
 /* ───────── Escenas dibujadas ───────── */
-.vd-escena { position: relative; display: block; border: 2px solid var(--tinta); border-radius: 20px; overflow: hidden; flex: none; }
-.vd-escena svg { display: block; width: 100%; height: 100%; }
 .vd-svg-t { font: 600 11px var(--mono); fill: var(--tinta); letter-spacing: .02em; }
 .vd-svg-s { font: 500 10px var(--mono); fill: var(--suave); letter-spacing: .02em; }
 
 .vd-trazo { stroke-dasharray: 360; stroke-dashoffset: 360; animation: vd-trazo 1.6s cubic-bezier(.77, 0, .175, 1) .3s forwards; }
 .vd-latido { transform-box: fill-box; transform-origin: center; animation: vd-latido 1.8s ease-out infinite; }
 
-/* ───────── Reloj de escena (Viaje y Oficina) ─────────
-   Una sola variable, --vd-t, va de 0 a 1 en cada vuelta de 16 s y todo lo demas
-   se calcula desde ella, asi nada se desincroniza.
-   · Cuando entra algo: su clase vd-a-XX (XX = centesimas de la vuelta).
-   · En el prototipo la vuelta se repite; en la app corre una vez:
-     anima --vd-t de 0 a .9 y dejalo ahi (.9 es el cuadro final). */
-@property --vd-t { syntax: "<number>"; inherits: true; initial-value: 0.9; }
-.vd-t { --vd-t: .9; animation: vd-t 16s linear infinite; }
-/* En la app la escena corre una sola vez y se queda en el cuadro final */
-.vd-t--una { animation: vd-t-una 14.4s linear both; }
-.vd-t .vd-ind-d, .vd-t .vd-barra i, .vd-t .vd-barra u, .vd-t .vd-noti { animation: none; }
-
-/* Compuertas: --on vale 0 antes de su momento y 1 despues */
-.vd-g { --on: clamp(0, calc((var(--vd-t) - var(--a, 0)) * 1000), 1); }
-.vd-a-05 { --a: .05; } .vd-a-06 { --a: .06; } .vd-a-08 { --a: .08; } .vd-a-10 { --a: .10; }
-.vd-a-12 { --a: .12; } .vd-a-14 { --a: .14; } .vd-a-16 { --a: .16; } .vd-a-18 { --a: .18; }
-.vd-a-20 { --a: .20; } .vd-a-22 { --a: .22; } .vd-a-24 { --a: .24; } .vd-a-26 { --a: .26; }
-.vd-a-30 { --a: .30; } .vd-a-34 { --a: .34; } .vd-a-38 { --a: .38; } .vd-a-40 { --a: .40; }
-.vd-a-44 { --a: .44; } .vd-a-49 { --a: .49; } .vd-a-52 { --a: .52; } .vd-a-62 { --a: .62; }
-.vd-a-63 { --a: .63; } .vd-a-64 { --a: .64; } .vd-a-65 { --a: .65; } .vd-a-66 { --a: .66; }
-.vd-a-70 { --a: .70; } .vd-a-73 { --a: .73; } .vd-a-77 { --a: .77; }
-.vd-g-ver { opacity: var(--on); transition: opacity .7s ease; }
-.vd-g-hasta { opacity: calc(1 - var(--on)); transition: opacity .5s ease; }
-.vd-g-sube { opacity: var(--on); transform: translateY(calc((1 - var(--on)) * 14px)); transition: opacity .5s ease, transform .6s var(--ease); }
-.vd-g-cae { opacity: var(--on); transform: translateY(calc((var(--on) - 1) * 12px)) scale(calc(.94 + .06 * var(--on))); transition: opacity .35s ease, transform .55s var(--rebote); }
-.vd-g-pop { opacity: var(--on); transform: scale(calc(.3 + .7 * var(--on))); transform-box: fill-box; transform-origin: center; transition: opacity .2s ease, transform .5s var(--rebote); }
-/* onda que se abre al llegar a un lugar */
-.vd-g-onda { --pr: clamp(0, calc((var(--vd-t) - var(--a, 0)) / .045), 1); opacity: calc(.75 * var(--on) * (1 - var(--pr))); transform: scale(calc(1 + 2.6 * var(--pr))); transform-box: fill-box; transform-origin: center; }
-/* lo que vive fuera de la escena se esconde mientras la vuelta recomienza */
-.vd-g-tramo { --on: clamp(0, calc(min(var(--vd-t) - .04, .96 - var(--vd-t)) * 1000), 1); opacity: var(--on); transition: opacity .4s ease; }
-.vd-telon { position: absolute; inset: 0; pointer-events: none; background: var(--telon, var(--papel)); opacity: calc(1 - clamp(0, calc(min(var(--vd-t) - .03, .97 - var(--vd-t)) * 1000), 1)); transition: opacity .45s ease; }
-.vd-camara { transform-box: view-box; transform-origin: 0 0; }
-
-/* Indicadores: la barra parte donde estaba (--de = antes / ahora) y se mueve al valor nuevo.
-   <Indicator> calcula --de solo a partir de previous/value. */
-.vd-t .vd-barra i { --pb: clamp(0, calc((var(--vd-t) - .60) / .06), 1); --sb: calc(var(--pb) * var(--pb) * (3 - 2 * var(--pb))); transform: scaleX(calc(var(--de, 1) + (1 - var(--de, 1)) * var(--sb))); }
-.vd-t .vd-barra u { opacity: calc(.55 * var(--on)); transition: opacity .6s ease; }
-
-/* Viaje: la camara sigue al avion tramo a tramo y al final se aleja para mostrar la ruta.
-   Tramos (inicio, duracion): Santiago→Sidney .05/.21 · →Bali .30/.08 · →Bangkok .42/.07 · alejarse .52/.07 */
-.vd-viaje {
-  --telon: var(--acento-suave);
-  --p1: clamp(0, calc((var(--vd-t) - .05) / .21), 1);
-  --p2: clamp(0, calc((var(--vd-t) - .30) / .08), 1);
-  --p3: clamp(0, calc((var(--vd-t) - .42) / .07), 1);
-  --p4: clamp(0, calc((var(--vd-t) - .52) / .07), 1);
-  --s1: calc(var(--p1) * var(--p1) * (3 - 2 * var(--p1)));
-  --s2: calc(var(--p2) * var(--p2) * (3 - 2 * var(--p2)));
-  --s3: calc(var(--p3) * var(--p3) * (3 - 2 * var(--p3)));
-  --s4: calc(var(--p4) * var(--p4) * (3 - 2 * var(--p4)));
-  /* avance por la ruta, 0 a 100: cada tramo pesa lo que mide */
-  --d: calc(50.51 * var(--s1) + 27.92 * var(--s2) + 21.57 * var(--s3));
-  /* altura: sube y baja en cada tramo */
-  --alt: calc(sin(var(--p1) * 3.1416) + sin(var(--p2) * 3.1416) + sin(var(--p3) * 3.1416));
-  --pv: clamp(0, calc((var(--vd-t) - .05) / .44), 1);
-}
-.vd-viaje .vd-camara { transform: translate(calc((-244.9 + 164.9 * var(--s1) + 79.9 * var(--s2) + .1 * var(--s4)) * 1px), calc((-206.5 - 11.9 * var(--s1) + 96.9 * var(--s2) + 93.5 * var(--s3) + 28 * var(--s4)) * 1px)) scale(calc(1.7 - .7 * var(--s4))); }
-.vd-estela { stroke-dasharray: 309.75; stroke-dashoffset: calc((100 - var(--d)) * 3.0975px); }
-.vd-vuelo { offset-path: path("M290 205 C230 250 190 250 150 212 C125 190 105 170 85 155 C70 140 55 120 48 100"); offset-distance: calc(var(--d) * 1%); offset-rotate: auto; }
-.vd-vuelo--sombra { offset-rotate: 0deg; }
-.vd-vuelo-cuerpo { transform: scale(calc(1 + .3 * var(--alt))); }
-.vd-vuelo-sombra { transform: translate(calc(3px * var(--alt)), calc(5px + 11px * var(--alt))); opacity: calc(.24 - .09 * var(--alt)); }
-.vd-ola { animation: vd-ola 4s ease-in-out infinite alternate; }
-.vd-nube { animation: vd-nube 24s linear -9s infinite; }
-.vd-nube--b { animation-duration: 31s; animation-delay: -22s; }
-.vd-dia { position: absolute; left: 12px; top: 12px; display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border: 2px solid var(--tinta); border-radius: 999px; background: var(--papel); color: var(--tinta); font: 600 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
-.vd-dia-n { min-width: 3ch; text-align: right; font-variant-numeric: tabular-nums; }
-.vd-dia-n::after { counter-reset: dia calc(1 + 364 * var(--pv)); content: counter(dia); }
-
-/* Oficina: cae la noche, las luces se apagan una a una y la camara se acerca a la tuya.
-   Anochecer .04/.26 · el reloj salta en .10 .20 .30 .38 .48 · acercarse .50/.09 */
-.vd-oficina {
-  --telon: #0C0D11;
-  --pn: clamp(0, calc((var(--vd-t) - .04) / .26), 1);
-  --osc: calc(var(--pn) * var(--pn) * (3 - 2 * var(--pn)));
-  --pz: clamp(0, calc((var(--vd-t) - .50) / .09), 1);
-  --z: calc(var(--pz) * var(--pz) * (3 - 2 * var(--pz)));
-  --m: clamp(0, calc((var(--vd-t) - .16) / .40), 1);
-  --n1: clamp(0, calc((var(--vd-t) - .20) * 1000), 1);
-  --n2: clamp(0, calc((var(--vd-t) - .30) * 1000), 1);
-  --n3: clamp(0, calc((var(--vd-t) - .38) * 1000), 1);
-}
-.vd-oficina .vd-camara { transform: translate(calc(-249.6px * var(--z)), calc(-102.4px * var(--z))) scale(calc(1 + 1.2 * var(--z))); }
-.vd-cielo { fill: color-mix(in srgb, #0C0D11 calc(var(--osc) * 100%), #3A3F8C); }
-.vd-ocaso { opacity: calc(1 - var(--osc)); }
-.vd-ocaso-sol { transform: translateY(calc(110px * var(--osc))); }
-.vd-luna { opacity: clamp(0, calc((var(--vd-t) - .14) * 12), 1); transform: translate(calc(250px * var(--m)), calc(-76px * (1 - (1 - var(--m)) * (1 - var(--m))))); }
-.vd-vent { fill: #2B2C36; }
-.vd-vent.vd-g { fill: color-mix(in srgb, #2B2C36 calc(var(--on) * 100%), #FFC83D); transition: fill .35s ease; }
-.vd-vent--tu { fill: #FFC83D; animation: vd-parpadeo 3s ease-in-out infinite; }
-.vd-halo { opacity: .2; transform-box: fill-box; transform-origin: center; animation: vd-halo 2.6s ease-in-out infinite; }
-.vd-tu-figura { opacity: var(--z); }
-.vd-hora { position: absolute; left: 14px; top: 12px; width: 76px; height: 30px; overflow: hidden; border-radius: 8px; background: #14151A; border: 1.5px solid #3A3B45; }
-.vd-hora-pila { display: flex; flex-direction: column; --i: calc(clamp(0, calc((var(--vd-t) - .10) * 1000), 1) + var(--n1) + var(--n2) + var(--n3) + clamp(0, calc((var(--vd-t) - .48) * 1000), 1)); transform: translateY(calc(-27px * var(--i))); transition: transform .5s var(--ease); }
-.vd-hora-pila span { flex: none; display: flex; align-items: center; justify-content: center; height: 27px; color: #FFC83D; font: 600 15px/1 var(--mono); font-variant-numeric: tabular-nums; }
-.vd-sinleer { position: absolute; white-space: nowrap; left: 14px; bottom: 12px; display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border-radius: 999px; background: #FFC83D; color: #1D1E22; font: 600 12px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; }
-.vd-sinleer-n::after { counter-reset: sinleer calc(var(--n1) + var(--n2) + var(--n3)); content: counter(sinleer); }
+/* ───────── Notificaciones ───────── */
 .vd-noti { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 12px; border-radius: 14px; background: var(--niebla); animation: vd-entrar .55s var(--ease) both; }
 .vd-noti-quien { font: 600 14px/18px var(--font); }
 .vd-noti-msg { font: 400 14px/18px var(--font); color: var(--media); }
 .vd-noti-hora { margin-left: auto; flex: none; font: 500 11px/14px var(--mono); color: var(--suave); }
-.vd-avatar { flex: none; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--sol); color: #1D1E22; font: 600 14px/1 var(--font); }
 
 /* Tunel: los anos pasan, las estaciones quedan atras */
 .vd-anos { height: 84px; overflow: hidden; }
@@ -342,16 +225,6 @@ html { background: var(--papel); color: var(--tinta); }
 .vd-paso { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 2px; min-height: 58px; }
 .vd-paso::before { content: ""; position: absolute; left: -31px; top: 50%; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; background: var(--papel); border: 2px dashed var(--suave); }
 .vd-paso-que { font: 500 15px/20px var(--font); color: var(--suave); text-decoration: line-through; text-decoration-thickness: 1px; }
-
-/* Tu gente: cada punto es una vez */
-.vd-puntos { display: flex; flex-wrap: wrap; gap: 5px; }
-.vd-punto { width: 12px; height: 12px; border-radius: 50%; background: var(--tinta); }
-.vd-punto--no { background: transparent; border: 1.5px dashed var(--control); }
-.vd-punto--fin { background: transparent; border: 2px solid var(--tinta); border-radius: 2px; transform: rotate(45deg) scale(.8); }
-
-/* Rangos lado a lado */
-.vd-rangos { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 5px 8px; align-items: center; }
-.vd-rangos em { font: 600 11px/1 var(--mono); font-style: normal; color: var(--suave); }
 .vd-rango-pista { position: relative; display: block; height: 12px; border-radius: 999px; background: var(--niebla); }
 .vd-rango-pista i { position: absolute; top: 0; bottom: 0; border: 2px solid var(--tinta); border-radius: 999px; transform-origin: center; animation: vd-crecer .8s var(--ease) .2s both; }
 .vd-rango-pista b { position: absolute; top: -3px; bottom: -3px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--tinta); }
@@ -382,16 +255,9 @@ html { background: var(--papel); color: var(--tinta); }
 @keyframes vd-entrar { from { opacity: 0; transform: translateY(-10px) scale(.96); } to { opacity: 1; transform: none; } }
 @keyframes vd-trazo { to { stroke-dashoffset: 0; } }
 @keyframes vd-latido { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(2.6); opacity: 0; } }
-@keyframes vd-ola { from { transform: translateX(-6px); } to { transform: translateX(6px); } }
-@keyframes vd-parpadeo { 0%, 100% { opacity: 1; } 50% { opacity: .82; } }
-@keyframes vd-t { from { --vd-t: 0; } to { --vd-t: 1; } }
-@keyframes vd-t-una { from { --vd-t: 0; } to { --vd-t: .9; } }
-@keyframes vd-nube { from { transform: translateX(-60px); } to { transform: translateX(360px); } }
-@keyframes vd-halo { 0%, 100% { transform: scale(1); opacity: .22; } 50% { transform: scale(1.35); opacity: .1; } }
 @keyframes vd-tren { 0% { transform: translateY(0); opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { transform: translateY(var(--vd-via-largo, 232px)); opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
   .vd *, .vd *::before, .vd *::after { animation: none !important; transition: none !important; }
-  .vd-t { animation: none !important; }
   .vd-trazo { stroke-dashoffset: 0 !important; }
 }

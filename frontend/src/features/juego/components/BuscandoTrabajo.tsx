@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button, Heading, Meta, Pill, Screen, ScreenFooter, ScreenHeader, Stack, Text } from "@/shared/ui";
 import { TIPO_EMPLEADOR, plata } from "../textos";
 import type { Anio, Eleccion, Vista } from "../types";
@@ -98,6 +99,12 @@ export function BuscandoTrabajo({ vista, cargando, error, onElegir, onMirar, onS
   const cambio = ofrecido !== null && antes > 0 ? Math.round((ofrecido / antes - 1) * 100) : null;
   const aceptar = p.opciones.find((o) => o.opcion === "aceptar");
   const rechazar = p.opciones.find((o) => o.opcion === "rechazar");
+  // lo último que se eligió, para repetirlo si el simulador no respondió
+  const [ultima, setUltima] = useState<Eleccion | null>(null);
+  const elegir = (e: Eleccion) => {
+    setUltima(e);
+    onElegir(e);
+  };
 
   return (
     <Screen tone="noche" gap={16}>
@@ -180,12 +187,12 @@ export function BuscandoTrabajo({ vista, cargando, error, onElegir, onMirar, onS
       </Stack>
 
       <ScreenFooter>
-        {error && <ErrorCaja error={error} />}
+        {error && <ErrorCaja error={error} onReintentar={ultima ? () => elegir(ultima) : undefined} />}
         <div className="jg-dos-botones">
-          <Button variant="white" onClick={() => rechazar && onElegir({ decision: p.decision, opcion: rechazar.opcion })} disabled={cargando || !rechazar}>
+          <Button variant="white" onClick={() => rechazar && elegir({ decision: p.decision, opcion: rechazar.opcion })} disabled={cargando || !rechazar}>
             La rechazo y sigo buscando
           </Button>
-          <Button variant="white" onClick={() => aceptar && onElegir({ decision: p.decision, opcion: aceptar.opcion })} disabled={cargando || !aceptar}>
+          <Button variant="white" onClick={() => aceptar && elegir({ decision: p.decision, opcion: aceptar.opcion })} disabled={cargando || !aceptar}>
             La acepto
           </Button>
         </div>

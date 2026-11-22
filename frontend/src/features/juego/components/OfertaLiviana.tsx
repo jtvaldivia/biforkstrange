@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button, Heading, Meta, Pill, Screen, ScreenFooter, ScreenHeader, Stack, Text } from "@/shared/ui";
 import { EMPRESA_EJEMPLO, TIPO_EMPLEADOR, plata } from "../textos";
 import type { Eleccion, SinNovedad, Vista } from "../types";
@@ -28,6 +29,12 @@ export function OfertaLiviana({ vista, cargando, error, onMirar, onElegir, onSal
   const ofrecido = p.oferta_sueldo?.si_aceptas ?? null;
   const hoy = p.oferta_sueldo?.hoy ?? 0;
   const cambio = ofrecido !== null && hoy > 0 ? Math.round((ofrecido / hoy - 1) * 100) : null;
+  // lo último que se eligió, para repetirlo si el simulador no respondió
+  const [ultima, setUltima] = useState<Eleccion | null>(null);
+  const elegir = (e: Eleccion) => {
+    setUltima(e);
+    onElegir(e);
+  };
 
   return (
     <Screen gap={16}>
@@ -54,18 +61,22 @@ export function OfertaLiviana({ vista, cargando, error, onMirar, onElegir, onSal
         {ofrecido !== null && cambio !== null && (
           <Text>
             Te ofrecen <strong>{plata(ofrecido)} al mes</strong>{" "}
-            <span className="jg-delta" data-signo={cambio > 0 ? "mas" : "menos"}>
-              {cambio > 0 ? "+" : ""}
-              {cambio}% de tu sueldo
-            </span>
+            {Math.abs(cambio) < 2 ? (
+              <span className="jg-delta">casi lo mismo que ganas</span>
+            ) : (
+              <span className="jg-delta" data-signo={cambio > 0 ? "mas" : "menos"}>
+                {cambio > 0 ? "+" : ""}
+                {cambio}% de tu sueldo
+              </span>
+            )}
           </Text>
         )}
         <Text>¿La miras en serio, o sigues donde estás?</Text>
       </Stack>
       <ScreenFooter>
-        {error && <ErrorCaja error={error} />}
+        {error && <ErrorCaja error={error} onReintentar={ultima ? () => elegir(ultima) : undefined} />}
         <div className="jg-dos-botones">
-          <Button variant="white" onClick={() => quedarse && onElegir({ decision: p.decision, opcion: quedarse.opcion })} disabled={cargando || !quedarse}>
+          <Button variant="white" onClick={() => quedarse && elegir({ decision: p.decision, opcion: quedarse.opcion })} disabled={cargando || !quedarse}>
             No, sigo
           </Button>
           <Button variant="white" onClick={onMirar} disabled={cargando}>

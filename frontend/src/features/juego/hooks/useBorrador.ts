@@ -91,15 +91,6 @@ export function useBorrador(inicial: Borrador) {
     });
   }, []);
 
-  /** El formulario completo también puede leer tu CV o lo de tu Claude: su retrato y sus dudas quedan en el borrador. */
-  const anotarLectura = useCallback((r: PerfilLeido, origen: "pdf" | "texto") => {
-    cambiar((b) =>
-      origen === "pdf"
-        ? { ...b, leido: r }
-        : { ...b, claude: { intereses: r.intereses ?? [], proyecto: r.proyecto ?? null, retrato: r.retrato ?? null, sugeridas: r.dudas_sugeridas ?? [] } },
-    );
-  }, []);
-
   /** Si alguna lectura estaba en curso, su respuesta ya no se usa. */
   const soltarLecturas = useCallback(() => {
     pedidoCv.current++;
@@ -181,7 +172,7 @@ export function useBorrador(inicial: Borrador) {
 
   return {
     borrador, actual, sugeridas, leyendoCv, errorCv, leyendoClaude, errorClaude,
-    set, marcar, irA, verCompleto, aplicarFormulario, anotarLectura, soltarLecturas, reiniciar, leerPdf, leerTuClaude,
+    set, marcar, irA, verCompleto, aplicarFormulario, soltarLecturas, reiniciar, leerPdf, leerTuClaude,
   };
 }
 

@@ -2,18 +2,22 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Button, Tag, Text, cx } from "@/shared/ui";
 import { CALIDAD, CAMPOS_PERFIL, conSigno, enLista, plata, sinSueldo, situacion } from "../textos";
 import type { Calidad, Estado, Rango, SinNovedad } from "../types";
-import { Espera } from "./Apuesta";
 import { Logo } from "./Logo";
 
-/** "Año 2 sin novedades · $657 mil  +$4 mil al mes": lo único que cambió en un año que pasó sin nada. */
+/**
+ * "Año 2 sin novedades · $657 mil": lo único que cambió en un año que pasó sin nada. Si el alza anual movió el
+ * sueldo más de 2%, se dice eso: "sin novedades" junto a +$124 mil se contradecía.
+ */
 export function FranjaSinNovedad({ s }: { s?: SinNovedad | null }) {
   if (!s) return null;
+  const antes = s.sueldo - s.delta;
+  const casiIgual = antes > 0 ? Math.abs(s.delta) < 0.02 * antes : Math.abs(s.delta) < 1000;
   return (
     <div className="jg-sin-novedad" role="status">
       <span>
-        Año {s.anio} sin novedades · <b>{plata(s.sueldo)}</b>
+        {casiIgual ? `Año ${s.anio} sin novedades` : `Año ${s.anio}: solo el alza anual`} · <b>{plata(s.sueldo)}</b>
       </span>
-      {Math.abs(s.delta) >= 1000 && (
+      {!casiIgual && (
         <span className="jg-delta" data-signo={s.delta > 0 ? "mas" : "menos"}>
           {conSigno(s.delta)} al mes
         </span>
@@ -33,18 +37,9 @@ export function CalidadTag({ calidad }: { calidad: Calidad }) {
   );
 }
 
-export function LeyendaCalidad() {
-  return (
-    <p className="jg-chico" style={{ margin: 0 }}>
-      Cada número dice de dónde sale. Dato: {CALIDAD.dato.explica.toLowerCase()} Mixto: {CALIDAD.mixto.explica.toLowerCase()}{" "}
-      Supuesto: {CALIDAD.supuesto.explica.toLowerCase()}
-    </p>
-  );
-}
-
 /**
  * Rango de sueldos de los gemelos de una opción, del 10% peor al 10% mejor, con la raya en el gemelo del medio.
- * Usa la pista de <RangeCompare> del kit, pero en pesos y con una escala común (`tope`) para todas las opciones.
+ * En pesos y con una escala común (`tope`) para todas las opciones.
  */
 export function RangoSueldo({ rango, tope, color = "var(--dinero)", enPalabras = false }: { rango: Rango; tope: number; color?: string; enPalabras?: boolean }) {
   const pos = (n: number) => (tope > 0 ? Math.min(100, Math.max(0, (n / tope) * 100)) : 0);
@@ -97,7 +92,7 @@ export function Cargando({ children, texto, frases, cada = 2400 }: { children?: 
 export function ErrorCaja({ error, onReintentar }: { error: string; onReintentar?: () => void }) {
   return (
     <div className="vd-pila" style={{ gap: 10 }} role="alert">
-      <div className="jg-error">No pudimos hablar con el simulador. {error}</div>
+      <div className="jg-error">No pudimos conectar con el simulador. {error}</div>
       {onReintentar && (
         <Button variant="white" onClick={onReintentar}>
           Reintentar
@@ -146,7 +141,7 @@ export function Salir({ onSalir }: { onSalir: () => void }) {
   );
 }
 
-/** Algo que pasó en el año. Es la <Notification> del kit, con el texto completo en vez de cortado. */
+/** Algo que pasó en el año. Va con el texto completo, sin cortar. */
 export function Noticia({ titulo, texto, lado, className }: { titulo: string; texto: string; lado?: string; className?: string }) {
   return (
     <div className={cx("vd-noti", "jg-noti", className)}>
@@ -157,23 +152,6 @@ export function Noticia({ titulo, texto, lado, className }: { titulo: string; te
       {lado && <span className="vd-noti-hora">{lado}</span>}
     </div>
   );
-}
-
-/** Lo que el motor sortea de verdad en un año, y un par de cosas que no (dichas como lo que son: bromas). */
-const FRASES = [
-  "Sorteando tu año…",
-  "¿Habrá recesión este año?",
-  "Revisando si te ascienden…",
-  "¿Te llegará una oferta?",
-  "Los robots aún no llegan…",
-  "Preguntando por los despidos…",
-  "Nadie sabe quién gana el Mundial…",
-  "Calculando tu sueldo nuevo…",
-];
-
-/** Pantalla de espera mientras se vive tu año: una apuesta que va girando y lo que se está viendo en tu mundo. */
-export function Pensando({ titulo, onSalir }: { titulo: string; onSalir?: () => void }) {
-  return <Espera pantalla titulo={titulo} frases={FRASES} cada={900} onSalir={onSalir} />;
 }
 
 /** "Hoy: Desarrollador backend en Betterfly [logo]" y, abajo, el sueldo: en su línea para que no se corte. */

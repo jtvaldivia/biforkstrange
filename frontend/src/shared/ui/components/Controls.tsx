@@ -1,5 +1,5 @@
 import { useId, type ReactNode } from "react";
-import { cssVars, cx } from "../tokens";
+import { cx } from "../tokens";
 
 /** Chip que se marca y desmarca (gustos, rasgos). */
 export function Chip({ pressed, onToggle, children }: { pressed: boolean; onToggle: () => void; children: ReactNode }) {
@@ -7,30 +7,6 @@ export function Chip({ pressed, onToggle, children }: { pressed: boolean; onTogg
     <button type="button" className="vd-chip" aria-pressed={pressed} onClick={onToggle}>
       {children}
     </button>
-  );
-}
-
-type ChipOption = { value: string; label: string };
-
-/** Grupo de chips con selección múltiple. */
-export function ChipGroup({
-  options,
-  selected,
-  onChange,
-}: {
-  options: ChipOption[];
-  selected: string[];
-  onChange: (next: string[]) => void;
-}) {
-  const toggle = (v: string) => onChange(selected.includes(v) ? selected.filter((x) => x !== v) : [...selected, v]);
-  return (
-    <div className="vd-fila" style={cssVars({ "--vd-gap": "8px" })}>
-      {options.map((o) => (
-        <Chip key={o.value} pressed={selected.includes(o.value)} onToggle={() => toggle(o.value)}>
-          {o.label}
-        </Chip>
-      ))}
-    </div>
   );
 }
 

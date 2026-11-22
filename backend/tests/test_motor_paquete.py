@@ -76,10 +76,9 @@ def test_el_catalogo_trae_todas_las_clases_de_expresion():
     assert set(por_clase) == {"cuando", "peso", "requisito", "prob", "valor", "efecto_cuando", "prob_anual", "prob_mensual",
                              "filtro"}
     assert len({x[2] for x in exprs if isinstance(x[2], str)}) >= 150
-    assert por_clase["cuando"] == 39 + 12 and por_clase["peso"] == 39
+    assert por_clase["cuando"] == 40 + 14 + 2 and por_clase["peso"] == 40
     # la cesantía se vive mes a mes: dos eventos se sortean cada mes, el resto una vez al año
-    assert por_clase["prob_anual"] == 10 and por_clase["prob_mensual"] == 2
-    assert por_clase["cuando"] == 38 + 14 and por_clase["prob_anual"] == 14 and por_clase["peso"] == 38
+    assert por_clase["prob_anual"] == 14 and por_clase["prob_mensual"] == 2
 
 
 def test_paridad_con_el_evaluador_de_referencia():

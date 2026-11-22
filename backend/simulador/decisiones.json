@@ -3683,7 +3683,7 @@
    "id": "emprender",
    "nombre": "Emprender",
    "categoria": "emprender",
-   "pregunta": "¿Dejas tu trabajo para armar tu empresa?",
+   "pregunta": "¿Armas tu propia empresa?",
    "cuando": "y(en(estado, 'empleado', 'buscando'), edad >= 20)",
    "aparicion": {
     "tipo": "carta",

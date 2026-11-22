@@ -155,7 +155,7 @@ class PerfilLeido(BaseModel):
 
 
 INSTRUCCIONES = """\
-Eres parte de Gemelo Laboral, un simulador de carrera laboral en Chile. Una persona entrega un \
+Eres parte de Bifurca, un simulador de carrera laboral en Chile. Una persona entrega un \
 texto sobre sí misma (un currículum, su perfil de LinkedIn, notas en markdown o un párrafo) y tu \
 trabajo es llenar el formulario de su perfil. Después ella lo revisa y corrige antes de simular, \
 así que un campo vacío es mejor que un campo inventado.

@@ -28,12 +28,13 @@ function Juego() {
   const { catalogo, error: errorCatalogo, reintentar: reintentarCatalogo } = useCatalogo();
   /** El tutorial, que se abre desde el inicio antes de armar el perfil. */
   const [tutorial, setTutorial] = useState<"antes" | null>(null);
+  useNavegacion(j, tutorial, setTutorial);
 
   // cada pantalla nueva (otra fase, otra carta, otra tarjeta del onboarding) parte desde arriba
   const { paso, completo } = j.onboarding.borrador;
   const enOnboarding = j.fase === "perfil" ? `${paso}:${completo}` : "";
   const punto = `${tutorial}:${j.fase}:${enOnboarding}:${j.vista?.historia.length ?? 0}:${j.vista?.anio_en_curso?.decisiones.length ?? 0}:${j.vista?.pendiente?.decision ?? ""}`;
-  const pantalla = useRef<HTMLDivElement>(null);
+  const pantalla = useRef<HTMLElement>(null);
   const primera = useRef(true);
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -49,9 +50,9 @@ function Juego() {
   }, [punto]);
 
   return (
-    <div ref={pantalla} className="jg-pantalla">
+    <main ref={pantalla} className="jg-pantalla">
       <Fase j={j} tutorial={tutorial} setTutorial={setTutorial} catalogo={catalogo} errorCatalogo={errorCatalogo} reintentarCatalogo={reintentarCatalogo} />
-    </div>
+    </main>
   );
 }
 
@@ -149,12 +150,120 @@ function Fase({
   return (
     <Inicio
       hayPartida={j.partida !== null}
+      terminada={j.terminada}
       cargando={j.cargando}
       error={j.error}
       aviso={j.aviso}
       onContinuar={() => void j.continuar()}
       onEmpezar={j.empezarDeCero}
       onComoFunciona={() => setTutorial("antes")}
+      onOtraDuda={() => void j.verDudas(j.partida?.perfil ?? j.perfil, j.onboarding.sugeridas)}
     />
   );
+}
+
+/** Cada pantalla principal tiene su hash: así el botón atrás del navegador (y el gesto en el celular) no saca del sitio. */
+type Ruta = "" | "como-funciona" | "perfil" | "duda" | "partida" | "fin";
+const RUTAS: readonly Ruta[] = ["", "como-funciona", "perfil", "duda", "partida", "fin"];
+
+const rutaDelHash = (hash: string): Ruta => {
+  const r = hash.replace(/^#\/?/, "") as Ruta;
+  return RUTAS.includes(r) ? r : "";
+};
+const urlDe = (r: Ruta) => (r ? `#/${r}` : window.location.pathname + window.location.search);
+const enPartida = (r: Ruta) => r === "partida" || r === "fin";
+
+function rutaDe(j: ReturnType<typeof usePartida>, tutorial: "antes" | null): Ruta {
+  if (tutorial === "antes") return "como-funciona";
+  if (j.fase === "perfil") return "perfil";
+  if (j.fase === "duda") return "duda";
+  if (j.fase === "carta" || j.fase === "paso") return "partida";
+  if (j.fase === "cierre") return "fin";
+  return "";
+}
+
+/**
+ * Navegación con el History API, sin router: cada cambio de pantalla deja una entrada (`#/perfil`, `#/duda`, …)
+ * y atrás vuelve a la anterior sin perder estado. Dentro de la partida (los años y el cierre son una sola
+ * entrada), atrás va a la portada, que ofrece seguirla. Al recargar se retoma la pantalla si hay con qué;
+ * si no, la portada.
+ */
+function useNavegacion(j: ReturnType<typeof usePartida>, tutorial: "antes" | null, setTutorial: (t: "antes" | null) => void) {
+  const ruta = rutaDe(j, tutorial);
+  /** La entrada del historial en que estamos y la ruta de cada una que conocemos (para saltar a la portada). */
+  const nav = useRef({ i: 0, rutas: [] as Ruta[] });
+  const ahora = useRef({ j, ruta });
+  ahora.current = { j, ruta };
+
+  /** Lleva el estado a la pantalla `r`; si para esa pantalla no hay datos, a la portada. */
+  const irA = useRef((r: Ruta) => {
+    const { j } = ahora.current;
+    if (r === "como-funciona") return setTutorial("antes");
+    setTutorial(null);
+    if (r === "perfil") return j.irAPerfil();
+    if (r === "duda") return j.irADudas();
+    if (enPartida(r) && j.vista) return j.seguir();
+    if (enPartida(r) && j.partida) return void j.continuar();
+    if (r !== "") {
+      const n = nav.current;
+      n.rutas[n.i] = "";
+      window.history.replaceState({ bifurca: n.i }, "", urlDe(""));
+    }
+    if (j.fase !== "inicio") j.irAInicio();
+  });
+
+  // al cargar: la entrada actual queda como portada y, si la URL pedía otra pantalla, se intenta abrirla
+  useEffect(() => {
+    const n = nav.current;
+    const pedida = rutaDelHash(window.location.hash);
+    const previo: unknown = window.history.state;
+    n.i = previo && typeof (previo as { bifurca?: unknown }).bifurca === "number" ? (previo as { bifurca: number }).bifurca : 0;
+    n.rutas[n.i] = "";
+    window.history.replaceState({ bifurca: n.i }, "", urlDe(""));
+    // la lista de dudas no se guarda: recargar ahí vuelve a la portada
+    if (pedida === "perfil" || pedida === "como-funciona" || enPartida(pedida)) irA.current(pedida);
+  }, []);
+
+  // cada pantalla nueva deja su entrada; volver a la anterior con un botón de la app es lo mismo que atrás
+  useEffect(() => {
+    const n = nav.current;
+    if (n.rutas[n.i] === ruta) return;
+    if (n.i > 0 && n.rutas[n.i - 1] === ruta) {
+      n.i--;
+      window.history.back();
+      return;
+    }
+    n.i++;
+    n.rutas.length = n.i;
+    n.rutas[n.i] = ruta;
+    window.history.pushState({ bifurca: n.i }, "", urlDe(ruta));
+  }, [ruta]);
+
+  useEffect(() => {
+    const alVolver = (e: PopStateEvent) => {
+      const n = nav.current;
+      const estado: unknown = e.state;
+      const t = estado && typeof (estado as { bifurca?: unknown }).bifurca === "number" ? (estado as { bifurca: number }).bifurca : 0;
+      const destino = rutaDelHash(window.location.hash);
+      n.i = t;
+      n.rutas[t] = destino;
+      const actual = ahora.current.ruta;
+      if (destino === actual) return;
+      if (enPartida(actual) && destino !== "") {
+        // atrás desde la partida no deshace años ni vuelve a la duda: va a la portada
+        const portada = n.rutas.lastIndexOf("", t);
+        if (portada >= 0 && portada < t) {
+          window.history.go(portada - t);
+          return;
+        }
+        n.rutas[t] = "";
+        window.history.replaceState({ bifurca: t }, "", urlDe(""));
+        irA.current("");
+        return;
+      }
+      irA.current(destino);
+    };
+    window.addEventListener("popstate", alVolver);
+    return () => window.removeEventListener("popstate", alVolver);
+  }, []);
 }

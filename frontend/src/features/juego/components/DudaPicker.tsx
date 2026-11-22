@@ -1,3 +1,4 @@
+import "./onboarding.css";
 import { useEffect, useState } from "react";
 import { Espera } from "./Apuesta";
 import {
@@ -112,11 +113,6 @@ export function DudaPicker({
         <Heading level={1}>¿Qué duda te trajo?</Heading>
         <AvisoPerfil fuentes={fuentes} />
       </Stack>
-      {onSinDuda && (
-        <Button onClick={onSinDuda} disabled={cargando} className="jg-sin-duda">
-          Solo quiero simular mi vida
-        </Button>
-      )}
       {enJuego && (
         <div className="jg-en-juego" role="note">
           <Tag tone="accent">La más en juego para ti</Tag>
@@ -170,6 +166,11 @@ export function DudaPicker({
         <Button variant="quiet" onClick={() => setTodas(true)}>
           Ver las otras {dudas.length - VISIBLES}
         </Button>
+      )}
+      {onSinDuda && (
+        <button type="button" className="ob-link" onClick={onSinDuda} disabled={cargando}>
+          Empezar sin una duda
+        </button>
       )}
       <div className="jg-pie-fijo">
         {error && <ErrorCaja error={error} onReintentar={dudas ? onReintentar : onReintentarDudas} />}

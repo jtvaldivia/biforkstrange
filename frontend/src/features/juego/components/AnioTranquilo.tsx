@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, DecisionArt, Heading, Meta, Pill, Screen, ScreenFooter, ScreenHeader, Stack, Text } from "@/shared/ui";
 import { arteDuda, deCien } from "../textos";
 import type { Eleccion, SinNovedad, Vista } from "../types";
-import { Cargando, FranjaSinNovedad, Noticia, Salir } from "./piezas";
+import { Cargando, ErrorCaja, FranjaSinNovedad, Noticia, Salir } from "./piezas";
 
 /**
  * Un año en que no te llegó nada. No te obliga a decidir ni te pone una lista: te hace una propuesta,
@@ -98,7 +98,8 @@ export function AnioTranquilo({ vista, cargando, error, onElegir, onSalir, sinNo
         </div>
       )}
 
-      {error && <Text size="sm">{error}</Text>}
+      {/* si el simulador no respondió, se repite lo mismo que apretaste: la partida no se movió */}
+      {error && <ErrorCaja error={error} onReintentar={elegida ? () => elegir(elegida) : undefined} />}
       <ScreenFooter>
         {esperando && <Cargando frases={frases} cada={3000} />}
         <Button onClick={() => elegir("seguir")} disabled={cargando}>

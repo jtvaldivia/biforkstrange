@@ -6,6 +6,7 @@ from functools import lru_cache
 
 from fastapi import APIRouter, HTTPException, Query
 
+from app.core.carga import en_fila
 from app.schemas.juego import DudasIn, EnJuegoIn, MundoIn, NarrarIn, PartidaIn, PerfilIn, PesoCvIn, TextoPerfilIn
 from app.services import juego_personal, narracion, perfil_ia
 from app.sim.motor import empresas, partida, peso, supuestos, validacion
@@ -50,8 +51,15 @@ def supuestos_del_motor():
 
 @lru_cache(maxsize=4)
 def _validacion(n: int, semilla: int) -> dict:
-    resultado = validacion.validar(n, semilla, procesos=1)  # sin procesos hijos dentro del servidor
-    return {k: v for k, v in resultado.items() if k not in ("fallas", "decisiones")}
+    # la del deploy (precalculada al construir, ver `validacion.precalcular`) si es de este mismo motor
+    guardada = validacion.precalculada(n, semilla)
+    if guardada is not None:
+        return guardada
+    return en_fila(_simular_validacion)(n, semilla)
+
+
+def _simular_validacion(n: int, semilla: int) -> dict:
+    return validacion.para_api(validacion.validar(n, semilla, procesos=1))  # sin procesos hijos en el servidor
 
 
 @router.get("/validacion")
@@ -59,7 +67,7 @@ def validacion_contra_chile(n: int = Query(1000, ge=200, le=5000), semilla: int 
     """Una cohorte simulada desde los 18 años comparada con las metas de Chile (ESI, EPS, ENE) y con ELSOC.
 
     Cada meta dice si es insumo del motor, calibrada o validación de verdad (no entró al motor).
-    La primera llamada simula la cohorte (unos segundos con n=1000); después queda en memoria.
+    Con n=1000 y semilla 0 responde al tiro: el deploy la deja calculada. Otra combinación simula la cohorte\n    en la primera llamada (unos segundos con n=1000) y después queda en memoria.
     """
     return _validacion(n, semilla)
 
@@ -85,6 +93,7 @@ def _anios(body: PartidaIn | PesoCvIn | EnJuegoIn) -> int:
 
 
 @router.post("/partida")
+@en_fila
 def jugar(body: PartidaIn):
     """Estado de la partida: historia, decisión pendiente con lo que vivieron los gemelos, o el cierre."""
     try:
@@ -97,6 +106,7 @@ def jugar(body: PartidaIn):
 
 
 @router.post("/mundo")
+@en_fila
 def ver_mundo(body: MundoIn):
     """Un mundo de la comparación de la decisión pendiente: lo que te pasa en él con cada opción, año por año."""
     try:
@@ -148,6 +158,7 @@ def perfil_desde_texto(body: TextoPerfilIn):
 
 
 @router.post("/peso-cv")
+@en_fila
 def peso_del_cv(body: PesoCvIn):
     """Lo que vale cada línea de tu CV en tu duda: la misma comparación, con los mismos dados, sin ese dato.
 
@@ -161,6 +172,7 @@ def peso_del_cv(body: PesoCvIn):
 
 
 @router.post("/dudas-en-juego")
+@en_fila
 def dudas_en_juego(body: EnJuegoIn):
     """De las dudas que sugiere el CV, cuánto se juega la persona en cada una y cuál es la que más.
 

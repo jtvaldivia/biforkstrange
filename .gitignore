@@ -7,3 +7,9 @@ dist/
 
 # perfiles personales para probar el juego (el repo es público)
 backend/perfiles/
+
+# validación que se calcula al construir el deploy (python -m app.sim.motor.validacion --precalcular)
+backend/app/sim/motor/validacion_precalculada.json
+
+# salida incremental de tsc -b
+frontend/tsconfig.tsbuildinfo

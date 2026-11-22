@@ -340,8 +340,6 @@ const arts: Record<DecisionArtKind, { fondo: string; dibujo: ReactNode }> = {
   },
 };
 
-export const DECISION_ART_KINDS = Object.keys(arts) as DecisionArtKind[];
-
 /** `llenar`: ocupa todo su contenedor (las tarjetas grandes) y el fondo cubre lo que sobra a los lados. */
 export function DecisionArt({ kind, llenar = false }: { kind: DecisionArtKind; llenar?: boolean }) {
   const { fondo, dibujo } = arts[kind] ?? arts.consultora;

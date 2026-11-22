@@ -186,6 +186,8 @@ export type Evento = {
   /** Gatillado por otra regla: no tiene probabilidad propia que mostrar. */
   directo?: boolean;
   rutina?: boolean;
+  /** Un alza anual de 0 en pesos de hoy: solo el reajuste por inflación. */
+  solo_ipc?: boolean;
 } & MovimientoPlata;
 
 export type Anio = {
@@ -262,7 +264,10 @@ export type OpcionComparada = ContraBase & {
   detalle: string;
   calidad: Calidad;
   es_base: boolean;
+  /** Sueldo al final, con $0 para quien termina sin trabajo o estudiando (así se comparan las opciones). */
   sueldo: Rango;
+  /** El mismo rango, solo entre quienes ganan algo al final (los demás están en `sin_trabajo_al_final`). */
+  sueldo_con_trabajo?: Rango;
   ingreso_total: Rango;
   paso_por_cesantia: number;
   meses_sin_trabajo: number;
@@ -454,7 +459,14 @@ export type Cierre = {
   anios_sin_trabajo: number;
   meses_sin_trabajo?: number;
   mejor_que_gemelos?: number;
-  primera_decision: { decision: string; pregunta: string; elegida: string; comparacion: Comparacion } | null;
+  primera_decision: {
+    decision: string;
+    pregunta: string;
+    elegida: string;
+    comparacion: Comparacion;
+    /** Tu opción contra la otra de mejor sueldo típico, mundo a mundo con la misma suerte (como la carta). */
+    contra?: (ContraBase & { opcion: string; nombre: string }) | null;
+  } | null;
   ia?: CierreIA;
 };
 

@@ -18,11 +18,13 @@ Las decisiones de carrera se toman una sola vez y nunca sabes cómo te habría i
 
 ## Datos de Chile, no opiniones de una IA
 
-Ningún modelo inventa los números. El motor ejecuta un paquete de reglas con **37 decisiones, 10 eventos, 65 parámetros y 50 tablas** sacadas de encuestas y registros chilenos (ESI y ENE del INE, EPS, entre otras). El texto que narra cada decisión no toca ninguna cifra.
+Ningún modelo inventa los números. El motor ejecuta un paquete de reglas con **40 decisiones, 16 eventos, 100 parámetros y 54 tablas** sacadas de encuestas y registros chilenos (ESI y ENE del INE, EPS, entre otras) y de estudios citados. El texto que narra cada decisión no toca ninguna cifra.
 
-Cada parámetro dice si es **dato** medido, **mixto** o **supuesto** nuestro, con su fuente. Y lo probamos contra la realidad: simulamos 5.000 vidas de los 18 a los 50 y las comparamos con 37 metas de Chile. **Cuadran 25.** La desocupación por edad cuadra en los seis tramos sin que el motor use ese número. Los sueldos simulados quedan 12% a 32% bajo los reales, y lo decimos. El detalle está en [`docs/motor/VALIDACION.md`](docs/motor/VALIDACION.md).
+Cada parámetro dice si es **dato** medido, **mixto**, **sintético** o **supuesto**, con su fuente: hoy son 28, 35, 3 y 34. La mayoría de los supuestos son del escenario de IA y de los ciclos (auge del cobre, burbuja de IA), que extrapolan estudios a Chile. `make supuestos CALIDAD=supuesto` los lista.
 
-Las opciones de trabajo traen empleadores u ofertas reales como ejemplo (SII, Get on Board, Y Combinator, empleospublicos.cl), pero la historia de cada decisión usa empresas ficticias para no inventar hechos sobre empresas que existen.
+Y lo probamos contra la realidad: simulamos 5.000 vidas de los 18 a los 50 y las comparamos con 37 metas de Chile. **Cuadran 33**, con las semillas 0 y 1. La desocupación por edad cuadra en los seis tramos sin que el motor use ese número. Los sueldos medianos quedan a menos de 10% de Chile hasta los 44 años; a los 45-49 el motor se pasa 17%. También fallan los independientes a los 35-39 y 45-49 y el empleo público a los 35-39. Contra ELSOC, que el motor no usa, cuadran 4 de 6 transiciones: el motor despide de más a los jóvenes y saca de la cesantía demasiado rápido a los 30-44. Cualquiera lo reproduce con `make validar N=5000`. El detalle está en [`docs/motor/VALIDACION.md`](docs/motor/VALIDACION.md).
+
+Las ofertas nombran empresas reales del catálogo como ejemplo (SII, Get on Board, Y Combinator, empleospublicos.cl), con el aviso de que sus cifras y lo que les pasa son simulados. Un despido o un cierre nunca se cuenta con el nombre de una empresa real: ahí la historia usa una ficticia, y el narrador lo valida en código.
 
 ## Stack
 

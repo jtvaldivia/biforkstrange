@@ -35,6 +35,8 @@ type Guardado = {
   fuentes?: Record<string, Fuente> | null;
   /** "Lo que tu gemelo sabe de ti", de este perfil: va en la tarjeta que se comparte. */
   retrato?: string | null;
+  /** Si la partida guardada ya terminó: la portada ofrece ver el resultado en vez de seguirla. */
+  terminada?: boolean;
 };
 
 /** Antes el retrato se guardaba aparte y se asociaba por edad, sexo y estudios: podía salir el de otra persona. */
@@ -50,7 +52,7 @@ function leer(): Guardado | null {
     if (!g || typeof g.perfil !== "object" || g.perfil === null) return null;
     const borrador = g.borrador && typeof g.borrador === "object" ? { ...borradorInicial(PERFIL_INICIAL), ...g.borrador } : undefined;
     if (borrador) borrador.perfil = { ...PERFIL_INICIAL, ...borrador.perfil };
-    return { perfil: { ...PERFIL_INICIAL, ...g.perfil }, partida: g.partida ?? null, borrador, fuentes: g.fuentes ?? null, retrato: g.retrato ?? null };
+    return { perfil: { ...PERFIL_INICIAL, ...g.perfil }, partida: g.partida ?? null, borrador, fuentes: g.fuentes ?? null, retrato: g.retrato ?? null, terminada: g.terminada ?? false };
   } catch {
     return null;
   }
@@ -152,7 +154,13 @@ export function usePartida() {
     setRetrato(b.claude?.retrato ?? b.leido?.retrato ?? null);
   }, []);
 
-  useEffect(() => guardar({ perfil, partida, borrador, fuentes, retrato }), [perfil, partida, borrador, fuentes, retrato]);
+  const [terminada, setTerminada] = useState(guardado?.terminada ?? false);
+  useEffect(() => {
+    if (vista) setTerminada(vista.terminada);
+    else if (!partida) setTerminada(false);
+  }, [vista, partida]);
+
+  useEffect(() => guardar({ perfil, partida, borrador, fuentes, retrato, terminada }), [perfil, partida, borrador, fuentes, retrato, terminada]);
 
   /** Lo último que falló, para el botón "Reintentar": se repite eso mismo, no otra cosa. */
   const reintento = useRef<(() => void) | null>(null);
@@ -230,6 +238,15 @@ export function usePartida() {
       if (mio === turno.current) setCargando(false);
     }
   }, [fijarPerfil]);
+
+  /** Vuelve a la lista de dudas (el botón atrás del navegador): si ya estaba cargada no se pide de nuevo. */
+  const irADudas = useCallback(() => {
+    if (!dudas) return void verDudas(perfil, dudasSugeridas);
+    turno.current++;
+    setCargando(false);
+    setError(null);
+    setFase("duda");
+  }, [dudas, verDudas, perfil, dudasSugeridas]);
 
   /** Si las dudas no llegaron (el backend no respondía), se vuelven a pedir con el mismo perfil. */
   const reintentar = useCallback(() => reintento.current?.(), []);
@@ -325,7 +342,7 @@ export function usePartida() {
         setVista(v);
         setSinNovedad(quieto);
         setFase(quieto ? (v.terminada ? "cierre" : "carta") : busca && v.pendiente ? "carta" : "paso");
-      }, undefined, busca || seguirIgual || sinMovimiento() ? 0 : resultados > 1 ? 2400 : 600); // sin dado o sin animaciones, no se espera
+      }, undefined, busca || seguirIgual || sinMovimiento() ? 0 : resultados > 1 ? 1200 : 600); // sin dado o sin animaciones, no se espera; la Ruleta de "qué te pasó" cierra el sorteo
     },
     [partida, vista, pedir],
   );
@@ -412,7 +429,7 @@ export function usePartida() {
   }, [onboarding.reiniciar]);
 
   return {
-    aviso, fuentes, retrato, origenSugeridas, empezarDeCero, reintentarDudas, reintentar, semillaNueva,
+    aviso, fuentes, retrato, origenSugeridas, terminada, irADudas, empezarDeCero, reintentarDudas, reintentar, semillaNueva,
     fase, perfil, partida, vista, previa, sinNovedad, dudas, dudasSugeridas, cargando, recalculando, error, onboarding,
     irAInicio, irAPerfil, verDudas, empezar, empezarAlAzar, continuar, elegir, compararCon, verMundo, narrar, seguir, jugarDeNuevo, revivir, anterior, descartar,
   };

@@ -120,6 +120,18 @@ def mundo_pendiente(perfil: Perfil, semilla: int, duda: str | None, elecciones: 
                          semilla=semilla, parametros=parametros)
 
 
+def _contra_la_otra(comparacion: dict, elegida: str, por_mundo: dict[str, list[float]]) -> dict | None:
+    """Lo que movió tu primera decisión, medido como la carta: cada mundo contra sí mismo con la otra opción (la
+    misma suerte), y la mediana de esas diferencias. La otra es la de mejor sueldo típico entre las que no elegiste.
+    Restar las medianas de cada opción puede dar hasta el signo contrario."""
+    otras = [o for o in comparacion["opciones"] if o["opcion"] != elegida]
+    if elegida not in por_mundo or not otras:
+        return None
+    otra = max(otras, key=lambda o: o["sueldo"]["p50"])
+    pares = list(zip(por_mundo[elegida], por_mundo[otra["opcion"]]))
+    return {"opcion": otra["opcion"], "nombre": otra["nombre"], **gemelos._contra_base(pares)}
+
+
 def _cierre(perfil: Perfil, semilla: int, duda: str | None, elecciones: list[dict], partida: Partida,
             n: int, pq: Paquete) -> dict:
     """Tu vida frente a los gemelos de la primera decisión que tuvo mundos (un año tranquilo no tiene)."""
@@ -134,14 +146,17 @@ def _cierre(perfil: Perfil, semilla: int, duda: str | None, elecciones: list[dic
             elegida = str(elecciones[k]["opcion"])
             break
     if comparacion:
+        por_mundo = {}
         for o in comparacion["opciones"]:
             sueldos = o.pop("sueldos")
+            por_mundo[o["opcion"]] = o.pop("sueldos_por_mundo")
             if o["opcion"] == elegida:
                 # se compara lo que ganas al final (0 si terminas sin trabajo), igual que entre los gemelos
                 hoy = partida.vida.sueldo_al_final()
                 cierre["mejor_que_gemelos"] = sum(1 for x in sueldos if x < hoy) / len(sueldos)
         cierre["primera_decision"] = {"decision": comparacion["decision"], "pregunta": comparacion["pregunta"],
-                                      "elegida": elegida, "comparacion": comparacion}
+                                      "elegida": elegida, "comparacion": comparacion,
+                                      "contra": _contra_la_otra(comparacion, elegida, por_mundo)}
     if ia.activa():
         # el ritmo de la IA de tu mundo (lo fuiste leyendo en los titulares), qué es cada ritmo y quién dice qué
         cierre["ia"] = {"ritmo": partida.vida.e.get("ia_ritmo"), **ia.escenarios(),
