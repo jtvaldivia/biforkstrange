@@ -5,7 +5,9 @@ services:
   - type: web
     name: agarrar-la-pala-api
     runtime: python
-    plan: standard
+    # Free: 0,1 CPU / 512 MB, se duerme tras 15 min sin tráfico y tarda ~1 min en despertar.
+    # Con los créditos, cambiar a `standard` (1 CPU / 2 GB).
+    plan: free
     region: virginia
     branch: produccion
     rootDir: backend

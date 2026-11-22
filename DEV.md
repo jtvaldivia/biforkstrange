@@ -89,7 +89,7 @@ Las escenas animadas usan un reloj CSS (`--vd-t`): pon `scene="once"` en el `Scr
 
 La rama `produccion` es lo que está en línea. Para publicar, abre un PR de `main` a `produccion` y mergéalo. El CI (`.github/workflows/ci.yml`) corre los tests y el build, y Render despliega solo si pasan.
 
-`render.yaml` define los dos servicios: la API (`agarrar-la-pala-api`, Python, plan Standard) y el front (`agarrar-la-pala`, sitio estático con rewrite a `index.html`). El front se rebuildea solo si cambia algo en `frontend/`.
+`render.yaml` define los dos servicios: la API (`agarrar-la-pala-api`, Python, plan Free por ahora) y el front (`agarrar-la-pala`, sitio estático con rewrite a `index.html`). El front se rebuildea solo si cambia algo en `frontend/`.
 
 Antes de pushear, `uv.lock` tiene que estar al día (`cd backend && uv lock`): Render instala con `uv sync --frozen`.
 
