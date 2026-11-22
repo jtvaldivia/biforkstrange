@@ -87,3 +87,26 @@ def test_cli_sin_subcomando_es_error_de_uso():
     from app.cli import main
 
     assert main([]) == 2
+
+
+# ── respuestas documentadas de /api/juego ────────────────────────────────────
+
+
+def test_el_response_model_no_borra_campos_del_motor(client):
+    """`extra="allow"`: lo que devuelve el motor llega entero al cliente, también lo que no está en el modelo."""
+    from app.sim.motor import partida
+    from app.sim.motor.perfil import Perfil
+
+    duda = client.post("/api/juego/dudas", json={}).json()[0]["decision"]
+    api = client.post("/api/juego/partida", json={"gemelos": 20, "duda": duda, "semilla": 4}).json()
+    directo = partida.vista(Perfil(), 4, duda, [], 20, None)
+    assert api.keys() == directo.keys()
+    assert api["estado"] == directo["estado"]
+
+
+def test_openapi_documenta_las_respuestas_del_juego(client):
+    esquema = client.get("/openapi.json").json()
+    for ruta, metodo, modelo in [("/api/juego/partida", "post", "PartidaOut"), ("/api/juego/catalogo", "get", "CatalogoOut"),
+                                 ("/api/juego/mundo", "post", "MundoOut"), ("/api/juego/narrar", "post", "NarrarOut")]:
+        ok = esquema["paths"][ruta][metodo]["responses"]["200"]["content"]["application/json"]["schema"]
+        assert ok["$ref"].endswith(f"/{modelo}")

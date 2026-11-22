@@ -8,6 +8,19 @@ from fastapi import APIRouter, HTTPException, Query, status
 
 from app.api.errores import partida_invalida
 from app.schemas.juego import DudasIn, EnJuegoIn, MundoIn, NarrarIn, PartidaIn, PerfilIn, PesoCvIn, TextoPerfilIn
+from app.schemas.juego_salida import (
+    CatalogoOut,
+    DudaOut,
+    EnJuegoOut,
+    MundoOut,
+    NarrarOut,
+    PartidaOut,
+    PerfilLeidoOut,
+    PesoCvOut,
+    PromptOut,
+    SupuestosOut,
+    ValidacionOut,
+)
 from app.services import juego_personal, narracion
 from app.services.ia import perfil as perfil_ia
 from app.services.ia import perfil_doc
@@ -18,7 +31,7 @@ from app.sim.motor.perfil import NIVELES
 router = APIRouter(prefix="/juego", tags=["juego"])
 
 
-@router.get("/catalogo")
+@router.get("/catalogo", response_model=CatalogoOut)
 def catalogo():
     """Alternativas para llenar el perfil."""
     pq = paquete()
@@ -45,7 +58,7 @@ def catalogo():
     }
 
 
-@router.get("/supuestos")
+@router.get("/supuestos", response_model=SupuestosOut)
 def supuestos_del_motor():
     """Cada parámetro del motor con su calidad (dato, mixto o supuesto), su fuente y su país."""
     return supuestos.listar()
@@ -57,7 +70,7 @@ def _validacion(n: int, semilla: int) -> dict:
     return {k: v for k, v in resultado.items() if k not in ("fallas", "decisiones")}
 
 
-@router.get("/validacion")
+@router.get("/validacion", response_model=ValidacionOut)
 def validacion_contra_chile(n: int = Query(1000, ge=200, le=5000), semilla: int = Query(0, ge=0)):
     """Una cohorte simulada desde los 18 años comparada con las metas de Chile (ESI, EPS, ENE) y con ELSOC.
 
@@ -72,7 +85,7 @@ def _personal(perfil: PerfilIn):
     return perfil.a_perfil(), juego_personal.desde(perfil.relato)
 
 
-@router.post("/dudas")
+@router.post("/dudas", response_model=list[DudaOut])
 def dudas(body: DudasIn):
     """Decisiones del banco que esta persona puede elegir como su duda inicial."""
     return partida.dudas_posibles(body.perfil.a_perfil())
@@ -87,7 +100,7 @@ def _anios(body: PartidaIn) -> int:
     return body.edad_final - body.perfil.edad
 
 
-@router.post("/partida")
+@router.post("/partida", response_model=PartidaOut)
 def jugar(body: PartidaIn):
     """Estado de la partida: historia, decisión pendiente con lo que vivieron los gemelos, o el cierre."""
     with partida_invalida():
@@ -97,7 +110,7 @@ def jugar(body: PartidaIn):
         )
 
 
-@router.post("/mundo")
+@router.post("/mundo", response_model=MundoOut)
 def ver_mundo(body: MundoIn):
     """Un mundo de la comparación de la decisión pendiente: lo que te pasa en él con cada opción, año por año."""
     with partida_invalida():
@@ -107,7 +120,7 @@ def ver_mundo(body: MundoIn):
         )
 
 
-@router.post("/narrar")
+@router.post("/narrar", response_model=NarrarOut)
 def narrar(body: NarrarIn):
     """Los textos de la partida contados por Claude: la carta pendiente, la historia o un mundo.
 
@@ -120,13 +133,13 @@ def narrar(body: NarrarIn):
                                 body.que, body.mundo, body.parametros, relato=relato)
 
 
-@router.get("/prompt")
+@router.get("/prompt", response_model=PromptOut)
 def prompt_perfil():
     """El prompt que la persona le pega a su propio Claude para que le arme su documento de perfil."""
     return {"prompt": perfil_doc.prompt()}
 
 
-@router.post("/perfil")
+@router.post("/perfil", response_model=PerfilLeidoOut)
 def perfil_desde_texto(body: TextoPerfilIn):
     """Claude lee el texto de la persona y llena el perfil para que ella lo revise.
 
@@ -142,7 +155,7 @@ def perfil_desde_texto(body: TextoPerfilIn):
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(error)) from error
 
 
-@router.post("/peso-cv")
+@router.post("/peso-cv", response_model=PesoCvOut)
 def peso_del_cv(body: PesoCvIn):
     """Lo que vale cada línea de tu CV en tu duda: la misma comparación, con los mismos dados, sin ese dato.
 
@@ -153,7 +166,7 @@ def peso_del_cv(body: PesoCvIn):
         return peso.peso_cv(body.perfil.a_perfil(), body.duda, body.semilla, body.gemelos)
 
 
-@router.post("/dudas-en-juego")
+@router.post("/dudas-en-juego", response_model=EnJuegoOut)
 def dudas_en_juego(body: EnJuegoIn):
     """De las dudas que sugiere el CV, cuánto se juega la persona en cada una y cuál es la que más.
 
