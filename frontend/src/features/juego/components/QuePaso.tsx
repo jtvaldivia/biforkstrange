@@ -3,8 +3,8 @@ import { TIPO_EMPLEADOR, aniosDe, cargoYSueldo, conSigno, pesos, plata, porcient
 import type { Anio, DecisionTomada, Estado, Narrado, Vista } from "../types";
 import { useNarracion } from "../hooks/useNarracion";
 import { GEMELOS } from "../api";
-import { DadoEnJuego, Info, LineaSueldo, Ruleta, sinMovimiento, type Casilla } from "./graficos";
-import { Noticia, Salir } from "./piezas";
+import { Info, LineaSueldo, Ruleta, sinMovimiento, type Casilla } from "./graficos";
+import { Noticia, Pensando, Salir } from "./piezas";
 import { ComoCambioTuSueldo, TuIngreso } from "./Plata";
 import { TiraMeses, mesesDelAnio } from "./BuscandoTrabajo";
 
@@ -167,12 +167,7 @@ export function QuePaso({
   // mientras Claude cuenta el año sigue la misma escena de la carta: la ficha buscando, o la espera corta si era segura
   if (!listo)
     return (
-      <DadoEnJuego
-        casillas={hayRuleta ? casillas : []}
-        titulo={`Mundo ${GEMELOS + 1} · ${primero ? `${primero.edad} años` : `año ${proximo}`}`}
-        texto={hayRuleta ? undefined : "Contando tu año…"}
-        onSalir={onSalir}
-      />
+      <Pensando titulo={`Mundo ${GEMELOS + 1} · ${primero ? `${primero.edad} años` : `año ${proximo}`}`} onSalir={onSalir} />
     );
 
 
