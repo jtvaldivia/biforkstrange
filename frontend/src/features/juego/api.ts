@@ -1,7 +1,8 @@
 import { http } from "@/shared/lib/http";
 import type { Catalogo, Duda, EnJuego, MundoDetalle, Narrado, ParametrosComparar, Partida, Perfil, PerfilLeido, PesoCv, Vista } from "./types";
 
-export const GEMELOS = 100;
+/** Cuántos mundos se simulan por decisión (gemelos.N_GEMELOS en el backend). Tú eres el mundo GEMELOS + 1. */
+export const GEMELOS = 50;
 
 export const getCatalogo = () => http<Catalogo>("/api/juego/catalogo");
 

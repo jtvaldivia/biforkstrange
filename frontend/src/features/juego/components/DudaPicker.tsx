@@ -2,7 +2,7 @@ import "./onboarding.css";
 import { useEffect, useState } from "react";
 import { Espera } from "./Apuesta";
 import {
-  Button, ChevronLeftIcon, Chip, DecisionArt, DecisionList, Heading, IconButton, Pill, Screen, ScreenHeader, Stack, Tag, Text,
+  Button, ChevronLeftIcon, Chip, DecisionArt, DecisionList, Heading, IconButton, Screen, ScreenHeader, Stack, Tag, Text,
 } from "@/shared/ui";
 import { GEMELOS, getEnJuego } from "../api";
 import { arteDuda, mayuscula, plata, preguntaCorta } from "../textos";
@@ -107,7 +107,6 @@ export function DudaPicker({
             <ChevronLeftIcon />
           </IconButton>
         }
-        right={<Pill>Tu duda</Pill>}
       />
       <Stack gap={6}>
         <Heading level={1}>¿Qué duda te trajo?</Heading>

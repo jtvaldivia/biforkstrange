@@ -342,7 +342,7 @@ export function usePartida() {
         setVista(v);
         setSinNovedad(quieto);
         setFase(quieto ? (v.terminada ? "cierre" : "carta") : busca && v.pendiente ? "carta" : "paso");
-      }, undefined, busca || seguirIgual || sinMovimiento() ? 0 : resultados > 1 ? 1200 : 600); // sin dado o sin animaciones, no se espera; la Ruleta de "qué te pasó" cierra el sorteo
+      }, undefined, busca || seguirIgual || sinMovimiento() ? 0 : resultados > 1 ? 2400 : 600); // sin dado o sin animaciones, no se espera
     },
     [partida, vista, pedir],
   );

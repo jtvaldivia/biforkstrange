@@ -2,17 +2,17 @@
 
 <img src="./project-logo.png" alt="Bifurca" width="200" />
 
-> Simula tu próxima decisión de carrera en 100 vidas paralelas, con datos reales del trabajo en Chile, antes de tomarla.
+> Simula tu próxima decisión de carrera en 50 vidas paralelas, con datos reales del trabajo en Chile, antes de tomarla.
 
 Track: Simulations · Platanus Hack 26 Santiago, team 32
 
-Las decisiones de carrera se toman una sola vez y nunca sabes cómo te habría ido con la otra. **Bifurca** es un simulador para ensayarlas antes: vive cada opción en 100 mundos paralelos con la misma suerte en todos, así que la diferencia entre caminos es efecto de la decisión y no del azar. Te muestra en cuántos mundos gana cada opción, el rango de sueldos posible y el riesgo de cesantía, y recién ahí eliges tú.
+Las decisiones de carrera se toman una sola vez y nunca sabes cómo te habría ido con la otra. **Bifurca** es un simulador para ensayarlas antes: vive cada opción en 50 mundos paralelos con la misma suerte en todos, así que la diferencia entre caminos es efecto de la decisión y no del azar. Te muestra en cuántos mundos gana cada opción, el rango de sueldos posible y el riesgo de cesantía, y recién ahí eliges tú.
 
 ## Cómo funciona
 
 1. **Armas tu copia.** Nueve datos: edad, estudios, rubro, cargo, sueldo, tipo de empresa y cuánto riesgo toleras. O le pasas un prompt a tu propio Claude, que ya te conoce, y pegas lo que te responde.
 2. **Llega una decisión.** Una situación concreta: te ofrecen irte a una startup, te despiden, aparece un magíster, una recesión. Cuál llega depende de cómo vas.
-3. **Miras los 100 mundos.** En cada uno, tu copia vive *todas* las opciones con la misma suerte: la misma recesión, el mismo despido, el mismo ascenso. Si en un mundo gana más cambiándose, es por la decisión y no por el azar. Ves en cuántos mundos gana cada opción, el abanico de sueldos (del 10% con peor suerte al 10% con mejor) y cuántos pasaron por la cesantía. Puedes abrir cualquier mundo y leer su historia.
+3. **Miras los 50 mundos.** En cada uno, tu copia vive *todas* las opciones con la misma suerte: la misma recesión, el mismo despido, el mismo ascenso. Si en un mundo gana más cambiándose, es por la decisión y no por el azar. Ves en cuántos mundos gana cada opción, el abanico de sueldos (del 10% con peor suerte al 10% con mejor) y cuántos pasaron por la cesantía. Puedes abrir cualquier mundo y leer su historia.
 4. **Eliges y tiras el dado.** Vives uno solo de esos caminos. La ficha amarilla eres tú dentro del abanico de tus copias.
 5. **Al final** ves tu línea contra la de tus copias, año a año, y puedes simular otra vida con el mismo perfil para ver qué cambia.
 

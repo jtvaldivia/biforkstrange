@@ -12,8 +12,8 @@ from app.sim.motor import gemelos, partida
 from app.sim.motor.perfil import Perfil
 
 MAX_DATOS = 4  # cuántas líneas del CV se muestran: las que más mueven
-MIN_CAMBIO = 0.01  # bajo esto (1 mundo de 100, o 1% del sueldo) el dato no mueve la duda
-GANA_VISIBLE = 0.05  # desde 5 mundos de 100, lo que se cuenta es en cuántos gana (se entiende mejor que un sueldo)
+MIN_CAMBIO = 0.01  # bajo esto (1% de los mundos o del sueldo; con 50 mundos, menos de 1) el dato no mueve la duda
+GANA_VISIBLE = 0.05  # desde 5% de los mundos (con 50, 3 mundos), lo que se cuenta es en cuántos gana (se entiende mejor que un sueldo)
 
 
 def _neutro(campo: str, perfil: Perfil):

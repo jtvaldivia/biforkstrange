@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, DecisionArt, Heading, Meta, Pill, Screen, ScreenFooter, ScreenHeader, Stack, Text } from "@/shared/ui";
-import { arteDuda, deCien } from "../textos";
+import { GEMELOS } from "../api";
+import { arteDuda, porciento } from "../textos";
 import type { Eleccion, SinNovedad, Vista } from "../types";
 import { Cargando, ErrorCaja, FranjaSinNovedad, Noticia, Salir } from "./piezas";
 
@@ -32,8 +33,8 @@ export function AnioTranquilo({ vista, cargando, error, onElegir, onSalir, sinNo
   const ultimo = anio >= vista.anios;
   // con "seguir", el botón ya dice a qué año pasas: aquí va lo que se está calculando
   const frases = elegida === "seguir"
-    ? ["Viviendo tu año…", "Simulando tus 100 mundos…", "Ya casi…"]
-    : [`Simulando «${p.opciones.find((o) => o.opcion === elegida)?.nombre ?? s?.nombre ?? "eso"}»…`, "Simulando tus 100 mundos…", "Ya casi…"];
+    ? ["Viviendo tu año…", `Simulando tus ${GEMELOS} mundos…`, "Ya casi…"]
+    : [`Simulando «${p.opciones.find((o) => o.opcion === elegida)?.nombre ?? s?.nombre ?? "eso"}»…`, `Simulando tus ${GEMELOS} mundos…`, "Ya casi…"];
   // lo que ya pasó este año sin que lo eligieras (una recesión, un ascenso): no es un año "sin sobresaltos"
   const eventos = (vista.anio_en_curso?.eventos ?? []).filter((e) => !e.rutina);
 
@@ -56,7 +57,7 @@ export function AnioTranquilo({ vista, cargando, error, onElegir, onSalir, sinNo
       {eventos.length > 0 && (
         <Stack gap={8} className="vd-subir">
           {eventos.map((e, i) => (
-            <Noticia key={i} titulo={e.nombre} texto={e.texto} lado={e.directo ? undefined : deCien(e.prob)} />
+            <Noticia key={i} titulo={e.nombre} texto={e.texto} lado={e.directo ? undefined : `${porciento(e.prob)} al año`} />
           ))}
         </Stack>
       )}

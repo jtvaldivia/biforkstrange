@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button, Heading, Meta, Pill, Screen, ScreenFooter, ScreenHeader, Stack, Text } from "@/shared/ui";
+import { GEMELOS } from "../api";
 import { TIPO_EMPLEADOR, plata } from "../textos";
 import type { Anio, Eleccion, Vista } from "../types";
 import { ErrorCaja, Salir } from "./piezas";
@@ -182,7 +183,7 @@ export function BuscandoTrabajo({ vista, cargando, error, onElegir, onMirar, onS
           </Text>
         )}
         <button type="button" className="jg-ayuda" style={{ alignSelf: "flex-start" }} onClick={onMirar} disabled={cargando}>
-          Ver qué pasa en los 100 mundos con cada opción
+          Ver qué pasa en los {GEMELOS} mundos con cada opción
         </button>
       </Stack>
 

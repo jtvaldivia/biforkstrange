@@ -36,15 +36,17 @@ En cada mundo, la copia toma la opción que se compara y después vive con la mi
 
 ## 5. 100 mundos
 
+_Reemplazada por la 15: ahora son 50._
+
 Antes eran 500. Bajamos a 100.
 
 **Por qué.** "Gana en 54 de 100 mundos" se lee sin hacer cuentas, y cada mundo cabe como un punto que se puede tocar para ver qué le pasó. Responde más rápido. El costo es precisión: con 100, una diferencia de menos de unos 10 mundos entre opciones puede ser ruido. No hay que presentar diferencias chicas como si fueran claras.
 
-## 6. Tú eres el mundo 101
+## 6. Tú eres el mundo 51
 
-La partida de la persona es un mundo más, aparte de los 100.
+La partida de la persona es un mundo más, aparte de los 50 (con 100 mundos era el 101).
 
-**Por qué.** Los 100 mundos son para mirar antes de decidir. Si la persona viviera uno de ellos, sabría lo que le va a pasar.
+**Por qué.** Los 50 mundos son para mirar antes de decidir. Si la persona viviera uno de ellos, sabría lo que le va a pasar.
 
 ## 7. Se compara por la medida final, no por un puntaje
 
@@ -102,9 +104,19 @@ Cada mundo trae un ritmo de la IA (lento, medio o rápido), sorteado con las pro
 
 **Lo que descartamos.**
 - Sortear el ritmo uniforme, como era antes: también es un peso, solo que inventado.
-- Mostrar los tres ritmos por separado sin un conteo total: es lo más honesto ante incertidumbre profunda, pero cambia cómo se lee "gana en X de 100". La carta muestra solo el conteo total, con los pesos del FRI; el cierre dice cuánto habría ganado tu opción con cada ritmo.
+- Mostrar los tres ritmos por separado sin un conteo total: es lo más honesto ante incertidumbre profunda, pero cambia cómo se lee "gana en X de 50". La carta muestra solo el conteo total, con los pesos del FRI; el cierre dice cuánto habría ganado tu opción con cada ritmo.
 - Meter la AGI como un cuarto ritmo con efectos: no hay frecuencias ni consenso, y sus efectos salen de modelos teóricos.
 
 **Por qué.** El FRI es la única fuente con probabilidades explícitas por escenario, de grupos con historial de pronóstico. Y los efectos quedan chicos, como dice esa misma fuente: aun con IA rápida ven el desempleo en 6% contra 5%.
 
 **Qué nos haría cambiar.** Que haya una medición chilena del efecto de la IA en el empleo, o que los pronósticos de expertos se muevan mucho (el FRI se actualiza).
+
+## 15. 50 mundos
+
+Antes eran 100 (decisión 5). Bajamos a 50 (`N_GEMELOS` en `gemelos.py`).
+
+**Por qué.** Performance en producción. En Render (plan gratis), con 100 mundos la primera carta tardaba 14 a 17 segundos. Medido en local, con 50 cada respuesta tarda la mitad: la primera carta pasa de 1,45 s a 0,74 s, la carta de un año de 1,27 s a 0,63 s y el cierre de 1,46 s a 0,74 s.
+
+**El costo.** Precisión. El margen de error de "gana en X de 50" pasa de ±10 a ±14 puntos (binomial, 95%): una diferencia de menos de unos 7 mundos entre opciones puede ser ruido. "Si te va bien" y "si te va mal" (el 10% de arriba y el de abajo) salen de 5 mundos cada uno, no de 10. Sigue valiendo lo de la decisión 5: no hay que presentar diferencias chicas como si fueran claras.
+
+**Qué nos haría cambiar.** Un servidor más rápido, o que el motor corra en la mitad del tiempo: con eso se puede volver a 100.

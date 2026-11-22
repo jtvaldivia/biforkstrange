@@ -36,7 +36,7 @@ export function Inicio({
         <Text>Un gemelo tuyo prueba cada opción en {GEMELOS} mundos.</Text>
       </Stack>
       <div className="jg-mini" aria-hidden="true">
-        {Array.from({ length: 100 }, (_, i) => (
+        {Array.from({ length: GEMELOS }, (_, i) => (
           <i key={i} data-final={((i * 7919 + 104729) % 1000) / 1000 < 0.46 ? "mas" : ((i * 7919 + 104729) % 1000) / 1000 < 0.8 ? "igual" : "menos"} style={cssVars({ "--jg-i": i })} />
         ))}
       </div>

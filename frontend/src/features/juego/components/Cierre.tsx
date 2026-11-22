@@ -179,7 +179,7 @@ function DecisionOSuerte({
       )}
       {mejorQue !== undefined && (
         <Text size="sm">
-          Terminaste ganando más que {Math.round(mejorQue * 100)} de tus 100 copias.
+          Terminaste ganando más que {Math.round(mejorQue * gemelos)} de tus {gemelos} copias.
         </Text>
       )}
     </Stack>
@@ -379,9 +379,9 @@ export function CierrePantalla({
         <Button variant="white" onClick={onOtraVida}>
           Jugar otra vida, en otro mundo
         </Button>
-        <button type="button" className="jg-ayuda" style={{ alignSelf: "center" }} onClick={onCambiarPerfil}>
+        <Button variant="white" onClick={onCambiarPerfil}>
           Cambiar mi perfil
-        </button>
+        </Button>
       </Stack>
       <Info pregunta="¿De dónde salen los números?">
         Qué tan seguido pasa cada cosa sale de encuestas a trabajadores chilenos (ESI y ENE del INE, entre otras). Donde no hay medición, usamos

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, ChevronLeftIcon, Heading, IconButton, Meta, Pill, Screen, ScreenFooter, ScreenHeader, Stack, Text, cssVars } from "@/shared/ui";
+import { Button, ChevronLeftIcon, Heading, IconButton, Meta, Screen, ScreenFooter, ScreenHeader, Stack, Text, cssVars } from "@/shared/ui";
 import { GEMELOS } from "../api";
 import { Info } from "./graficos";
 
@@ -139,7 +139,6 @@ export function ComoFunciona({ onListo, onVolver, textoListo = "Armar mi perfil"
             <ChevronLeftIcon />
           </IconButton>
         }
-        right={<Pill>Cómo funciona</Pill>}
       />
 
       {paso === 2 ? (

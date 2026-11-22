@@ -1,5 +1,6 @@
 /** Cómo se dicen las cosas en pantalla. Aquí no se calcula ningún número: solo se les da formato. */
 import type { DecisionArtKind } from "@/shared/ui";
+import { GEMELOS } from "./api";
 import type { Calidad, Estado } from "./types";
 
 const numero = (n: number, decimales = 0) =>
@@ -24,12 +25,14 @@ export const CAMPOS_PERFIL: Record<string, string> = {
 export function enLista(xs: string[]): string {
   return xs.length <= 1 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} y ${xs[xs.length - 1]}`;
 }
-/** Sobre 100, como se cuentan los mundos: "63 de 100". Lo que pasa muy rara vez no se redondea a cero. */
 /** Probabilidad dicha en porcentaje: "4%", "menos de 1%". Para lo que puede pasarte (no para contar mundos). */
 export const porciento = (p: number) => (p > 0 && p < 0.005 ? "menos de 1%" : `${Math.round(p * 100)}%`);
 
-/** Cuántos de los 100 mundos: "33 de 100". Solo para contar mundos o copias, no para una probabilidad del año. */
-export const deCien = (p: number) => (p > 0 && p < 0.005 ? "menos de 1 de 100" : `${Math.round(p * 100)} de 100`);
+/** De una fracción de mundos, cuántos son: 0,46 → 23 (con 50). Solo para contar mundos o copias, no para una probabilidad del año. */
+export const mundos = (p: number, n: number = GEMELOS) => Math.round(p * n);
+
+/** Cuántos de los mundos: "23 de 50". Lo que pasa en algún mundo no se redondea a cero. */
+export const deMundos = (p: number, n: number = GEMELOS) => `${p > 0 ? Math.max(1, mundos(p, n)) : 0} de ${n}`;
 
 export const minuscula = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 

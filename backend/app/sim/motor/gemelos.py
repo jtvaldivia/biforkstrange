@@ -14,7 +14,7 @@ from app.sim.motor.motor import Vida
 from app.sim.motor.perfil import NIVELES
 from app.sim.motor.politicas import Fija, Inercia, Poblacion, opcion_base, parametros_por_defecto, pesos_personales
 
-N_GEMELOS = 100
+N_GEMELOS = 50  # antes 100: la mitad de tiempo por carta en producción; "gana en X de 50" queda con ±14 puntos (antes ±10)
 HORIZONTE = 10
 # Después de la decisión que se compara, el gemelo vive con la misma regla que la persona: le llegan cosas,
 # tiene años tranquilos y busca lo que busca la gente real (`Poblacion`).
@@ -150,8 +150,8 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
         salida.append({
             "opcion": o.id, "nombre": o.nombre, "detalle": o.detalle, "calidad": o.calidad,
             "es_base": es_base, "parametros": usados[o.id],
-            # `sueldo` cuenta con $0 a quien termina sin trabajo o estudiando (así se comparan las opciones): con 8 de
-            # 100 cesantes, su 10% cae a la mitad. `sueldo_con_trabajo` es el rango solo entre quienes ganan algo
+            # `sueldo` cuenta con $0 a quien termina sin trabajo o estudiando (así se comparan las opciones): con 4 de
+            # 50 cesantes, su 10% cae a la mitad. `sueldo_con_trabajo` es el rango solo entre quienes ganan algo
             # al final; los que no, están en `sin_trabajo_al_final`.
             "sueldo": _rango(sueldos),
             "sueldo_con_trabajo": _rango([x for x in sueldos if x > 0] or sueldos),
@@ -161,7 +161,7 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
             "meses_sin_trabajo": sum(v.meses_buscando - meses0 for v in vidas) / n,
             "sin_trabajo_al_final": sum(1 for v in vidas if v.e["estado"] == "buscando") / n,
             "cargo_mas_probable": NIVELES[niveles.most_common(1)[0][0]],
-            # la moda engaña: con 35 de 100 en junior y el resto repartido arriba, "lo más probable" es junior
+            # la moda engaña: con 35% en junior y el resto repartido arriba, "lo más probable" es junior
             "sube_de_cargo": sum(c for k, c in niveles.items() if k > nivel0) / n,
             "cargos": [{"cargo": NIVELES[k], "prob": c / n} for k, c in sorted(niveles.items())],
             **_contra_base([] if es_base else list(zip(sueldos, sueldos_base))),

@@ -7,7 +7,7 @@ import { Logo } from "./Logo";
 
 /**
  * Una oferta que te llegó, en corto: quién te escribe y qué te ofrece. Como en la vida, casi todas se
- * descartan en segundos; solo si quieres mirarla se abre la comparación con los 100 mundos.
+ * descartan en segundos; solo si quieres mirarla se abre la comparación con los mundos simulados.
  * Trae su sueldo, como en la vida: el que tendrías si la aceptas (el motor ya tiró esos dados).
  * Decir "No, sigo" es lo mismo que elegir "Quedarte".
  * Los dos botones pesan igual, para que la pantalla no empuje a quedarse.

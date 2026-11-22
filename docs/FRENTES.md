@@ -46,11 +46,11 @@ Si tu cambio necesita un campo nuevo en la API, súmalo a `frontend/src/features
 **Objetivo.** Que se entienda el juego sin leer, que sea entretenido y que dé ganas de jugar otra vez.
 
 **Tareas.**
-1. **Que quede claro el juego.** En los primeros 10 segundos, quien juega tiene que entender tres cosas: me llega una decisión, veo cómo les fue a 100 copias mías, elijo y me toca uno de los resultados. Probar con alguien que no conoce el juego y anotar dónde se pierde.
+1. **Que quede claro el juego.** En los primeros 10 segundos, quien juega tiene que entender tres cosas: me llega una decisión, veo cómo les fue a 50 copias mías, elijo y me toca uno de los resultados. Probar con alguien que no conoce el juego y anotar dónde se pierde.
 2. **Que sea entretenido.** Animaciones en los momentos que importan: llega la decisión, corren los mundos, te toca tu resultado, cambia el año. El tono es de juego, no de informe.
 3. **Cortar texto.** Cada pantalla con una sola idea. Frases cortas; lo que sobra va a un "ver más". Meta: la decisión se entiende sin bajar en el celular.
 
-**No cambia.** Los números ni lo que significan: si un texto dice "54 de 100", ese número viene del motor.
+**No cambia.** Los números ni lo que significan: si un texto dice "27 de 50", ese número viene del motor.
 
 **Listo cuando.** Alguien nuevo juega una partida completa sin preguntar nada, y `npm run build` compila.
 

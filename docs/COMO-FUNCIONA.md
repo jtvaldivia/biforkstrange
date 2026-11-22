@@ -15,7 +15,7 @@ Lee esto antes de cambiar algo. Cuenta qué vive la persona que juega, qué pasa
 
 Tienes una duda de trabajo: ¿me cambio?, ¿pido aumento?, ¿me voy a una startup? Nadie puede decirte cómo va a salir, porque depende de la decisión y también de lo que te pase sin que lo elijas.
 
-El juego no te da una respuesta. Te muestra **100 mundos posibles**. En cada uno vive una copia tuya que prueba **todas las opciones** viviendo lo mismo, y cuentas en cuántos mundos te va mejor con cada una. Después eliges tú, te toca uno de los resultados y vives tu año. Tú eres el mundo 101.
+El juego no te da una respuesta. Te muestra **50 mundos posibles**. En cada uno vive una copia tuya que prueba **todas las opciones** viviendo lo mismo, y cuentas en cuántos mundos te va mejor con cada una. Después eliges tú, te toca uno de los resultados y vives tu año. Tú eres el mundo 51.
 
 No sirve para maximizar el sueldo. Sirve para ver el abanico de lo que le pasa a gente como tú, y decidir pensando en lo que te importa.
 
@@ -24,21 +24,21 @@ No sirve para maximizar el sueldo. Sirve para ver el abanico de lo que le pasa a
 ```mermaid
 flowchart TD
     A["1. Tu perfil<br/>9 datos, y tu situación e historia si das tu CV"] --> B["2. Te llega una decisión<br/>al azar, entre las que calzan con tu situación"]
-    B --> C["3. 100 mundos viven 10 años<br/>con cada opción"]
+    B --> C["3. 50 mundos viven 10 años<br/>con cada opción"]
     C --> D["4. Ves en cuántos mundos gana cada opción<br/>y las probabilidades de cada resultado"]
     D --> E["5. Eliges y te toca<br/>uno de los resultados"]
     E --> F["6. Avanzas un año<br/>pasan cosas solas: alzas, despidos, recesión"]
     F --> B
-    F --> G["7. A los 10 años, el cierre<br/>tu vida frente a los 100 mundos"]
+    F --> G["7. A los 10 años, el cierre<br/>tu vida frente a los 50 mundos"]
 ```
 
 1. **Tu perfil.** Nueve datos: edad, sexo, estudios, carrera, rubro, tipo de empleador, cargo, sueldo y riesgo que toleras. Si das tu LinkedIn o tu CV, Claude también lee tu situación de hoy (si trabajas remoto, a media jornada, con IA, o estás buscando) y tu historia (cada cuántos años te cambias de pega). Siempre los revisas antes de jugar.
 2. **El año.** Si la vida te obliga (te despidieron), decides eso. Si no, a veces te llega una propuesta sin buscarla: una oferta, una startup que te llama. Si no te llega nada, es un **año tranquilo**: puedes seguir igual o buscar algo tú (pedir aumento, estudiar, emprender). La decisión dice por qué te tocó: "es obligada", "te llegó" o "la buscaste tú".
-3. **Los 100 mundos.** Antes de elegir, el motor juega 100 mundos. En cada uno, tu copia vive 10 años una vez por cada opción.
-4. **La comparación.** Cada punto de la nube es un mundo, pintado con la opción que ganó ahí. Tocas un punto y ves qué pasó en ese mundo. Cada opción muestra sus resultados posibles con su probabilidad ("te sube el sueldo: 54 de 100").
+3. **Los 50 mundos.** Antes de elegir, el motor juega 50 mundos. En cada uno, tu copia vive 10 años una vez por cada opción.
+4. **La comparación.** Cada punto de la nube es un mundo, pintado con la opción que ganó ahí. Tocas un punto y ves qué pasó en ese mundo. Cada opción muestra sus resultados posibles con su probabilidad ("te sube el sueldo: 27 de 50").
 5. **Tu resultado.** Eliges y te toca uno de los resultados de esa opción, según su probabilidad.
 6. **El año.** Pasan los eventos que nadie decide: alza anual, ascenso, despido, una oferta que llega, una recesión. Al cerrarlo ves cómo cambió tu sueldo, línea por línea, y lo que has ganado en sueldos desde que empezaste.
-7. **El cierre.** Tras 10 años comparas tu vida con los 100 mundos.
+7. **El cierre.** Tras 10 años comparas tu vida con los 50 mundos.
 
 ## Lo que pasa por dentro
 
@@ -133,7 +133,7 @@ Regla del producto: **los números salen de los datos; la IA hace todo lo demás
 | Leer el perfil desde un texto o con tu Claude | `services/perfil_ia.py` y `services/perfil_doc.py` |
 | La historia que cuenta cada decisión | `backend/app/sim/motor/narrativa.py` |
 | Empresas reales de ejemplo | `backend/data/empresas/` y `empresas.py` |
-| Los 100 mundos y el ganador de cada uno | `backend/app/sim/motor/gemelos.py` |
+| Los 50 mundos y el ganador de cada uno | `backend/app/sim/motor/gemelos.py` |
 | La partida de la persona | `backend/app/sim/motor/partida.py` |
 | Pantallas | `frontend/src/features/juego/` |
 | El tutorial | `frontend/src/features/juego/components/ComoFunciona.tsx` |

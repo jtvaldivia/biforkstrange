@@ -29,7 +29,7 @@ function comoArchivo(png: string): File {
   return new File([bytes], NOMBRE, { type: "image/png" });
 }
 
-/** Una elección es robusta si con ella no terminas peor (ganas o empatas) en al menos 70 de 100 mundos. */
+/** Una elección es robusta si con ella no terminas peor (ganas o empatas) en al menos 7 de cada 10 mundos. */
 const ROBUSTA = 0.7;
 
 function coloresFijos(c: Comparacion): Record<string, string> {
@@ -58,7 +58,7 @@ function veredicto(c: Comparacion, elegida: string) {
 }
 
 /**
- * "Compartir mi resultado": arma una imagen con los 100 mundos de tu primera decisión (un punto por mundo,
+ * "Compartir mi resultado": arma una imagen con los mundos de tu primera decisión (un punto por mundo,
  * del color de la opción que gana en él), tu retrato si Claude leyó tu CV, el veredicto y un QR al juego.
  * Se comparte con el menú del navegador (en el celular: WhatsApp, Instagram…) y, si no se puede, se descarga como PNG.
  */
@@ -188,7 +188,7 @@ export function CompartirResultado({
               <span>
                 Mi sueldo en el mundo que viví: {plata(sueldoFinal)} al mes.
                 <br />
-                Juega tu vida y la de tus 100 copias en {url.replace(/^https?:\/\//, "")}
+                Juega tu vida y la de tus {comparacion.gemelos} copias en {url.replace(/^https?:\/\//, "")}
               </span>
               {qr && <img src={qr} alt="" />}
             </div>

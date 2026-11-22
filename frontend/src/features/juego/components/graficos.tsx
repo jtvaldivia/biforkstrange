@@ -1,7 +1,7 @@
 import { useId, useState, type ReactNode } from "react";
 import { cssVars, cx } from "@/shared/ui";
 import { GEMELOS } from "../api";
-import { minuscula, plata } from "../textos";
+import { minuscula, mundos, plata } from "../textos";
 import type { Rango, Tono } from "../types";
 import { RangoSueldo } from "./piezas";
 
@@ -173,11 +173,11 @@ export function Ruleta({ casillas, salio }: { casillas: Casilla[]; salio: string
   if (!tocado || tramos.length < 2) return null;
   const meta = (tocado.desde + tocado.ancho / 2) * 100;
   return (
-    <div className="jg-ruleta" role="img" aria-label={`El dado: ${tramos.map((t) => `${t.texto} ${Math.round(t.ancho * 100)} de cada 100`).join("; ")}. A ti te tocó: ${tocado.texto}`}>
+    <div className="jg-ruleta" role="img" aria-label={`El dado: ${tramos.map((t) => `${t.texto} ${mundos(t.ancho)} de ${GEMELOS} mundos`).join("; ")}. A ti te tocó: ${tocado.texto}`}>
       <div className="jg-ruleta-pista">
         {tramos.map((t) => (
           <span key={t.id} className={cx("jg-ruleta-tramo", t.id === salio && "jg-ruleta-tramo--tuyo")} data-tono={t.tono} style={{ flexGrow: t.ancho }}>
-            {t.ancho >= 0.12 ? `${Math.round(t.ancho * 100)}` : ""}
+            {t.ancho >= 0.12 ? `${mundos(t.ancho)}` : ""}
           </span>
         ))}
         <span className="jg-ruleta-ficha" style={cssVars({ "--jg-meta": `${meta}%` })} aria-hidden="true">⚄</span>
@@ -186,7 +186,7 @@ export function Ruleta({ casillas, salio }: { casillas: Casilla[]; salio: string
         {tramos.map((t) => (
           <span key={t.id} className={cx(t.id === salio && "jg-ruleta-tuyo")}>
             <i data-tono={t.tono} />
-            {t.texto} <b>{Math.round(t.ancho * 100)} de 100 mundos</b>
+            {t.texto} <b>{mundos(t.ancho)} de {GEMELOS} mundos</b>
           </span>
         ))}
       </div>
@@ -214,11 +214,11 @@ export function DadoEnJuego({ casillas, titulo, texto, onSalir }: { casillas: Ca
       {hay ? (
         <div className="jg-dado-cuerpo">
           <span className="jg-dado-eti">Te juegas</span>
-          <div className="jg-ruleta" aria-label={`Te juegas: ${casillas.map((c) => `${c.texto}, ${Math.round((c.prob / total) * 100)} de cada 100`).join("; ")}`}>
+          <div className="jg-ruleta" aria-label={`Te juegas: ${casillas.map((c) => `${c.texto}, ${mundos(c.prob / total)} de ${GEMELOS} mundos`).join("; ")}`}>
             <div className="jg-ruleta-pista">
               {casillas.map((c) => (
                 <span key={c.id} className="jg-ruleta-tramo" data-tono={c.tono} style={{ flexGrow: c.prob / total }}>
-                  {c.prob / total >= 0.12 ? `${Math.round((c.prob / total) * 100)}` : ""}
+                  {c.prob / total >= 0.12 ? `${mundos(c.prob / total)}` : ""}
                 </span>
               ))}
               <span className="jg-ruleta-ficha jg-ficha-busca" aria-hidden="true">⚄</span>
@@ -227,7 +227,7 @@ export function DadoEnJuego({ casillas, titulo, texto, onSalir }: { casillas: Ca
               {casillas.map((c) => (
                 <span key={c.id}>
                   <i data-tono={c.tono} />
-                  {c.texto} <b>{Math.round((c.prob / total) * 100)} de 100</b>
+                  {c.texto} <b>{mundos(c.prob / total)} de {GEMELOS}</b>
                 </span>
               ))}
             </div>

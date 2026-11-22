@@ -1,11 +1,11 @@
 import "./onboarding.css";
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  Button, ChevronLeftIcon, Chip, Heading, IconButton, Meta, Pill, Row, Screen, ScreenFooter, ScreenHeader, Segmented, Slider, Stack, Tag, Text,
+  Button, ChevronLeftIcon, Chip, Heading, IconButton, Row, Screen, ScreenFooter, ScreenHeader, Segmented, Slider, Stack, Text,
 } from "@/shared/ui";
 import { getPrompt, textoError } from "../api";
 import { MANUAL, type Onboarding as OnboardingEstado } from "../hooks/useBorrador";
-import { EDUCACION, TIPO_EMPLEADOR, pesos, situacion } from "../textos";
+import { EDUCACION, TIPO_EMPLEADOR, pesos } from "../textos";
 import type { Catalogo, DudaSugerida, Perfil, Sexo } from "../types";
 import { Cargando, ErrorCaja } from "./piezas";
 import { PerfilForm, RUBROS_TOP, SLIDER_MAX, SLIDER_MIN, TuPega, banda } from "./PerfilForm";
@@ -140,15 +140,11 @@ export function Onboarding({
                 ))}
               </div>
             ) : (
-              <Pill>Tu copia</Pill>
+              null
             )}
           </Row>
         }
       />
-
-      {(paso !== "entrada" || sabidos.size > 0) && (
-        <Ficha p={p} sabidos={sabidos} catalogo={catalogo} retrato={extra?.retrato ?? leido?.retrato ?? null} intereses={extra?.intereses} proyecto={extra?.proyecto} />
-      )}
 
       {errorCatalogo && <ErrorCaja error={errorCatalogo} onReintentar={onReintentarCatalogo} />}
       {!catalogo && !errorCatalogo && i >= 0 && <Cargando>Cargando las alternativas…</Cargando>}
@@ -491,83 +487,6 @@ function LeyendoFrase() {
   );
 }
 
-/** La ficha de tu gemelo: cada dato que se sabe aparece con un pop. */
-function Ficha({
-  p, sabidos, catalogo, retrato, intereses = [], proyecto = null,
-}: { p: Perfil; sabidos: ReadonlySet<string>; catalogo: Catalogo | null; retrato: string | null; intereses?: string[]; proyecto?: string | null }) {
-  const nivel = catalogo?.niveles.find((n) => n.nivel === p.nivel)?.nombre;
-  const datos: [string, string | undefined][] = [
-    ["edad", `${p.edad} años`],
-    ["sexo", p.sexo === "h" ? "Hombre" : "Mujer"],
-    ["edu", EDUCACION[p.edu] ?? p.edu],
-    ["cargo_nombre", p.cargo_nombre?.trim() || undefined],
-    ["empresa_nombre", p.empresa_nombre?.trim() ? `En ${p.empresa_nombre.trim()}` : undefined],
-    ["nivel", nivel],
-    ["tipo_empleador", TIPO_EMPLEADOR[p.tipo_empleador] ?? p.tipo_empleador],
-    ["rubro", p.rubro],
-    ["sueldo", pesos(p.sueldo)],
-    ["ingles", p.ingles ? "Inglés" : undefined],
-    ["estado", p.estado && p.estado !== "empleado" ? situacion(p.estado) : undefined],
-    ["remoto", p.remoto ? "Remoto" : undefined],
-    ["parcial", p.parcial ? "Media jornada" : undefined],
-    ["usa_ia", p.usa_ia ? "Usa IA" : undefined],
-    ["rubro_sonado", p.rubro_sonado ? `Sueña con ${p.rubro_sonado}` : undefined],
-    ["anos_por_empleo", p.anos_por_empleo ? `Se cambia cada ${p.anos_por_empleo.toLocaleString("es-CL")} años` : undefined],
-  ];
-  const visibles = datos.filter(([k, v]) => v && sabidos.has(k));
-  const cosas = [
-    ...visibles.map(([k, v]) => ({ clave: k, texto: v!, tuyo: false })),
-    ...(proyecto ? [{ clave: "proyecto", texto: `Proyecto: ${proyecto.length > 40 ? `${proyecto.slice(0, 40)}…` : proyecto}`, tuyo: true }] : []),
-    ...intereses.map((x) => ({ clave: `interes:${x}`, texto: x, tuyo: true })),
-  ];
-  // si caben en una fila quedan quietas; si no, pasan en una cinta. Nunca bajan a otra fila: la ficha no
-  // cambia de alto mientras respondes, y lo que está debajo no se mueve justo cuando vas a tocarlo
-  const caja = useRef<HTMLDivElement>(null);
-  const [cinta, setCinta] = useState(false);
-  const firma = cosas.map((c) => c.texto).join("|");
-  useLayoutEffect(() => {
-    const el = caja.current;
-    if (!el) return;
-    const medir = () => {
-      const tags = [...el.querySelectorAll<HTMLElement>(".ob-tag:not(.ob-cinta-copia)")];
-      const ancho = tags.reduce((s, t) => s + t.offsetWidth, 0) + Math.max(0, tags.length - 1) * 6;
-      setCinta(ancho > el.clientWidth - 14);
-    };
-    medir();
-    const ro = new ResizeObserver(medir);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [firma]);
-  return (
-    <div className="ob-ficha">
-      <Silueta lleno={Math.min(visibles.length + intereses.length, 7) / 7} />
-      <Stack gap={6} style={{ minWidth: 0, flex: 1 }}>
-        <Meta>{cosas.length > 0 ? `Tu copia sabe ${cosas.length} ${cosas.length === 1 ? "cosa" : "cosas"} de ti` : "Tu copia"}</Meta>
-        {retrato && <Text size="sm" className="ob-retrato">«{retrato}»</Text>}
-        {cosas.length === 0 && <span className="ob-chico">Se va armando con cada respuesta.</span>}
-        {cosas.length > 0 && (
-          <div className="ob-cinta" ref={caja} data-mueve={cinta || undefined}>
-            <ul className="vd-sr">
-              {cosas.map((c) => (
-                <li key={c.clave}>{c.texto}</li>
-              ))}
-            </ul>
-            <div className="ob-cinta-pista" aria-hidden="true" style={cinta ? { animationDuration: `${cosas.length * 2.6}s` } : undefined}>
-              {(cinta ? [0, 1] : [0]).flatMap((vuelta) =>
-                cosas.map((c) => (
-                  <Tag key={`${vuelta}:${c.clave}:${c.texto}`} className={`ob-tag${c.tuyo ? " ob-tag--tuyo" : ""}${vuelta ? " ob-cinta-copia" : ""}`}>
-                    {c.texto}
-                  </Tag>
-                )),
-              )}
-            </div>
-          </div>
-        )}
-      </Stack>
-    </div>
-  );
-}
-
 function Tarjeta({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <Stack gap={18} className="ob-tarjeta">
@@ -651,26 +570,6 @@ function TuClaude({ leyendo, error, onTexto }: { leyendo: boolean; error: string
   );
 }
 
-/** Tu gemelo como silueta: se va llenando (de abajo hacia arriba) con cada dato que se sabe. */
-function Silueta({ lleno }: { lleno: number }) {
-  const id = useId();
-  const cuerpo = "M10 50c0-12 7-18 16-18s16 6 16 18z";
-  return (
-    <svg className="ob-avatar" viewBox="0 0 52 52" aria-hidden="true">
-      <defs>
-        <clipPath id={id}>
-          <rect className="ob-nivel" x="0" y="0" width="52" height="52" style={{ transform: `translateY(${(1 - lleno) * 100}%)` }} />
-        </clipPath>
-      </defs>
-      <circle cx="26" cy="19" r="9" className="ob-silueta-vacia" />
-      <path d={cuerpo} className="ob-silueta-vacia" />
-      <g clipPath={`url(#${id})`}>
-        <circle cx="26" cy="19" r="9" className="ob-silueta-llena" />
-        <path d={cuerpo} className="ob-silueta-llena" />
-      </g>
-    </svg>
-  );
-}
 
 /** Lo que se suma al prompt del equipo: el relato libre que usa el narrador para contar tus cartas. */
 const PROMPT_RELATO = `

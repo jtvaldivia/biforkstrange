@@ -74,7 +74,7 @@ El juego corre sobre el paquete de datos de `backend/simulador/` (37 decisiones,
 | `perfil.py` | De los 9 campos del perfil a las variables iniciales |
 | `motor.py` | El año: mundo, decisión, dado del resultado, eventos, cierre |
 | `politicas.py` | Quién decide: la persona, las copias por inercia o la población (pesos calibrados) |
-| `gemelos.py` | 100 mundos: en cada uno la copia vive todas las opciones con los mismos dados |
+| `gemelos.py` | 50 mundos: en cada uno la copia vive todas las opciones con los mismos dados |
 | `partida.py` | La partida de la persona; no guarda nada, se vuelve a jugar en cada llamada |
 | `validacion.py` | Cohorte de 5.000 personas contra las 37 metas del paquete y el panel ELSOC |
 | `supuestos.py` | Cada parámetro con su calidad (dato, mixto, supuesto), fuente y país |

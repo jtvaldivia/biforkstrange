@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Stack, Text, cssVars } from "@/shared/ui";
 import { getPesoCv } from "../api";
-import { plata } from "../textos";
+import { mundos, plata } from "../textos";
 import type { CampoCv, Perfil, PesoCv, PesoDato } from "../types";
 import { Info } from "./graficos";
 import { Cargando } from "./piezas";
@@ -49,8 +49,6 @@ const CORTO: Record<CampoCv, string> = {
   empresa_fondos: "tu inversión",
 };
 
-const deCien = (p: number) => Math.round(p * 100);
-
 function lista(xs: string[]): string {
   return xs.length <= 1 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} y ${xs[xs.length - 1]}`;
 }
@@ -65,9 +63,9 @@ function Linea({ d, i }: { d: PesoDato; i: number }) {
   const valorSin = gana ? o.gana_sin : o.sueldo_sin;
   const tope = gana ? 1 : Math.max(o.sueldo_con, o.sueldo_sin, 1);
   const frase = gana
-    ? `«${o.nombre}» gana en ${deCien(o.gana_con)} mundos; ${sin}, en ${deCien(o.gana_sin)}.`
+    ? `«${o.nombre}» gana en ${mundos(o.gana_con)} mundos; ${sin}, en ${mundos(o.gana_sin)}.`
     : `con «${o.nombre}» tu sueldo típico llega a ${plata(o.sueldo_con)} al mes; ${sin}, a ${plata(o.sueldo_sin)}.`;
-  const texto = (v: number) => (gana ? deCien(v) : plata(v));
+  const texto = (v: number) => (gana ? mundos(v) : plata(v));
   return (
     <div className="jg-peso-linea" style={cssVars({ "--jg-i": i })}>
       <Text size="sm">

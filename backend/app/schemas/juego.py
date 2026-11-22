@@ -156,7 +156,7 @@ class PartidaIn(BaseModel):
     elecciones: list[EleccionIn] = Field(default_factory=list, max_length=200)
     # hasta qué edad se juega; sin dato, 10 años desde la edad del perfil
     edad_final: int | None = Field(None, ge=19, le=60)
-    gemelos: int = Field(100, ge=0, le=2000)
+    gemelos: int = Field(50, ge=0, le=2000)
     # lo que se elige dentro de cada opción de la decisión pendiente, para comparar: {opción: {variable: valor}}
     parametros: dict[str, dict[str, str | int]] = {}
 
@@ -211,7 +211,7 @@ class PesoCvIn(BaseModel):
     perfil: PerfilIn = PerfilIn()
     duda: str
     semilla: int = 0
-    gemelos: int = Field(100, ge=20, le=300)
+    gemelos: int = Field(50, ge=20, le=300)
     # la misma edad final de la partida: así "con" es la misma comparación que su primera carta
     edad_final: int | None = Field(None, ge=19, le=60)
 
@@ -223,5 +223,5 @@ class EnJuegoIn(BaseModel):
     dudas: list[str] = Field(min_length=1, max_length=5)
     # con la semilla y la edad final que usará la partida, la duda elegida ya queda calculada para su primera carta
     semilla: int = 0
-    gemelos: int = Field(100, ge=20, le=300)
+    gemelos: int = Field(50, ge=20, le=300)
     edad_final: int | None = Field(None, ge=19, le=60)

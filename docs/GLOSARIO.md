@@ -19,16 +19,16 @@ Los 10 años que vive la persona, decisión por decisión. Queda definida por el
 _No usar_: sesión, juego (para una partida en particular)
 
 **Semilla**:
-El número que fija los 100 mundos y el tuyo. Con la misma semilla, la partida sale igual.
+El número que fija los 50 mundos y el tuyo. Con la misma semilla, la partida sale igual.
 
 **Cierre**:
-La pantalla final: la vida de la persona comparada con los 100 mundos.
+La pantalla final: la vida de la persona comparada con los 50 mundos.
 
 ## Los mundos
 
 **Mundo**:
-La unidad del juego. Es todo lo que le pasa a la persona, año a año, sin que dependa de ella: alzas, ascensos, despidos, ofertas, recesiones, y qué resultado le toca al elegir. No hay otra palabra para esto: se dice desde el mundo ("en este mundo hay recesión el año 8"). Hay 100 mundos para mirar y uno más, el de la persona (el 101), que es el único que se vive. Todo se cuenta en mundos: "gana en 54 de 100 mundos".
-_No usar_: simulación, escenario, universo, "100 copias", suerte, dado, sorteo
+La unidad del juego. Es todo lo que le pasa a la persona, año a año, sin que dependa de ella: alzas, ascensos, despidos, ofertas, recesiones, y qué resultado le toca al elegir. No hay otra palabra para esto: se dice desde el mundo ("en este mundo hay recesión el año 8"). Hay 50 mundos para mirar y uno más, el de la persona (el 51), que es el único que se vive. Todo se cuenta en mundos: "gana en 27 de 50 mundos".
+_No usar_: simulación, escenario, universo, "50 copias", suerte, dado, sorteo
 
 **Copia**:
 La persona dentro de un mundo. Sirve para contar ("en este mundo, tu copia se cambió"), nunca para contar cuántas hay: hay una copia por mundo.
@@ -80,7 +80,7 @@ La pregunta real que trae la persona de su vida ("¿me estoy especializando dema
 Una de las respuestas posibles a una decisión: "Cambiarte", "Usarla para negociar", "Quedarte".
 
 **Resultado**:
-Lo que puede pasar al elegir una opción, con su probabilidad: "El cambio te sube el sueldo (54 de 100)". Una opción tiene uno o más resultados.
+Lo que puede pasar al elegir una opción, con su probabilidad: "El cambio te sube el sueldo (27 de 50)". Una opción tiene uno o más resultados.
 Tú eliges la opción, y te puede tocar cualquiera de sus resultados, según su probabilidad.
 _No usar_: outcome, consecuencia, alternativa (se confunde con opción)
 

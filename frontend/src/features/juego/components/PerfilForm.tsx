@@ -1,6 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import {
-  Button, ChevronLeftIcon, Chip, Heading, IconButton, Panel, Pill, Row, Screen, ScreenFooter, ScreenHeader, Segmented, Slider, Stack, Text,
+  Button, ChevronLeftIcon, Chip, Heading, IconButton, Panel, Row, Screen, ScreenFooter, ScreenHeader, Segmented, Slider, Stack, Text,
 } from "@/shared/ui";
 import { EDUCACION, TIPO_EMPLEADOR, pesos } from "../textos";
 import type { Catalogo, Perfil, Sexo } from "../types";
@@ -130,7 +130,6 @@ export function PerfilForm({
             <ChevronLeftIcon />
           </IconButton>
         }
-        right={<Pill>Tu perfil</Pill>}
       />
       <Heading level={1}>Cuéntanos de ti.</Heading>
 

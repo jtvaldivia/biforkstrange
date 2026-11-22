@@ -54,7 +54,7 @@ def prompt(pq: Paquete | None = None) -> str:
     rubros = [r for r in pq.variables["rubro"]["dominio"] if r]
     dudas = _dudas_laborales(pq)
     lineas = [
-        "Voy a jugar Bifurca, un simulador de carrera en Chile: 100 \"copias\" mías viven 10 años "
+        "Voy a jugar Bifurca, un simulador de carrera en Chile: 50 \"copias\" mías viven 10 años "
         "con cada decisión. Con lo que sabes de mí por nuestras conversaciones, llena este bloque.",
         "",
         "Reglas:",

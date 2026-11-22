@@ -513,7 +513,8 @@ def _texto_cierre(v: dict, internas: frozenset) -> list[str]:
             cual = "Tu sueldo final" if estado["sueldo"] > 0 else "El sueldo al que apuntas al volver"
             lineas += ["", *_envolver(
                 f"{cual} ({_plata(cierre['sueldo_final'])}) es más alto que el de "
-                f"{_de_cada_cien(cierre['mejor_que_gemelos'])} copias que eligieron «{elegida}» como tú.", "  ")]
+                f"{round(cierre['mejor_que_gemelos'] * comp['gemelos'])} de tus {comp['gemelos']} copias que eligieron "
+                f"«{elegida}» como tú.", "  ")]
         lineas += _texto_pie(comp["creencia_vs_dato"], comp["calidad"])
     return lineas
 

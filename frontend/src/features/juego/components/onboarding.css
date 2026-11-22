@@ -26,40 +26,15 @@
 @keyframes ob-escanear { from { top: -34px; } to { top: 100%; } }
 .ob-frase { animation: vd-subir .4s ease-out both; text-align: center; }
 
-/* La ficha del gemelo */
-.ob-ficha {
-  display: flex; gap: 14px; align-items: flex-start; padding: 14px; border-radius: 18px;
-  background: var(--acento-suave); color: var(--tinta); border: 2px solid var(--tinta); animation: vd-entrar .4s ease-out both;
-}
-.ob-retrato { font-style: italic; }
-/* Lo que sabe tu gemelo: una cinta que pasa sola; se detiene al pasar el mouse */
-.ob-cinta { overflow: hidden; margin-right: -14px; }
-.ob-cinta[data-mueve] { mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 32px), transparent); }
-.ob-cinta-pista { display: flex; flex-wrap: nowrap; gap: 6px; padding-right: 14px; }
-.ob-ficha .ob-cinta .ob-tag { white-space: nowrap; flex: none; }
-.ob-cinta[data-mueve] .ob-cinta-pista { flex-wrap: nowrap; width: max-content; animation: ob-cinta linear infinite; }
-.ob-cinta[data-mueve]:hover .ob-cinta-pista { animation-play-state: paused; }
-.ob-cinta[data-mueve] .ob-tag { white-space: nowrap; flex: none; }
-@keyframes ob-cinta { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 3px)); } }
-@media (prefers-reduced-motion: reduce) {
-  .ob-cinta[data-mueve] { mask-image: none; }
-  .ob-cinta[data-mueve] .ob-cinta-pista { animation: none; flex-wrap: wrap; width: auto; }
-  .ob-cinta-copia { display: none; }
-}
-.ob-tag { animation: vd-pop .35s cubic-bezier(.3, 1.6, .5, 1) both; background: var(--papel); }
 
 @media (prefers-reduced-motion: reduce) {
-  .ob-entra, .ob-tarjeta, .ob-frase, .ob-ficha, .ob-tag, .ob-in, .ob-scan { animation: none; }
-  .ob-avatar span { transition: none; }
+  .ob-entra, .ob-tarjeta, .ob-frase, .ob-in, .ob-scan { animation: none; }
 }
 .ob-claude-chispa { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--sol); color: var(--sobre-sol); font-size: 16px; animation: ob-girar 6s linear infinite; }
 @keyframes ob-girar { to { transform: rotate(360deg); } }
 .ob-claude { padding: 14px; border: 1.5px solid var(--acento); border-radius: 16px; background: var(--acento-suave); animation: vd-subir .35s ease-out both; }
 .ob-claude-texto { min-height: 96px; font: 400 13px/18px ui-monospace, Menlo, monospace; }
-.ob-tag--tuyo { background: var(--papel); color: var(--acento); border-color: var(--acento); }
 @media (prefers-reduced-motion: reduce) { .ob-claude-chispa, .ob-claude { animation: none; } }
-.ob-ficha > * { min-width: 0; }
-.ob-ficha .ob-tag { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
 
 /* Las fuentes de la primera pantalla: una tarjeta por fuente, con su check */
 .ob-fuente {
@@ -100,8 +75,3 @@
 @media (prefers-reduced-motion: reduce) { .ob-fuente[data-leyendo]::after, .ob-hoja-mini .ob-scan { animation: none; } }
 
 /* Tu gemelo: silueta en tinta sobre blanco, combina con la ficha amarilla */
-.ob-avatar { flex: none; width: 52px; height: 52px; border-radius: 50%; background: var(--papel); border: 2px solid var(--tinta); overflow: hidden; }
-.ob-silueta-vacia { fill: var(--linea); }
-.ob-silueta-llena { fill: var(--tinta); }
-.ob-nivel { transition: transform .6s cubic-bezier(.2, .8, .2, 1); transform-box: fill-box; }
-@media (prefers-reduced-motion: reduce) { .ob-nivel { transition: none; } }
