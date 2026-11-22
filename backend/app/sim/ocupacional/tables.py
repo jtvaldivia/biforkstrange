@@ -21,7 +21,7 @@ from pathlib import Path
 
 import numpy as np
 
-DATA_DIR = Path(__file__).parent / "data"
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"  # app/sim/data, compartido con el motor
 
 BANDAS = ("18-29", "30-44", "45-59")
 PERIODO_EPS = "2016_2024"  # el mismo que usa P_SEPARACION en el paquete

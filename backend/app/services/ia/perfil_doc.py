@@ -169,7 +169,7 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
     Devuelve lo mismo que `perfil_ia.completar` más `duda` (la duda inicial, si es válida) y `avisos`
     (valores del documento que no se pudieron usar).
     """
-    from app.services.perfil_ia import PerfilLeido, completar
+    from app.services.ia.perfil import PerfilLeido, completar
 
     pq = pq or paquete()
     bloques = _RE_BLOQUE.findall(texto)

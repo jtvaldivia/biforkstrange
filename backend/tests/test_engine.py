@@ -1,5 +1,5 @@
-from app.sim.engine import simulate
-from app.sim.state import Twin
+from app.sim.ocupacional.engine import simulate
+from app.sim.ocupacional.state import Twin
 
 
 def test_simulate_shapes():

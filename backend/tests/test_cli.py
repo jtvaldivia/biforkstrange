@@ -3,8 +3,8 @@ import json
 import pytest
 
 from app.cli import main
-from app.sim import labor
-from app.sim.tables import tablas
+from app.sim.ocupacional import labor
+from app.sim.ocupacional.tables import tablas
 
 
 def _run(capsys, *argv: str) -> tuple[int, str, str]:

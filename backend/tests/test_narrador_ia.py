@@ -6,14 +6,14 @@ import anthropic
 import httpx
 import pytest
 
-from app.services import narrador_ia
-from app.services.narrador_ia import Item, narrar
+from app.services.ia import narrador as narrador_ia
+from app.services.ia.narrador import Item, narrar
 
 
 @pytest.fixture(autouse=True)
 def entorno(monkeypatch):
     """Por defecto: con credenciales, prendido y con la caché vacía."""
-    monkeypatch.setattr(narrador_ia.claude_comun, "hay_credenciales", lambda: True)
+    monkeypatch.setattr(narrador_ia.ia_cliente, "hay_credenciales", lambda: True)
     monkeypatch.delenv("NARRADOR_IA", raising=False)
     narrador_ia.limpiar_cache()
     yield
@@ -50,7 +50,7 @@ class _Api:
 
 
 def test_sin_credenciales_devuelve_plantillas(monkeypatch):
-    monkeypatch.setattr(narrador_ia.claude_comun, "hay_credenciales", lambda: False)
+    monkeypatch.setattr(narrador_ia.ia_cliente, "hay_credenciales", lambda: False)
     api = _Api()
     monkeypatch.setattr(narrador_ia, "_por_api", api)
     r = narrar([_oferta()])
@@ -172,8 +172,8 @@ def test_el_error_del_sdk_se_traduce_en_por_api(monkeypatch):
         def parse(self, **kwargs):
             raise anthropic.APIConnectionError(request=httpx.Request("POST", "https://api.anthropic.com"))
 
-    monkeypatch.setattr(narrador_ia.claude_comun, "cliente", lambda *a, **k: type("C", (), {"messages": Mensajes()})())
-    with pytest.raises(narrador_ia.claude_comun.ClaudeNoDisponible):
+    monkeypatch.setattr(narrador_ia.ia_cliente, "cliente", lambda *a, **k: type("C", (), {"messages": Mensajes()})())
+    with pytest.raises(narrador_ia.ia_cliente.ClaudeNoDisponible):
         narrador_ia._por_api([_oferta()])
 
 
@@ -186,7 +186,7 @@ def test_por_api_arma_la_llamada_sin_datos_privados(monkeypatch):
             salida = narrador_ia._Lote(items=[narrador_ia._Texto(id="o0", texto=" Hola. ")])
             return type("R", (), {"stop_reason": "end_turn", "parsed_output": salida})()
 
-    monkeypatch.setattr(narrador_ia.claude_comun, "cliente", lambda *a, **k: type("C", (), {"messages": Mensajes()})())
+    monkeypatch.setattr(narrador_ia.ia_cliente, "cliente", lambda *a, **k: type("C", (), {"messages": Mensajes()})())
     assert narrador_ia._por_api([_oferta(sueldo=1_500_000)]) == {"o0": "Hola."}
     assert vistos["model"] == narrador_ia.MODELO
     assert vistos["system"][0]["cache_control"] == {"type": "ephemeral"}
@@ -205,7 +205,7 @@ def test_con_haiku_el_pedido_va_sin_razonar(monkeypatch):
                                parsed_output=narrador_ia._Lote(items=[narrador_ia._Texto(id="o0", texto="Hola.")]))
 
     cliente = SimpleNamespace(messages=SimpleNamespace(parse=parse))
-    monkeypatch.setattr(narrador_ia.claude_comun, "cliente", lambda *a, **k: cliente)
+    monkeypatch.setattr(narrador_ia.ia_cliente, "cliente", lambda *a, **k: cliente)
     monkeypatch.setattr(narrador_ia, "MODELO", "claude-haiku-5-5")
     monkeypatch.setattr(narrador_ia, "SIN_RAZONAR", True)
     narrador_ia._por_api([_oferta()])

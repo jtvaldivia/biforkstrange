@@ -28,8 +28,8 @@ from typing import Literal
 import anthropic  # noqa: F401  (los tests reemplazan perfil_ia.anthropic.Anthropic)
 from pydantic import BaseModel, Field, ValidationError, create_model
 
-from app.services.claude_comun import ERRORES_API, ClaudeNoDisponible, cliente, traducir_error
-from app.services.claude_comun import hay_credenciales as _hay_credenciales
+from app.services.ia.cliente import ERRORES_API, ClaudeNoDisponible, cliente, traducir_error
+from app.services.ia.cliente import hay_credenciales as _hay_credenciales
 from app.sim.motor.paquete import Paquete, paquete
 from app.sim.motor import empresas
 from app.sim.motor.empresas import universidades
@@ -753,7 +753,7 @@ def _empresa_sii(nombre: str | None) -> dict | None:
     """La empresa actual en la nómina del SII (grandes y pymes): su tamaño y su rubro son dato, no adivinanza."""
     if not nombre or len(nombre.strip()) < 3:
         return None
-    from app.services.perfil_doc import _normal
+    from app.services.ia.perfil_doc import _normal
     from app.sim.motor.empresas import _filas
 
     buscado = _normal(nombre).replace(" ", "")
@@ -787,7 +787,7 @@ def _sugeridas_posibles(sugeridas: list[DudaSugerida], perfil: dict, pq: Paquete
 def perfil_desde_texto(texto: str, hoy: str, pq: Paquete | None = None, pdf: bytes | None = None) -> dict:
     """Primero el documento que armó el Claude de la persona (exacto, sin llamar a un modelo);
     si el texto no lo trae, Claude lo lee como texto libre."""
-    from app.services.perfil_doc import leer_documento
+    from app.services.ia.perfil_doc import leer_documento
 
     if not texto.strip() and not pdf:
         raise ValueError("El texto está vacío.")

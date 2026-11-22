@@ -8,7 +8,7 @@ Qué hay aquí:
   `paso_variante_b` son alternativas que solo viven en este módulo.
 - Medidas: `medir_regimen` (edad fija, grupo fijo), `medir_cohorte` (18 a 49) y
   `medir_cohorte_motor` (el motor completo con la decisión "seguir").
-- `comparar()` arma la tabla; `python -m app.sim.validation` la imprime.
+- `comparar()` arma la tabla; `python -m app.sim.ocupacional.validation` la imprime.
 
 Definiciones que importan al comparar:
 
@@ -31,10 +31,10 @@ from functools import lru_cache
 
 import numpy as np
 
-from app.sim import labor
-from app.sim.engine import simulate
-from app.sim.state import State, Twin
-from app.sim.tables import BANDAS, DATA_DIR, N_GRUPOS, banda_idx, tablas
+from app.sim.ocupacional import labor
+from app.sim.ocupacional.engine import simulate
+from app.sim.ocupacional.state import State, Twin
+from app.sim.ocupacional.tables import BANDAS, DATA_DIR, N_GRUPOS, banda_idx, tablas
 
 EDAD_REGIMEN = {"18-29": 24, "30-44": 37, "45-59": 52}  # punto medio de cada tramo EPS
 BANDAS_ESI = ("18-24", "25-29", "30-34", "35-39", "40-44", "45-49")

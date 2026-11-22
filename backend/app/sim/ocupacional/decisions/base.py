@@ -3,7 +3,7 @@ from typing import ClassVar
 
 import numpy as np
 
-from app.sim.state import State
+from app.sim.ocupacional.state import State
 
 _REGISTRY: dict[str, "Decision"] = {}
 
@@ -18,7 +18,7 @@ class Decision(ABC):
     key: ClassVar[str]
     label: ClassVar[str]
     description: ClassVar[str] = ""
-    # Cómo mueve la decisión el paso laboral del año (ver sim/labor.py)
+    # Cómo mueve la decisión el paso laboral del año (ver sim/ocupacional/labor.py)
     riesgo_rel: ClassVar[float] = 1.0       # multiplica la prob. de caer en cesantía
     cambio_forzado: ClassVar[bool] = False  # te cambias de empleador este año
 
@@ -40,3 +40,8 @@ def get_decision(key: str) -> Decision:
 
 def all_decisions() -> list[Decision]:
     return list(_REGISTRY.values())
+
+
+def decisiones_desconocidas(keys: list[str]) -> list[str]:
+    """Las claves que no corresponden a ninguna decisión registrada, en el orden en que llegaron."""
+    return [k for k in keys if k not in _REGISTRY]

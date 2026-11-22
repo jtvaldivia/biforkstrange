@@ -1,17 +1,17 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 
 from app.api.deps import SimulationServiceDep
 from app.schemas.simulation import SimulationIn, SimulationOut
-from app.sim.decisions.base import _REGISTRY
+from app.sim.ocupacional.decisions import decisiones_desconocidas
 
 router = APIRouter(prefix="/simulations", tags=["simulations"])
 
 
 @router.post("", response_model=SimulationOut)
 def run_simulation(body: SimulationIn, service: SimulationServiceDep):
-    unknown = [d for d in body.decisiones if d not in _REGISTRY]
-    if unknown:
-        raise HTTPException(422, f"Decisiones desconocidas: {unknown}")
+    desconocidas = decisiones_desconocidas(body.decisiones)
+    if desconocidas:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"Decisiones desconocidas: {desconocidas}")
     return service.run(body)
 
 
@@ -19,5 +19,5 @@ def run_simulation(body: SimulationIn, service: SimulationServiceDep):
 def get_simulation(sim_id: str, service: SimulationServiceDep):
     sim = service.get(sim_id)
     if sim is None:
-        raise HTTPException(404, "Simulación no encontrada")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Simulación no encontrada")
     return sim

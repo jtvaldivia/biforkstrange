@@ -35,7 +35,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from app.services import claude_comun
+from app.services.ia import cliente as ia_cliente
 
 log = logging.getLogger(__name__)
 
@@ -234,7 +234,7 @@ def _por_api(lote: list[Item], relato: str = "") -> dict[str, str]:
     cuerpo = {"relato": relato, "items": entrada} if relato else {"items": entrada}
     extra = {"thinking": {"type": "disabled"}} if SIN_RAZONAR else {}  # textos cortos: más rápido sin razonar
     try:
-        respuesta = claude_comun.cliente(ESPERA_MAX, max_retries=1).messages.parse(
+        respuesta = ia_cliente.cliente(ESPERA_MAX, max_retries=1).messages.parse(
             model=MODELO,
             max_tokens=8000,
             output_config={"effort": "low"},  # reescribir textos cortos no necesita razonar
@@ -244,17 +244,17 @@ def _por_api(lote: list[Item], relato: str = "") -> dict[str, str]:
             output_format=_Lote,
             **extra,
         )
-    except claude_comun.ERRORES_API as error:
-        raise claude_comun.traducir_error(error) from error
+    except ia_cliente.ERRORES_API as error:
+        raise ia_cliente.traducir_error(error) from error
     if respuesta.stop_reason == "refusal" or respuesta.parsed_output is None:
-        raise claude_comun.ClaudeNoDisponible(f"Claude no devolvió el lote (stop_reason={respuesta.stop_reason}).")
+        raise ia_cliente.ClaudeNoDisponible(f"Claude no devolvió el lote (stop_reason={respuesta.stop_reason}).")
     return {t.id: t.texto.strip() for t in respuesta.parsed_output.items}
 
 
 def _llamar_lote(lote: list[Item], relato: str = "") -> dict[str, str]:
     """`_por_api` con el tope de llamadas simultáneas. Lo que pase la validación queda en caché."""
     if not _semaforo.acquire(timeout=ESPERA_MAX):
-        raise claude_comun.ClaudeNoDisponible("Demasiadas llamadas al narrador a la vez.")
+        raise ia_cliente.ClaudeNoDisponible("Demasiadas llamadas al narrador a la vez.")
     try:
         textos = _por_api(lote, relato) if relato else _por_api(lote)
     finally:
@@ -276,7 +276,7 @@ def _llamar_lote(lote: list[Item], relato: str = "") -> dict[str, str]:
 def _activo() -> bool:
     if os.environ.get("NARRADOR_IA", "1").strip().lower() in ("0", "false", "no", "off"):
         return False
-    return claude_comun.hay_credenciales()
+    return ia_cliente.hay_credenciales()
 
 
 # --- API pública ---------------------------------------------------------------------------

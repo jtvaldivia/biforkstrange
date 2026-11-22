@@ -3,8 +3,8 @@ import base64
 
 import pytest
 
-from app.services import perfil_ia
-from app.services.perfil_ia import ModeloNoDisponible, PerfilLeido
+from app.services.ia import perfil as perfil_ia
+from app.services.ia.perfil import ModeloNoDisponible, PerfilLeido
 
 LEIDO = PerfilLeido(edad=33, sexo="m", edu="universitaria", carrera_id=166, rubro="Finanzas y seguros",
                     tipo_empleador="startup", nivel=2, sueldo=2_624_000, ocupacion=2, antiguedad=3, region="rm",
@@ -131,7 +131,7 @@ def test_el_pdf_va_como_documento_a_la_api(monkeypatch):
 
 from pathlib import Path
 
-from app.services import perfil_doc
+from app.services.ia import perfil_doc
 
 EJEMPLO = (Path(__file__).parents[2] / "docs" / "motor" / "perfil-ejemplo.md").read_text(encoding="utf-8")
 

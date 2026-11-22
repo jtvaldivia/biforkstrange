@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
 
-from app.sim import labor
-from app.sim.engine import simulate
-from app.sim.state import State, Twin
-from app.sim.tables import N_GRUPOS, banda_idx, tablas
+from app.sim.ocupacional import labor
+from app.sim.ocupacional.engine import simulate
+from app.sim.ocupacional.state import State, Twin
+from app.sim.ocupacional.tables import N_GRUPOS, banda_idx, tablas
 
 N = 40_000
 

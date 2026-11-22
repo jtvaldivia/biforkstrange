@@ -6,7 +6,8 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.services import juego_personal as jp
-from app.services import narracion, narrador_ia
+from app.services import narracion
+from app.services.ia import narrador as narrador_ia
 
 
 def test_sin_relato_no_hay_nada_que_contar():
@@ -33,7 +34,7 @@ def test_el_relato_llega_al_narrador_sin_el_bloque_de_datos(monkeypatch):
 
 
 def test_el_relato_entra_al_pedido_y_a_la_llave_de_la_cache(monkeypatch):
-    monkeypatch.setattr(narrador_ia.claude_comun, "hay_credenciales", lambda: True)
+    monkeypatch.setattr(narrador_ia.ia_cliente, "hay_credenciales", lambda: True)
     monkeypatch.delenv("NARRADOR_IA", raising=False)
     narrador_ia.limpiar_cache()
     llamadas = []

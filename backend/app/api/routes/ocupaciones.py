@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, status
 
 from app.schemas.simulation import OcupacionOut, PerfilOcupacionOut
-from app.sim import labor
-from app.sim.tables import N_GRUPOS, tablas
+from app.sim.ocupacional import labor
+from app.sim.ocupacional.tables import N_GRUPOS, tablas
 
 router = APIRouter(prefix="/ocupaciones", tags=["ocupaciones"])
 
@@ -16,5 +16,5 @@ def list_ocupaciones():
 def perfil_ocupacion(grupo: int, edad: int = Query(25, ge=18, le=59)):
     """Qué pasa después de tu último trabajo, según las tablas (sin simular)."""
     if not 0 <= grupo < N_GRUPOS:
-        raise HTTPException(404, "Grupo ocupacional desconocido")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Grupo ocupacional desconocido")
     return labor.perfil(grupo, edad)

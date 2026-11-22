@@ -4,8 +4,8 @@ No se confía en texto del cliente: el servidor rejuega (perfil, semilla, duda, 
 la plantilla y el contexto de cada texto. Claude solo reescribe; si falla, queda la plantilla.
 """
 
-from app.services import narrador_ia
-from app.services.narrador_ia import Item
+from app.services.ia import narrador as narrador_ia
+from app.services.ia.narrador import Item
 from app.sim.motor import gemelos, partida
 from app.sim.motor.perfil import Perfil
 

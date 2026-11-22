@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.schemas.simulation import DecisionOut
-from app.sim.decisions import all_decisions
+from app.sim.ocupacional.decisions import all_decisions
 
 router = APIRouter(prefix="/decisions", tags=["decisions"])
 

@@ -1,0 +1,21 @@
+# Hooks locales: `uvx pre-commit install` una vez, y corren en cada commit.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-toml
+      - id: end-of-file-fixer
+        files: ^backend/(app|tests)/
+      - id: trailing-whitespace
+        files: ^backend/(app|tests)/
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: ["--maxkb=102400"]  # el límite de GitHub, como dice AGENTS.md
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.6
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+        files: ^backend/

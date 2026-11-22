@@ -8,8 +8,8 @@ Detalle y números en docs/trayectoria-v1/VALIDACION.md.
 import numpy as np
 import pytest
 
-from app.sim import validation as v
-from app.sim.tables import BANDAS, tablas
+from app.sim.ocupacional import validation as v
+from app.sim.ocupacional.tables import BANDAS, tablas
 
 N = 20_000
 

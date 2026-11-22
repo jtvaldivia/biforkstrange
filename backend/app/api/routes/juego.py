@@ -4,10 +4,13 @@
 from datetime import date
 from functools import lru_cache
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, status
 
+from app.api.errores import partida_invalida
 from app.schemas.juego import DudasIn, EnJuegoIn, MundoIn, NarrarIn, PartidaIn, PerfilIn, PesoCvIn, TextoPerfilIn
-from app.services import juego_personal, narracion, perfil_ia
+from app.services import juego_personal, narracion
+from app.services.ia import perfil as perfil_ia
+from app.services.ia import perfil_doc
 from app.sim.motor import empresas, partida, peso, supuestos, validacion
 from app.sim.motor.paquete import paquete
 from app.sim.motor.perfil import NIVELES
@@ -87,25 +90,21 @@ def _anios(body: PartidaIn) -> int:
 @router.post("/partida")
 def jugar(body: PartidaIn):
     """Estado de la partida: historia, decisión pendiente con lo que vivieron los gemelos, o el cierre."""
-    try:
+    with partida_invalida():
         return partida.vista(
             body.perfil.a_perfil(), body.semilla, body.duda,
             [e.model_dump() for e in body.elecciones], body.gemelos, body.parametros, anios=_anios(body),
         )
-    except (ValueError, KeyError) as error:
-        raise HTTPException(422, str(error)) from error
 
 
 @router.post("/mundo")
 def ver_mundo(body: MundoIn):
     """Un mundo de la comparación de la decisión pendiente: lo que te pasa en él con cada opción, año por año."""
-    try:
+    with partida_invalida():
         return partida.mundo_pendiente(
             body.perfil.a_perfil(), body.semilla, body.duda,
             [e.model_dump() for e in body.elecciones], body.mundo, body.parametros, anios=_anios(body),
         )
-    except (ValueError, KeyError) as error:
-        raise HTTPException(422, str(error)) from error
 
 
 @router.post("/narrar")
@@ -116,19 +115,15 @@ def narrar(body: NarrarIn):
     (`via: "plantilla"`), siempre con 200 si la partida es válida. Tu relato va como trasfondo.
     """
     p, relato = _personal(body.perfil)
-    try:
+    with partida_invalida():
         return narracion.narrar(p, body.semilla, body.duda, [e.model_dump() for e in body.elecciones],
                                 body.que, body.mundo, body.parametros, relato=relato)
-    except (ValueError, KeyError) as error:
-        raise HTTPException(422, str(error)) from error
 
 
 @router.get("/prompt")
 def prompt_perfil():
     """El prompt que la persona le pega a su propio Claude para que le arme su documento de perfil."""
-    from app.services.perfil_doc import prompt
-
-    return {"prompt": prompt()}
+    return {"prompt": perfil_doc.prompt()}
 
 
 @router.post("/perfil")
@@ -142,9 +137,9 @@ def perfil_desde_texto(body: TextoPerfilIn):
         pdf = perfil_ia.pdf_desde_base64(body.pdf) if body.pdf else None
         return perfil_ia.perfil_desde_texto(body.texto, date.today().isoformat(), pdf=pdf)
     except perfil_ia.ModeloNoDisponible as error:
-        raise HTTPException(503, str(error)) from error
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(error)) from error
     except ValueError as error:
-        raise HTTPException(422, str(error)) from error
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(error)) from error
 
 
 @router.post("/peso-cv")
@@ -154,10 +149,8 @@ def peso_del_cv(body: PesoCvIn):
     Devuelve los datos que más mueven el resultado (en cuántos mundos gana cada opción y su sueldo típico,
     con el dato y sin él). Con la misma semilla y gemelos, "con" coincide con la carta de la duda.
     """
-    try:
+    with partida_invalida():
         return peso.peso_cv(body.perfil.a_perfil(), body.duda, body.semilla, body.gemelos)
-    except (ValueError, KeyError) as error:
-        raise HTTPException(422, str(error)) from error
 
 
 @router.post("/dudas-en-juego")
@@ -170,4 +163,4 @@ def dudas_en_juego(body: EnJuegoIn):
     try:
         return peso.en_juego(body.perfil.a_perfil(), tuple(body.dudas), body.semilla, body.gemelos)
     except KeyError as error:
-        raise HTTPException(422, f"no existe la decisión {error}") from error
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"no existe la decisión {error}") from error

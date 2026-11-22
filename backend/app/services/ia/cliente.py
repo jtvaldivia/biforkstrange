@@ -1,6 +1,6 @@
 """Lo que comparten los servicios que llaman a Claude: credenciales, cliente y errores.
 
-Lo usan `perfil_ia` (leer el CV) y `narrador_ia` (narrar ofertas, eventos y mundos).
+Lo usan `ia.perfil` (leer el CV) y `ia.narrador` (narrar ofertas, eventos y mundos).
 
 La llave sale de `Settings.anthropic_api_key`, que pydantic-settings lee de la variable de entorno
 `ANTHROPIC_API_KEY` (Render) o, si no está, de `backend/.env` (local). Sin llave, el SDK prueba sus

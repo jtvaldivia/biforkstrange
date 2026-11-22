@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from app.sim.state import State
-from app.sim.tables import N_GRUPOS, tablas
+from app.sim.ocupacional.state import State
+from app.sim.ocupacional.tables import N_GRUPOS, tablas
 
 
 def summarize(state: State) -> dict:

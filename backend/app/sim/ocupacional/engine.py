@@ -2,10 +2,10 @@
 
 import numpy as np
 
-from app.sim import labor
-from app.sim.decisions import get_decision
-from app.sim.metrics import summarize
-from app.sim.state import State, Twin
+from app.sim.ocupacional import labor
+from app.sim.ocupacional.decisions import get_decision
+from app.sim.ocupacional.metrics import summarize
+from app.sim.ocupacional.state import State, Twin
 
 
 def simulate(twin: Twin, decisions: list[str], n_runs: int = 2000, seed: int | None = None) -> dict:

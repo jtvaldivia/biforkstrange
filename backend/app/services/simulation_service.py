@@ -1,7 +1,7 @@
 from app.repositories.simulations import SimulationRepository
 from app.schemas.simulation import SimulationIn, SimulationOut
-from app.sim.engine import simulate
-from app.sim.state import Twin
+from app.sim.ocupacional.engine import simulate
+from app.sim.ocupacional.state import Twin
 
 
 class SimulationService:
