@@ -4,7 +4,7 @@ import type { Anio, DecisionTomada, Estado, Narrado, Vista } from "../types";
 import { useNarracion } from "../hooks/useNarracion";
 import { GEMELOS } from "../api";
 import { Info, LineaSueldo, Ruleta, sinMovimiento, type Casilla } from "./graficos";
-import { Noticia, Salir } from "./piezas";
+import { Noticia, Pensando, Salir } from "./piezas";
 import { ComoCambioTuSueldo, TuIngreso } from "./Plata";
 import { TiraMeses, mesesDelAnio } from "./BuscandoTrabajo";
 
@@ -123,7 +123,7 @@ export function QuePaso({
   onNarrar?: (que: "historia", signal: AbortSignal) => Promise<{ items: Narrado[] }>;
 }) {
   // el resultado ya está decidido: se muestra de inmediato; lo que cuenta Claude reemplaza la plantilla cuando llega
-  const { textos: narrados } = useNarracion(onNarrar ? (signal) => onNarrar("historia", signal) : null, `${vista.historia.length}:${vista.anio_en_curso?.decisiones.length ?? 0}`);
+  const { textos: narrados, listo } = useNarracion(onNarrar ? (signal) => onNarrar("historia", signal) : null, `${vista.historia.length}:${vista.anio_en_curso?.decisiones.length ?? 0}`);
   const tramos = loNuevo(previa, vista).filter((a) => a.fin || a.decisiones.length > 0 || a.eventos.some((e) => !e.rutina));
   const dado = tramos[0]?.decisiones[0];
   const cerrados = tramos.filter((a) => a.fin);
@@ -162,6 +162,13 @@ export function QuePaso({
     ? "Ver la oferta que te llegó"
     : siguiente ? `Siguiente: ${siguiente.nombre}` : "Seguir";
   const boton = vista.terminada ? "Ver cómo terminaste" : mismoAnio ? queSigue : `Seguir al año ${proximo}`;
+
+  // el dado sigue girando hasta que Claude cuenta el año: las noticias se muestran una vez y no cambian
+  // mientras Claude cuenta el año sigue la misma escena de la carta: la ficha buscando, o la espera corta si era segura
+  if (!listo)
+    return (
+      <Pensando titulo={`Mundo ${GEMELOS + 1} · ${primero ? `${primero.edad} años` : `año ${proximo}`}`} onSalir={onSalir} />
+    );
 
 
   return (

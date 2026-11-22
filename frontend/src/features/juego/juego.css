@@ -210,10 +210,15 @@ html:has(.jg-pie-fijo) { scroll-padding-bottom: 170px; }
 
 /* La situación llega como un mensaje; mientras Claude la escribe, dos líneas de espera */
 .jg-mensaje { position: relative; align-self: flex-start; max-width: 560px; padding: 12px 16px; border: 2px solid var(--tinta); border-radius: 18px 18px 18px 4px; background: var(--acento-suave); animation: vd-entrar .5s var(--ease) both; }
-.jg-mensaje-texto { margin: 0; font: 500 16px/24px var(--font); color: var(--tinta); animation: vd-aparecer .5s ease both; }
-.jg-mensaje-espera { display: flex; flex-direction: column; gap: 8px; width: min(320px, 70vw); padding: 4px 0; }
-.jg-mensaje-espera i { height: 10px; border-radius: 5px; background: var(--linea); animation: jg-pulso 1s ease-in-out infinite alternate; }
-.jg-mensaje-espera i:last-child { width: 60%; }
+.jg-mensaje-texto { margin: 0; font: 500 16px/24px var(--font); color: var(--tinta); animation: vd-aparecer .5s ease 1s both; }
+.jg-mensaje-escribiendo { position: absolute; left: 16px; top: 18px; display: flex; gap: 5px; animation: jg-irse .2s ease .95s both; }
+.jg-mensaje-escribiendo i { width: 8px; height: 8px; border-radius: 50%; background: var(--suave); animation: jg-escribir .6s ease-in-out infinite alternate; }
+.jg-mensaje-escribiendo i:nth-child(2) { animation-delay: .15s; }
+.jg-mensaje-escribiendo i:nth-child(3) { animation-delay: .3s; }
+@keyframes jg-escribir { from { transform: translateY(0); opacity: .4; } to { transform: translateY(-4px); opacity: 1; } }
+@keyframes jg-irse { to { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .jg-mensaje-escribiendo { display: none; } }
+.jg-preparando { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: var(--papel); animation: vd-aparecer .2s ease both; }
 .jg-como { height: auto; padding: 14px; }
 .jg-como-gemelos { position: static; inset: auto; }
 

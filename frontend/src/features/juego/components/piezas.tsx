@@ -3,6 +3,7 @@ import { Button, Tag, Text, cx } from "@/shared/ui";
 import { CALIDAD, CAMPOS_PERFIL, conSigno, enLista, plata, sinSueldo, situacion } from "../textos";
 import type { Calidad, Estado, Rango, SinNovedad } from "../types";
 import { Logo } from "./Logo";
+import { Espera } from "./Apuesta";
 
 /**
  * "Año 2 sin novedades · $657 mil": lo único que cambió en un año que pasó sin nada. Si el alza anual movió el
@@ -182,4 +183,20 @@ export function Hoy({ e }: { e: Estado }) {
       </Text>
     </div>
   );
+}
+
+const FRASES = [
+  "Sorteando tu año…",
+  "¿Habrá recesión este año?",
+  "Revisando si te ascienden…",
+  "¿Te llegará una oferta?",
+  "Los robots aún no llegan…",
+  "Preguntando por los despidos…",
+  "Nadie sabe quién gana el Mundial…",
+  "Calculando tu sueldo nuevo…",
+];
+
+/** Pantalla de espera mientras se vive tu año: una apuesta que va girando (ruleta, tragamonedas, caballos…) y lo que se está viendo en tu mundo. */
+export function Pensando({ titulo, onSalir }: { titulo: string; onSalir?: () => void }) {
+  return <Espera pantalla titulo={titulo} frases={FRASES} cada={900} onSalir={onSalir} />;
 }

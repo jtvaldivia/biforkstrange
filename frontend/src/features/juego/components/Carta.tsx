@@ -6,10 +6,11 @@ import { CALIDAD, EMPRESA_EJEMPLO, TIPO_EMPLEADOR, arteOpcion, conSigno, mayuscu
 import type { ContraBase, Eleccion, EmpresaOferta, PorQue, MundoDetalle, Narrado, OpcionComparada, OpcionPendiente, ParametrosComparar, Partida, Respaldo, SinNovedad, Vista } from "../types";
 import { useNarracion } from "../hooks/useNarracion";
 import { Logo } from "./Logo";
-import { BarraPartes, DadoEnJuego, Info, ProgresoAnios, type Casilla, type Reparto } from "./graficos";
+import { BarraPartes, Info, ProgresoAnios, type Reparto } from "./graficos";
 import { PesoDelCv } from "./PesoDelCv";
 import { HojaEleccion } from "./HojaEleccion";
-import { AvisoPerfil, CalidadTag, Cargando, ErrorCaja, FranjaSinNovedad, Hoy, Salir } from "./piezas";
+import { AvisoPerfil, CalidadTag, Cargando, ErrorCaja, FranjaSinNovedad, Hoy, Pensando, Salir } from "./piezas";
+import { Espera } from "./Apuesta";
 import { GEMELOS } from "../api";
 
 type Internas = Record<string, string | number>;
@@ -613,13 +614,6 @@ export function Carta({
   /** Hasta qué edad vivieron los gemelos de esta carta (no siempre es el fin de la partida). */
   const edadGemelos = comparadas[0]?.trayectoria[comparadas[0].trayectoria.length - 1]?.edad ?? vista.edad_final;
   const colores = coloresDe(comparadas);
-  /** Lo que te juegas con la opción elegida: sus resultados posibles. Con uno solo, era segura y no hay dado. */
-  const enJuego: Casilla[] = (comparadas.find((c) => c.opcion === opcion?.opcion)?.por_resultado ?? []).map((r) => ({
-    id: r.resultado,
-    texto: r.texto || r.resultado,
-    prob: r.prob,
-    tono: r.tono,
-  }));
   const ganadores = comparacion?.ganador_por_mundo ?? null;
   const ganadas = (id: string) => (ganadores ? ganadores.filter((g) => g === id).length : 0);
   // mundos donde da lo mismo qué elijas (las dos mejores a menos de 0,5%): el "X de 100 es la mejor" solo no los muestra
@@ -641,7 +635,13 @@ export function Carta({
         }
       />
       {/* el único dado de la decisión: gira mientras responde el motor; "qué te pasó" cierra el sorteo */}
-      {cargando && <DadoEnJuego casillas={enJuego} titulo={`Mundo ${GEMELOS + 1} · año ${anio}`} texto={enJuego.length > 1 ? undefined : `Viviendo tu año ${anio}…`} onSalir={onSalir} />}
+      {cargando && <Pensando titulo={`Mundo ${GEMELOS + 1} · año ${anio}`} onSalir={onSalir} />}
+      {/* mientras Claude escribe la carta no hay sorteo: una espera simple, no la apuesta */}
+      {!cargando && !listo && (
+        <div className="jg-preparando">
+          <Espera pantalla frases={["Preparando tu carta…", "Claude está escribiendo tu situación…"]} onSalir={onSalir} />
+        </div>
+      )}
       <ProgresoAnios actual={anio} total={vista.anios} />
       <FranjaSinNovedad s={sinNovedad} />
       <Hoy e={e} />
@@ -656,16 +656,14 @@ export function Carta({
           porQueCorto(pendiente.por_que) && <span className="jg-chico">{mayuscula(porQueCorto(pendiente.por_que)!)}</span>
         )}
         {/* la carta se ve apenas llega del motor; la situación que escribe Claude entra cuando llega */}
-        {pendiente.narrativa && (
+        {pendiente.narrativa && listo && (
           <div className="jg-mensaje" key={llave}>
-            {listo ? (
-              <p className="jg-mensaje-texto">{narrados.situacion ?? pendiente.narrativa.situacion}</p>
-            ) : (
-              <span className="jg-mensaje-espera" role="status" aria-label="Escribiendo tu situación…">
-                <i />
-                <i />
-              </span>
-            )}
+            <span className="jg-mensaje-escribiendo" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+            <p className="jg-mensaje-texto">{narrados.situacion ?? pendiente.narrativa.situacion}</p>
           </div>
         )}
         <Heading level={2} as="h1" className="jg-carta-pregunta">
@@ -733,7 +731,7 @@ export function Carta({
 
 
 
-      {recalculando && <Cargando texto="Simulando los mundos por ese camino…" />}
+      {recalculando && <Espera texto="Simulando los mundos por ese camino…" />}
 
       {opcion && hoja !== null && opcion.elecciones_internas.length > 0 && (
         <HojaEleccion
@@ -782,6 +780,7 @@ export function Carta({
 
       <div className="jg-pie-fijo">
         {error && <ErrorCaja error={error} onReintentar={onReintentar} />}
+        {cargando && <Cargando>Sorteando y viviendo tu año…</Cargando>}
         {opcion && faltan.length > 0 && !cargando ? (
           <Button onClick={() => setHoja(primeraFaltante(opcion, internas))} disabled={recalculando}>
             Elegir el detalle
