@@ -483,10 +483,11 @@ def _toda_su_carrera(leido: PerfilLeido, perfil: dict, pq: Paquete) -> list[str]
     propios = parametros_propios(Perfil(toda_su_carrera_en=leido.toda_su_carrera_en), pq)
     if leido.toda_su_carrera_en == "publico":
         return [f"Toda tu carrera ha sido en el Estado: cuando tus gemelos cambian de pega, vuelven al Estado "
-                f"{round(propios['P_REEMPLEO_PUBLICO'] * 100)}% de las veces (la gente, "
+                f"al menos {round(propios['PISO_REEMPLEO_PUBLICO'] * 100)}% de las veces (la gente, "
                 f"{round(pq.k('P_REEMPLEO_PUBLICO') * 100)}%; supuesto del equipo)."]
+    privado = 1 - pq.k("P_REEMPLEO_PUBLICO")
     return [f"Toda tu carrera ha sido en startups: cuando tus gemelos cambian de pega en el sector privado, "
-            f"{round(propios['MIX_EMPLEADOR']['startup'] * 100)}% de las veces es otra startup (la gente, "
+            f"al menos {round(propios['PISO_STARTUP'] / privado * 100)}% de las veces es otra startup (la gente, "
             f"{round(pq.k('MIX_EMPLEADOR', 'startup') * 100)}%; supuesto del equipo)."]
 
 

@@ -426,13 +426,31 @@ def test_sortear_los_literales_del_paquete():
     assert resultado("oferta_externa", "contraoferta", 0.7626 + eps) == ("te_vas", pytest.approx(0.2374))
 
 
-@pytest.mark.parametrize(("u", "tipo", "rubro"), [
-    (0.12 - 1e-6, "publico", "Administración pública"), (0.12 + 1e-6, "grande", "Comercio"),
-    (0.472 - 1e-6, "grande", "Comercio"), (0.472 + 1e-6, "pyme", "Comercio"), (0.9912 - 1e-6, "pyme", "Comercio"),
-    (0.9912 + 1e-6, "startup", "Comercio"),
-])
+def _escalera_desde_pyme() -> list[tuple[float, str, str]]:
+    """Cortes del dado de tipo_de_empleador para quien viene de una pyme, leídos de transiciones_tipo.csv."""
+    import csv
+    from pathlib import Path
+
+    ruta = Path(__file__).resolve().parents[1] / "simulador" / "tablas" / "transiciones_tipo.csv"
+    with open(ruta, encoding="utf-8") as fh:
+        fila = {f["destino"]: float(f["prob"]) for f in csv.DictReader(fh) if f["origen"] == "pyme"}
+    cortes, acumulado = [], 0.0
+    for tipo in ("publico", "grande", "pyme"):
+        acumulado += fila[tipo]
+        cortes.append((acumulado, tipo))
+    rubro = {"publico": "Administración pública"}
+    salida = []
+    siguiente = {"publico": "grande", "grande": "pyme", "pyme": "startup"}
+    for corte, tipo in cortes:
+        salida.append((corte - 1e-6, tipo, rubro.get(tipo, "Comercio")))
+        salida.append((corte + 1e-6, siguiente[tipo], rubro.get(siguiente[tipo], "Comercio")))
+    return salida
+
+
+@pytest.mark.parametrize(("u", "tipo", "rubro"), _escalera_desde_pyme())
 def test_tipo_de_empleador_al_reemplearse(u, tipo, rubro):
-    """Despido con reempleo el mismo año: encadena la decisión interna `tipo_de_empleador`."""
+    """Despido con reempleo el mismo año: encadena la decisión interna `tipo_de_empleador`, que lee la fila
+    de su tipo de origen (pyme) en la escalera de transiciones_tipo."""
     d = DadosGuion({"evento:separacion_empleo": 0.0, "evento:separacion_empleo:res": 0.0,
                     "dec:tipo_de_empleador:sorteo": u})
     v = vida(Perfil(edad=35, rubro="Comercio", tipo_empleador="pyme", antiguedad=6), d)

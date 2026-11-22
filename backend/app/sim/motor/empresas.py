@@ -79,8 +79,15 @@ def _catalogo(pq: Paquete) -> dict:
             x[c] = _num(f.get(c), 0.0 if c == "exposicion_ia" else 1.0)
         x["_areas"], x["_rubros"], x["_tipos"] = _lista(f.get("areas")), _lista(f.get("rubros")), _lista(f.get("tipos"))
         cargos.append(x)
+    familias: dict[tuple[str, str], list[str]] = {}
+    try:
+        for f in pq.filas("familias"):
+            familias[(f["tipo"], f["clave"])] = [x.strip() for x in f["familias"].split("|") if x.strip()]
+    except (KeyError, OSError):
+        pass
     cat = {"empresas": empresas, "por_id": {x["empresa_id"]: x for x in empresas},
-           "cargos": cargos, "cargo_por_id": {x["cargo_id"]: x for x in cargos}, "pools": {}}
+           "cargos": cargos, "cargo_por_id": {x["cargo_id"]: x for x in cargos}, "pools": {},
+           "familias": familias}
     pq._catalogo_empresas = cat
     return cat
 
@@ -117,12 +124,26 @@ def sortear_empresa(pq: Paquete, dados: Dados, anio: int, sitio: str, tipo: str,
     return filas[dados.elegir(anio, sitio, [x["peso"] for x in filas])]
 
 
+def familias_de(pq: Paquete, e: dict) -> list[str]:
+    """La línea de trabajo de la persona: la familia de su cargo (el actual o el último que tuvo); sin cargo,
+    las afines a su carrera; sin carrera, las de su rubro (tabla `familias`, cruce curado)."""
+    car = cargo(pq, e.get("cargo_id", -1))
+    if car is not None and car.get("familia"):
+        return [car["familia"]]
+    fam = _catalogo(pq)["familias"]
+    if e.get("area"):
+        return fam.get(("area", e["area"]), [])
+    if e.get("rubro"):
+        return fam.get(("rubro", e["rubro"]), [])
+    return []
+
+
 def compatibles(pq: Paquete, emp: dict, e: dict) -> list[dict]:
     """Cargos que la empresa le ofrecería a esta persona.
 
-    Duro: tipo y rubro de la empresa, nivel actual y educación mínima. Blando, en este orden: mismo grupo
-    ocupacional que tiene hoy y área de su carrera; si con ambos no queda ninguno, se suelta el área y
-    después el grupo.
+    Duro: tipo y rubro de la empresa, nivel actual y educación mínima. Blando, en este orden: su familia
+    (finanzas, tecnología, salud...), su grupo ocupacional de hoy y el área de su carrera. Se sueltan de a
+    uno, el área primero y la familia al final, hasta que quede alguno.
     """
     nivel, edu = int(e.get("nivel", 0)), EDU_ORDEN.get(e.get("edu", "media"), 0)
     duros = [c for c in _catalogo(pq)["cargos"]
@@ -131,11 +152,18 @@ def compatibles(pq: Paquete, emp: dict, e: dict) -> list[dict]:
              and c["nivel_min"] <= nivel <= c["nivel_max"]
              and EDU_ORDEN.get(c["edu_min"], 0) <= edu and c["peso"] > 0]
     area, ocup = e.get("area") or "", int(e.get("ocupacion", -1))
+    familias = set(familias_de(pq, e))
 
     def del_area(c):
         return c["_areas"] is None or (area and area in c["_areas"])
 
-    for filtro in (lambda c: c["ciuo08_1d"] == ocup and del_area(c), lambda c: c["ciuo08_1d"] == ocup,
+    def de_familia(c):
+        return c.get("familia") in familias
+
+    for filtro in (lambda c: de_familia(c) and c["ciuo08_1d"] == ocup and del_area(c),
+                   lambda c: de_familia(c) and c["ciuo08_1d"] == ocup,
+                   de_familia,
+                   lambda c: c["ciuo08_1d"] == ocup and del_area(c), lambda c: c["ciuo08_1d"] == ocup,
                    del_area, lambda c: True):
         quedan = [c for c in duros if filtro(c)]
         if quedan:
@@ -169,6 +197,28 @@ def rubro_actual(e: dict) -> str | None:
     """El rubro en que se busca la empresa nueva: el de la persona, salvo que no tenga o venga del Estado."""
     actual = e.get("rubro") or ""
     return actual if actual and actual != PUBLICA else None
+
+
+def rubro_publico(pq: Paquete, e: dict) -> str:
+    """En qué sector del Estado se busca el empleador (un hospital público si vienes de salud).
+
+    La persona queda con rubro Administración pública, como define el paquete; esto solo elige la empresa.
+    En orden: el sector de la empresa pública donde está, su rubro si no es Administración pública, y el
+    rubro típico de su familia de cargo o de carrera. Si el catálogo no tiene empleadores públicos ahí,
+    Administración pública.
+    """
+    emp = empresa(pq, e.get("empresa_id", -1))
+    if emp is not None and emp["tipo"] == "publico" and pool(pq, "publico", emp["rubro"]):
+        return emp["rubro"]
+    rubro = e.get("rubro") or ""
+    if rubro and rubro != PUBLICA and pool(pq, "publico", rubro):
+        return rubro
+    fam = _catalogo(pq)["familias"]
+    for familia in familias_de(pq, e):
+        for (tipo, clave), lista in fam.items():
+            if tipo == "rubro" and lista and lista[0] == familia and pool(pq, "publico", clave):
+                return clave
+    return PUBLICA
 
 
 def sitio_empresa(origen: str) -> str:
@@ -205,7 +255,7 @@ def _tipo_y_rubro(vida, decision_id: str, opcion_id: str) -> tuple[str, str | No
             tipo = e.get("tipo_empleador")  # cambiar de rubro: mismo tipo, otra empresa
         if tipo:
             if tipo == "publico":
-                rubro = PUBLICA
+                rubro = rubro_publico(pq, e)
             elif rubro is None:
                 rubro = rubro_actual(e)
             return tipo, rubro

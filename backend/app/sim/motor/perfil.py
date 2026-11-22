@@ -89,13 +89,11 @@ STARTUP_SI_SIEMPRE_STARTUP = 0.20
 
 def parametros_propios(perfil: "Perfil", pq: Paquete) -> dict:
     """Parámetros del paquete que esta vida tiene distintos por su historia (ver paquete.K_PROPIOS)."""
+    # pisos sobre la escalera de transiciones_tipo (EPS): el resto se reparte entre grande y pyme como en su fila
     if perfil.toda_su_carrera_en == "publico":
-        return {"P_REEMPLEO_PUBLICO": REEMPLEO_PUBLICO_SI_SIEMPRE_ESTADO}
+        return {"PISO_REEMPLEO_PUBLICO": REEMPLEO_PUBLICO_SI_SIEMPRE_ESTADO}
     if perfil.toda_su_carrera_en == "startup":
-        mix = pq.k("MIX_EMPLEADOR")
-        escala = (1 - STARTUP_SI_SIEMPRE_STARTUP) / (1 - mix["startup"])
-        return {"MIX_EMPLEADOR": {"grande": mix["grande"] * escala, "pyme": mix["pyme"] * escala,
-                                  "startup": STARTUP_SI_SIEMPRE_STARTUP}}
+        return {"PISO_STARTUP": STARTUP_SI_SIEMPRE_STARTUP * (1 - pq.k("P_REEMPLEO_PUBLICO"))}
     return {}
 
 

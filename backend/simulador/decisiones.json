@@ -5146,7 +5146,7 @@
      "resultados": [
       {
        "id": "publico",
-       "prob": "k('P_REEMPLEO_PUBLICO')",
+       "prob": "max(tabla_o(k('P_REEMPLEO_PUBLICO'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'publico'), k('PISO_REEMPLEO_PUBLICO'))",
        "texto": "Entras al Estado.",
        "tono": "neutro",
        "efectos": [
@@ -5164,7 +5164,7 @@
       },
       {
        "id": "grande",
-       "prob": "(1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande')",
+       "prob": "tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'grande') * (1 - max(tabla_o(k('P_REEMPLEO_PUBLICO'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'publico'), k('PISO_REEMPLEO_PUBLICO')) - max((1 - tabla_o(k('P_REEMPLEO_PUBLICO'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'publico') - tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'grande') - tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'pyme')), k('PISO_STARTUP'))) / (tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'grande') + tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'pyme'))",
        "texto": "Entras a una empresa grande.",
        "tono": "neutro",
        "efectos": [
@@ -5177,7 +5177,7 @@
       },
       {
        "id": "pyme",
-       "prob": "(1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme')",
+       "prob": "tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'pyme') * (1 - max(tabla_o(k('P_REEMPLEO_PUBLICO'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'publico'), k('PISO_REEMPLEO_PUBLICO')) - max((1 - tabla_o(k('P_REEMPLEO_PUBLICO'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'publico') - tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'grande') - tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'pyme')), k('PISO_STARTUP'))) / (tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'grande') + tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'pyme'))",
        "texto": "Entras a una pyme.",
        "tono": "neutro",
        "efectos": [

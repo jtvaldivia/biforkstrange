@@ -419,7 +419,9 @@ class Vida:
             # quien busca su primera pega; si no, la cesantía le pagaría un factor de cero para siempre
             e["primer_empleo"] = 1
         if e["estado"] != "empleado":
-            e["empresa_id"], e["cargo_id"] = -1, -1  # el factor del último empleo se guarda: es la base al volver
+            # se suelta la empresa; el cargo y el factor del último empleo se guardan: la próxima oferta sigue
+            # en su línea de trabajo y su sueldo parte de lo que ganaba
+            e["empresa_id"] = -1
             return
         if not e["tipo_empleador"] and ("decision", "tipo_de_empleador", "luego") not in self.cola[:1]:
             # reglas como bootcamp/colocado emplean sin decir en qué tipo de empresa: se sortea
@@ -446,10 +448,13 @@ class Vida:
         if not cambio:
             self._revisar_cargo()
             return
-        rubro = empresas.PUBLICA if e["tipo_empleador"] == "publico" else empresas.rubro_actual(e)
+        if e["tipo_empleador"] == "publico":
+            rubro = empresas.rubro_publico(self.pq, antes)  # el sector del Estado según dónde venía
+        else:
+            rubro = empresas.rubro_actual(e)
         sitio = empresas.sitio_empresa(self._origen)
         emp = empresas.sortear_empresa(self.pq, self.dados, self.anio, sitio, e["tipo_empleador"], rubro)
-        if emp is not None and e["tipo_empleador"] != "publico" and emp["rubro"] != rubro:
+        if emp is not None and e["tipo_empleador"] != "publico":
             e["rubro"] = emp["rubro"]  # sin rubro, o startup/remota de otro rubro: la empresa lo fija
         car = empresas.sortear_cargo(self.pq, self.dados, self.anio, sitio + ":cargo", emp, e)
         nuevo = empresas.factor_sueldo(emp, car)
@@ -642,5 +647,7 @@ class Vida:
         return emp["nombre"] if emp else None
 
     def _nombre_cargo(self) -> str | None:
+        if self.e.get("estado") != "empleado":
+            return None
         car = empresas.cargo(self.pq, self.e.get("cargo_id", -1))
         return car["nombre"] if car else None
