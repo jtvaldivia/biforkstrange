@@ -58,11 +58,16 @@ def test_el_ritmo_corta_en_los_pesos_acumulados():
 
 # ------------------------------------------------------------------ cómo te toca
 @pytest.mark.ia
-def test_el_tipo_sale_del_cargo_y_un_programa_largo_lo_vuelve_complementado():
+def test_el_tipo_sale_del_cargo_y_un_programa_largo_lo_vuelve_complementado(monkeypatch):
     e = vida(Perfil(), Dados(0, 0), cargo_id=ATENCION_CLIENTE).e
     assert e["ia_tipo"] == "automatiza"
     assert vida(Perfil(), Dados(0, 0), cargo_id=PROFESOR_MEDIA).e["ia_tipo"] == "aumenta"
     assert ia.tipo(pq(), {**e, "ia_reconvertido": 1}) == "aumenta"
+    # sin cargo del catálogo, el empleo de hoy toma el tipo de los cargos que calzan con él desde el año 0
+    oficinista = vida(Perfil(edad=24, edu="media", ocupacion=4, rubro="Comercio", nivel=0, sueldo=600000), Dados(0, 0)).e
+    assert oficinista["cargo_id"] == -1 and oficinista["ia_tipo"] == "automatiza"
+    # respaldo, solo si ningún cargo calza
+    monkeypatch.setattr(ia, "tipo_de_hoy", lambda pq_, e_: None)
     assert ia.tipo(pq(), {"cargo_id": -1, "exposicion_ia": 0.5}) == "incognita"
     assert ia.tipo(pq(), {"cargo_id": -1, "exposicion_ia": 0.05}) == "no_afectado"
 
@@ -120,7 +125,9 @@ def test_la_habilidad_de_ia_paga_al_cambiarte_una_vez_y_menos_en_el_estado():
     r = next(r for o in pq().decisiones["oferta_externa"]["opciones"] if o["id"] == "cambiar" for r in o["resultados"])
     ef = next(x for x in r["efectos"] if x["var"] == "sueldo")
     factor = ef["valor"].split(" * ", 1)[1]  # lo que se suma al azar_uniforme de la oferta
-    e = dict(vida(Perfil(), Dados(0, 0)).e, ia_v2=1, tipo_empleador="pyme")
+    e = dict(vida(Perfil(), Dados(0, 0)).e, ia_v2=1, tipo_empleador="pyme", ia_reconvertido_anio=0,
+             ia_anios=pq().k("IA_PRIMA_ANIOS_MIN"))
+    assert pq().evaluar(factor, {**e, "ia_reconvertido": 1, "ia_anios": 1}) == 1  # antes de IA_PRIMA_ANIOS_MIN no paga
     sin, con = pq().evaluar(factor, {**e, "ia_reconvertido": 0}), pq().evaluar(factor, {**e, "ia_reconvertido": 1})
     publico = pq().evaluar(factor, {**e, "ia_reconvertido": 1, "tipo_empleador": "publico"})
     assert sin == 1 and con == pytest.approx(1 + pq().k("IA_PRIMA_SKILL")) and 1 < publico < con

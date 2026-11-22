@@ -3,11 +3,11 @@ import { aniosDe, cargoYSueldo, plata, sinSueldo, situacion } from "../textos";
 import type { Anio, Vista } from "../types";
 import type { VidaAnterior } from "../hooks/usePartida";
 import { GEMELOS } from "../api";
-import { Abanico, Info, RangosOpciones } from "./graficos";
-import { coloresDe } from "./Carta";
+import { Abanico, EjeX, Info, LIENZO, RangosOpciones, escalaSueldo, rotuloSueldo } from "./graficos";
+import { coloresDe, diferenciaDe } from "./Carta";
 import { CompartirResultado } from "./Compartir";
 import { Logo } from "./Logo";
-import { Salir } from "./piezas";
+import { Cargando, ErrorCaja, Salir } from "./piezas";
 import { IACierre } from "./IACierre";
 
 type Tramo = { titulo: string; empresa: string | null; empresaId: number | null; rubro: string; desde: number; hasta: number; sueldo: number };
@@ -118,13 +118,15 @@ const conSignoPlata = (n: number) => `${n >= 0 ? "+" : "−"}${plata(Math.abs(n)
  * pusieron tu suerte y tus decisiones de después (tu sueldo frente a lo típico de tus copias).
  */
 function DecisionOSuerte({
-  elegida, otra, sueldoFinal, mejorQue, gemelos,
+  elegida, otra, sueldoFinal, gemelos,
 }: {
   elegida: { nombre: string; p50: number };
-  /** La otra opción y la mediana de la diferencia mundo a mundo (con la misma suerte), la misma cifra de la carta. */
-  otra: { nombre: string; diferencia: number | null } | null;
+  /**
+   * La otra opción y la diferencia típica mundo a mundo (con la misma suerte), con el mismo criterio de la carta:
+   * con muchos empates, solo entre los mundos donde cambia algo (`cuandoCambia`).
+   */
+  otra: { nombre: string; diferencia: number | null; cuandoCambia: boolean } | null;
   sueldoFinal: number;
-  mejorQue: number | undefined;
   gemelos: number;
 }) {
   const porDecision = otra?.diferencia ?? null;
@@ -141,8 +143,7 @@ function DecisionOSuerte({
           ¿Fue la decisión o la suerte?
         </Heading>
         <Text size="sm">
-          Tus {gemelos} copias eligieron «{elegida.nombre}», igual que tú. Después, cada año decidieron lo que les fue llegando como lo decide la
-          mayoría de la gente en su situación. Tú decidiste a tu manera.
+          En tus {gemelos} mundos, tu copia eligió «{elegida.nombre}», igual que tú, y después decidió como la mayoría. Tú, a tu manera.
         </Text>
       </Stack>
       <div className="jg-datos jg-cierre-partes">
@@ -152,7 +153,7 @@ function DecisionOSuerte({
               Tu decisión
               <small>
                 Elegir «{elegida.nombre}» en vez de «{otra.nombre}» {chica(porDecision) ? "casi no cambiaba" : porDecision > 0 ? "subía" : "bajaba"} el sueldo
-                del mismo mundo, típico (comparando cada mundo consigo mismo).
+                del mismo mundo, típico (comparando cada mundo consigo mismo{otra.cuandoCambia ? ", en los mundos donde no da lo mismo" : ""}).
               </small>
             </span>
             <span data-tono={chica(porDecision) ? "igual" : porDecision > 0 ? "mas" : "menos"}>{conSignoPlata(porDecision)}</span>
@@ -162,7 +163,7 @@ function DecisionOSuerte({
           <span>
             Tu suerte y lo que decidiste después
             <small>
-              Lo que te separó del sueldo típico de tus copias ({plata(elegida.p50)}).
+              Lo que te separó de lo típico de tu copia en tus {gemelos} mundos ({plata(elegida.p50)}).
             </small>
           </span>
           <span data-tono={chica(porLoDemas) ? "igual" : porLoDemas > 0 ? "mas" : "menos"}>{conSignoPlata(porLoDemas)}</span>
@@ -177,11 +178,6 @@ function DecisionOSuerte({
               : "En tu vida pesó más tu primera decisión que la suerte."}
         </Text>
       )}
-      {mejorQue !== undefined && (
-        <Text size="sm">
-          Terminaste ganando más que {Math.round(mejorQue * gemelos)} de tus {gemelos} copias.
-        </Text>
-      )}
     </Stack>
   );
 }
@@ -189,19 +185,15 @@ function DecisionOSuerte({
 /** Tus dos vidas en el mismo mundo, en un solo gráfico: la de ahora en amarillo y la anterior punteada. */
 function DosVidas({ ahora, antes }: { ahora: { edad: number; sueldo: number }[]; antes: { edad: number; sueldo: number }[] }) {
   if (ahora.length < 2 || antes.length < 2) return null;
-  const W = 320;
+  const { W, X0, X1 } = LIENZO;
   const H = 160;
-  const X0 = 8;
-  const X1 = 236;
   const Y0 = 14;
   const Y1 = H - 22;
   const todos = [...ahora, ...antes];
   const e0 = Math.min(...todos.map((p) => p.edad));
   const e1 = Math.max(...todos.map((p) => p.edad));
-  const tope = Math.max(...todos.map((p) => p.sueldo), 1) * 1.08;
-  const piso = Math.min(...todos.map((p) => p.sueldo)) <= 0 ? 0 : Math.min(...todos.map((p) => p.sueldo)) * 0.8;
   const x = (edad: number) => X0 + ((edad - e0) / Math.max(1, e1 - e0)) * (X1 - X0);
-  const y = (n: number) => Y1 - ((Math.max(piso, n) - piso) / Math.max(1, tope - piso)) * (Y1 - Y0);
+  const y = escalaSueldo(todos.map((p) => p.sueldo), Y0, Y1);
   const linea = (ps: { edad: number; sueldo: number }[]) => ps.map((p, i) => `${i === 0 ? "M" : "L"}${x(p.edad).toFixed(1)},${y(p.sueldo).toFixed(1)}`).join(" ");
   const finA = ahora[ahora.length - 1];
   const finB = antes[antes.length - 1];
@@ -213,17 +205,15 @@ function DosVidas({ ahora, antes }: { ahora: { edad: number; sueldo: number }[];
   }
   return (
     <svg className="jg-abanico" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Tu vida de ahora termina en ${plata(finA.sueldo)} y la anterior en ${plata(finB.sueldo)}.`}>
-      <line className="jg-abanico-eje" x1={X0} x2={X1} y1={Y1} y2={Y1} />
+      <EjeX alto={H} y1={Y1} e0={e0} e1={e1} sueldo0={ahora[0].sueldo} hoy={false} />
       <path className="jg-abanico-ref" style={{ stroke: "var(--suave)" }} pathLength={1} d={linea(antes)} />
       <path className="jg-abanico-tu-borde" pathLength={1} d={linea(ahora)} />
       <path className="jg-abanico-tu" pathLength={1} d={linea(ahora)} />
       <circle className="jg-abanico-tu-punto" cx={x(finA.edad)} cy={y(finA.sueldo)} r={5.5} />
-      <text x={X1 + 8} y={yA + 4} className="jg-abanico-num">{plata(finA.sueldo)}</text>
+      <text x={X1 + 8} y={yA + 4} className="jg-abanico-num">{rotuloSueldo(finA.sueldo)}</text>
       <text x={X1 + 8} y={yA + 15} className="jg-abanico-sub">esta vida</text>
-      <text x={X1 + 8} y={yB + 4} className="jg-abanico-num" style={{ fill: "var(--suave)" }}>{plata(finB.sueldo)}</text>
+      <text x={X1 + 8} y={yB + 4} className="jg-abanico-num" style={{ fill: "var(--suave)" }}>{rotuloSueldo(finB.sueldo)}</text>
       <text x={X1 + 8} y={yB + 15} className="jg-abanico-sub">la anterior</text>
-      <text x={X0} y={H - 6} className="jg-abanico-sub">{e0} años</text>
-      <text x={X1} y={H - 6} textAnchor="end" className="jg-abanico-sub">{e1} años</text>
     </svg>
   );
 }
@@ -258,8 +248,12 @@ function MismoMundo({ antes, ahora, sueldoFinal, primeraAhora }: { antes: VidaAn
 
 /** El cierre: tu vida frente a los gemelos de tu primera decisión. Viene de "8 · Fin de la partida" del kit. */
 export function CierrePantalla({
-  vista, sueldoInicial, onOtraVida, onRevivir, anterior = null, onCambiarPerfil, onSalir, retrato = null,
+  vista, sueldoInicial, onOtraVida, onRevivir, anterior = null, onCambiarPerfil, onSalir, retrato = null, cargando = false, error = null, onReintentar,
 }: {
+  /** Mientras arranca la otra vida, el cierre sigue a la vista: si falla, se puede reintentar o quedarse aquí. */
+  cargando?: boolean;
+  error?: string | null;
+  onReintentar?: () => void;
   vista: Vista;
   sueldoInicial: number;
   onOtraVida: () => void;
@@ -281,6 +275,8 @@ export function CierrePantalla({
   // contra qué se mide tu decisión: la otra opción con mejor sueldo típico (el backend la elige igual y trae la
   // diferencia mundo a mundo en `contra`)
   const otraTipica = otras.find((o) => o.opcion === primera?.contra?.opcion) ?? [...otras].sort((a, b) => b.sueldo.p50 - a.sueldo.p50)[0] ?? null;
+  // la diferencia que movió tu decisión, con el mismo criterio que la carta
+  const dif = primera?.contra ? diferenciaDe(primera.contra) : { d: null, cuandoCambia: false };
   // los mismos colores de opción que en la carta: «Irte» es verde allá y aquí
   const colores = coloresDe(opciones);
   const conCeros = opciones.some((o) => o.sin_trabajo_al_final > 0);
@@ -299,9 +295,11 @@ export function CierrePantalla({
       </Stack>
 
       <SunCard>
-        <Meta>{sinSueldo(e) ? "Tu último sueldo" : "Tu sueldo final"}</Meta>
-        <BigNumber value={plata(cierre.sueldo_final)} unit="al mes, en pesos de hoy" animate />
+        <Meta>Tu sueldo final · en pesos de hoy</Meta>
+        <BigNumber value={plata(cierre.sueldo_final)} unit="al mes" animate />
         <Text>{sinSueldo(e) ? situacion(e.estado) : [e.rol || e.cargo, e.empresa].filter(Boolean).join(" · ")}</Text>
+        {/* sin trabajo cuenta $0, como en tus copias; el último sueldo va aparte, solo como dato */}
+        {sinSueldo(e) && (cierre.ultimo_sueldo ?? 0) > 0 && <Text size="sm">Terminas sin trabajo, así que cuenta $0. Tu último sueldo fue {plata(cierre.ultimo_sueldo!)} al mes.</Text>}
         <Text size="sm">
           {mesesSinTrabajo > 0 ? `${mesesSinTrabajo} ${mesesSinTrabajo === 1 ? "mes" : "meses"} sin trabajo.` : "Siempre con trabajo."}
         </Text>
@@ -310,23 +308,10 @@ export function CierrePantalla({
       {anterior && <MismoMundo antes={anterior} ahora={recorrido} sueldoFinal={cierre.sueldo_final} primeraAhora={elegida?.nombre ?? null} />}
 
       {primera && elegida && (
-        <DecisionOSuerte
-          elegida={{ nombre: elegida.nombre, p50: elegida.sueldo.p50 }}
-          otra={otraTipica ? { nombre: otraTipica.nombre, diferencia: primera.contra?.diferencia_tipica ?? null } : null}
-          sueldoFinal={cierre.sueldo_final}
-          mejorQue={cierre.mejor_que_gemelos}
-          gemelos={primera.comparacion.gemelos}
-        />
-      )}
-
-      {cierre.ia && <IACierre ia={cierre.ia} elegida={elegida?.opcion} nombreElegida={elegida?.nombre} />}
-
-
-      {primera && elegida && (
         <Stack as="section" gap={12}>
           <Stack gap={4}>
             <Heading level={3} as="h2">
-              Tú contra tus {GEMELOS} copias
+              Tú contra tus {GEMELOS} mundos
             </Heading>
             <Text size="sm">{primera.pregunta}</Text>
           </Stack>
@@ -340,27 +325,46 @@ export function CierrePantalla({
             nombreReferencia={otraTipica?.nombre}
             colorReferencia={otraTipica ? colores[otraTipica.opcion] : undefined}
           />
+          {cierre.mejor_que_gemelos !== undefined && (
+            <Text className="jg-destacado">
+              Terminaste ganando más que tu copia en {Math.round(cierre.mejor_que_gemelos * primera.comparacion.gemelos)}{" "}de{" "}{primera.comparacion.gemelos} mundos.
+            </Text>
+          )}
           <Info pregunta="¿Cómo leo este gráfico?">
-            La línea amarilla es tu sueldo. La franja va del 10% al 90% de los {primera.comparacion.gemelos} mundos donde elegiste «{elegida.nombre}», y
-            la línea gruesa es la mediana.{otraTipica && ` La punteada es la mediana si hubieras elegido «${otraTipica.nombre}».`} Si tu línea sale de la
-            franja, te fue mejor (o peor) que a casi todas tus copias, por tu dado o por tus decisiones de después.
+            La línea amarilla es tu sueldo. La franja va de «si te va mal» a «si te va bien» (8 de cada 10 de tus {primera.comparacion.gemelos} mundos) con
+            «{elegida.nombre}», y la línea gruesa es lo típico.{otraTipica && ` La punteada es lo típico si hubieras elegido «${otraTipica.nombre}».`} Si
+            tu línea sale de la franja, te fue mejor (o peor) que a tu copia en casi todos los mundos, por tu dado o por tus decisiones de después.
           </Info>
-          <Meta>Sueldo final por opción · del 10% al 90% de los mundos</Meta>
-          <RangosOpciones
-            tu={cierre.sueldo_final}
-            opciones={[elegida, ...otras].map((o) => ({
-              id: o.opcion,
-              nombre: o.nombre,
-              nota: o.opcion === elegida.opcion ? "la elegiste" : undefined,
-              rango: o.sueldo,
-              color: colores[o.opcion],
-            }))}
-          />
-          {conCeros && <Text size="sm">Los mundos que terminan sin trabajo cuentan con $0, por eso el 10% puede quedar bajo.</Text>}
+          <details>
+            <summary className="jg-ayuda">Ver el sueldo final de cada opción</summary>
+            <Stack gap={10} className="jg-vivido">
+              <Meta>De «si te va mal» a «si te va bien»</Meta>
+              <RangosOpciones
+                tu={cierre.sueldo_final}
+                opciones={[elegida, ...otras].map((o) => ({
+                  id: o.opcion,
+                  nombre: o.nombre,
+                  nota: o.opcion === elegida.opcion ? "la elegiste" : undefined,
+                  rango: o.sueldo,
+                  color: colores[o.opcion],
+                }))}
+              />
+              {conCeros && <Text size="sm">Los mundos que terminan sin trabajo cuentan con $0, por eso «si te va mal» puede quedar bajo.</Text>}
+            </Stack>
+          </details>
         </Stack>
       )}
-      {!primera && <Text size="sm">Tu primera decisión no se pudo simular: no hay con quién compararte.</Text>}
 
+      {primera && elegida && (
+        <DecisionOSuerte
+          elegida={{ nombre: elegida.nombre, p50: elegida.sueldo.p50 }}
+          otra={otraTipica ? { nombre: otraTipica.nombre, diferencia: dif.d, cuandoCambia: dif.cuandoCambia } : null}
+          sueldoFinal={cierre.sueldo_final}
+          gemelos={primera.comparacion.gemelos}
+        />
+      )}
+
+      {!primera && <Text size="sm">Tu primera decisión no se pudo simular: no hay con quién compararte.</Text>}
 
       <Recorrido historia={vista.historia} />
 
@@ -371,12 +375,19 @@ export function CierrePantalla({
         </div>
       </details>
 
-      {primera && <CompartirResultado comparacion={primera.comparacion} elegida={primera.elegida} sueldoFinal={cierre.sueldo_final} retrato={retrato} />}
+      {cierre.ia && <IACierre ia={cierre.ia} elegida={elegida?.opcion} nombreElegida={elegida?.nombre} />}
 
       <Stack gap={10}>
-        <Button onClick={onRevivir}>Vivir este mismo mundo eligiendo distinto</Button>
-        <Text size="sm">Vuelves al año 1 con la misma primera carta y la misma suerte del país. Al final ves tus dos vidas juntas.</Text>
-        <Button variant="white" onClick={onOtraVida}>
+        {error && <ErrorCaja error={error} onReintentar={onReintentar} />}
+        {cargando && <Cargando>Preparando tu otra vida…</Cargando>}
+        <Button onClick={onRevivir} disabled={cargando}>Vivir este mismo mundo eligiendo distinto</Button>
+        <Text size="sm">Vuelves al año 1 con la misma primera decisión y la misma suerte del país. Al final ves tus dos vidas juntas.</Text>
+      </Stack>
+      {primera && (
+        <CompartirResultado comparacion={primera.comparacion} elegida={primera.elegida} sueldoFinal={cierre.sueldo_final} retrato={retrato} />
+      )}
+      <Stack gap={10}>
+        <Button variant="white" onClick={onOtraVida} disabled={cargando}>
           Jugar otra vida, en otro mundo
         </Button>
         <Button variant="white" onClick={onCambiarPerfil}>

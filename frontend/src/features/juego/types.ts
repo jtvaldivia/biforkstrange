@@ -147,7 +147,7 @@ export type Estado = {
   ia_adopcion?: number;
   /** Con la incertidumbre de IA prendida: el ritmo de tu mundo, cómo te toca la IA y qué tan adaptable eres (0-1). */
   ia_ritmo?: Ritmo;
-  ia_tipo?: "automatiza" | "aumenta" | "incognita" | "no_afectado";
+  ia_tipo?: TipoIA;
   adaptabilidad?: number;
   usa_ia?: number;
 };
@@ -302,6 +302,8 @@ export type IAPorRitmo = {
   ritmos: Partial<Record<Ritmo, { mundos: number; gana: Record<string, number>; sueldo_p50: Record<string, number> }>>;
 };
 
+export type TipoIA = "automatiza" | "aumenta" | "incognita" | "no_afectado";
+
 export type ConFuente = { fuente: string; cita: string; url: string };
 export type CierreIA = {
   ritmo: Ritmo;
@@ -309,6 +311,12 @@ export type CierreIA = {
   voces: (ConFuente & { quien: string; tipo: string; dice: string })[];
   fuera_del_juego: string;
   por_ritmo: IAPorRitmo | null;
+  /** Qué dice cada tipo de cargo (escenarios_ia.json) y el tipo del tuyo al final. */
+  tipos?: Record<TipoIA, ConFuente & { nombre: string; carta: string | null }>;
+  tipo?: TipoIA | null;
+  /** Los pesos de cada ritmo (P_RITMO_IA, pronóstico del FRI) y desde cuántos mundos se muestra un ritmo. */
+  pesos?: Record<Ritmo, number>;
+  min_mundos?: number;
 };
 
 export type Suceso = { tipo: "decision" | "evento"; nombre: string; opcion?: string; texto: string; tono: Tono };
@@ -362,6 +370,9 @@ export type EmpresaOferta = {
   cargo: string | null;
   /** Relativas al promedio de su tipo y rubro (1 = promedio), salvo exposición a IA (0 a 1) y horas. */
   cifras: { sueldo: number; despido: number; ascenso: number; cierre: number; exposicion_ia: number; horas: number };
+  /** Cómo toca la IA al cargo (tipo OIT, el que usa el motor) y su frase para la carta; null sin cargo o si no lo toca. */
+  ia_tipo?: TipoIA | null;
+  ia_texto?: string | null;
   calidad: Calidad;
 };
 
@@ -454,7 +465,10 @@ export type Busqueda = {
 };
 
 export type Cierre = {
+  /** Lo que ganas al final: $0 si terminas sin trabajo, la misma base con que se comparan las opciones y tus copias. */
   sueldo_final: number;
+  /** Si terminas sin trabajo, lo que ganabas en tu último trabajo (solo para mostrar); null si trabajas. */
+  ultimo_sueldo?: number | null;
   estado: Estado;
   anios_sin_trabajo: number;
   meses_sin_trabajo?: number;

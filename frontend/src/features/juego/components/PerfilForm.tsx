@@ -14,12 +14,12 @@ export const SLIDER_MIN = 300_000;
 export const SLIDER_MAX = 8_000_000;
 /** Los rubros que se muestran como chips; el resto queda en "Otro". */
 export const RUBROS_TOP = ["Comercio", "Información y comunicaciones", "Servicios profesionales", "Salud", "Enseñanza", "Finanzas y seguros"];
-const RIESGOS = [
+export const RIESGOS = [
   { value: "2", label: "Prefiero lo seguro" },
   { value: "5", label: "Depende" },
   { value: "8", label: "Me la juego" },
 ];
-const riesgoCercano = (r: number) => (r <= 3 ? "2" : r >= 7 ? "8" : "5");
+export const riesgoCercano = (r: number) => (r <= 3 ? "2" : r >= 7 ? "8" : "5");
 
 /** Banda de edad de la ESI (18-24, 25-29, …, 50-54). */
 export function banda(edad: number): string {
@@ -342,7 +342,7 @@ export function PerfilForm({
             {ref && (
               <Row gap={8} style={{ alignItems: "center", flexWrap: "wrap" }}>
                 <Text size="sm">
-                  Mediana para tu edad y estudios: <strong>{pesos(ref.p50)}</strong>
+                  Lo típico para tu edad y estudios: <strong>{pesos(ref.p50)}</strong>
                 </Text>
                 {p.sueldo !== ref.p50 && (
                   <Chip pressed={false} onToggle={() => set("sueldo", ref.p50)}>
@@ -370,12 +370,23 @@ export function PerfilForm({
             <span className="jg-etiqueta">Si te ofrecen algo incierto…</span>
             <Segmented<string> label="Tolerancia al riesgo" value={riesgoCercano(p.riesgo)} onChange={(v) => set("riesgo", Number(v))} options={RIESGOS} />
           </Stack>
+
+          {/* lo mismo que pregunta el onboarding: los años de la partida y de los mundos */}
+          <Slider
+            label="¿Hasta qué edad quieres jugar?"
+            value={Math.min(60, Math.max(p.edad + 1, p.edad_final ?? p.edad + 10))}
+            min={p.edad + 1}
+            max={60}
+            step={1}
+            onChange={(n) => set("edad_final", n)}
+            display={`${Math.min(60, Math.max(p.edad + 1, p.edad_final ?? p.edad + 10))} años`}
+          />
         </>
       )}
 
       <ScreenFooter>
         {error && <ErrorCaja error={error} onReintentar={onReintentar} />}
-        {cargando && <Espera frases={["Simulando tus mundos…", "Sorteando tu primera carta…"]} />}
+        {cargando && <Espera frases={["Simulando tus mundos…", "Sorteando tu primera decisión…"]} />}
         <Button onClick={() => onElegirDuda(p)} disabled={!catalogo || !sueldoValido || cargando}>
           Elegir mi duda
         </Button>

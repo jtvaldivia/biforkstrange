@@ -49,7 +49,7 @@ export function RangoSueldo({ rango, tope, color = "var(--dinero)", enPalabras =
       className="vd-pila"
       style={{ gap: 4 }}
       role="img"
-      aria-label={`10%: ${plata(rango.p10)}. Mediana: ${plata(rango.p50)}. 90%: ${plata(rango.p90)}.`}
+      aria-label={`Si te va mal: ${plata(rango.p10)}. Lo típico: ${plata(rango.p50)}. Si te va bien: ${plata(rango.p90)}.`}
     >
       <span className="vd-rango-pista">
         <i style={{ left: `${pos(rango.p10)}%`, width: `${Math.max(pos(rango.p90) - pos(rango.p10), 2)}%`, background: color }} />
@@ -93,7 +93,8 @@ export function Cargando({ children, texto, frases, cada = 2400 }: { children?: 
 export function ErrorCaja({ error, onReintentar }: { error: string; onReintentar?: () => void }) {
   return (
     <div className="vd-pila" style={{ gap: 10 }} role="alert">
-      <div className="jg-error">No pudimos conectar con el simulador. {error}</div>
+      {/* el prefijo "No pudimos conectar" lo pone textoError solo si no hubo respuesta */}
+      <div className="jg-error">{error}</div>
       {onReintentar && (
         <Button variant="white" onClick={onReintentar}>
           Reintentar
@@ -115,8 +116,8 @@ export function AvisoPerfil({ fuentes, corto = false }: { fuentes: Record<string
   if (corto) {
     const todo = supuestos.length === Object.keys(CAMPOS_PERFIL).length;
     return (
-      <span title={todo ? "Jugaste sin datos: estos mundos son de una persona de ejemplo." : `Supuestos en: ${enLista(supuestos.map((k) => CAMPOS_PERFIL[k]))}.`}>
-        <Tag tone="sol">{todo ? "Ejemplo" : "Con supuestos"}</Tag>
+      <span title={todo ? "Juegas sin datos: estos mundos son de una persona de ejemplo." : `Supuestos en: ${enLista(supuestos.map((k) => CAMPOS_PERFIL[k]))}.`}>
+        <Tag tone="sol">{todo ? "Perfil de ejemplo" : "Con supuestos"}</Tag>
       </span>
     );
   }
@@ -126,7 +127,7 @@ export function AvisoPerfil({ fuentes, corto = false }: { fuentes: Record<string
       <Tag tone="sol">{ejemplo ? "Perfil de ejemplo" : "Con supuestos"}</Tag>
       <span className="jg-chico">
         {ejemplo
-          ? "Jugaste sin datos: estos mundos son de una persona de ejemplo, no los tuyos."
+          ? "Juegas sin datos: estos mundos son de una persona de ejemplo, no los tuyos."
           : `No nos dijiste tu ${enLista(supuestos.map((k) => CAMPOS_PERFIL[k]))}: ahí usamos un supuesto.`}
       </span>
     </div>
@@ -179,7 +180,7 @@ export function Hoy({ e }: { e: Estado }) {
         )}
       </Text>
       <Text size="sm" className="jg-hoy-sueldo">
-        {sinSueldo(e) ? `Antes ganabas ${plata(e.sueldo_ref)}/mes` : `${plata(e.sueldo)}/mes`}
+        {sinSueldo(e) ? (e.sueldo_ref > 0 ? `Antes ganabas ${plata(e.sueldo_ref)}/mes` : "Sin sueldo") : `${plata(e.sueldo)}/mes`}
       </Text>
     </div>
   );

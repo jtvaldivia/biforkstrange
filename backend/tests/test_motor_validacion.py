@@ -36,6 +36,8 @@ CUADRAN = [
     "ingreso_p75_25-29",
     # desde que el alza anual no baja el sueldo de quien sigue en su pega, los sueldos medianos cuadran
     "ingreso_p50_30-34", "ingreso_p50_35-39", "ingreso_p50_40-44", "ingreso_p75_45-49",
+    # volvió a cuadrar desde que el alza anual es solo de quien ya llevaba un año en su pega
+    "ingreso_p50_45-49",
 ]
 
 # Dejaron de cuadrar con la cesantía mes a mes (c93e6ea): quien trabaja informal sigue postulando y
@@ -45,7 +47,7 @@ CUADRAN = [
 RECALIBRAR = "dejó de cuadrar con la cesantía mes a mes; falta recalibrar el motor con datos"
 POR_RECALIBRAR = [
     pytest.param(id_, marks=pytest.mark.xfail(strict=True, reason=RECALIBRAR))
-    for id_ in ("independientes_45-49", "ingreso_p50_45-49")
+    for id_ in ("independientes_45-49",)
 ]
 
 
@@ -120,10 +122,10 @@ def test_el_ascenso_que_descuenta_el_alza_anual_es_el_promedio_de_la_cohorte():
     class Espia(Vida):
         diferencias: list[float] = []
 
-        def _evento(self, id_, directo=False):
+        def _evento(self, id_, directo=False, encadenar=True):
             if id_ == "alza_anual" and self.e["estado"] == "empleado":
                 Espia.diferencias.append(self.e["prob_ascenso"] - pq.k("ASCENSO_POBLACION", self.e["banda7"]))
-            super()._evento(id_, directo)
+            super()._evento(id_, directo, encadenar)
 
     for g in range(300):
         v = Espia(estado_inicial(Perfil.a_los_18(sexo="hm"[g % 2]), pq), Dados(SEMILLA, g), pq)

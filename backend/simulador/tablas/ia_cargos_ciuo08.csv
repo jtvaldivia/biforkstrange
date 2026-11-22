@@ -68,7 +68,7 @@ cargo_id,nombre,ciuo08_4d,titulo_oit,mu_2025,tipo_ia,equivalencia
 66,Asistente de gerencia,3343,Administrative and Executive Secretaries,0.5400,incognita,directa
 67,Community manager,2432,Public Relations Professionals,0.4300,incognita,directa
 68,Asistente de la educación,5312,Teachers' Aides,0.2400,aumenta,directa
-69,Técnico en logística,4323,Transport Clerks,0.5000,incognita,aproximada
+69,Técnico en logística,3331,Clearing and Forwarding Aents,0.5700,incognita,aproximada
 70,Fiscalizador,3359,Government Regulatory AssociatePprofessionals Not Elsewhere Classified,0.3600,incognita,aproximada
 71,Productor audiovisual,3521,Broadcasting and Audio-visual Technicians,0.3500,aumenta,directa
 72,Instructor deportivo,3423,Fitness and Recreation Instructors and Programme Leaders,0.2500,aumenta,directa
@@ -107,7 +107,7 @@ cargo_id,nombre,ciuo08_4d,titulo_oit,mu_2025,tipo_ia,equivalencia
 105,Conductor de camión,8332,Heavy Truck and Lorry Drivers,0.2400,no_afectado,directa
 106,Conductor de bus,8331,Bus and Tram Drivers,0.1800,no_afectado,directa
 107,Operador de equipos mineros,8111,Miners and Quarriers,0.1700,no_afectado,aproximada
-108,Operador de planta,3133,Chemical Processing Plant Controllers,0.2900,aumenta,aproximada
+108,Operador de planta,8131,Chemical Products Plant and Machine Operators,0.2400,no_afectado,aproximada
 109,Operador de máquinas de producción,8183,"Packing, Bottling and Labelling Machine Operators",0.2200,no_afectado,directa
 110,Conductor repartidor,8322,"Car, Taxi and Van Drivers",0.2800,incognita,aproximada
 111,Operador de maquinaria de construcción,8342,Earthmoving and Related Plant Operators,0.1300,no_afectado,directa

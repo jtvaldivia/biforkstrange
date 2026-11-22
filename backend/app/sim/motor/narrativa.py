@@ -241,18 +241,18 @@ TITULARES_IA: dict[str, dict[int, str]] = {
     "lento": {
         1: "Las empresas prueban la IA, pero pocas la usan en serio.",
         3: "La IA se vuelve una herramienta más de la oficina, como el correo.",
-        5: "Se contrata algo menos en los trabajos de oficina de entrada; lo demás sigue parecido.",
+        5: "Cada año cuesta un poco más entrar a los trabajos de oficina que la IA hace bien; los despidos siguen como siempre.",
         8: "La IA está en todas partes y ya casi nadie habla de ella.",
     },
     "medio": {
         1: "Los modelos de IA ya hacen bien buena parte del trabajo de oficina.",
-        3: "Las empresas reorganizan sus equipos alrededor de la IA y contratan menos juniors.",
+        3: "Las empresas contratan menos juniors en los puestos que la IA ya hace bien.",
         5: "Saber trabajar con IA se pide en casi todos los avisos de oficina.",
         8: "Muchos trabajos cambiaron por dentro: menos tareas de rutina, más revisión y criterio.",
     },
     "rapido": {
         1: "Un modelo nuevo supera a expertos en la mayoría de las tareas de oficina.",
-        2: "Las empresas congelan la contratación de juniors mientras ven qué hacer con la IA.",
+        2: "Las empresas contratan menos juniors en los puestos que la IA puede hacer, mientras ven qué hacer con ella.",
         4: "Áreas enteras de atención al cliente y back office pasan a agentes de IA.",
         6: "El debate en Chile pasa a ser cómo repartir lo que produce la IA.",
         9: "Ya nadie discute si la IA cambió el trabajo; se discute para quién.",

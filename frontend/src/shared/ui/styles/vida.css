@@ -21,6 +21,8 @@
   --acento-suave: #E7EBFF;
   --sol: #FFC83D;
   --sobre-sol: #1D1E22;
+  --sobre-sol-media: #2A2B30;
+  --sobre-sol-suave: #3A3B40;
 
   /* Noche: oficina, tunel, momentos duros. Siguen el tema: en claro son un tinte frío apenas
      más oscuro que el papel (no una pantalla negra), en oscuro un azul profundo. Así un año
@@ -115,13 +117,13 @@ html { background: var(--papel); color: var(--tinta); }
 .vd-pila { display: flex; flex-direction: column; gap: var(--vd-gap, 8px); }
 .vd-fila { display: flex; flex-wrap: wrap; gap: var(--vd-gap, 8px); }
 .vd-caja { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 16px; background: var(--niebla); }
-.vd-tarjeta-sol { display: flex; flex-direction: column; gap: 8px; padding: 20px; border: 2px solid #1D1E22; border-radius: 20px; }
+.vd-tarjeta-sol { display: flex; flex-direction: column; gap: 8px; padding: 20px; border: 2px solid var(--sobre-sol); border-radius: 20px; }
 .vd-banda-noche { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 16px; }
 .vd-relato { margin: 0; font: 500 20px/28px var(--font); color: var(--media); }
 .vd-relato--fuerte { font-weight: 600; color: var(--tinta); }
 .vd-ind-fila { display: flex; justify-content: space-between; align-items: baseline; }
 .vd-rango-campo { display: flex; flex-direction: column; }
-.vd-num-fila { display: flex; align-items: baseline; gap: 8px; }
+.vd-num-fila { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; }
 .vd-num-unidad { font: 500 18px/24px var(--mono); }
 .vd-noti-texto { min-width: 0; display: flex; flex-direction: column; }
 .vd-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
@@ -133,7 +135,7 @@ html { background: var(--papel); color: var(--tinta); }
 .vd-p { margin: 0; font: 400 16px/24px var(--font); color: var(--media); text-wrap: pretty; }
 .vd-p-sm { margin: 0; font: 400 14px/20px var(--font); color: var(--suave); }
 .vd-meta { font: 500 12px/16px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--suave); }
-.vd-num { font: 700 44px/48px var(--font); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.vd-num { font: 700 44px/48px var(--font); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .vd-pildora { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 12px; border: 2px solid var(--tinta); border-radius: 999px; background: var(--papel); color: var(--tinta); font: 600 12px/16px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
 .vd-pildora--sol { background: var(--sol); color: var(--sobre-sol); border-color: var(--sobre-sol); }
 
@@ -230,7 +232,7 @@ html { background: var(--papel); color: var(--tinta); }
 .vd-rango-pista b { position: absolute; top: -3px; bottom: -3px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--tinta); }
 
 /* Superficies de momento */
-.vd-sol { background: var(--sol); color: var(--sobre-sol); --tinta: #1D1E22; --media: #2A2B30; --suave: #3A3B40; }
+.vd-sol { background: var(--sol); color: var(--sobre-sol); --tinta: var(--sobre-sol); --media: var(--sobre-sol-media); --suave: var(--sobre-sol-suave); }
 .vd-banda-noche { background: var(--noche); color: var(--sobre-noche); --tinta: var(--sobre-noche); --suave: var(--noche-suave); --papel: var(--noche); --niebla: var(--noche-2); --sombra: var(--sombra-noche); box-shadow: inset 0 0 0 1.5px var(--borde-noche); }
 /* Dentro de una pantalla noche la banda usa la otra superficie de noche, para no fundirse con el fondo */
 .vd-noche .vd-banda-noche { background: var(--noche-2); --papel: var(--noche-2); --niebla: var(--noche); }

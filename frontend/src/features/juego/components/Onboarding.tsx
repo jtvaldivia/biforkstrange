@@ -8,7 +8,7 @@ import { MANUAL, type Onboarding as OnboardingEstado } from "../hooks/useBorrado
 import { EDUCACION, TIPO_EMPLEADOR, pesos } from "../textos";
 import type { Catalogo, DudaSugerida, Perfil, Sexo } from "../types";
 import { Cargando, ErrorCaja } from "./piezas";
-import { PerfilForm, RUBROS_TOP, SLIDER_MAX, SLIDER_MIN, TuPega, banda } from "./PerfilForm";
+import { PerfilForm, RIESGOS, RUBROS_TOP, SLIDER_MAX, SLIDER_MIN, TuPega, banda, riesgoCercano } from "./PerfilForm";
 
 /** Las elecciones de cada tarjeta: parten vacías y hay que tocarlas para seguir. */
 const ELEGIR: Record<string, (keyof Perfil)[]> = { tu: ["sexo", "edu"], pega: ["tipo_empleador", "nivel", "rubro"], plata: ["ingles"] };
@@ -269,7 +269,7 @@ export function Onboarding({
           />
           {ref && (
             <Text size="sm">
-              Mediana para tu edad y estudios: <strong>{pesos(ref.p50)}</strong>
+              Lo típico para tu edad y estudios: <strong>{pesos(ref.p50)}</strong>
             </Text>
           )}
           <Slider
@@ -279,8 +279,13 @@ export function Onboarding({
             max={60}
             step={1}
             onChange={(n) => set("edad_final", n)}
-            display={`${p.edad_final ?? p.edad + 10} años`}
+            display={`${Math.min(60, Math.max(p.edad + 1, p.edad_final ?? p.edad + 10))} años`}
           />
+          {/* lo mismo que pregunta "Revisar todos mis datos": mueve qué tan seguido te tientan las decisiones arriesgadas */}
+          <Stack gap={8}>
+            <span className="jg-etiqueta">Si te ofrecen algo incierto…</span>
+            <Segmented<string> label="Tolerancia al riesgo" value={riesgoCercano(p.riesgo)} onChange={(v) => set("riesgo", Number(v))} options={RIESGOS} />
+          </Stack>
           <Stack gap={8}>
             <span className="jg-etiqueta">¿Podrías trabajar en inglés?</span>
             <Segmented<string>
@@ -432,7 +437,7 @@ function Entrada({
             <span className="ob-icono ob-icono--tu" aria-hidden="true">✎</span>
             <span className="ob-fuente-texto">
               <strong>Contesto yo unas preguntas</strong>
-              <span className="ob-chico">Edad, sexo, estudios, tu trabajo y tu sueldo. Un toque cada una.</span>
+              <span className="ob-chico">Edad, sexo, estudios, tu trabajo, tu sueldo, cuánto arriesgas y hasta qué edad juegas. Un toque cada una.</span>
             </span>
             <Marca listo={false} accion="Empezar" />
           </button>

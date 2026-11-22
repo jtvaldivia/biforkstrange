@@ -31,8 +31,26 @@ export const porciento = (p: number) => (p > 0 && p < 0.005 ? "menos de 1%" : `$
 /** De una fracción de mundos, cuántos son: 0,46 → 23 (con 50). Solo para contar mundos o copias, no para una probabilidad del año. */
 export const mundos = (p: number, n: number = GEMELOS) => Math.round(p * n);
 
-/** Cuántos de los mundos: "23 de 50". Lo que pasa en algún mundo no se redondea a cero. */
-export const deMundos = (p: number, n: number = GEMELOS) => `${p > 0 ? Math.max(1, mundos(p, n)) : 0} de ${n}`;
+/** Cuántos de los mundos: "23 de 50", sin partirse en dos líneas. Lo que pasa en algún mundo no se redondea a cero. */
+export const deMundos = (p: number, n: number = GEMELOS) => `${p > 0 ? Math.max(1, mundos(p, n)) : 0}\u00a0de\u00a0${n}`;
+
+/**
+ * Reparte `n` mundos según fracciones que suman 1, para que los conteos sumen justo `n` (37 + 11 + 53 = 101 no
+ * pasa): se redondea hacia abajo y lo que falta va a las partes con mayor resto.
+ */
+export function repartir(fracciones: number[], n: number): number[] {
+  const total = fracciones.reduce((a, b) => a + b, 0) || 1;
+  const exactos = fracciones.map((f) => (f / total) * n);
+  const base = exactos.map(Math.floor);
+  let falta = n - base.reduce((a, b) => a + b, 0);
+  const orden = exactos.map((x, i) => [x - Math.floor(x), i] as const).sort((a, b) => b[0] - a[0]);
+  for (const [, i] of orden) {
+    if (falta <= 0) break;
+    base[i]++;
+    falta--;
+  }
+  return base;
+}
 
 export const minuscula = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 

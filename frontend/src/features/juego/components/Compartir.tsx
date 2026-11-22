@@ -4,12 +4,11 @@ import QRCode from "qrcode";
 import { BifurcaLogo, Button, Meta, Stack, Text } from "@/shared/ui";
 import { plata } from "../textos";
 import type { Comparacion } from "../types";
+import { COLOR_EMPATE, coloresDeOpciones } from "../colores";
 import "../demo.css";
 
-/** Los colores de la pantalla, fijos: la imagen se ve igual con tema claro u oscuro. La base va naranja, como en la carta. */
-const BASE = "#F08A1C";
-const COLORES = ["#17794B", "#D6336C", "#7C5CD6", "#0E9AA7"];
-const EMPATE = "#B9BAC0";
+/** Los colores de opción de la carta, en su valor claro fijo: la imagen se ve igual con tema claro u oscuro. */
+const EMPATE = COLOR_EMPATE.claro;
 const NOMBRE = "bifurca-mi-resultado.png";
 
 /** Si el navegador puede compartir imágenes (el menú de compartir del celular): si no, se descarga. */
@@ -29,32 +28,32 @@ function comoArchivo(png: string): File {
   return new File([bytes], NOMBRE, { type: "image/png" });
 }
 
-/** Una elección es robusta si con ella no terminas peor (ganas o empatas) en al menos 7 de cada 10 mundos. */
+/**
+ * Una elección es robusta si en al menos 7 de cada 10 mundos ninguna otra opción te deja mejor (es la mejor o da lo
+ * mismo). Se cuenta con el ganador de cada mundo, el mismo número que "Es la mejor en X de 50" de la carta y que los
+ * puntos de la imagen; el veredicto de la carta frente a la opción base es otra pregunta.
+ */
 const ROBUSTA = 0.7;
 
-function coloresFijos(c: Comparacion): Record<string, string> {
-  const salida: Record<string, string> = {};
-  let i = 0;
-  for (const o of c.opciones) salida[o.opcion] = o.es_base ? BASE : COLORES[i++ % COLORES.length];
-  return salida;
-}
+const coloresFijos = (c: Comparacion) => coloresDeOpciones(c.opciones, "claro");
 
-/** "Robusto" o "apuesta", con los mismos conteos que se ven en los puntos. */
+/** "Robusto" o "apuesta", con los mismos conteos que se ven en los puntos: es la mejor, da lo mismo u otra te deja mejor, y suman los mundos. */
 function veredicto(c: Comparacion, elegida: string) {
   const ganadores = c.ganador_por_mundo ?? [];
   const n = ganadores.length || 1;
   const gana = ganadores.filter((g) => g === elegida).length;
   const empata = ganadores.filter((g) => g === null).length;
+  const pierde = ganadores.length - gana - empata;
   const nombre = c.opciones.find((o) => o.opcion === elegida)?.nombre ?? elegida;
-  if ((gana + empata) / n >= ROBUSTA) {
-    return {
-      titulo: "Robusto",
-      texto: empata > gana
-        ? `Con «${nombre}» no terminas peor en ${gana + empata} de ${n} mundos: en ${empata} da lo mismo y en ${gana} ganas más.`
-        : `«${nombre}» gana en ${gana} de ${n} mundos y empata en ${empata}: casi no depende de la suerte.`,
-    };
-  }
-  return { titulo: "Apuesta", texto: `«${nombre}» gana solo en ${gana} de ${n} mundos: en el resto, otra opción te dejaba mejor.` };
+  const resto = [
+    pierde > 0 && `en ${pierde} otra opción te dejaba mejor`,
+    empata > 0 && `en ${empata} daba lo mismo`,
+  ].filter(Boolean).join(" y ");
+  const mejor = gana === 0 ? `«${nombre}» no es la mejor en ningún mundo` : `«${nombre}» es la mejor en ${gana} de ${n} mundos`;
+  return {
+    titulo: (gana + empata) / n >= ROBUSTA ? "Robusto" : "Apuesta",
+    texto: resto ? `${mejor}; ${resto}.` : `${mejor}.`,
+  };
 }
 
 /**
@@ -138,7 +137,7 @@ export function CompartirResultado({
   return (
     <Stack as="section" gap={10} className="jg-compartir">
       <Meta>Comparte tu resultado</Meta>
-      <Button variant="sol" onClick={() => (imagen ? void compartir(imagen) : setArmando(true))} disabled={armando}>
+      <Button variant="white" onClick={() => (imagen ? void compartir(imagen) : setArmando(true))} disabled={armando}>
         {armando
           ? "Armando tu tarjeta…"
           : compartible
@@ -169,13 +168,13 @@ export function CompartirResultado({
                   <span key={o.opcion}>
                     <i style={{ background: colores[o.opcion] }} />
                     {o.nombre}
-                    {o.opcion === elegida ? " (mi elección)" : ""}: gana en {cuenta(o.opcion)}
+                    {o.opcion === elegida ? " (mi elección)" : ""}: la mejor en {cuenta(o.opcion)}
                   </span>
                 ))}
                 {cuenta(null) > 0 && (
                   <span>
                     <i style={{ background: EMPATE }} />
-                    Empate: {cuenta(null)}
+                    Da lo mismo: {cuenta(null)}
                   </span>
                 )}
               </div>
@@ -186,9 +185,10 @@ export function CompartirResultado({
             </div>
             <div className="jg-tarjeta-pie">
               <span>
-                Mi sueldo en el mundo que viví: {plata(sueldoFinal)} al mes.
+                {/* la misma base que el cierre: sin trabajo cuenta $0 */}
+                Mi sueldo final en el mundo que viví: {sueldoFinal > 0 ? `${plata(sueldoFinal)} al mes` : "$0, terminé sin trabajo"}.
                 <br />
-                Juega tu vida y la de tus {comparacion.gemelos} copias en {url.replace(/^https?:\/\//, "")}
+                Juega tu vida en {comparacion.gemelos} mundos en {url.replace(/^https?:\/\//, "")}
               </span>
               {qr && <img src={qr} alt="" />}
             </div>

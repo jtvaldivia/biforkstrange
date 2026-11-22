@@ -1,8 +1,9 @@
-"""Tus gemelos: la misma persona, la misma decisión, otra suerte.
+"""Tus copias (en el código, gemelos): la misma persona, la misma decisión, otra suerte.
 
-Para una decisión, cada gemelo vive una vez con cada opción y con los mismos
-dados. Después de esa decisión no buscan más cambios (`Inercia`), así que la
-diferencia entre opciones es el efecto de esta decisión y no de otras diez.
+Para una decisión, cada copia vive una vez con cada opción y con los mismos dados, hasta la edad con que
+termina la partida. Después de esa decisión vive con la misma regla que la persona y responde lo demás como
+la gente real (`Poblacion`, con `GEMELOS_CON_DECISIONES`; ver docs/DECISIONES.md, decisión 4), así que la
+diferencia entre opciones es el efecto de esta decisión con una vida realista alrededor.
 """
 
 from collections import Counter
@@ -42,6 +43,12 @@ def escenario_ia(adopcion: float) -> str:
         from app.sim.motor.paquete import paquete
         return ia.ritmo(paquete(), adopcion)
     return "lento" if adopcion < 1 / 3 else "medio" if adopcion < 2 / 3 else "rapido"
+
+
+def evidencia(vida: Vida, decision: dict) -> list[dict]:
+    """La evidencia de la decisión que vale para esta vida: una cifra con `requisito` (p. ej. solo con la
+    incertidumbre de IA prendida) se muestra solo si se cumple, como las opciones."""
+    return [x for x in decision.get("evidencia", []) if not x.get("requisito") or vida.pq.evaluar(x["requisito"], vida.e)]
 
 
 def _vivir(vida: Vida, decision_id: str, opcion: str, parametros: dict, anios: int) -> Vida:
@@ -173,7 +180,7 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
     return {
         "decision": decision_id, "nombre": decision["nombre"], "pregunta": decision["pregunta"],
         "calidad": decision["calidad"], "creencia_vs_dato": decision.get("creencia_vs_dato"),
-        "evidencia": decision.get("evidencia", []),
+        "evidencia": evidencia(vida, decision),
         "gemelos": n, "anios": anios, "base": base, "opciones": salida,
         # en cada mundo, con qué opción terminas ganando más (None: empate); el índice es el número del mundo
         "ganador_por_mundo": [_ganador(f) for f in finales_por_mundo],
@@ -231,7 +238,7 @@ def mundo(vida: Vida, decision_id: str, numero: int, *, anios: int = HORIZONTE, 
                "escenario": next(iter(vidas.values()))[1].e.get("ia_ritmo")
                or escenario_ia(next(iter(vidas.values()))[1].e.get("ia_adopcion", 0.5)),
                "activa": ia.activa(),
-               "castigo_joven": round(next(iter(vidas.values()))[1].e.get("ia_castigo_joven", 0.81), 3)},
+               "castigo_joven": round(next(iter(vidas.values()))[1].e.get("ia_castigo_joven", vida.pq.k("IA_JOVEN")), 3)},
         "ganador": _ganador({k: v.sueldo_al_final() for k, (_, v) in vidas.items()}),
         "opciones": [
             {"opcion": o.id, "nombre": o.nombre, "sueldo_final": round(v.sueldo_al_final()), "estado_final": v.e["estado"],

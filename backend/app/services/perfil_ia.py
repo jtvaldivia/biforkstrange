@@ -640,15 +640,17 @@ def _independiente(leido: PerfilLeido, perfil: dict) -> list[str]:
     """Si hoy trabaja por su cuenta: si es de paso o ya es su forma de trabajar (motor.p_independiente_busca_empleo)."""
     if perfil["estado"] != "independiente":
         return []
-    from app.sim.motor.motor import P_INDEPENDIENTE_BUSCA_EMPLEO, p_independiente_busca_empleo
+    from app.sim.motor.motor import p_independiente_busca_empleo
+    from app.sim.motor.paquete import paquete
 
     if leido.anos_independiente is not None:
         perfil["anos_independiente"] = max(0, min(40, leido.anos_independiente))
     suya = p_independiente_busca_empleo({k: perfil[k] for k in ("freelance_entre_pegas", "anos_independiente")
                                          if perfil[k]})
-    if suya == P_INDEPENDIENTE_BUSCA_EMPLEO:
+    base = paquete().k("P_INDEPENDIENTE_BUSCA_EMPLEO")
+    if suya == base:
         return []
-    cada = (f"{suya * 100:.1f}% de tus copias por año (la gente, {P_INDEPENDIENTE_BUSCA_EMPLEO * 100:.1f}%; "
+    cada = (f"{suya * 100:.1f}% de tus copias por año (la gente, {base * 100:.1f}%; "
             "supuesto del equipo)").replace(".", ",")
     if perfil["freelance_entre_pegas"]:
         return [f"Ya volviste una vez de trabajar por tu cuenta a un empleo: vuelven a buscar empleo {cada}."]

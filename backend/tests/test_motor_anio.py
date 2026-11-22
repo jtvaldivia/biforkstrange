@@ -282,10 +282,11 @@ def test_la_recesion_se_sortea_antes_que_todo_y_el_anio_ya_la_ve():
 
 
 def test_los_eventos_van_despues_de_la_decision_y_ven_su_efecto():
-    """Quien renuncia en la carta del año ya no recibe alza, ascenso, despido ni ofertas ese año."""
+    """Quien renuncia en la carta del año ya no recibe alza, ascenso, despido ni ofertas sin buscarlas ese año:
+    vive la cesantía mes a mes (las ofertas de cesante y los meses buscando)."""
     v = vida(A_LOS_35, DadosGuion(defecto=0.0))
-    reg = v.vivir_anio(Guion({"renunciar": "renunciar"}), carta="renunciar")
-    assert {x["evento"] for x in reg["eventos"]} == {"recesion", "animo_vuelve"}
+    reg = v.vivir_anio(Guion({"renunciar": "renunciar", **QUIETA}), carta="renunciar")
+    assert {x["evento"] for x in reg["eventos"]} == {"recesion", "oferta_cesante", "mes_buscando", "animo_vuelve"}
     # y los eventos van en el orden del paquete
     v = vida(A_LOS_35, DadosGuion({"evento:separacion_empleo": NADA}, defecto=0.0))
     reg = v.vivir_anio(Guion({"oferta_externa": "quedarse"}))
@@ -386,7 +387,7 @@ def test_cierre_antiguedad_sube_empleada_y_vuelve_a_cero_sin_empleo():
     v.vivir_anio(Guion(QUIETA))
     assert v.e["antiguedad"] == 8 and v.e["sueldo_ref"] == v.e["sueldo"]
     v = vida(Perfil(edad=35, antiguedad=7), DadosGuion())
-    v.vivir_anio(Guion({"renunciar": "renunciar"}), carta="renunciar")
+    v.vivir_anio(Guion({"renunciar": "renunciar", **QUIETA}), carta="renunciar")
     assert v.e["antiguedad"] == 0 and v.anios_buscando == 1
     v = vida(Perfil(edad=35, antiguedad=40), DadosGuion())
     v.vivir_anio(Guion(QUIETA))

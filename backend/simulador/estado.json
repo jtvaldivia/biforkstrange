@@ -1125,6 +1125,17 @@
    "inicio": "0"
   },
   {
+   "nombre": "ia_reconvertido_anio",
+   "tipo": "entero",
+   "dominio": [
+    -1,
+    60
+   ],
+   "unidad": "años",
+   "descripcion": "El año del juego (ia_anios) en que construiste la habilidad de trabajar con IA; -1 si no la tienes. La prima de saber IA se cobra desde IA_PRIMA_ANIOS_MIN años después.",
+   "inicio": "-1"
+  },
+  {
    "nombre": "ia_burbuja",
    "tipo": "bool",
    "dominio": [

@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Button, Heading, Meta, Pill, Screen, ScreenFooter, ScreenHeader, Stack, Text } from "@/shared/ui";
 import { EMPRESA_EJEMPLO, TIPO_EMPLEADOR, plata } from "../textos";
 import type { Eleccion, SinNovedad, Vista } from "../types";
-import { ErrorCaja, FranjaSinNovedad, Hoy, Salir } from "./piezas";
+import { GEMELOS } from "../api";
+import { Cargando, ErrorCaja, FranjaSinNovedad, Hoy, Pensando, Salir } from "./piezas";
+import { ProgresoAnios } from "./graficos";
 import { Logo } from "./Logo";
 
 /**
@@ -39,6 +41,9 @@ export function OfertaLiviana({ vista, cargando, error, onMirar, onElegir, onSal
   return (
     <Screen gap={16}>
       <ScreenHeader left={<Pill style={{ whiteSpace: "nowrap" }}>Año {anio} · {vista.estado.edad} años</Pill>} right={onSalir && <Salir onSalir={onSalir} />} />
+      <ProgresoAnios actual={anio} total={vista.anios} />
+      {/* la misma espera que la carta mientras se vive tu año */}
+      {cargando && <Pensando titulo={`Mundo ${GEMELOS + 1} · año ${anio}`} onSalir={onSalir} />}
       <FranjaSinNovedad s={sinNovedad} />
       <Hoy e={vista.estado} />
       <Stack gap={10} className="vd-subir">
@@ -75,6 +80,7 @@ export function OfertaLiviana({ vista, cargando, error, onMirar, onElegir, onSal
       </Stack>
       <ScreenFooter>
         {error && <ErrorCaja error={error} onReintentar={ultima ? () => elegir(ultima) : undefined} />}
+        {cargando && <Cargando>Viviendo tu año…</Cargando>}
         <div className="jg-dos-botones">
           <Button variant="white" onClick={() => quedarse && elegir({ decision: p.decision, opcion: quedarse.opcion })} disabled={cargando || !quedarse}>
             No, sigo

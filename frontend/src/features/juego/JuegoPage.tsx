@@ -75,9 +75,11 @@ function Fase({
     return (
       <ComoFunciona
         onVolver={() => setTutorial(null)}
+        // con una partida guardada, el tutorial vuelve a la portada: armar otro perfil borraría la partida
+        textoListo={j.partida ? "Volver al inicio" : undefined}
         onListo={() => {
           setTutorial(null);
-          j.empezarDeCero();
+          if (!j.partida) j.empezarDeCero();
         }}
       />
     );
@@ -87,7 +89,8 @@ function Fase({
   }
   if (j.fase === "duda") {
     return (
-      <DudaPicker semilla={j.semillaNueva} fuentes={j.fuentes} origenSugeridas={j.origenSugeridas} perfil={j.perfil} dudas={j.dudas} sugeridas={j.dudasSugeridas} cargando={j.cargando} error={j.error} onVolver={j.irAPerfil} onElegir={j.empezar} onReintentarDudas={j.reintentarDudas} onReintentar={j.reintentar} onSinDuda={() => j.empezarAlAzar(j.perfil)} />
+      <DudaPicker semilla={j.semillaNueva} fuentes={j.fuentes} origenSugeridas={j.origenSugeridas} perfil={j.perfil} dudas={j.dudas} sugeridas={j.dudasSugeridas} cargando={j.cargando} error={j.error} onVolver={j.irAPerfil} onElegir={j.empezar} onReintentarDudas={j.reintentarDudas} onReintentar={j.reintentar} onSinDuda={() => j.empezarAlAzar(j.perfil)}
+        onVolverPartida={j.partida ? () => (j.vista ? j.seguir() : void j.continuar()) : undefined} terminada={j.terminada} />
     );
   }
   if (j.fase === "carta" && j.vista?.pendiente?.decision === "anio_tranquilo") {
@@ -112,7 +115,6 @@ function Fase({
         onElegir={j.elegir}
         onReintentar={j.reintentar}
         onComparar={j.compararCon}
-        onVerMundo={j.verMundo}
         onSalir={j.irAInicio}
         onNarrar={j.narrar}
         sinNovedad={j.sinNovedad}
@@ -131,6 +133,9 @@ function Fase({
         onRevivir={j.revivir}
         anterior={j.anterior}
         onCambiarPerfil={j.irAPerfil}
+        cargando={j.cargando}
+        error={j.error}
+        onReintentar={j.reintentar}
       />
     );
   if (j.fase !== "inicio") {

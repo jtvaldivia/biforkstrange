@@ -7,7 +7,8 @@ Prendida:
 - Cada mundo trae un ritmo de IA (lento, medio o rápido), sorteado con los pesos que economistas y
   superforecasters dieron a cada escenario al 2030 (FRI 2026, parámetro P_RITMO_IA). Es igual en todas las vidas
   del mundo, como la recesión.
-- Tu cargo tiene un tipo de exposición (OIT 2025): la IA lo automatiza, lo complementa, no se sabe o no lo toca.
+- Tu cargo tiene un tipo de exposición (OIT: potencial23 de 2023, con el gradiente 2025): la IA lo automatiza, lo
+  complementa, no se sabe o no lo toca. Sin cargo del catálogo, el de los cargos que calzan con tu empleo de hoy.
 - El ritmo baja la contratación de jóvenes donde la IA automatiza (`ia_encontrar`), y el paquete lo usa en los
   eventos y decisiones de IA (empresa que adopta IA, reestructuración, burbuja, cobre) y en la prima de saber usarla.
 
@@ -51,11 +52,37 @@ def tipo_de_cargo(pq, cargo_id: int) -> str | None:
     return pq._ia_tipos.get(int(cargo_id))
 
 
+def tipo_de_hoy(pq, e: dict) -> str | None:
+    """El tipo del empleo que la persona tiene sin cargo del catálogo (el que trae al empezar, uno informal, la
+    primera pega que busca): el que más pesa entre los cargos del catálogo que calzan con su grupo ocupacional, su
+    educación, su nivel, su rubro y su línea de trabajo (`empresas.posibles_hoy`, los mismos filtros con que el
+    motor le da un cargo al cambiarse). Así la vida que se queda y la que se cambia se miden con la misma tabla
+    desde el año 0. Empate: el primero de TIPOS (supuesto del equipo). None si ningún cargo calza."""
+    from app.sim.motor import empresas
+
+    clave = tuple(e.get(k) for k in ("ocupacion", "nivel", "edu", "rubro", "tipo_empleador", "area",
+                                     "familia_inicial", "cargo_inicial", "bootcamp"))
+    cache = pq.__dict__.setdefault("_ia_tipo_hoy", {})
+    if clave not in cache:
+        peso: dict[str, float] = {}
+        for c in empresas.posibles_hoy(pq, e):
+            t = tipo_de_cargo(pq, c["cargo_id"])
+            if t is not None:
+                peso[t] = peso.get(t, 0.0) + c["peso"]
+        cache[clave] = max(TIPOS, key=lambda t: peso.get(t, 0.0)) if peso else None
+    return cache[clave]
+
+
 def tipo(pq, e: dict) -> str:
-    """Cómo te toca la IA: el tipo OIT de tu cargo (o del último que tuviste). Sin cargo del catálogo, por tu
-    exposición: expuesta pero sin saber si te reemplaza o te complementa (incógnita), o no afectada.
+    """Cómo te toca la IA: el tipo OIT de tu cargo del catálogo; sin él, el de los cargos del catálogo que calzan
+    con tu empleo de hoy (`tipo_de_hoy`). El tipo es el potencial23 de la OIT (2023) con las ocupaciones que el
+    gradiente 2025 pone expuestas pasadas a incógnita (scripts/ia_oit.py).
+    Respaldo, solo si ningún cargo calza: la aplicabilidad de Microsoft del área de tu carrera (`exposicion_ia`,
+    no es de la OIT) sobre IA_EXPUESTA cuenta como incógnita; bajo ella, no afectado.
     Quien hizo un programa largo de IA (`ia_reconvertido`) trabaja con la IA: cuenta como complementado."""
     t = tipo_de_cargo(pq, e.get("cargo_id", -1))
+    if t is None:
+        t = tipo_de_hoy(pq, e)
     if t is None:
         t = "incognita" if e.get("exposicion_ia", 0) >= pq.k("IA_EXPUESTA") else "no_afectado"
     if e.get("ia_reconvertido") and t in ("automatiza", "incognita"):
@@ -102,11 +129,12 @@ def encontrar(pq, e: dict) -> float:
 
 @lru_cache(maxsize=1)
 def escenarios() -> dict:
-    """Qué es cada ritmo y las voces del cierre (simulador/escenarios_ia.json), con la cita de cada fuente."""
+    """Qué es cada ritmo, qué dice cada tipo de cargo y las voces del cierre (simulador/escenarios_ia.json), con la
+    cita de cada fuente."""
     raiz = Path(__file__).resolve().parents[3] / "simulador"
     datos = json.loads((raiz / "escenarios_ia.json").read_text(encoding="utf-8"))
     citas = {f["id"]: f for f in json.loads((raiz / "fuentes.json").read_text(encoding="utf-8"))["fuentes"]}
-    for x in [*datos["ritmos"].values(), *datos["voces"]]:
+    for x in [*datos["ritmos"].values(), *datos["tipos"].values(), *datos["voces"]]:
         x["cita"], x["url"] = citas[x["fuente"]]["cita"], citas[x["fuente"]]["url"]
     return datos
 

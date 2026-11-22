@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { sinMovimiento } from "../components/graficos";
 import { loNuevo } from "../components/QuePaso";
 import { sinSueldo } from "../textos";
-import { comoErrorApi, getDudas, getMundo, getNarracion, getVista, textoError } from "../api";
+import { comoErrorApi, getDudas, getNarracion, getVista, textoError } from "../api";
 import type { Duda, DudaSugerida, Eleccion, ParametrosComparar, Partida, Perfil, SinNovedad, Vista } from "../types";
 import { borradorInicial, useBorrador, type Borrador, type Fuente } from "./useBorrador";
 
@@ -221,10 +221,7 @@ export function usePartida() {
     const deClaude = new Set(b.claude?.sugeridas.map((d) => d.decision) ?? []);
     setOrigenSugeridas(sugeridas.length === 0 ? null : sugeridas.some((d) => deClaude.has(d.decision)) ? "claude" : "cv");
     fijarPerfil(p);
-    setAnterior(null);
-    setPartida(null);
-    setVista(null);
-    setPrevia(null);
+    // la partida que tenías sigue ahí hasta que la nueva duda arranque: si te arrepientes, puedes volver a ella
     setDudas(null);
     setError(null);
     setFase("duda");
@@ -254,15 +251,17 @@ export function usePartida() {
 
   /**
    * Una partida nueva de `p` con la duda dada (o sin duda). Con `semilla` es el mismo mundo de antes: la misma
-   * primera carta y la misma suerte del país (la de la pega cambia si te cambias de trabajo).
+   * primera carta y la misma suerte del país (la de la pega cambia si te cambias de trabajo). La partida de antes
+   * se reemplaza solo cuando la nueva llega; `anterior` es la vida que el cierre dibuja junto a la nueva.
    */
   const nuevaPartida = useCallback(
-    (p: Perfil, duda: string | null, semilla?: number) => {
+    (p: Perfil, duda: string | null, semilla?: number, anterior: VidaAnterior | null = null) => {
       parametrosCarta.current = {};
       setCargando(true);
       const nueva: Partida = { perfil: p, semilla: semilla ?? semillaNueva, duda, elecciones: [] };
       setSemillaNueva(semillaAlAzar()); // la próxima partida nueva es otro mundo
       void pedir(nueva, (v) => {
+        setAnterior(anterior);
         setPartida(nueva);
         setPrevia(null);
         setVista(v);
@@ -278,8 +277,6 @@ export function usePartida() {
       turno.current++;
       fijarPerfil(p);
       setDudasSugeridas([]);
-      setVista(null);
-      setPrevia(null);
       nuevaPartida(p, null);
     },
     [nuevaPartida, fijarPerfil],
@@ -358,12 +355,6 @@ export function usePartida() {
     [partida, pedir],
   );
 
-  /** La historia de un mundo de la carta actual. */
-  const verMundo = useCallback((mundo: number) => {
-    if (!partida) return Promise.reject(new Error("No hay partida"));
-    return getMundo(partida, mundo, parametrosCarta.current);
-  }, [partida]);
-
   /** Textos de la partida contados por Claude (la carta, la historia o un mundo de la carta). */
   const narrar = useCallback(
     (que: "pendiente" | "historia" | "mundo", signal: AbortSignal, mundo?: number) => {
@@ -377,13 +368,9 @@ export function usePartida() {
     if (vista) setFase(vista.terminada ? "cierre" : "carta");
   }, [vista]);
 
-  /** Otra vida con el mismo perfil: se vuelve a elegir la duda. */
   /** Otra vida, en otro mundo, con la misma duda que elegiste (o sin duda, si empezaste sin una). */
   const jugarDeNuevo = useCallback(() => {
     turno.current++;
-    setAnterior(null);
-    setVista(null);
-    setPrevia(null);
     nuevaPartida(partida?.perfil ?? perfil, partida?.duda ?? null);
   }, [nuevaPartida, partida, perfil]);
 
@@ -391,10 +378,7 @@ export function usePartida() {
   const revivir = useCallback(() => {
     if (!partida || !vista) return;
     turno.current++;
-    setAnterior(vidaDe(vista, partida.perfil.sueldo));
-    setVista(null);
-    setPrevia(null);
-    nuevaPartida(partida.perfil, partida.duda, partida.semilla);
+    nuevaPartida(partida.perfil, partida.duda, partida.semilla, vidaDe(vista, partida.perfil.sueldo));
   }, [nuevaPartida, partida, vista]);
 
   const descartar = useCallback(() => {
@@ -431,6 +415,6 @@ export function usePartida() {
   return {
     aviso, fuentes, retrato, origenSugeridas, terminada, irADudas, empezarDeCero, reintentarDudas, reintentar, semillaNueva,
     fase, perfil, partida, vista, previa, sinNovedad, dudas, dudasSugeridas, cargando, recalculando, error, onboarding,
-    irAInicio, irAPerfil, verDudas, empezar, empezarAlAzar, continuar, elegir, compararCon, verMundo, narrar, seguir, jugarDeNuevo, revivir, anterior, descartar,
+    irAInicio, irAPerfil, verDudas, empezar, empezarAlAzar, continuar, elegir, compararCon, narrar, seguir, jugarDeNuevo, revivir, anterior, descartar,
   };
 }

@@ -28,6 +28,44 @@ export function Info({ pregunta, children }: { pregunta: string; children: React
 
 export type Reparto = { mas: number; igual: number; menos: number };
 
+/**
+ * Medidas comunes de los gráficos de sueldo año a año (abanico, todas tus opciones, tu sueldo, tus dos vidas):
+ * el mismo ancho y el mismo tramo para las líneas, con los rótulos del final a la derecha de X1.
+ */
+export const LIENZO = { W: 320, X0: 8, X1: 236 } as const;
+
+/** Un sueldo en un rótulo de gráfico. Terminar sin trabajo cuenta $0, igual que en el pie de los gráficos. */
+export const rotuloSueldo = (n: number) => plata(Math.max(0, n));
+
+/**
+ * La escala vertical de todos los gráficos de sueldo: si algún valor toca $0 (mundos sin trabajo), el eje parte
+ * en $0 para que esa caída se lea como $0; si no, se acerca al tramo de los sueldos (80% del más bajo) para que se
+ * vean las diferencias. Arriba deja 6% de aire. Devuelve la función que lleva un sueldo a su altura en el SVG.
+ */
+export function escalaSueldo(valores: number[], y0: number, y1: number) {
+  const tope = Math.max(...valores, 1) * 1.06;
+  const min = Math.min(...valores);
+  const piso = min <= 0 ? 0 : min * 0.8;
+  return (n: number) => y1 - ((Math.max(piso, n) - piso) / Math.max(1, tope - piso)) * (y1 - y0);
+}
+
+/**
+ * El eje de abajo, igual en todos los gráficos de sueldo: la línea base y, debajo, a la izquierda la edad del
+ * primer punto con su sueldo ("hoy" si ese punto es hoy) y a la derecha la edad final.
+ */
+export function EjeX({ alto, y1, e0, e1, sueldo0, hoy = true }: { alto: number; y1: number; e0: number; e1: number; sueldo0?: number; hoy?: boolean }) {
+  const { X0, X1 } = LIENZO;
+  return (
+    <>
+      <line className="jg-abanico-eje" x1={X0} x2={X1} y1={y1} y2={y1} />
+      <text x={X0} y={alto - 6} className="jg-abanico-sub">
+        {[hoy && "hoy", `${e0} años`, sueldo0 !== undefined && rotuloSueldo(sueldo0)].filter(Boolean).join(" · ")}
+      </text>
+      <text x={X1} y={alto - 6} textAnchor="end" className="jg-abanico-sub">{e1} años</text>
+    </>
+  );
+}
+
 export type PuntoAbanico = { edad: number; p10: number; p50: number; p90: number };
 
 /**
@@ -49,29 +87,24 @@ export function Abanico({
   alto?: number;
 }) {
   if (puntos.length === 0) return null;
-  const W = 320;
-  const X0 = 8;
-  const X1 = 250;
+  const { W, X0, X1 } = LIENZO;
   const Y0 = 14;
-  const Y1 = alto - 24;
+  const Y1 = alto - 22;
   const inicio = { edad: hoy.edad, p10: hoy.sueldo, p50: hoy.sueldo, p90: hoy.sueldo };
   const serie = [inicio, ...puntos];
   const ref = referencia ? [inicio, ...referencia] : null;
   const e0 = hoy.edad;
   const e1 = serie[serie.length - 1].edad;
-  const tope = Math.max(...serie.map((p) => p.p90), ...(ref ?? []).map((p) => p.p50), ...(tu ?? []).map((t) => t.sueldo), 1) * 1.06;
   const x = (edad: number) => X0 + ((edad - e0) / Math.max(1, e1 - e0)) * (X1 - X0);
-  // el eje no parte de cero: se acerca al tramo donde están los sueldos para que se vean las diferencias
-  const piso = Math.min(...serie.map((p) => p.p10), ...(tu ?? []).map((t) => t.sueldo)) * 0.8;
-  const y = (n: number) => Y1 - ((Math.max(piso, n) - piso) / Math.max(1, tope - piso)) * (Y1 - Y0);
+  const y = escalaSueldo([...serie.flatMap((p) => [p.p10, p.p90]), ...(ref ?? []).map((p) => p.p50), ...(tu ?? []).map((t) => t.sueldo)], Y0, Y1);
   const linea = (ps: { edad: number; v: number }[]) => ps.map((p, i) => `${i === 0 ? "M" : "L"}${x(p.edad).toFixed(1)},${y(p.v).toFixed(1)}`).join(" ");
   const franja = `${linea(serie.map((p) => ({ edad: p.edad, v: p.p90 })))} ${[...serie].reverse().map((p) => `L${x(p.edad).toFixed(1)},${y(p.p10).toFixed(1)}`).join(" ")} Z`;
   const fin = serie[serie.length - 1];
   // etiquetas del final: se separan si quedan encima
   const etiquetas = [
-    { k: "p90", v: fin.p90, t: `${plata(fin.p90)}`, s: "90%" },
-    { k: "p50", v: fin.p50, t: `${plata(fin.p50)}`, s: "mediana" },
-    { k: "p10", v: fin.p10, t: `${plata(fin.p10)}`, s: "10%" },
+    { k: "p90", v: fin.p90, t: rotuloSueldo(fin.p90), s: "90%" },
+    { k: "p50", v: fin.p50, t: rotuloSueldo(fin.p50), s: "mediana" },
+    { k: "p10", v: fin.p10, t: rotuloSueldo(fin.p10), s: "10%" },
   ].map((e) => ({ ...e, y: y(e.v) }));
   for (let i = 1; i < etiquetas.length; i++) if (etiquetas[i].y - etiquetas[i - 1].y < 27) etiquetas[i].y = etiquetas[i - 1].y + 27;
   const exceso = etiquetas[2].y - (Y1 + 4);
@@ -84,7 +117,7 @@ export function Abanico({
       role="img"
       aria-label={`Sueldo año a año, de los ${e0} a los ${e1} años. A los ${e1}: 10% ${plata(fin.p10)}, mediana ${plata(fin.p50)}, 90% ${plata(fin.p90)}.`}
     >
-      <line className="jg-abanico-eje" x1={X0} x2={X1} y1={Y1} y2={Y1} />
+      <EjeX alto={alto} y1={Y1} e0={e0} e1={e1} sueldo0={hoy.sueldo} />
       <path className="jg-abanico-franja" style={color ? { fill: `color-mix(in srgb, ${color} 16%, transparent)` } : undefined} d={franja} />
       {ref && <path className="jg-abanico-ref" style={colorReferencia ? { stroke: colorReferencia } : undefined} pathLength={1} d={linea(ref.map((p) => ({ edad: p.edad, v: p.p50 })))} />}
       <path className="jg-abanico-medio" style={color ? { stroke: color } : undefined} pathLength={1} d={linea(serie.map((p) => ({ edad: p.edad, v: p.p50 })))} />
@@ -105,8 +138,6 @@ export function Abanico({
           <text x={X1 + 8} y={e.y + 11} className="jg-abanico-sub">{e.s}</text>
         </g>
       ))}
-      <text x={X0} y={alto - 6} className="jg-abanico-sub">hoy · {e0} años</text>
-      <text x={X1} y={alto - 6} textAnchor="end" className="jg-abanico-sub">{e1} años</text>
       {ref && nombreReferencia && (
         <text x={X0} y={10} className="jg-abanico-sub">- - - si eligieras {minuscula(nombreReferencia)}</text>
       )}
@@ -247,30 +278,26 @@ export function DadoEnJuego({ casillas, titulo, texto, onSalir }: { casillas: Ca
 /** Tu sueldo año a año hasta ahora: una línea con el último punto marcado. */
 export function LineaSueldo({ puntos }: { puntos: { edad: number; sueldo: number }[] }) {
   if (puntos.length < 2) return null;
-  const W = 320;
+  const { W, X0, X1 } = LIENZO;
   const H = 96;
-  const X0 = 8;
-  const X1 = 250;
   const Y0 = 14;
   const Y1 = H - 22;
-  const tope = Math.max(...puntos.map((p) => p.sueldo), 1) * 1.1;
   const e0 = puntos[0].edad;
   const e1 = puntos[puntos.length - 1].edad;
   const x = (edad: number) => X0 + ((edad - e0) / Math.max(1, e1 - e0)) * (X1 - X0);
-  const y = (n: number) => Y1 - (Math.max(0, n) / tope) * (Y1 - Y0);
+  const y = escalaSueldo(puntos.map((p) => p.sueldo), Y0, Y1);
   const d = puntos.map((p, i) => `${i === 0 ? "M" : "L"}${x(p.edad).toFixed(1)},${y(p.sueldo).toFixed(1)}`).join(" ");
   const fin = puntos[puntos.length - 1];
   return (
     <svg className="jg-abanico" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Tu sueldo desde los ${e0} hasta los ${e1} años: de ${plata(puntos[0].sueldo)} a ${plata(fin.sueldo)}`}>
-      <line className="jg-abanico-eje" x1={X0} x2={X1} y1={Y1} y2={Y1} />
-      <path className="jg-abanico-medio" pathLength={1} d={d} />
+      <EjeX alto={H} y1={Y1} e0={e0} e1={e1} sueldo0={puntos[0].sueldo} hoy={false} />
+      <path className="jg-abanico-tu-borde" pathLength={1} d={d} />
+      <path className="jg-abanico-tu" pathLength={1} d={d} />
       {puntos.slice(0, -1).map((p) => (
         <circle key={p.edad} className="jg-abanico-hoy" cx={x(p.edad)} cy={y(p.sueldo)} r={3} />
       ))}
       <circle className="jg-abanico-tu-punto" style={{ animationDelay: "1.3s" }} cx={x(fin.edad)} cy={y(fin.sueldo)} r={5.5} />
-      <text x={X1 + 10} y={y(fin.sueldo) + 4} className="jg-abanico-num">{fin.sueldo > 0 ? plata(fin.sueldo) : "sin sueldo"}</text>
-      <text x={X0} y={H - 6} className="jg-abanico-sub">{e0} años · {plata(puntos[0].sueldo)}</text>
-      <text x={X1} y={H - 6} textAnchor="end" className="jg-abanico-sub">{e1} años</text>
+      <text x={X1 + 8} y={y(fin.sueldo) + 4} className="jg-abanico-num">{rotuloSueldo(fin.sueldo)}</text>
     </svg>
   );
 }
@@ -298,7 +325,7 @@ export function RangosOpciones({ opciones, tu }: { opciones: { id: string; nombr
         <span
           aria-label={`Tu sueldo: ${plata(tu)}`}
           role="img"
-          style={{ position: "absolute", top: 0, bottom: 18, left: `${enPct(tu)}%`, borderLeft: "2px dashed var(--sol, #f5b800)", pointerEvents: "none" }}
+          style={{ position: "absolute", top: 0, bottom: 18, left: `${enPct(tu)}%`, width: 4, marginLeft: -2, borderRadius: 2, background: "var(--sol)", boxShadow: "0 0 0 1.5px var(--tinta)", pointerEvents: "none" }}
         >
           <span className="jg-chico" style={{ position: "absolute", top: -16, transform: enPct(tu) > 85 ? "translateX(-100%)" : "translateX(-50%)", whiteSpace: "nowrap", fontWeight: 700 }}>
             tú

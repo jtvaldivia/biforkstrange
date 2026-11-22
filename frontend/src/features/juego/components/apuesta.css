@@ -113,4 +113,5 @@
 @media (prefers-reduced-motion: reduce) {
   .ap-espera, .ap-espera * { animation: none !important; }
 }
-.ap-salir { position: fixed; top: 14px; right: 56px; z-index: 11; }
+/* Salir, en el mismo lugar que en la cabecera de cada pantalla (columna de 430 px, 48 px arriba, 20 px al lado) */
+.ap-salir { position: fixed; top: 48px; right: max(20px, calc(50% - 195px)); z-index: 11; }

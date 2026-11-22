@@ -1,9 +1,9 @@
 import { Button, Meta, Narrative, NightBand, Panel, Pill, Screen, ScreenFooter, ScreenHeader, SlowReveal, Stack, Text, YearTicker, cssVars } from "@/shared/ui";
-import { TIPO_EMPLEADOR, aniosDe, cargoYSueldo, conSigno, pesos, plata, porciento, sinSueldo, situacion } from "../textos";
+import { TIPO_EMPLEADOR, aniosDe, cargoYSueldo, conSigno, pesos, porciento, sinSueldo, situacion } from "../textos";
 import type { Anio, DecisionTomada, Estado, Narrado, Vista } from "../types";
 import { useNarracion } from "../hooks/useNarracion";
 import { GEMELOS } from "../api";
-import { Info, LineaSueldo, Ruleta, sinMovimiento, type Casilla } from "./graficos";
+import { Info, LineaSueldo, ProgresoAnios, Ruleta, sinMovimiento, type Casilla } from "./graficos";
 import { Noticia, Pensando, Salir } from "./piezas";
 import { ComoCambioTuSueldo, TuIngreso } from "./Plata";
 import { TiraMeses, mesesDelAnio } from "./BuscandoTrabajo";
@@ -81,7 +81,8 @@ function Quedaste({ antes, ahora, recorrido, espera, despido }: { antes: Estado 
           </span>
         )}
         <span className="jg-cambio-antes">
-          {sinSueldo(ahora) ? `El último fue ${plata(ahora.sueldo_ref)}` : comparable && delta !== 0 ? `Antes: ${plata(antes!.sueldo)}` : "al mes"}
+          {/* en pesos completos, como el número grande de al lado */}
+          {sinSueldo(ahora) ? (ahora.sueldo_ref > 0 ? `El último fue ${pesos(ahora.sueldo_ref)}` : "") : comparable && delta !== 0 ? `Antes: ${pesos(antes!.sueldo)}` : "al mes"}
         </span>
       </div>
       {comparable && delta < -1000 && <Info pregunta="¿Por qué bajó?">{porQueBajo(antes!, ahora, despido)}</Info>}
@@ -167,7 +168,8 @@ export function QuePaso({
   // mientras Claude cuenta el año sigue la misma escena de la carta: la ficha buscando, o la espera corta si era segura
   if (!listo)
     return (
-      <Pensando titulo={`Mundo ${GEMELOS + 1} · ${primero ? `${primero.edad} años` : `año ${proximo}`}`} onSalir={onSalir} />
+      // el mismo título que la espera de la carta: el año de la partida
+      <Pensando titulo={`Mundo ${GEMELOS + 1} · año ${primero ? primero.edad - edadInicial + 1 : proximo}`} onSalir={onSalir} />
     );
 
 
@@ -177,6 +179,7 @@ export function QuePaso({
         left={<Pill style={{ whiteSpace: "nowrap" }}>{primero ? `${aniosDe(primero.edad, primero.fin?.edad, edadInicial)} · ${primero.edad} años` : `Año ${proximo}`}</Pill>}
         right={onSalir && <Salir onSalir={onSalir} />}
       />
+      <ProgresoAnios actual={primero ? Math.min(primero.edad - edadInicial + 1, vista.anios) : proximo} total={vista.anios} />
       <h1 className="vd-sr">{dado ? `Qué te pasó al elegir «${dado.opcion_nombre}»` : "Qué te pasó"}</h1>
 
       {edades.length > 1 && (
@@ -191,8 +194,12 @@ export function QuePaso({
           <Meta>Elegiste «{dado.opcion_nombre}»{hayRuleta ? " · tiramos tu dado" : ""}</Meta>
           {hayRuleta && (
             <>
-              <Text size="sm">Así salió en los {GEMELOS} mundos. Este es tu dado:</Text>
+              <Text size="sm">Así salió en tus {GEMELOS} mundos:</Text>
               <Ruleta casillas={casillas} salio={dado.resultado} />
+              {/* el conteo de los mundos y tu sorteo son dos cosas: que no parezca que tu dado es el conteo */}
+              <Text size="sm">
+                Lo tuyo se sorteó aparte, con la probabilidad de cada resultado: lo que te tocó tenía {porciento(dado.prob)}.
+              </Text>
             </>
           )}
           <SlowReveal delay={espera}>
@@ -255,7 +262,7 @@ export function QuePaso({
       {quedoSinTrabajo && (
         <NightBand>
           <Meta>Quedaste sin trabajo</Meta>
-          <Text>La próxima carta: cómo sigues buscando.</Text>
+          <Text>La próxima decisión: cómo sigues buscando.</Text>
         </NightBand>
       )}
 

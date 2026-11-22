@@ -15,7 +15,7 @@ Quién es la persona hoy. Nueve datos básicos (edad, sexo, estudios, carrera, r
 _No usar_: formulario, ficha
 
 **Partida**:
-Los 10 años que vive la persona, decisión por decisión. Queda definida por el perfil, la semilla y las opciones que eligió.
+Los años que vive la persona, decisión por decisión: hasta la edad que eligió (entre su edad + 1 y 60) o, si no eligió, 10. En pantalla se dicen los años reales de la partida, no "10 años". Queda definida por el perfil, la semilla y las opciones que eligió.
 _No usar_: sesión, juego (para una partida en particular)
 
 **Semilla**:
@@ -27,19 +27,26 @@ La pantalla final: la vida de la persona comparada con los 50 mundos.
 ## Los mundos
 
 **Mundo**:
-La unidad del juego. Es todo lo que le pasa a la persona, año a año, sin que dependa de ella: alzas, ascensos, despidos, ofertas, recesiones, y qué resultado le toca al elegir. No hay otra palabra para esto: se dice desde el mundo ("en este mundo hay recesión el año 8"). Hay 50 mundos para mirar y uno más, el de la persona (el 51), que es el único que se vive. Todo se cuenta en mundos: "gana en 27 de 50 mundos".
-_No usar_: simulación, escenario, universo, "50 copias", suerte, dado, sorteo
+La unidad del juego. Es todo lo que le pasa a la persona, año a año, sin que dependa de ella: alzas, ascensos, despidos, ofertas, recesiones, y qué resultado le toca al elegir. No hay otra palabra para esto: se dice desde el mundo ("en este mundo hay recesión el año 8"). Hay 50 mundos para mirar y uno más, el de la persona (el 51), que es el único que se vive. Todo se cuenta en mundos: "gana en 27 de 50 mundos". Los conteos que se muestran juntos suman los mundos de donde salen ("ganan más 5 · igual 2 · ganan menos 10" de 17), no se pasan a "de cada 100".
+_No usar_: simulación, escenario, universo, "50 copias". "Suerte", "dado" y "sorteo" no nombran al mundo (ver **Dado, suerte y sorteo**).
 
 **Copia**:
 La persona dentro de un mundo. Sirve para contar ("en este mundo, tu copia se cambió"), nunca para contar cuántas hay: hay una copia por mundo.
 _No usar_: gemelo, clon, avatar. En el código, `gemelo`, `N_GEMELOS` y `gemelos.py` siguen con el nombre viejo: es solo el identificador, en lo que lee una persona se dice "copia".
 
 **Vida**:
-Los 10 años de una copia en un mundo con una opción. Todas las vidas de un mundo viven la misma recesión el mismo año. Lo de la pega (ascenso, despido, oferta) lo comparten mientras siguen en el mismo trabajo; si una se cambia, tiene su propia suerte en la pega nueva. En cada mundo hay una vida por cada opción de la decisión.
+Lo que vive una copia en un mundo con una opción, desde la decisión hasta la edad con que termina la partida. Todas las vidas de un mundo viven la misma recesión el mismo año. Lo de la pega (ascenso, despido, oferta) lo comparten mientras siguen en el mismo trabajo; si una se cambia, tiene su propia suerte en la pega nueva. En cada mundo hay una vida por cada opción de la decisión.
 _No usar_: trayectoria, rama
 
 **Ganador del mundo**:
-La opción con la que la copia termina ganando más al año 10 en ese mundo. Si las dos mejores quedan a menos de 0,5%, el mundo es **empate**.
+La opción con la que la copia termina ganando más al final de la partida en ese mundo. Si las dos mejores quedan a menos de 0,5%, el mundo es **empate**. En pantalla: "es la mejor en X de 50 mundos" y "da lo mismo" para el empate.
+
+**Dado, suerte y sorteo**:
+Metáforas permitidas en pantalla para lo que decide el azar, nunca para nombrar un mundo ni para contar:
+- **dado**: tu sorteo del año, el que decide qué resultado te toca a ti en el mundo 51 ("tiramos tu dado"). Usa la probabilidad con fuente del resultado, no el conteo de los 50 mundos: si se muestran juntos, se dice que son dos cosas.
+- **suerte**: lo que te pasa sin que lo elijas (alzas, despidos, recesión): "la misma suerte del país", "¿fue la decisión o la suerte?".
+- **sorteo**: la espera mientras se vive tu año ("Sorteando tu año…").
+En el paquete y el código, `sorteo` es además la opción automática de algunas decisiones (a qué empleador entras): esa no se muestra.
 
 **Ritmo de la IA**:
 Qué tan rápido avanza la IA en un mundo: lenta, a ritmo medio o rápida. Cada mundo trae uno, igual para todas sus vidas, como la recesión. Sale con las probabilidades que economistas y superforecasters dieron a cada escenario al 2030 (FRI 2026, `P_RITMO_IA`). Solo existe con la incertidumbre de IA prendida.
@@ -58,7 +65,7 @@ Una pregunta de trabajo con sus opciones: "Otra empresa te ofrece trabajo. ¿Te 
 _No usar_: carta, pregunta (es solo el texto de la decisión), escenario. En el código y en el paquete todavía aparece "carta"; se va reemplazando.
 
 **Por qué te toca**:
-Cómo llega una decisión un año:
+Cómo llega una decisión un año (en pantalla, junto a la pregunta: "es obligada", "te llegó sin buscarla", "la buscaste tú", "la trae algo que elegiste antes", o "la elegiste tú" si fue tu duda):
 - **obligada**: la vida obliga a decidir (te despidieron, tienes que buscar);
 - **te llega**: una propuesta que no buscaste (una oferta, una startup que te llama, que te ofrezcan ser jefe);
 - **la buscas tú**: en un año tranquilo, eliges moverte (pedir aumento, estudiar, emprender);
@@ -96,7 +103,7 @@ Cómo responde la gente real a cada decisión: ante una oferta, 34% se cambia, 9
 _No usar_: IA de la copia, bot
 
 **Medida final**:
-Lo que se compara al año 10: sueldo, cargo, meses sin trabajo y estado (empleado, cesante, independiente). Si alguien propone "agregar outcomes", casi siempre se refiere a una medida final nueva.
+Lo que se compara al final de la partida: sueldo, cargo, meses sin trabajo y estado (empleado, cesante, independiente). Quien termina sin trabajo (o estudiando) cuenta con sueldo $0, en todas las pantallas: tarjeta de opción cerrada y abierta, gráficos, cierre y la imagen para compartir. Si la persona termina sin trabajo, su último sueldo se puede mostrar aparte, como dato. Si alguien propone "agregar outcomes", casi siempre se refiere a una medida final nueva.
 _No usar_: outcome, KPI, puntaje
 
 ## Los números

@@ -32,7 +32,7 @@ const PASOS = [
   },
   {
     titulo: `Tú eres el mundo ${GEMELOS + 1}.`,
-    texto: "El único de verdad. Eliges, tiramos tu dado y avanzas 10 años.",
+    texto: "El único de verdad. Eliges, tiramos tu dado y vives tu año. Así, año a año, hasta la edad que elijas.",
   },
 ];
 
@@ -53,7 +53,7 @@ const ALTO_MUNDO = 62;
 const x = (anio: number) => X0 + anio * PASO_X;
 
 /**
- * Lo que hace el motor en cada mundo, a la vista: el mismo gemelo vive los 10 años dos veces, una por opción,
+ * Lo que hace el motor en cada mundo, a la vista: la misma copia vive los 10 años dos veces, una por opción,
  * y lo que le pasa al mundo (recesión, despido) cae en el mismo año en las dos vidas.
  */
 function DosVidas() {

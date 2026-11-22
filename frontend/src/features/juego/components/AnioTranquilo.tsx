@@ -4,6 +4,7 @@ import { GEMELOS } from "../api";
 import { arteDuda, porciento } from "../textos";
 import type { Eleccion, SinNovedad, Vista } from "../types";
 import { Cargando, ErrorCaja, FranjaSinNovedad, Noticia, Salir } from "./piezas";
+import { ProgresoAnios } from "./graficos";
 
 /**
  * Un año en que no te llegó nada. No te obliga a decidir ni te pone una lista: te hace una propuesta,
@@ -41,6 +42,7 @@ export function AnioTranquilo({ vista, cargando, error, onElegir, onSalir, sinNo
   return (
     <Screen gap={16}>
       <ScreenHeader left={<Pill style={{ whiteSpace: "nowrap" }}>Año {anio} · {vista.estado.edad} años</Pill>} right={onSalir && <Salir onSalir={onSalir} />} />
+      <ProgresoAnios actual={anio} total={vista.anios} />
       <FranjaSinNovedad s={sinNovedad} />
       <Stack gap={8} className="vd-subir">
         <Meta>{eventos.length > 0 ? "Sin propuestas" : "Un año tranquilo"}</Meta>

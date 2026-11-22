@@ -183,11 +183,13 @@ def test_vista_al_cierre():
                     for a in v["historia"]]
     assert len(v["historia"]) == 10 and sin_historia == p.vida.historia and v["estado"] == p.vida.resumen()
     c = v["cierre"]
-    assert set(c) == {"sueldo_final", "estado", "anios_sin_trabajo", "meses_sin_trabajo", "primera_decision",
+    assert set(c) == {"sueldo_final", "ultimo_sueldo", "estado", "anios_sin_trabajo", "meses_sin_trabajo", "primera_decision",
                       "mejor_que_gemelos"}
     assert c["estado"] == v["estado"] and c["anios_sin_trabajo"] == p.vida.anios_buscando
     assert c["meses_sin_trabajo"] == p.vida.meses_buscando
-    assert c["sueldo_final"] == round(p.vida.e["sueldo"] or p.vida.e["sueldo_ref"])
+    # el sueldo final es lo que ganas hoy (0 sin trabajo), la misma base de las copias; el último va aparte
+    assert c["sueldo_final"] == round(p.vida.e["sueldo"])
+    assert c["ultimo_sueldo"] == (None if p.vida.e["sueldo"] > 0 else round(p.vida.e["sueldo_ref"]))
     primera = c["primera_decision"]
     assert (primera["decision"], primera["elegida"]) == ("unirse_a_startup", "ir")
     comparacion = primera["comparacion"]
@@ -317,10 +319,12 @@ def test_comparar_mide_desde_el_punto_de_partida_de_la_vida():
     b = gemelos.comparar(con_pasado, "renunciar", n=n(60), anios=3, semilla=6)
     assert a == b
     renunciar, aguantar = a["opciones"]
-    assert renunciar["paso_por_cesantia"] == 1.0 and renunciar["meses_sin_trabajo"] >= 12
+    # busca desde enero: quien recibe una oferta el primer mes no alcanza a pasar un mes sin trabajo
+    assert renunciar["paso_por_cesantia"] > 0.5 and renunciar["meses_sin_trabajo"] >= 1
     assert aguantar["paso_por_cesantia"] < 0.5
     assert renunciar["ingreso_total"]["p50"] < aguantar["ingreso_total"]["p50"]
-    assert renunciar["trayectoria"][0]["sin_trabajo"] == 1.0
+    # quien renuncia busca mes a mes desde enero: algunos encuentran antes de fin de año
+    assert renunciar["trayectoria"][0]["sin_trabajo"] > aguantar["trayectoria"][0]["sin_trabajo"]
 
 
 def test_comparar_desde_una_vida_detenida_usa_el_anio_en_curso():
@@ -329,7 +333,7 @@ def test_comparar_desde_una_vida_detenida_usa_el_anio_en_curso():
     c = gemelos.comparar(v, "renunciar", n=n(40), anios=3, semilla=6)
     renunciar = c["opciones"][0]
     assert len(renunciar["trayectoria"]) == 3 and renunciar["trayectoria"][0]["edad"] == 36
-    assert renunciar["trayectoria"][0]["sin_trabajo"] == 1.0
+    assert renunciar["paso_por_cesantia"] > 0.5
     assert [r["resultado"] for r in renunciar["por_resultado"]] == ["renuncia"]
 
 

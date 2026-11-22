@@ -268,7 +268,8 @@ def test_partida_completa_como_la_juega_un_cliente(client):
     # el cierre: tu vida frente a los gemelos de la primera decisión
     cierre = final["cierre"]
     assert cierre["estado"] == final["estado"]
-    assert cierre["sueldo_final"] in (final["estado"]["sueldo"], final["estado"]["sueldo_ref"])
+    assert cierre["sueldo_final"] == final["estado"]["sueldo"]
+    assert cierre["ultimo_sueldo"] == (None if final["estado"]["sueldo"] > 0 else final["estado"]["sueldo_ref"])
     assert cierre["anios_sin_trabajo"] == sum(1 for r in final["historia"] if r["fin"]["estado"] == "buscando")
     assert 0 <= cierre["mejor_que_gemelos"] <= 1
     primera = cierre["primera_decision"]
@@ -334,7 +335,8 @@ def test_otros_perfiles_llegan_al_cierre(client, perfil, duda, elegir):
     final, elecciones, _ = _jugar_entera(client, elegir, perfil=perfil, duda=duda, semilla=3)
     assert final["terminada"] and final["cierre"]["primera_decision"]["decision"] == duda
     assert final["cierre"]["primera_decision"]["elegida"] == elecciones[0]["opcion"]
-    assert final["cierre"]["sueldo_final"] > 0
+    # sin trabajo al final el sueldo final es $0, pero siempre hay un sueldo que mostrar: el de hoy o el último
+    assert final["cierre"]["sueldo_final"] > 0 or final["cierre"]["ultimo_sueldo"] > 0
     assert final["estado"]["edad"] <= 60
 
 

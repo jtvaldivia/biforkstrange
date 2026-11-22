@@ -5,18 +5,13 @@ os.environ["BIFURCA_IA"] = "0"  # antes de importar la app: los fixtures de mód
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
-from app.api.deps import get_simulation_repo  # noqa: E402
 from app.main import app  # noqa: E402
-from app.repositories.simulations import InMemorySimulationRepository  # noqa: E402
 from app.sim.motor import ia  # noqa: E402
 
 
 @pytest.fixture
 def client():
-    repo = InMemorySimulationRepository()  # una instancia por test, compartida entre requests
-    app.dependency_overrides[get_simulation_repo] = lambda: repo
     yield TestClient(app)
-    app.dependency_overrides.clear()
 
 
 @pytest.fixture(autouse=True)
