@@ -1,0 +1,718 @@
+{
+ "descripcion": "Instituciones del catálogo. Chilenas: entran todas las universidades del Buscador de Carreras SIES 2025-2026 o de sies_magister_2026, y los IP y CFT con al menos el 1% de la matrícula de pregrado de su tipo (ver umbral_ip_cft). Aquí solo van el nombre corto, la sigla y el dominio web de cada código SIES (el dominio sirve para el ícono; vacío si no hay uno seguro). Matrícula, aranceles, ingresos y selectividad los lee scripts/universidades.py de las bases SIES. Extranjeras: programa de magíster típico con la URL oficial de donde sale el arancel.",
+ "umbral_ip_cft": 0.01,
+ "peso_magister_extranjeras": 0.03,
+ "nota_peso_extranjeras": "Supuesto del equipo, marcado sintetico: el conjunto de universidades extranjeras pesa 3% del total de magíster; no hay dato público de cuántos chilenos cursan magíster afuera comparable con la oferta SIES.",
+ "chilenas": {
+  "86": {
+   "sigla": "UC",
+   "dominio": "uc.cl"
+  },
+  "70": {
+   "sigla": "UCH",
+   "dominio": "uchile.cl"
+  },
+  "23": {
+   "sigla": "UAI",
+   "dominio": "uai.cl"
+  },
+  "87": {
+   "sigla": "UDEC",
+   "dominio": "udec.cl"
+  },
+  "31": {
+   "sigla": "UA",
+   "dominio": "uautonoma.cl"
+  },
+  "20": {
+   "sigla": "UNAB",
+   "dominio": "unab.cl"
+  },
+  "39": {
+   "sigla": "USS",
+   "dominio": "uss.cl"
+  },
+  "72": {
+   "sigla": "UV",
+   "dominio": "uv.cl"
+  },
+  "71": {
+   "sigla": "USACH",
+   "dominio": "usach.cl"
+  },
+  "89": {
+   "sigla": "PUCV",
+   "dominio": "pucv.cl"
+  },
+  "90": {
+   "sigla": "UACH",
+   "dominio": "uach.cl"
+  },
+  "34": {
+   "sigla": "UANDES",
+   "dominio": "uandes.cl"
+  },
+  "10": {
+   "sigla": "UMAYOR",
+   "dominio": "umayor.cl"
+  },
+  "45": {
+   "sigla": "UDD",
+   "dominio": "udd.cl"
+  },
+  "3": {
+   "sigla": "UDP",
+   "dominio": "udp.cl"
+  },
+  "4": {
+   "sigla": "UCENTRAL",
+   "dominio": "ucentral.cl"
+  },
+  "69": {
+   "sigla": "UAH",
+   "dominio": "uahurtado.cl"
+  },
+  "76": {
+   "sigla": "UFRO",
+   "dominio": "ufro.cl"
+  },
+  "91": {
+   "sigla": "UCN",
+   "dominio": "ucn.cl"
+  },
+  "93": {
+   "sigla": "UCSC",
+   "dominio": "ucsc.cl"
+  },
+  "78": {
+   "sigla": "UTAL",
+   "dominio": "utalca.cl"
+  },
+  "75": {
+   "sigla": "UBB",
+   "dominio": "ubiobio.cl"
+  },
+  "88": {
+   "sigla": "UTFSM",
+   "dominio": "usm.cl"
+  },
+  "92": {
+   "sigla": "UCM",
+   "dominio": "ucm.cl"
+  },
+  "1": {
+   "sigla": "UGM",
+   "dominio": "ugm.cl"
+  },
+  "19": {
+   "sigla": "UDLA",
+   "dominio": "udla.cl"
+  },
+  "85": {
+   "sigla": "UTEM",
+   "dominio": "utem.cl"
+  },
+  "2": {
+   "sigla": "UFT",
+   "dominio": "uft.cl"
+  },
+  "13": {
+   "sigla": "UST",
+   "dominio": "ust.cl"
+  },
+  "22": {
+   "sigla": "UVM",
+   "dominio": "uvm.cl"
+  },
+  "82": {
+   "sigla": "UMCE",
+   "dominio": "umce.cl"
+  },
+  "79": {
+   "sigla": "UDA",
+   "dominio": "uda.cl"
+  },
+  "83": {
+   "sigla": "UPA",
+   "dominio": "upla.cl"
+  },
+  "80": {
+   "sigla": "UTA",
+   "dominio": "uta.cl"
+  },
+  "84": {
+   "sigla": "ULAG",
+   "dominio": "ulagos.cl"
+  },
+  "81": {
+   "sigla": "UNAP",
+   "dominio": "unap.cl"
+  },
+  "50": {
+   "sigla": "UBO",
+   "dominio": "ubo.cl"
+  },
+  "94": {
+   "sigla": "UCT",
+   "dominio": "uct.cl"
+  },
+  "77": {
+   "sigla": "UMAG",
+   "dominio": "umag.cl"
+  },
+  "74": {
+   "sigla": "ULS",
+   "dominio": "userena.cl"
+  },
+  "73": {
+   "sigla": "UANT",
+   "dominio": "uantof.cl"
+  },
+  "895": {
+   "sigla": "UOH",
+   "dominio": "uoh.cl"
+  },
+  "11": {
+   "sigla": "UACADEMIA",
+   "dominio": "academia.cl"
+  },
+  "38": {
+   "sigla": "UNACH",
+   "dominio": "unach.cl"
+  },
+  "68": {
+   "sigla": "",
+   "dominio": ""
+  },
+  "26": {
+   "sigla": "UNIACC",
+   "dominio": "uniacc.cl"
+  },
+  "9": {
+   "sigla": "",
+   "dominio": "udalba.cl"
+  },
+  "674": {
+   "sigla": "ANEPE",
+   "dominio": "anepe.cl"
+  },
+  "42": {
+   "sigla": "UCSH",
+   "dominio": "ucsh.cl"
+  },
+  "46": {
+   "sigla": "",
+   "dominio": ""
+  },
+  "896": {
+   "sigla": "UAYSEN",
+   "dominio": "uaysen.cl"
+  },
+  "111": {
+   "nombre": "Duoc UC",
+   "sigla": "DUOC",
+   "dominio": "duoc.cl"
+  },
+  "143": {
+   "nombre": "IP AIEP",
+   "sigla": "AIEP",
+   "dominio": "aiep.cl"
+  },
+  "100": {
+   "nombre": "IP Inacap",
+   "sigla": "INACAP",
+   "dominio": "inacap.cl"
+  },
+  "152": {
+   "nombre": "IP Iplacex",
+   "sigla": "IPLACEX",
+   "dominio": "iplacex.cl"
+  },
+  "117": {
+   "nombre": "IP IACC",
+   "sigla": "IACC",
+   "dominio": "iacc.cl"
+  },
+  "116": {
+   "nombre": "IP Santo Tomás",
+   "sigla": "IPST",
+   "dominio": "santotomas.cl"
+  },
+  "123": {
+   "nombre": "IP de Chile",
+   "sigla": "IPCHILE",
+   "dominio": "ipchile.cl"
+  },
+  "106": {
+   "nombre": "IP Providencia",
+   "sigla": "",
+   "dominio": ""
+  },
+  "139": {
+   "nombre": "IP Virginio Gómez",
+   "sigla": "",
+   "dominio": "virginiogomez.cl"
+  },
+  "171": {
+   "nombre": "IP Escuela de Comercio de Santiago",
+   "sigla": "",
+   "dominio": ""
+  },
+  "260": {
+   "nombre": "CFT Santo Tomás",
+   "sigla": "CFTST",
+   "dominio": "santotomas.cl"
+  },
+  "218": {
+   "nombre": "CFT ENAC",
+   "sigla": "ENAC",
+   "dominio": "enac.cl"
+  },
+  "367": {
+   "nombre": "CFT San Agustín",
+   "sigla": "",
+   "dominio": ""
+  },
+  "629": {
+   "nombre": "CFT PUCV",
+   "sigla": "",
+   "dominio": ""
+  },
+  "456": {
+   "nombre": "CFT CEDUC UCN",
+   "sigla": "CEDUC",
+   "dominio": "ceduc.cl"
+  },
+  "312": {
+   "nombre": "CFT CENCO",
+   "sigla": "CENCO",
+   "dominio": ""
+  },
+  "902": {
+   "nombre": "CFT Estatal de Arica y Parinacota",
+   "sigla": "",
+   "dominio": ""
+  },
+  "450": {
+   "nombre": "CFT Lota-Arauco",
+   "sigla": "",
+   "dominio": ""
+  },
+  "916": {
+   "nombre": "CFT Estatal de La Araucanía",
+   "sigla": "",
+   "dominio": ""
+  },
+  "911": {
+   "nombre": "CFT Estatal de Valparaíso",
+   "sigla": "",
+   "dominio": ""
+  },
+  "906": {
+   "nombre": "CFT Estatal de Tarapacá",
+   "sigla": "",
+   "dominio": ""
+  },
+  "917": {
+   "nombre": "CFT Estatal de Los Ríos",
+   "sigla": "",
+   "dominio": ""
+  },
+  "914": {
+   "nombre": "CFT Estatal del Maule",
+   "sigla": "",
+   "dominio": ""
+  },
+  "913": {
+   "nombre": "CFT Estatal de O'Higgins",
+   "sigla": "",
+   "dominio": ""
+  },
+  "910": {
+   "nombre": "CFT Estatal de Coquimbo",
+   "sigla": "",
+   "dominio": ""
+  },
+  "257": {
+   "nombre": "CFT Juan Bohon",
+   "sigla": "",
+   "dominio": ""
+  },
+  "701": {
+   "nombre": "CFT Manpower",
+   "sigla": "",
+   "dominio": ""
+  }
+ },
+ "extranjeras": [
+  {
+   "slug": "mit",
+   "nombre": "Massachusetts Institute of Technology",
+   "sigla": "MIT",
+   "pais": "Estados Unidos",
+   "dominio": "mit.edu",
+   "programa": "MIT Sloan Master of Finance (12 meses)",
+   "url": "https://registrar.mit.edu/registration-academics/tuition-fees/sloan-school-management",
+   "monto_original": 96884,
+   "moneda": "USD",
+   "base": "programa",
+   "anios": 1,
+   "arancel_anual_usd": 96884,
+   "nota": "2026-27; opción de 12 meses."
+  },
+  {
+   "slug": "stanford",
+   "nombre": "Stanford University",
+   "sigla": "Stanford",
+   "pais": "Estados Unidos",
+   "dominio": "stanford.edu",
+   "programa": "Master of Public Policy (MPP)",
+   "url": "https://studentservices.stanford.edu/tuition-rates/2026-2027-graduate-and-professional-tuition-rates",
+   "monto_original": 21815,
+   "moneda": "USD",
+   "base": "otro",
+   "anios": null,
+   "arancel_anual_usd": 65445,
+   "nota": "2026-27: USD 21.815 por trimestre × 3 trimestres. Duración no verificada."
+  },
+  {
+   "slug": "harvard",
+   "nombre": "Harvard University (Harvard Kennedy School)",
+   "sigla": "Harvard",
+   "pais": "Estados Unidos",
+   "dominio": "harvard.edu",
+   "programa": "Master in Public Policy (MPP)",
+   "url": "https://www.hks.harvard.edu/admissions-aid/funding-your-education/funding-your-masters-education/tuition-fees",
+   "monto_original": 64340,
+   "moneda": "USD",
+   "base": "anual",
+   "anios": 2,
+   "arancel_anual_usd": 64340,
+   "nota": "2026-27, solo colegiatura."
+  },
+  {
+   "slug": "columbia",
+   "nombre": "Columbia University (SIPA)",
+   "sigla": "Columbia",
+   "pais": "Estados Unidos",
+   "dominio": "columbia.edu",
+   "programa": "Master of Public Administration (MPA)",
+   "url": "https://isso.columbia.edu/sites/default/files/content/rates/sipa.pdf",
+   "monto_original": 83910,
+   "moneda": "USD",
+   "base": "anual",
+   "anios": null,
+   "arancel_anual_usd": 83910,
+   "nota": "Colegiatura más cuotas por año (estimación ISSO). Duración no verificada."
+  },
+  {
+   "slug": "berkeley",
+   "nombre": "University of California, Berkeley (Goldman School)",
+   "sigla": "UC Berkeley",
+   "pais": "Estados Unidos",
+   "dominio": "berkeley.edu",
+   "programa": "Master of Public Policy (MPP)",
+   "url": "https://registrar.berkeley.edu/tuition-fees/fee-schedule/",
+   "monto_original": 20764.5,
+   "moneda": "USD",
+   "base": "otro",
+   "anios": 2,
+   "arancel_anual_usd": 41529,
+   "nota": "2026-27, no residente: USD 20.764,50 por semestre × 2."
+  },
+  {
+   "slug": "nyu",
+   "nombre": "New York University (Wagner)",
+   "sigla": "NYU",
+   "pais": "Estados Unidos",
+   "dominio": "nyu.edu",
+   "programa": "MPA in Public & Nonprofit Management & Policy",
+   "url": "https://www.nyu.edu/content/dam/nyu/bursar/documents/2026-2027%20Tuition%20and%20Fees.pdf",
+   "monto_original": 2591,
+   "moneda": "USD",
+   "base": "otro",
+   "anios": 2,
+   "arancel_anual_usd": 58298,
+   "nota": "2026-27: USD 2.591 por crédito × 22,5 créditos al año (45 en dos años)."
+  },
+  {
+   "slug": "lse",
+   "nombre": "London School of Economics and Political Science",
+   "sigla": "LSE",
+   "pais": "Reino Unido",
+   "dominio": "lse.ac.uk",
+   "programa": "MSc Finance (full-time)",
+   "url": "https://www.lse.ac.uk/study-at-lse/graduate/msc-finance-full-time",
+   "monto_original": 53600,
+   "moneda": "GBP",
+   "base": "programa",
+   "anios": 1,
+   "arancel_anual_usd": 70349,
+   "nota": "Ingreso 2027/28, 10 meses."
+  },
+  {
+   "slug": "cambridge",
+   "nombre": "University of Cambridge",
+   "sigla": "Cambridge",
+   "pais": "Reino Unido",
+   "dominio": "cam.ac.uk",
+   "programa": "MPhil in Economics",
+   "url": "https://www.postgraduate.study.cam.ac.uk/courses/directory/ececmpmec/finance",
+   "monto_original": 46128,
+   "moneda": "GBP",
+   "base": "anual",
+   "anios": 1,
+   "arancel_anual_usd": 60542,
+   "nota": "Overseas, ingreso 2027-28, 9 meses."
+  },
+  {
+   "slug": "imperial",
+   "nombre": "Imperial College London (Business School)",
+   "sigla": "Imperial",
+   "pais": "Reino Unido",
+   "dominio": "imperial.ac.uk",
+   "programa": "MSc Finance",
+   "url": "https://www.imperial.ac.uk/students/fees-and-funding/tuition-fees/postgraduate-tuition-fees/2026-27/taught-postgraduate-programmes/imperial-business-school/",
+   "monto_original": 51000,
+   "moneda": "GBP",
+   "base": "programa",
+   "anios": 1,
+   "arancel_anual_usd": 66936,
+   "nota": "Cohorte 2026, 12 meses."
+  },
+  {
+   "slug": "ie",
+   "nombre": "IE University (IE Business School)",
+   "sigla": "IE",
+   "pais": "España",
+   "dominio": "ie.edu",
+   "programa": "Master in Finance",
+   "url": "https://www.ie.edu/business-school/programs/masters/master-in-finance/admissions-fees/",
+   "monto_original": 42000,
+   "moneda": "EUR",
+   "base": "programa",
+   "anios": 1,
+   "arancel_anual_usd": 46158,
+   "nota": "10 meses; la página no fecha la tarifa."
+  },
+  {
+   "slug": "esade",
+   "nombre": "Esade Business School",
+   "sigla": "ESADE",
+   "pais": "España",
+   "dominio": "esade.edu",
+   "programa": "MSc in Finance",
+   "url": "https://esade.edu/master-of-science/en/program/masters-in-finance/fees-and-financing",
+   "monto_original": 39000,
+   "moneda": "EUR",
+   "base": "programa",
+   "anios": 1,
+   "arancel_anual_usd": 42861,
+   "nota": "2027-28, un año."
+  },
+  {
+   "slug": "upf",
+   "nombre": "Universitat Pompeu Fabra (Barcelona School of Economics)",
+   "sigla": "UPF",
+   "pais": "España",
+   "dominio": "upf.edu",
+   "programa": "Master's Degree in Economics and Finance",
+   "url": "https://bse.eu/masters-degrees/economics-finance/financial-economics",
+   "monto_original": 18500,
+   "moneda": "EUR",
+   "base": "programa",
+   "anios": 1,
+   "arancel_anual_usd": 20332,
+   "nota": "Un año, 60 ECTS; la página no fecha la tarifa."
+  },
+  {
+   "slug": "bocconi",
+   "nombre": "Università Commerciale Luigi Bocconi",
+   "sigla": "Bocconi",
+   "pais": "Italia",
+   "dominio": "unibocconi.it",
+   "programa": "MSc in Finance",
+   "url": "https://www.unibocconi.it/sites/default/files/2026-27%20Tuition%20and%20fees%20-%20Master%20of%20science.pdf",
+   "monto_original": 18550,
+   "moneda": "EUR",
+   "base": "anual",
+   "anios": 2,
+   "arancel_anual_usd": 20386,
+   "nota": "Tarifa ordinaria de primer año 2026-27."
+  },
+  {
+   "slug": "eth",
+   "nombre": "ETH Zürich",
+   "sigla": "ETH",
+   "pais": "Suiza",
+   "dominio": "ethz.ch",
+   "programa": "MSc Management, Technology and Economics",
+   "url": "https://mtec.ethz.ch/studies/prospectives.html",
+   "monto_original": 2190,
+   "moneda": "CHF",
+   "base": "otro",
+   "anios": null,
+   "arancel_anual_usd": 5219,
+   "nota": "CHF 2.190 por semestre × 2. Duración no verificada."
+  },
+  {
+   "slug": "tum",
+   "nombre": "Technische Universität München",
+   "sigla": "TUM",
+   "pais": "Alemania",
+   "dominio": "tum.de",
+   "programa": "Management and Technology (M.Sc.)",
+   "url": "https://www.tum.de/en/studies/degree-programs/detail/management-and-technology-tum-bwl-master-of-science-msc",
+   "monto_original": 4000,
+   "moneda": "EUR",
+   "base": "otro",
+   "anios": 2,
+   "arancel_anual_usd": 8792,
+   "nota": "No UE: €4.000 por semestre × 2; 4 semestres."
+  },
+  {
+   "slug": "sciencespo",
+   "nombre": "Sciences Po",
+   "sigla": "Sciences Po",
+   "pais": "Francia",
+   "dominio": "sciencespo.fr",
+   "programa": "Master (tarifa general)",
+   "url": "https://www.sciencespo.fr/students/en/fees-funding/tuition-fees/",
+   "monto_original": 20640,
+   "moneda": "EUR",
+   "base": "anual",
+   "anios": null,
+   "arancel_anual_usd": 22683,
+   "nota": "Residencia fiscal fuera del EEE, 2026-27. Duración no verificada."
+  },
+  {
+   "slug": "hec_paris",
+   "nombre": "HEC Paris",
+   "sigla": "HEC",
+   "pais": "Francia",
+   "dominio": "hec.edu",
+   "programa": "Master in International Finance",
+   "url": "https://www.hec.edu/en/master-s-programs/master-international-finance/fees-and-financing",
+   "monto_original": 50985,
+   "moneda": "EUR",
+   "base": "anual",
+   "anios": null,
+   "arancel_anual_usd": 56033,
+   "nota": "2027-28, incluye recargo no UE. Duración no verificada."
+  },
+  {
+   "slug": "toronto",
+   "nombre": "University of Toronto",
+   "sigla": "U of T",
+   "pais": "Canadá",
+   "dominio": "utoronto.ca",
+   "programa": "Master of Financial Economics (MFE)",
+   "url": "https://planningandbudget.utoronto.ca/wp-content/uploads/2026/04/2026-27-Tuition-Fee-Report_FINAL.pdf",
+   "monto_original": 66850,
+   "moneda": "CAD",
+   "base": "anual",
+   "anios": null,
+   "arancel_anual_usd": 46727,
+   "nota": "Internacional, 2026-27, solo program fee. Duración no verificada."
+  },
+  {
+   "slug": "uba",
+   "nombre": "Universidad de Buenos Aires",
+   "sigla": "UBA",
+   "pais": "Argentina",
+   "dominio": "uba.ar",
+   "programa": "Maestrías de la Facultad de Filosofía y Letras (tarifa general)",
+   "url": "https://posgrado.filo.uba.ar/maestria-2026",
+   "monto_original": 290000,
+   "moneda": "ARS",
+   "base": "otro",
+   "anios": 2,
+   "arancel_anual_usd": 1840,
+   "nota": "Egresados extranjeros: matrícula $290.000 + 9 cuotas de $290.000 al año. No es un máster de economía: Económicas no publica montos."
+  },
+  {
+   "slug": "tec_monterrey",
+   "nombre": "Tecnológico de Monterrey (EGADE)",
+   "sigla": "Tec de Monterrey",
+   "pais": "México",
+   "dominio": "tec.mx",
+   "programa": "Maestría en Finanzas",
+   "url": "https://learn.maestriasydiplomados.tec.mx/hubfs/Colegiaturas%202026-%20Ene-%20Mar.pdf",
+   "monto_original": 705000,
+   "moneda": "MXN",
+   "base": "programa",
+   "anios": 1.5,
+   "arancel_anual_usd": 24650,
+   "nota": "Por programa, 18 meses: MXN 705.000 / 1,5."
+  },
+  {
+   "slug": "andes_colombia",
+   "nombre": "Universidad de los Andes (Colombia)",
+   "sigla": "Uniandes",
+   "pais": "Colombia",
+   "dominio": "uniandes.edu.co",
+   "programa": "Maestría en Economía (PEG)",
+   "url": "https://matriculas.uniandes.edu.co/maestria/valores-maestria",
+   "monto_original": 1876000,
+   "moneda": "COP",
+   "base": "otro",
+   "anios": 2,
+   "arancel_anual_usd": 9483,
+   "nota": "COP 1.876.000 por crédito × 35 créditos / 2 años."
+  },
+  {
+   "slug": "usp",
+   "nombre": "Universidade de São Paulo",
+   "sigla": "USP",
+   "pais": "Brasil",
+   "dominio": "usp.br",
+   "programa": "Mestrado stricto sensu",
+   "url": "https://prpg.usp.br/en/mestrado-e-doutorado/como-funciona/",
+   "monto_original": 0,
+   "moneda": "BRL",
+   "base": "anual",
+   "anios": null,
+   "arancel_anual_usd": 0,
+   "nota": "Gratuito por norma para brasileños y extranjeros. Duración no verificada."
+  }
+ ],
+ "tipos_cambio": {
+  "_nota": "Monedas por USD. BCE (tasas de referencia del 20-11-2026) para EUR, GBP, CHF, CAD, MXN; TRM de la Superintendencia Financiera (datos.gov.co) para COP; BCRA Comunicación A3500 para ARS. arancel_anual_usd = monto anual en moneda original / por_usd.",
+  "EUR": {
+   "por_usd": 0.90992,
+   "fecha": "2026-11-20",
+   "url": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html"
+  },
+  "GBP": {
+   "por_usd": 0.76192,
+   "fecha": "2026-11-20",
+   "url": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html"
+  },
+  "CHF": {
+   "por_usd": 0.83922,
+   "fecha": "2026-11-20",
+   "url": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html"
+  },
+  "CAD": {
+   "por_usd": 1.43066,
+   "fecha": "2026-11-20",
+   "url": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html"
+  },
+  "MXN": {
+   "por_usd": 19.06706,
+   "fecha": "2026-11-20",
+   "url": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html"
+  },
+  "COP": {
+   "por_usd": 3461.92,
+   "fecha": "2026-11-21",
+   "url": "https://www.datos.gov.co/resource/32sa-8pi3.json"
+  },
+  "ARS": {
+   "por_usd": 1575.9572,
+   "fecha": "2026-11-20",
+   "url": "https://api.bcra.gob.ar/estadisticas/v4.0/monetarias/5"
+  }
+ },
+ "sin_arancel_verificado": "Oxford, Melbourne (y Sydney) e ITAM quedaron fuera: sus sitios bloquearon la descarga automática y no se pudo leer el arancel en la página oficial."
+}

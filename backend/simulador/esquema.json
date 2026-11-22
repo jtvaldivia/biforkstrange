@@ -259,7 +259,9 @@
      "enum": [
       "dato",
       "mixto",
-      "supuesto"
+      "supuesto",
+
+      "sintetico"
      ]
     }
    }
@@ -472,7 +474,9 @@
         "enum": [
          "dato",
          "mixto",
-         "supuesto"
+         "supuesto",
+
+         "sintetico"
         ]
        }
       }
@@ -502,7 +506,9 @@
      "enum": [
       "dato",
       "mixto",
-      "supuesto"
+      "supuesto",
+
+      "sintetico"
      ]
     },
     "en_juego": {
@@ -637,7 +643,9 @@
      "enum": [
       "dato",
       "mixto",
-      "supuesto"
+      "supuesto",
+
+      "sintetico"
      ]
     },
     "notas": {

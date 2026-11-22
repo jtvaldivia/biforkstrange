@@ -39,6 +39,7 @@ export const minuscula = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 export const CALIDAD: Record<Calidad, { nombre: string; explica: string }> = {
   dato: { nombre: "Dato", explica: "Viene de una medición." },
   mixto: { nombre: "Mixto", explica: "Parte medición, parte supuesto." },
+  sintetico: { nombre: "Sintético", explica: "Sorteado a partir de datos reales del rubro y tamaño, no medido para esta empresa." },
   supuesto: { nombre: "Supuesto", explica: "Es una regla nuestra, sin medición detrás." },
 };
 

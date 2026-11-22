@@ -19,7 +19,7 @@ const PASOS = [
   },
   {
     titulo: `Imaginamos ${GEMELOS} mundos posibles.`,
-    texto: `En cada mundo vive una copia tuya, tu gemelo: misma edad, mismo sueldo, misma pega. Lo que cambia de un mundo a otro es la suerte: en uno hay recesión el año 3, en otro te despiden, en otro no pasa nada.`,
+    texto: `En cada mundo vive una copia tuya, tu gemelo: misma edad, mismo sueldo, misma pega. Lo que cambia de un mundo a otro es la suerte: en uno hay recesión el año 3, en otro te despiden, en otro no pasa nada. También cambia qué tan rápido llega la IA, dentro del rango que han medido los estudios.`,
   },
   {
     titulo: "En cada mundo, tu gemelo vive todas las opciones.",
@@ -27,7 +27,7 @@ const PASOS = [
   },
   {
     titulo: `Contamos los ${GEMELOS} mundos.`,
-    texto: "¿En cuántos te va mejor con una opción, en cuántos con la otra y en cuántos da lo mismo? Qué tan seguido pasa cada cosa sale de encuestas a trabajadores chilenos (ESI y ENE del INE, entre otras). No es una predicción: es el abanico de lo que le pasa a gente como tú.",
+    texto: "¿En cuántos te va mejor con una opción, en cuántos con la otra y en cuántos da lo mismo? Qué tan seguido pasa cada cosa sale de encuestas a trabajadores chilenos (ESI y ENE del INE, entre otras). No es una predicción: es el abanico de lo que le pasa a gente como tú. Las empresas son reales, pero sus cifras se simulan a partir de su rubro y tamaño.",
   },
   {
     titulo: `Y tú eres el mundo ${GEMELOS + 1}.`,

@@ -1,0 +1,102 @@
+universidad_id,nombre,sigla,pais,tipo_institucion,selectiva,matricula,peso_magister,arancel_anual_pregrado,prima_pregrado,calidad_prima,arancel_anual_magister,arancel_magister_usd,anios_magister,dominio,logo
+20,Universidad Andrés Bello,UNAB,Chile,U,0,54034,0.042048,6582782,0.9792,derivado,6825000,,2,unab.cl,1
+39,Universidad San Sebastián,USS,Chile,U,0,44005,0.040598,6763855,0.9615,derivado,3645000,,2,uss.cl,0
+86,Pontificia Universidad Católica de Chile,UC,Chile,U,1,32353,0.094970,8230153,1.1409,derivado,5864000,,2,uc.cl,1
+70,Universidad de Chile,UCH,Chile,U,1,30205,0.089895,6853226,1.1331,derivado,4876162,,2,uchile.cl,1
+19,Universidad de las Americas,UDLA,Chile,U,0,29825,0.012324,5658795,0.9529,derivado,4680000,,2,udla.cl,1
+31,Universidad Autónoma de Chile,UA,Chile,U,0,28760,0.047848,5828454,0.9290,derivado,5490000,,2,uautonoma.cl,1
+13,Universidad Santo Tomas,UST,Chile,U,0,24852,0.009425,5457082,0.9396,derivado,2908350,,2,ust.cl,0
+71,Universidad de Santiago de Chile,USACH,Chile,U,1,20842,0.032623,6040951,1.0434,derivado,2948420,,2,usach.cl,1
+10,Universidad Mayor,UMAYOR,Chile,U,0,19592,0.024649,6833696,1.0144,derivado,2930000,,2,umayor.cl,1
+87,Universidad de Concepción,UDEC,Chile,U,1,19192,0.052197,6698812,0.9971,derivado,4378000,,2,udec.cl,1
+3,Universidad Diego Portales,UDP,Chile,U,1,17359,0.023199,7397578,1.0366,derivado,3491666,,2,udp.cl,0
+90,Universidad Austral de Chile,UACH,Chile,U,0,16607,0.030448,5996598,0.9787,derivado,3011000,,2,uach.cl,1
+45,Universidad del Desarrollo,UDD,Chile,U,1,15903,0.023924,225,1.0864,derivado,4883446,,2,udd.cl,0
+72,Universidad de Valparaíso,UV,Chile,U,0,14079,0.034798,5558016,1.0095,derivado,3000000,,2,uv.cl,1
+93,Universidad Católica de la Santisima Concepción,UCSC,Chile,U,0,13773,0.018849,5065788,0.8929,derivado,3535000,,2,ucsc.cl,1
+4,Universidad Central de Chile,UCENTRAL,Chile,U,0,13707,0.022474,5268985,0.9853,derivado,2965200,,2,ucentral.cl,1
+89,Pontificia Universidad Católica de Valparaíso,PUCV,Chile,U,1,13627,0.030448,6155049,0.9733,derivado,3125000,,2,pucv.cl,0
+92,Universidad Católica del Maule,UCM,Chile,U,0,12947,0.013774,5614643,0.9717,derivado,2748000,,2,ucm.cl,1
+88,Universidad Técnica Federico Santa María,UTFSM,Chile,U,1,12016,0.014499,5370607,1.0000,derivado,7110000,,2,usm.cl,0
+91,Universidad Católica del Norte,UCN,Chile,U,0,11142,0.019574,5790851,1.0287,derivado,3322500,,2,ucn.cl,1
+94,Universidad Católica de Temuco,UCT,Chile,U,0,10919,0.005075,5193624,0.9694,derivado,2289000,,2,uct.cl,1
+75,Universidad del Bío-Bío,UBB,Chile,U,0,10878,0.018124,4297275,0.9214,derivado,2791000,,2,ubiobio.cl,1
+84,Universidad de los Lagos,ULAG,Chile,U,0,10453,0.007250,4275327,0.9320,derivado,2440000,,2,ulagos.cl,0
+76,Universidad de la Frontera,UFRO,Chile,U,1,10202,0.021749,4899555,0.9503,derivado,2725000,,2,ufro.cl,1
+80,Universidad de Tarapacá,UTA,Chile,U,0,9303,0.007250,5780392,0.9413,derivado,3000000,,2,uta.cl,0
+81,Universidad Arturo Prat,UNAP,Chile,U,0,9158,0.006525,3725206,0.9564,derivado,2223500,,2,unap.cl,0
+895,Universidad de O'higgins,UOH,Chile,U,0,8812,0.004350,4865283,,,3307500,,2,uoh.cl,0
+9,Universidad del Alba,,Chile,U,0,8565,0.002175,4861546,0.9773,derivado,3956000,,2,udalba.cl,1
+2,Universidad Finis Terrae,UFT,Chile,U,0,8068,0.009425,7594187,1.0573,derivado,2825000,,2,uft.cl,1
+78,Universidad de Talca,UTAL,Chile,U,0,7913,0.018124,6211469,0.9609,derivado,3176278,,2,utalca.cl,1
+69,Universidad Alberto Hurtado,UAH,Chile,U,0,7747,0.021749,5628843,0.9682,derivado,2540000,,2,uahurtado.cl,1
+22,Universidad de Viña del Mar,UVM,Chile,U,0,7573,0.009425,4637611,0.9271,derivado,5454649,,2,uvm.cl,1
+50,Universidad Bernardo O'Higgins,UBO,Chile,U,0,7125,0.005075,5957266,0.9421,derivado,2750000,,2,ubo.cl,1
+34,Universidad de los Andes,UANDES,Chile,U,1,6787,0.026099,204,1.1516,derivado,4598578,,2,uandes.cl,1
+85,Universidad Tecnológica Metropolitana,UTEM,Chile,U,0,6457,0.010149,4636157,0.9899,derivado,3325000,,2,utem.cl,1
+79,Universidad de Atacama,UDA,Chile,U,0,6328,0.007975,4017700,0.9934,derivado,3240000,,2,uda.cl,0
+74,Universidad de la Serena,ULS,Chile,U,0,6118,0.005075,4316438,0.8911,derivado,2528500,,2,userena.cl,0
+73,Universidad de Antofagasta,UANT,Chile,U,0,6056,0.004350,5163880,1.0929,derivado,2600000,,2,uantof.cl,1
+42,Universidad Católica Cardenal Raul Silva Henriquez,UCSH,Chile,U,0,5506,0.000725,4408339,0.9770,derivado,2135250,,2,ucsh.cl,1
+26,"Universidad de Artes, Ciencias y Comunicacion - Uniacc",UNIACC,Chile,U,0,5463,0.002175,4156824,1.1005,derivado,4500000,,2,uniacc.cl,1
+23,Universidad Adolfo Ibáñez,UAI,Chile,U,1,5413,0.054372,214,1.1500,derivado,8546030,,2,uai.cl,1
+83,Universidad de Playa Ancha de Ciencias de la Educacion,UPA,Chile,U,0,5265,0.007250,4100961,0.9786,derivado,2500000,,2,upla.cl,1
+77,Universidad de Magallanes,UMAG,Chile,U,0,4282,0.005075,4677608,1.0475,derivado,3535000,,2,umag.cl,1
+82,Universidad Metropolitana de Ciencias de la Educación,UMCE,Chile,U,0,3947,0.008700,3882848,1.0971,derivado,3216000,,2,umce.cl,0
+1,Universidad Gabriela Mistral,UGM,Chile,U,0,3873,0.013049,4977708,1.1419,derivado,6401000,,2,ugm.cl,1
+46,Universidad de Aconcagua,,Chile,U,0,2805,0.000725,3041030,0.9791,derivado,2921625,,2,,0
+38,Universidad Adventista de Chile,UNACH,Chile,U,0,2632,0.002175,4652798,0.8887,derivado,2757000,,2,unach.cl,1
+17,Universidad Sek,,Chile,U,0,2413,0,3555063,1.1125,derivado,,,,,0
+11,Universidad Academia de Humanismo Cristiano,UACADEMIA,Chile,U,0,2331,0.003625,4381801,0.9851,derivado,4500000,,2,academia.cl,0
+68,Universidad Miguel de Cervantes,,Chile,U,0,1149,0.002175,3243072,,,3570000,,2,,0
+896,Universidad de Aysén,UAYSEN,Chile,U,0,793,0.000725,4011148,,,5000000,,2,uaysen.cl,1
+674,Academia Nacional de Estudios Politicos y Estrategicos Anepe,ANEPE,Chile,U,0,0,0.000725,,,,2750000,,2,anepe.cl,1
+111,Duoc UC,DUOC,Chile,IP,0,96058,0,3202206,0.9752,derivado,,,,duoc.cl,0
+143,IP AIEP,AIEP,Chile,IP,0,74380,0,2610212,0.9625,derivado,,,,aiep.cl,0
+100,IP Inacap,INACAP,Chile,IP,0,55824,0,3353780,0.9695,derivado,,,,inacap.cl,1
+152,IP Iplacex,IPLACEX,Chile,IP,0,47570,0,2336545,1.1152,derivado,,,,iplacex.cl,1
+117,IP IACC,IACC,Chile,IP,0,32559,0,2164267,1.1541,derivado,,,,iacc.cl,1
+116,IP Santo Tomás,IPST,Chile,IP,0,27835,0,2694586,0.9464,derivado,,,,santotomas.cl,0
+123,IP de Chile,IPCHILE,Chile,IP,0,20234,0,2118689,0.9526,derivado,,,,ipchile.cl,0
+106,IP Providencia,,Chile,IP,0,13602,0,2477027,,,,,,,0
+139,IP Virginio Gómez,,Chile,IP,0,8485,0,2326156,0.8616,derivado,,,,virginiogomez.cl,0
+171,IP Escuela de Comercio de Santiago,,Chile,IP,0,6416,0,1984500,,,,,,,0
+260,CFT Santo Tomás,CFTST,Chile,CFT,0,38673,0,2540193,1.0028,derivado,,,,santotomas.cl,0
+218,CFT ENAC,ENAC,Chile,CFT,0,8507,0,2507859,1.0714,derivado,,,,enac.cl,1
+367,CFT San Agustín,,Chile,CFT,0,7509,0,2790216,0.8576,derivado,,,,,0
+629,CFT PUCV,,Chile,CFT,0,7102,0,2692002,0.9530,derivado,,,,,0
+456,CFT CEDUC UCN,CEDUC,Chile,CFT,0,5678,0,2446398,0.9842,derivado,,,,ceduc.cl,1
+312,CFT CENCO,CENCO,Chile,CFT,0,5037,0,1370582,1.1917,derivado,,,,,0
+902,CFT Estatal de Arica y Parinacota,,Chile,CFT,0,2493,0,2063243,,,,,,,0
+450,CFT Lota-Arauco,,Chile,CFT,0,1878,0,2011869,0.8979,derivado,,,,,0
+916,CFT Estatal de La Araucanía,,Chile,CFT,0,1820,0,2067150,,,,,,,0
+911,CFT Estatal de Valparaíso,,Chile,CFT,0,1771,0,2161067,,,,,,,0
+906,CFT Estatal de Tarapacá,,Chile,CFT,0,1686,0,1771254,,,,,,,0
+917,CFT Estatal de Los Ríos,,Chile,CFT,0,1526,0,1947018,,,,,,,0
+914,CFT Estatal del Maule,,Chile,CFT,0,1433,0,2352793,,,,,,,0
+913,CFT Estatal de O'Higgins,,Chile,CFT,0,1371,0,1979551,,,,,,,0
+910,CFT Estatal de Coquimbo,,Chile,CFT,0,1337,0,2203533,,,,,,,0
+257,CFT Juan Bohon,,Chile,CFT,0,1078,0,2046321,0.9950,derivado,,,,,0
+701,CFT Manpower,,Chile,CFT,0,985,0,1569298,1.0106,derivado,,,,,0
+ext_andes_colombia,Universidad de los Andes (Colombia),Uniandes,Colombia,EXT,1,0,0.001364,,,,,9483,2,uniandes.edu.co,1
+ext_berkeley,"University of California, Berkeley (Goldman School)",UC Berkeley,Estados Unidos,EXT,1,0,0.001364,,,,,41529,2,berkeley.edu,1
+ext_bocconi,Università Commerciale Luigi Bocconi,Bocconi,Italia,EXT,1,0,0.001364,,,,,20386,2,unibocconi.it,0
+ext_cambridge,University of Cambridge,Cambridge,Reino Unido,EXT,1,0,0.001364,,,,,60542,1,cam.ac.uk,0
+ext_columbia,Columbia University (SIPA),Columbia,Estados Unidos,EXT,1,0,0.001364,,,,,83910,,columbia.edu,1
+ext_esade,Esade Business School,ESADE,España,EXT,1,0,0.001364,,,,,42861,1,esade.edu,1
+ext_eth,ETH Zürich,ETH,Suiza,EXT,1,0,0.001364,,,,,5219,,ethz.ch,1
+ext_harvard,Harvard University (Harvard Kennedy School),Harvard,Estados Unidos,EXT,1,0,0.001364,,,,,64340,2,harvard.edu,1
+ext_hec_paris,HEC Paris,HEC,Francia,EXT,1,0,0.001364,,,,,56033,,hec.edu,0
+ext_ie,IE University (IE Business School),IE,España,EXT,1,0,0.001364,,,,,46158,1,ie.edu,1
+ext_imperial,Imperial College London (Business School),Imperial,Reino Unido,EXT,1,0,0.001364,,,,,66936,1,imperial.ac.uk,1
+ext_lse,London School of Economics and Political Science,LSE,Reino Unido,EXT,1,0,0.001364,,,,,70349,1,lse.ac.uk,1
+ext_mit,Massachusetts Institute of Technology,MIT,Estados Unidos,EXT,1,0,0.001364,,,,,96884,1,mit.edu,1
+ext_nyu,New York University (Wagner),NYU,Estados Unidos,EXT,1,0,0.001364,,,,,58298,2,nyu.edu,0
+ext_sciencespo,Sciences Po,Sciences Po,Francia,EXT,1,0,0.001364,,,,,22683,,sciencespo.fr,1
+ext_stanford,Stanford University,Stanford,Estados Unidos,EXT,1,0,0.001364,,,,,65445,,stanford.edu,1
+ext_tec_monterrey,Tecnológico de Monterrey (EGADE),Tec de Monterrey,México,EXT,1,0,0.001364,,,,,24650,1.5,tec.mx,1
+ext_toronto,University of Toronto,U of T,Canadá,EXT,1,0,0.001364,,,,,46727,,utoronto.ca,1
+ext_tum,Technische Universität München,TUM,Alemania,EXT,1,0,0.001364,,,,,8792,2,tum.de,1
+ext_uba,Universidad de Buenos Aires,UBA,Argentina,EXT,1,0,0.001364,,,,,1840,2,uba.ar,0
+ext_upf,Universitat Pompeu Fabra (Barcelona School of Economics),UPF,España,EXT,1,0,0.001364,,,,,20332,1,upf.edu,1
+ext_usp,Universidade de São Paulo,USP,Brasil,EXT,1,0,0.001364,,,,,0,,usp.br,1

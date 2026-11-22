@@ -820,6 +820,42 @@
    "fuente": "ine_epf",
    "calidad": "mixto",
    "rango": null
+  },
+  {
+   "id": "EMPRESA_SIGMA_SUELDO",
+   "valor": 0.28,
+   "unidad": "desviación log",
+   "descripcion": "Dispersión del sueldo entre empresas del mismo tipo y rubro: mult_sueldo = R_tamano × exp(σ·z − σ²/2), z normal sorteada con semilla fija. σ es el mayor valor de una grilla de 0 a 1 (paso 0,005) con el que, en todos los rubros, el p25 y el p75 de mult_sueldo × p50 del rubro (grandes, pymes y startups del catálogo, tras normalizar a media geométrica 1 por tipo y rubro) quedan dentro del p25-p75 ESI 2025 del rubro (esi_ingreso_rubro, educación todas). Lo calcula scripts/empresas_catalogo.py.",
+   "fuente": "equipo_sintetico",
+   "calidad": "sintetico",
+   "rango": [
+    0.0,
+    0.42
+   ]
+  },
+  {
+   "id": "EMPRESA_SIGMA_ASCENSO",
+   "valor": 0.28,
+   "unidad": "desviación log",
+   "descripcion": "Dispersión entre empresas de la probabilidad de ascenso: mult_ascenso = exp(σ·z − σ²/2), z normal con semilla fija. No hay en el paquete una medición de ascensos por empresa para calibrarlo, así que usa el mismo σ que EMPRESA_SIGMA_SUELDO.",
+   "fuente": "equipo_sintetico",
+   "calidad": "sintetico",
+   "rango": [
+    0.0,
+    0.42
+   ]
+  },
+  {
+   "id": "PRIMA_EXTRANJERA",
+   "valor": 0.093,
+   "unidad": "fracción del sueldo",
+   "descripcion": "Prima de una universidad extranjera = la de una selectiva chilena (DIPRES); no hay dato de retorno para chilenos.",
+   "fuente": "dipres_2026",
+   "calidad": "sintetico",
+   "rango": [
+    0.0,
+    0.12
+   ]
   }
  ]
 }

@@ -24,6 +24,35 @@
    "filas": 56
   },
   {
+   "tabla": "cargos_catalogo",
+   "archivo": "tablas/cargos_catalogo.csv",
+   "descripcion": "Cargos con nombre real que el juego ofrece en cada empresa, con su gran grupo CIUO, exposición a IA y prima de Get on Board.",
+   "columnas": {
+    "cargo_id": "índice estable (0..n-1)",
+    "nombre": "nombre del cargo",
+    "ciuo08_1d": "gran grupo CIUO-08 (1-9); el sueldo base sale de esi_ingreso_ocupacion",
+    "ocupacion_ia": "ocupación equivalente en ia_aplicabilidad_ocupaciones.ocupacion_eeuu",
+    "exposicion_ia": "aplicabilidad_ia de esa ocupación (0-1)",
+    "area_getonbrd": "área de getonbrd_sueldos para cargos tech o digitales; vacío para el resto",
+    "prima_getonbrd": "punto medio de las medianas min y max del área / el de todas las áreas (getonbrd_sueldos); 1 sin área",
+    "nivel_min": "nivel mínimo (0 junior .. 4 gerencia)",
+    "nivel_max": "nivel máximo (0..4)",
+    "edu_min": "educación mínima: media, tecnica, universitaria o postgrado",
+    "areas": "áreas de carrera compatibles separadas por | o * (cualquiera)",
+    "rubros": "rubros donde existe el cargo separados por | o *",
+    "tipos": "tipos de empleador separados por | o *",
+    "peso": "share_ocupados_banda del gran grupo (esi_ingreso_ocupacion, 18-54) repartido entre los cargos del grupo",
+    "calidad_ia": "'derivado' si la ocupación de EE.UU. calza directo, 'sintetico' si es la más cercana",
+    "calidad_prima": "'dato' si viene de getonbrd_sueldos, 'derivado' si es 1 por no tener área"
+   },
+   "poblacion": "120 cargos de avisos de Get on Board, concursos del Estado y nombres comunes en Chile",
+   "ponderador": "peso",
+   "fuente_id": "microsoft_ia",
+   "script": "scripts/empresas_catalogo.py",
+   "advertencia": "Para cada empresa y cada (educación, nivel) hay al menos un cargo compatible si se ignora el área; el script lo verifica. La prima de Get on Board compara áreas de un portal tech, no el mercado completo.",
+   "filas": 120
+  },
+  {
    "tabla": "duelo_satisfaccion",
    "archivo": "tablas/duelo_satisfaccion.csv",
    "descripcion": "Cuánto baja la satisfacción con la vida tras la muerte de la madre, el padre o una abuela, y cuánto dura.",
@@ -78,6 +107,40 @@
    "script": "scripts/simulador/tablas_base.py",
    "advertencia": "Muestras chicas en la fila D: úsala como referencia, no como insumo fino.",
    "filas": 27
+  },
+  {
+   "tabla": "empresas_catalogo",
+   "archivo": "tablas/empresas_catalogo.csv",
+   "descripcion": "Empresas reales que el juego ofrece como empleador, con multiplicadores de sueldo, despido, cierre y ascenso relativos a su tipo y rubro.",
+   "columnas": {
+    "empresa_id": "índice estable (0..n-1), ordenado por rubro, tipo y nombre",
+    "nombre": "nombre corto de la empresa o servicio",
+    "rubro": "rubro del juego (dominio rubro de estado.json)",
+    "tipo": "tipo de empleador: grande, pyme, startup, publico o extranjero",
+    "tamano_esi": "clase de tamaño de esi_ingreso_tamano según trabajadores (SII o YC); vacío si no hay dato o no aplica",
+    "dominio": "sitio web oficial, para el ícono; vacío si no hay uno seguro",
+    "logo": "1 si existe frontend/public/logos/empresas/<empresa_id>.png",
+    "origen": "sii, yc, getonbrd, concursos o curada (ver scripts/datos/empresas_curadas.json)",
+    "pais": "país de la empresa (Chile salvo las extranjeras)",
+    "peso": "share_ocupados_banda del rubro (esi_ingreso_rubro_edad, 18-54) repartido en partes iguales entre las empresas del mismo tipo y rubro; probabilidad relativa de sorteo",
+    "mult_sueldo": "multiplicador del sueldo del rubro; media geométrica ponderada por peso = 1 en cada (tipo, rubro), para no mover las medianas. Grandes, pymes y startups: p50 ESI de su tamaño / media de su tipo × exp(σ·z − σ²/2) con σ = EMPRESA_SIGMA_SUELDO. Públicas: renta de sus concursos / mediana del estamento. Extranjeras: punto medio de sus avisos / mediana de su seniority. Públicas y extranjeras acotadas a [p25/p50, p75/p50] ESI del rubro",
+    "mult_despido": "salida anual INE de su tamaño de empresa / promedio de su tipo, normalizado a media 1 por (tipo, rubro); 1 si no hay tamaño",
+    "mult_cierre": "solo startups: share_inactiva de su industria YC / promedio YC, normalizado a media 1 por (tipo, rubro); 1 para el resto",
+    "mult_ascenso": "exp(σ·z − σ²/2) con σ = EMPRESA_SIGMA_ASCENSO, normalizado a media 1 por (tipo, rubro)",
+    "exposicion_ia": "aplicabilidad de IA promedio de 7 ocupaciones típicas del rubro (0-1, valor absoluto)",
+    "horas": "jornada semanal habitual: 44 o 50; la fracción con 50 replica share_50_mas de esi_jornada",
+    "calidad_sueldo": "'derivado' (sale de tablas sin sorteo) o 'sintetico' (lleva sorteo con semilla fija o un cruce hecho a mano)",
+    "calidad_despido": "'derivado' (sale de tablas sin sorteo) o 'sintetico' (lleva sorteo con semilla fija o un cruce hecho a mano)",
+    "calidad_ascenso": "'derivado' (sale de tablas sin sorteo) o 'sintetico' (lleva sorteo con semilla fija o un cruce hecho a mano)",
+    "calidad_ia": "'derivado' (sale de tablas sin sorteo) o 'sintetico' (lleva sorteo con semilla fija o un cruce hecho a mano)",
+    "calidad_horas": "'derivado' (sale de tablas sin sorteo) o 'sintetico' (lleva sorteo con semilla fija o un cruce hecho a mano)"
+   },
+   "poblacion": "160 empresas reales elegidas a mano, unas 10 por rubro",
+   "ponderador": "peso",
+   "fuente_id": "sii_nomina_2024",
+   "script": "scripts/empresas_catalogo.py",
+   "advertencia": "Los multiplicadores mueven a la empresa dentro de su tipo y rubro, no el promedio. σ de sueldo calibrado = 0.28. Fuentes: nómina SII 2024, Y Combinator, Get on Board, empleospublicos.cl, ESI 2025, INE flujos laborales, Microsoft (IA).",
+   "filas": 160
   },
   {
    "tabla": "enut_cuidados_por_hijos",
@@ -918,6 +981,56 @@
    "filas": 36
   },
   {
+   "tabla": "sies_magister_2026",
+   "archivo": "tablas/sies_magister_2026.csv",
+   "descripcion": "Magísteres de cada universidad: arancel anual y duración medianos, cuántos programas tiene y si es selectiva.",
+   "columnas": {
+    "universidad_id": "código SIES de la universidad",
+    "universidad": "nombre de la universidad",
+    "sigla": "sigla, si tiene",
+    "selectiva": "1 si más de la mitad de sus estudiantes está en el 30% superior de la PAES 2024 y 2025 (regla de DIPRES 2026)",
+    "programas": "magísteres vigentes con estudiantes nuevos en 2026",
+    "arancel_anual": "arancel anual mediano de sus magísteres, CLP",
+    "anios": "duración mediana, años",
+    "frac_no_diurna": "fracción de sus magísteres en jornada vespertina, semipresencial o a distancia"
+   },
+   "poblacion": "Universidades con magísteres vigentes y estudiantes nuevos en la oferta SIES 2026",
+   "ponderador": "ninguno",
+   "fuente_id": "sies_2026",
+   "script": "datos_laborales/scripts/modelo/magister_*.py (traído del PR #3)",
+   "advertencia": "Arancel y duración son medianas por universidad, no por programa. La selectividad replica la regla de DIPRES con la PAES de DEMRE.",
+   "filas": 51
+  },
+  {
+   "tabla": "universidades",
+   "archivo": "tablas/universidades.csv",
+   "descripcion": "Universidades, institutos profesionales y CFT de Chile, más universidades extranjeras para magíster: matrícula, aranceles, prima de sueldo de pregrado y peso de magíster.",
+   "columnas": {
+    "universidad_id": "código SIES de la institución (el mismo de sies_magister_2026 en universidades); ext_<slug> para extranjeras",
+    "nombre": "nombre de la institución",
+    "sigla": "sigla usual, si tiene",
+    "pais": "país",
+    "tipo_institucion": "U, IP, CFT o EXT (extranjera)",
+    "selectiva": "1 si es selectiva según la regla DIPRES 2026 (sies_magister_2026); 0 para IP, CFT y universidades sin magísteres en SIES 2026; 1 para extranjeras",
+    "matricula": "matrícula total de pregrado 2025 (SIES, Buscador de Carreras 2025-2026); 0 para extranjeras",
+    "peso_magister": "probabilidad relativa de elegirla para un magíster: programas vigentes SIES 2026 / total × 0,97; las extranjeras se reparten 0,03 en partes iguales (supuesto sintético)",
+    "arancel_anual_pregrado": "arancel anual 2026 promedio de sus programas de pregrado ponderado por matrícula, CLP",
+    "prima_pregrado": "ingreso al 4° año de sus carreras / ingreso genérico de esas carreras (mifuturo_carreras), promedio por carrera, normalizado a media 1 ponderada por matrícula dentro de su tipo; vacío sin datos",
+    "calidad_prima": "'derivado' si hay prima; vacío si no",
+    "arancel_anual_magister": "arancel anual mediano de sus magísteres, CLP (sies_magister_2026); vacío si no tiene",
+    "arancel_magister_usd": "solo extranjeras: arancel anual en USD del magíster típico, desde la página oficial del programa (URL en scripts/datos/universidades_curadas.json)",
+    "anios_magister": "duración del magíster en años (mediana SIES o la del programa extranjero)",
+    "dominio": "sitio web oficial, para el ícono; vacío si no hay uno seguro",
+    "logo": "1 si existe frontend/public/logos/universidades/<universidad_id>.png"
+   },
+   "poblacion": "101 instituciones: todas las universidades con pregrado o magíster en SIES, los IP y CFT con al menos 1% de la matrícula de su tipo, y 22 extranjeras",
+   "ponderador": "matricula (pregrado) o peso_magister (magíster)",
+   "fuente_id": "mineduc_mifuturo",
+   "script": "scripts/universidades.py",
+   "advertencia": "El ingreso por institución viene en tramos de $100 mil (se usa el punto medio; el tramo abierto 'Sobre $3,5 millones' usa su cota inferior), así que la prima de las instituciones de ingresos más altos queda subestimada. La prima compara carreras iguales, pero no corrige por quién entra a cada institución.",
+   "filas": 101
+  },
+  {
    "tabla": "yc_chile",
    "archivo": "tablas/yc_chile.csv",
    "descripcion": "Empresas YC con alguna ubicación en Chile: batch, estado, industria, tamaño de equipo y descripción.",
@@ -1001,27 +1114,6 @@
    "script": "scripts/simulador/internacional.py",
    "advertencia": "No hay fecha de cierre: se usa el estado actual de cohortes de distinta edad, mezclando efecto edad y efecto cohorte (las de 2020-2021 son mucho más grandes). Cierres subregistrados.",
    "filas": 15
-  },
-  {
-   "tabla": "sies_magister_2026",
-   "archivo": "tablas/sies_magister_2026.csv",
-   "descripcion": "Magísteres de cada universidad: arancel anual y duración medianos, cuántos programas tiene y si es selectiva.",
-   "columnas": {
-    "universidad_id": "código SIES de la universidad",
-    "universidad": "nombre de la universidad",
-    "sigla": "sigla, si tiene",
-    "selectiva": "1 si más de la mitad de sus estudiantes está en el 30% superior de la PAES 2024 y 2025 (regla de DIPRES 2026)",
-    "programas": "magísteres vigentes con estudiantes nuevos en 2026",
-    "arancel_anual": "arancel anual mediano de sus magísteres, CLP",
-    "anios": "duración mediana, años",
-    "frac_no_diurna": "fracción de sus magísteres en jornada vespertina, semipresencial o a distancia"
-   },
-   "poblacion": "Universidades con magísteres vigentes y estudiantes nuevos en la oferta SIES 2026",
-   "ponderador": "ninguno",
-   "fuente_id": "sies_2026",
-   "script": "datos_laborales/scripts/modelo/magister_*.py (traído del PR #3)",
-   "advertencia": "Arancel y duración son medianas por universidad, no por programa. La selectividad replica la regla de DIPRES con la PAES de DEMRE.",
-   "filas": 51
   }
  ]
 }

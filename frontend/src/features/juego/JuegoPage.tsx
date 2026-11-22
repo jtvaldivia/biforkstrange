@@ -69,10 +69,11 @@ function Juego() {
         onComparar={j.compararCon}
         onAyuda={() => setTutorial("ayuda")}
         onVerMundo={j.verMundo}
+        onNarrar={j.narrar}
       />
     );
   }
-  if (j.fase === "paso" && j.vista) return <QuePaso previa={j.previa} vista={j.vista} sueldoInicial={sueldoInicial} onSeguir={j.seguir} />;
+  if (j.fase === "paso" && j.vista) return <QuePaso previa={j.previa} vista={j.vista} sueldoInicial={sueldoInicial} onSeguir={j.seguir} onNarrar={j.narrar} />;
   if (j.fase === "cierre" && j.vista?.cierre)
     return (
       <CierrePantalla

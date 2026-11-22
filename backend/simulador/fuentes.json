@@ -474,6 +474,30 @@
    "pais": "Chile",
    "tipo": "microdatos",
    "verificacion": "descargado"
+  },
+  {
+   "id": "sii_nomina_2024",
+   "cita": "SII, Nómina de empresas personas jurídicas, año comercial 2024",
+   "url": "https://www.sii.cl/sobre_el_sii/nominapersonasjuridicas.html",
+   "pais": "Chile",
+   "tipo": "registro",
+   "verificacion": "descargado"
+  },
+  {
+   "id": "equipo_sintetico",
+   "cita": "Sorteo del equipo con semilla fija sobre una distribución calibrada con tablas del paquete (scripts/empresas_catalogo.py, scripts/universidades.py)",
+   "url": "",
+   "pais": "",
+   "tipo": "supuesto",
+   "verificacion": "supuesto"
+  },
+  {
+   "id": "aranceles_magister_extranjeros",
+   "cita": "Páginas oficiales de aranceles de magíster de 22 universidades extranjeras, consultadas en noviembre de 2026 (URL de cada una en scripts/datos/universidades_curadas.json); tipos de cambio BCE, Superintendencia Financiera de Colombia y BCRA",
+   "url": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html",
+   "pais": "Internacional",
+   "tipo": "datos",
+   "verificacion": "leído en la fuente"
   }
  ]
 }

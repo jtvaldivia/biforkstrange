@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getDudas, getMundo, getVista } from "../api";
+import { getDudas, getMundo, getNarracion, getVista } from "../api";
 import type { Duda, DudaSugerida, Eleccion, ParametrosComparar, Partida, Perfil, Vista } from "../types";
 
 export type Fase = "inicio" | "perfil" | "duda" | "carta" | "paso" | "cierre";
@@ -204,6 +204,15 @@ export function usePartida() {
     return getMundo(partida, mundo, parametrosCarta.current);
   }, [partida]);
 
+  /** Textos de la partida contados por Sonnet (la carta, la historia o un mundo de la carta). */
+  const narrar = useCallback(
+    (que: "pendiente" | "historia" | "mundo", signal: AbortSignal, mundo?: number) => {
+      if (!partida) return Promise.reject(new Error("No hay partida"));
+      return getNarracion(partida, que, { mundo, parametros: que === "mundo" ? parametrosCarta.current : {}, signal });
+    },
+    [partida],
+  );
+
   const seguir = useCallback(() => {
     if (vista) setFase(vista.terminada ? "cierre" : "carta");
   }, [vista]);
@@ -222,6 +231,6 @@ export function usePartida() {
 
   return {
     fase, perfil, partida, vista, previa, dudas, dudasSugeridas, cargando, recalculando, error,
-    irAInicio, irAPerfil, verDudas, empezar, empezarAlAzar, continuar, elegir, compararCon, verMundo, seguir, jugarDeNuevo, descartar,
+    irAInicio, irAPerfil, verDudas, empezar, empezarAlAzar, continuar, elegir, compararCon, verMundo, narrar, seguir, jugarDeNuevo, descartar,
   };
 }

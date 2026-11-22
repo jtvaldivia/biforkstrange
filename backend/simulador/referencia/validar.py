@@ -131,6 +131,20 @@ REGIONES = ['Valparaíso', 'Biobío', 'Antofagasta', 'Maule', 'La Araucanía', '
 carreras = pq.filas('mifuturo_carreras')
 
 
+def _ids(tabla, col, filtro=lambda f: True):
+    """Ids de una tabla del catálogo; lista vacía si la tabla todavía no existe."""
+    try:
+        return [f[col] for f in pq.filas(tabla) if filtro(f)]
+    except (KeyError, OSError):
+        return []
+
+
+UNIS_PRE = _ids('universidades', 'universidad_id', lambda f: f.get('tipo_institucion') != 'EXT')
+UNIS_EXT = _ids('universidades', 'universidad_id', lambda f: f.get('tipo_institucion') == 'EXT')
+EMPRESAS = [int(x) for x in _ids('empresas_catalogo', 'empresa_id')]
+CARGOS = [int(x) for x in _ids('cargos_catalogo', 'cargo_id')]
+
+
 def estado_al_azar():
     edad = R.randint(18, 50)
     edu = R.choice(['media', 'media', 'tecnica', 'universitaria', 'postgrado']) if edad >= 22 else 'media'
@@ -157,7 +171,10 @@ def estado_al_azar():
          'marcado': R.randint(0, 1), 'validado': 0, 'propietario': R.randint(0, 1), 'primer_grande': R.randint(0, 1), 'oferta_al_titularse': 0, 'ocupacion': R.randint(1, 9),
          'edad_decide_estudios': 18, 'cierra_en': 0,
          'rubro_destino': R.choice(RUBROS), 'region_destino': R.choice(REGIONES), 'ocupacion_destino': R.randint(1, 9), 'quien_enferma': R.choice(['madre', 'padre']),
-         'universidad_destino': R.choice([f['universidad_id'] for f in pq.filas('sies_magister_2026')])}
+         'universidad_destino': R.choice([f['universidad_id'] for f in pq.filas('sies_magister_2026')] + UNIS_EXT),
+         'universidad_id': R.choice(UNIS_PRE + ['']), 'institucion_destino': R.choice(UNIS_PRE or ['']),
+         'empresa_id': R.choice([-1] + EMPRESAS) if est == 'empleado' else -1, 'cargo_id': R.choice([-1] + CARGOS) if est == 'empleado' else -1,
+         'ia_adopcion': R.random(), 'ia_castigo_joven': R.uniform(0.75, 0.9)}
     for v in EST.values():
         if v['tipo'] == 'modificador':
             e.setdefault(v['nombre'], 1 if v['inicio'] == '1' else 0)

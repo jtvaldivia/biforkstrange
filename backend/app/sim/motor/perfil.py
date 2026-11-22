@@ -72,6 +72,8 @@ class Perfil:
     toda_su_carrera_en: str = ""          # publico | startup, si todos sus empleos (dos o más) fueron ahí
     ascensos_por_ano: float | None = None  # ascensos dentro de una misma empresa por año de experiencia
     empresas_cerradas: int = 0            # empresas propias que ya cerró
+    # Dónde estudió (universidades.universidad_id); vacío si no lo dice
+    universidad_id: str = ""
 
     @classmethod
     def a_los_18(cls, sexo: str = "m", riesgo: int = 5) -> "Perfil":
@@ -150,6 +152,25 @@ def _literal(inicio: str):
             return inicio if inicio in ("chile", "bien") else None
 
 
+def _institucion_por_defecto(pq: Paquete) -> str:
+    """La institución chilena con más matrícula; vacío si el paquete no trae el catálogo."""
+    try:
+        filas = [f for f in pq.filas("universidades") if f["tipo_institucion"] != "EXT"]
+    except (KeyError, OSError):
+        return ""
+    return max(filas, key=lambda f: float(f.get("matricula") or 0))["universidad_id"] if filas else ""
+
+
+def prima_universidad(pq: Paquete, universidad_id: str) -> float:
+    """Prima de sueldo de la institución (universidades.prima_pregrado); 1 si no hay dato."""
+    if not universidad_id:
+        return 1.0
+    try:
+        return float(pq.tabla("universidades", "prima_pregrado", "universidad_id", universidad_id))
+    except Exception:  # noqa: BLE001 - sin fila o celda vacía (extranjeras): neutra
+        return 1.0
+
+
 def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
     p = asdict(perfil)
     e: dict = {}
@@ -191,6 +212,7 @@ def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
         rubro_destino=perfil.rubro or RUBROS_DESTINO, region_destino="Valparaíso",
         ocupacion_destino=2, quien_enferma="madre",
         universidad_destino=pq.filas("sies_magister_2026")[0]["universidad_id"],  # la con más programas
+        institucion_destino=_institucion_por_defecto(pq), universidad_id=perfil.universidad_id or "",
     )
     # su historia no es del paquete: la lee la política de los gemelos, y solo si el CV la trae
     for rasgo in HISTORIA:

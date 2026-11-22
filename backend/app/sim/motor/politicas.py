@@ -143,7 +143,7 @@ def elecciones_internas(vida: Vida, opcion: Opcion) -> list[dict]:
     """Lo que hay que elegir dentro de una opción (a qué rubro, a qué ocupación), con sus alternativas."""
     pq, e = vida.pq, vida.e
     usadas = _variables_usadas(opcion)
-    if not usadas & {"rubro_destino", "ocupacion_destino", "region_destino", "universidad_destino"}:
+    if not usadas & {"rubro_destino", "ocupacion_destino", "region_destino", "universidad_destino", "institucion_destino"}:
         return []
     salida = []
     if "rubro_destino" in usadas:
@@ -169,12 +169,49 @@ def elecciones_internas(vida: Vida, opcion: Opcion) -> list[dict]:
         salida.append({"variable": "region_destino", "pregunta": "¿A qué región?", "alternativas": [
             {"valor": r, "nombre": r, "prob": p} for r, p in sorted(gente.items())]})
     if "universidad_destino" in usadas:
-        # peso: cuántos magísteres vigentes tiene cada universidad (SIES 2026)
-        salida.append({"variable": "universidad_destino", "pregunta": "¿En qué universidad?", "alternativas": [
+        # peso: cuántos magísteres vigentes tiene cada universidad (SIES 2026); las extranjeras, el peso
+        # chico y sintético de universidades.peso_magister (en la misma escala de programas)
+        alternativas = [
             {"valor": f["universidad_id"], "nombre": _universidad(f), "prob": float(f["programas"]),
-             "selectiva": f["selectiva"] == "1", "arancel_anual": float(f["arancel_anual"]), "anios": float(f["anios"])}
-            for f in pq.filas("sies_magister_2026")]})
+             "selectiva": f["selectiva"] == "1", "arancel_anual": float(f["arancel_anual"]), "anios": float(f["anios"]),
+             "pais": "Chile"}
+            for f in pq.filas("sies_magister_2026")]
+        usd = pq.k("USD")
+        alternativas += [
+            {"valor": f["universidad_id"], "nombre": f"{f['sigla'] or f['nombre']} ({f['pais']})",
+             "prob": float(f.get("peso_magister") or 0), "selectiva": True,
+             "arancel_anual": round(float(f.get("arancel_magister_usd") or 0) * usd), "anios": float(f.get("anios_magister") or 1),
+             "pais": f["pais"], "calidad": "sintetico"}
+            for f in _universidades(pq) if f["tipo_institucion"] == "EXT"]
+        salida.append({"variable": "universidad_destino", "pregunta": "¿En qué universidad?", "alternativas": alternativas})
+    if "institucion_destino" in usadas:
+        # peso: matrícula de pregrado de cada institución (SIES); solo chilenas y del tipo de la opción
+        tipo = _tipo_institucion(opcion)
+        alternativas = [
+            {"valor": f["universidad_id"], "nombre": f["sigla"] or f["nombre"], "prob": float(f.get("matricula") or 0),
+             "selectiva": f.get("selectiva") == "1", "arancel_anual": float(f.get("arancel_anual_pregrado") or 0)}
+            for f in _universidades(pq)
+            if f["tipo_institucion"] != "EXT" and (tipo is None or f["tipo_institucion"] == tipo)
+            and float(f.get("matricula") or 0) > 0]
+        if alternativas:
+            salida.append({"variable": "institucion_destino", "pregunta": "¿Dónde estudias?", "alternativas": alternativas})
     return salida
+
+
+def _universidades(pq) -> list[dict]:
+    try:
+        return pq.filas("universidades")
+    except (KeyError, OSError):
+        return []
+
+
+def _tipo_institucion(opcion: Opcion) -> str | None:
+    """U, IP o CFT: lo que fija la opción en tipo_institucion."""
+    for r in opcion.resultados:
+        for ef in r.get("efectos", []):
+            if ef["var"] == "tipo_institucion" and ef["op"] == "fija":
+                return str(ef["valor"]).strip("'")
+    return None
 
 
 def _universidad(f: dict) -> str:

@@ -1058,6 +1058,66 @@
    "unidad": "tasa",
    "descripcion": "Se suma al alza anual del sueldo (recuperación tras titularse en recesión).",
    "inicio": "0"
+  },
+  {
+   "nombre": "empresa_id",
+   "tipo": "entero",
+   "dominio": [
+    -1,
+    999
+   ],
+   "unidad": "",
+   "descripcion": "Empresa del catálogo (empresas_catalogo.empresa_id) donde trabaja; -1 sin empresa del catálogo (neutra: multiplicadores 1). La asigna el motor al entrar a un empleador.",
+   "inicio": "-1"
+  },
+  {
+   "nombre": "cargo_id",
+   "tipo": "entero",
+   "dominio": [
+    -1,
+    999
+   ],
+   "unidad": "",
+   "descripcion": "Cargo del catálogo (cargos_catalogo.cargo_id); -1 sin cargo. Lo asigna el motor junto con la empresa, compatible con educación, carrera y nivel.",
+   "inicio": "-1"
+  },
+  {
+   "nombre": "ia_adopcion",
+   "tipo": "numero",
+   "dominio": [
+    0,
+    1
+   ],
+   "unidad": "",
+   "descripcion": "Qué tan rápido adopta la IA este mundo: 0 lento, 1 rápido. El motor lo sortea una vez por gemelo (uniforme); es igual en todas las opciones del mismo gemelo.",
+   "inicio": "0.5"
+  },
+  {
+   "nombre": "ia_castigo_joven",
+   "tipo": "numero",
+   "dominio": [
+    0.75,
+    0.9
+   ],
+   "unidad": "multiplicador",
+   "descripcion": "Empleo joven en ocupaciones expuestas a IA respecto de las menos expuestas en este mundo: el rango de IA_JOVEN (Brynjolfsson 2025) recorrido por ia_adopcion (0,9 lento, 0,75 rápido).",
+   "inicio": "0.81"
+  },
+  {
+   "nombre": "universidad_id",
+   "tipo": "categoria",
+   "dominio": [],
+   "unidad": "",
+   "descripcion": "Institución donde estudió o estudia el pregrado (universidades.universidad_id: código SIES, o ext_<slug> si es extranjera); vacío si no se sabe.",
+   "inicio": "''"
+  },
+  {
+   "nombre": "institucion_destino",
+   "tipo": "eleccion",
+   "dominio": [],
+   "unidad": "",
+   "descripcion": "Institución donde entra a estudiar al salir del colegio (código SIES; lo elige el jugador).",
+   "inicio": "eleccion"
   }
  ]
 }

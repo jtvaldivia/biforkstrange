@@ -130,7 +130,7 @@ def test_el_documento_de_ejemplo_se_lee_exacto_y_sin_modelo(monkeypatch):
         "tipo_empleador": "startup", "nivel": 2, "sueldo": 2_624_000, "riesgo": 4, "ocupacion": 2,
         "antiguedad": 3, "region": "rm", "ahorro": None, "ingles": 1, "skill": 57, "red": 35,
         "estado": "empleado", "meses_cesante": 0, "parcial": 0, "remoto": 0, "usa_ia": 0, "empresa_anos": 0,
-        "empresa_fondos": 0, "anos_por_empleo": 3.0}
+        "empresa_fondos": 0, "anos_por_empleo": 3.0, "universidad_id": ""}
     assert any("82%" in frase for frase in r["inferido"])
 
 
@@ -441,3 +441,53 @@ def test_el_rubro_sonado_es_la_opcion_por_defecto_al_cambiarse():
     assert parametros_por_defecto(vida, opcion)["rubro_destino"] == "Artes y entretención"
     sin = Vida(estado_inicial(Perfil(), pq), Dados(0, "jugador"), pq)
     assert parametros_por_defecto(sin, opcion)["rubro_destino"] != "Artes y entretención"  # sin dato, como antes
+
+
+
+def test_el_esquema_de_la_api_cabe_en_los_limites_de_structured_outputs():
+    # la API acepta hasta 24 campos opcionales y 16 con tipo unión; con más responde 400
+    import json
+
+    esquema = perfil_ia.esquema_api().model_json_schema()
+    texto = json.dumps(esquema)
+    assert texto.count("anyOf") == 0 and texto.count('"type": [') == 0
+    assert set(esquema["properties"]) == set(esquema["required"])
+
+
+def test_desde_api_vuelve_los_no_se_a_none():
+    crudo = {k: -1 for k, v in perfil_ia.esquema_api().model_json_schema()["properties"].items() if v.get("type") == "integer"}
+    crudo |= {"sexo": "?", "edu": "universitaria", "ingles": "no", "remoto": "si", "rubro": "", "inferido": [],
+              "dudas_sugeridas": [], "edad": 33}
+    leido = perfil_ia.desde_api(crudo)
+    assert (leido.edad, leido.edu, leido.sexo, leido.ingles, leido.remoto, leido.rubro, leido.sueldo) == \
+           (33, "universitaria", None, False, True, None, None)
+
+
+def test_el_bloque_sin_cercas_se_lee_igual():
+    texto = "sueldo_liquido: 1800000\nduda: ?\nsituacion: empleado\nedad: 25\nestudios: universitaria\n" \
+            "rubro: Finanzas y seguros\ntipo_empresa: startup\nrubro_sonado: ?\nproyecto: Virgilio, un second brain"
+    r = perfil_doc.leer_documento(texto)
+    assert r is not None and r["perfil"]["edad"] == 25 and r["perfil"]["tipo_empleador"] == "startup"
+    assert "rubro_sonado" not in r["dados"] and r["dudas_sugeridas"][0]["decision"] == "emprender"
+    assert perfil_doc.leer_documento("Hola, soy Benito y trabajo en una startup.") is None
+
+
+def test_si_se_pega_la_conversacion_entera_se_lee_la_respuesta():
+    texto = perfil_doc.prompt() + "\n\n```gemelo-laboral\nsueldo_liquido: 2.100.000\nedad: 31\n```"
+    r = perfil_doc.leer_documento(texto)
+    assert (r["perfil"]["sueldo"], r["perfil"]["edad"]) == (2_100_000, 31) and r["avisos"] == []
+
+
+def test_numeros_como_los_escribe_una_persona():
+    casos = {"1.800.000": 1_800_000, "$1,5 millones": 1_500_000, "2M": 2_000_000, "900 mil": 900_000, "25": 25}
+    assert {k: perfil_doc._entero(k) for k in casos} == casos
+
+
+def test_lo_que_esta_fuera_de_rango_no_cuenta_como_dicho():
+    r = perfil_doc.leer_documento("```gemelo-laboral\nedad: 55\nsueldo_liquido: 1500000\n```")
+    assert "edad" not in r["dados"] and "sueldo" in r["dados"]
+
+
+def test_ritmo_de_cambio_absurdo_no_rompe():
+    leido = LEIDO.model_copy(update={"anios_experiencia": 1, "empleadores": 25})
+    assert perfil_ia.completar(leido)["perfil"]["anos_por_empleo"] == 0.1

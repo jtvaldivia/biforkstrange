@@ -6,9 +6,9 @@ from functools import lru_cache
 
 from fastapi import APIRouter, HTTPException, Query
 
-from app.schemas.juego import DudasIn, EnJuegoIn, MundoIn, PartidaIn, PesoCvIn, TextoPerfilIn
-from app.services import perfil_ia
-from app.sim.motor import partida, peso, supuestos, validacion
+from app.schemas.juego import DudasIn, EnJuegoIn, MundoIn, NarrarIn, PartidaIn, PesoCvIn, TextoPerfilIn
+from app.services import narracion, perfil_ia
+from app.sim.motor import empresas, partida, peso, supuestos, validacion
 from app.sim.motor.paquete import paquete
 from app.sim.motor.perfil import NIVELES
 
@@ -37,6 +37,8 @@ def catalogo():
              **{p: int(round(float(f[p]), -4)) for p in ("p25", "p50", "p75")}}  # redondeado a $10.000
             for f in pq.filas("esi_perfil_edad_edu")
         ],
+        # dónde estudió: chilenas (U, IP, CFT) y extranjeras; el logo está en /logos/universidades/<id>.png
+        "universidades": empresas.universidades(pq),
     }
 
 
@@ -88,6 +90,20 @@ def ver_mundo(body: MundoIn):
             body.perfil.a_perfil(), body.semilla, body.duda,
             [e.model_dump() for e in body.elecciones], body.mundo, body.parametros,
         )
+    except (ValueError, KeyError) as error:
+        raise HTTPException(422, str(error)) from error
+
+
+@router.post("/narrar")
+def narrar(body: NarrarIn):
+    """Los textos de la partida contados por Sonnet: la carta pendiente, la historia o un mundo.
+
+    Solo texto: ningún número. Si Sonnet no está o falla, cada texto vuelve con su plantilla
+    (`via: "plantilla"`), siempre con 200 si la partida es válida.
+    """
+    try:
+        return narracion.narrar(body.perfil.a_perfil(), body.semilla, body.duda,
+                                [e.model_dump() for e in body.elecciones], body.que, body.mundo, body.parametros)
     except (ValueError, KeyError) as error:
         raise HTTPException(422, str(error)) from error
 

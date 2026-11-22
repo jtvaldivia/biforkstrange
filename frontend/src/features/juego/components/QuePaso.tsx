@@ -1,6 +1,7 @@
 import { Button, Meta, Narrative, NightBand, Panel, Pill, Screen, ScreenFooter, ScreenHeader, SlowReveal, Stack, Text, YearTicker, cssVars } from "@/shared/ui";
 import { TIPO_EMPLEADOR, aniosDe, cargoYSueldo, conSigno, deCada, deCada10, pesos, plata, sinSueldo, situacion } from "../textos";
-import type { Anio, Estado, Vista } from "../types";
+import type { Anio, Estado, Narrado, Vista } from "../types";
+import { useNarracion } from "../hooks/useNarracion";
 import { GEMELOS } from "../api";
 import { Contador, LineaSueldo, Ruleta, type Casilla } from "./graficos";
 import { Noticia } from "./piezas";
@@ -67,7 +68,17 @@ function Quedaste({ antes, ahora, recorrido, espera }: { antes: Estado | undefin
  * Qué te pasó: el dado, las noticias del año y cómo quedaste.
  * Viene de "4 · Work and travel" / "5 · Las noches largas" (resultado del año) y "6 · Años sin decidir" (años que pasan) del kit.
  */
-export function QuePaso({ previa, vista, sueldoInicial, onSeguir }: { previa: Vista | null; vista: Vista; sueldoInicial: number; onSeguir: () => void }) {
+export function QuePaso({
+  previa, vista, sueldoInicial, onSeguir, onNarrar,
+}: {
+  previa: Vista | null;
+  vista: Vista;
+  sueldoInicial: number;
+  onSeguir: () => void;
+  /** Los eventos de cada año contados por Sonnet; sin él (o si falla) queda el texto del paquete. */
+  onNarrar?: (que: "historia", signal: AbortSignal) => Promise<{ items: Narrado[] }>;
+}) {
+  const narrados = useNarracion(onNarrar ? (signal) => onNarrar("historia", signal) : null, `${vista.historia.length}:${vista.anio_en_curso?.decisiones.length ?? 0}`);
   const tramos = loNuevo(previa, vista).filter((a) => a.fin || a.decisiones.length > 0 || a.eventos.some((e) => !e.rutina));
   const dado = tramos[0]?.decisiones[0];
   const cerrados = tramos.filter((a) => a.fin);
@@ -141,13 +152,18 @@ export function QuePaso({ previa, vista, sueldoInicial, onSeguir }: { previa: Vi
               {aniosDe(a.edad, a.fin?.edad, edadInicial)} · {a.edad} años{a.fin ? "" : " · sigue en curso"}
             </Meta>
             {eventos.map((e, j) => (
-              <Noticia key={`e${j}`} titulo={e.nombre} texto={e.texto} lado={e.directo ? undefined : queTanProbable(e.prob)} />
+              <Noticia
+                key={`e${j}`}
+                titulo={e.nombre}
+                texto={narrados[`anio:${a.anio}:evento:${a.eventos.indexOf(e)}`] ?? e.texto}
+                lado={e.directo ? undefined : queTanProbable(e.prob)}
+              />
             ))}
             {decisiones.map((d, j) => (
               <Noticia
                 key={`d${j}`}
                 titulo={d.nombre}
-                texto={d.narrativa ? `${d.narrativa.situacion} ${d.texto}` : d.texto}
+                texto={narrados[`anio:${a.anio}:decision:${a.decisiones.indexOf(d)}`] ?? (d.narrativa ? `${d.narrativa.situacion} ${d.texto}` : d.texto)}
                 lado={queTanProbable(d.prob)}
               />
             ))}

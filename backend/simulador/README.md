@@ -99,6 +99,7 @@ Cada decisión, opción, evento y parámetro trae `calidad`:
 
 - **dato**: medido en Chile o leído en la fuente original.
 - **mixto**: dato de otro país, o dato chileno con un ajuste del equipo.
+- **sintetico**: sorteado o calibrado con semilla fija a partir de una distribución real (ESI, INE, Get on Board, SIES), pero no medido para esa unidad. Ejemplo: el sueldo relativo de una empresa del catálogo. Cada número sintético tiene un parámetro de dispersión que se puede llevar a cero.
 - **supuesto**: sin fuente. Hay que decirlo si se muestra a un jurado.
 
 De las 104 opciones, 51 son supuesto. La mayoría son las opciones de no hacer nada ("quedarte", "no"), que no mueven el estado. Las decisiones que dependen casi solo de supuestos son `practica`, `intercambio`, `jefatura`, `bootcamp`, `cuidar_familiar`, `buscar_pareja`, `volver_a_chile` y `comprar_vivienda`.

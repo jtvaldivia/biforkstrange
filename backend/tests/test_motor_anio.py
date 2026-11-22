@@ -239,7 +239,8 @@ def test_la_recesion_se_sortea_antes_que_todo_y_el_anio_ya_la_ve():
     assert sep[0]["prob_evento"] == pytest.approx(p_normal * 1.4)
     # prob es la de que pase el evento y además salga ese resultado (aquí, no reemplearse en recesión)
     assert sep[0]["prob"] == pytest.approx(p_normal * 1.4 * (1 - (1 - math.exp(-9 / 10.5)) * 0.85))
-    assert d.pedidos[0] == (0, "evento:recesion")  # el primer dado del año es el del mundo
+    # el primer dado del año es el del mundo (el escenario de IA se sorteó una vez, al nacer la vida)
+    assert [p for p in d.pedidos if p[1] != "mundo:ia"][0] == (0, "evento:recesion")
 
 
 def test_los_eventos_van_despues_de_la_decision_y_ven_su_efecto():

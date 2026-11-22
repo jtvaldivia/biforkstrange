@@ -123,6 +123,11 @@ def vista(perfil: Perfil, semilla: int = 0, duda: str | None = None, elecciones:
     d = falta.decision
     ocurrencia = sum(1 for x in vida.registro["decisiones"] if x["decision"] == d["id"]) if vida.registro else 0
     contexto = {k: vida.e[k] for k in ("edad", "rubro", "tipo_empleador", "nivel", "region", "ocupacion", "estado", "antiguedad")}
+    contexto.update(vida.contexto_empleo())
+    ofertas = {o.id: empresas.oferta(vida, d["id"], o.id, ocurrencia) for o in falta.opciones}
+    primera = next((f for f in ofertas.values() if f is not None), None)
+    if primera is not None:
+        contexto["oferta"] = {k: primera[k] for k in ("empresa_id", "nombre", "cargo", "tipo", "rubro", "pais")}
     # por qué te tocó esta decisión: sorteada entre las cartas posibles, obligada por tu situación, o consecuencia
     origen = vida.cola[0][2] if vida.cola and vida.cola[0][0] == "decision" and vida.cola[0][1] == d["id"] else None
     if d["aparicion"]["tipo"] == "forzada":
@@ -141,7 +146,7 @@ def vista(perfil: Perfil, semilla: int = 0, duda: str | None = None, elecciones:
         "decision": d["id"], "nombre": d["nombre"], "pregunta": d["pregunta"], "categoria": d["categoria"],
         "calidad": d["calidad"], "creencia_vs_dato": d.get("creencia_vs_dato"), "evidencia": d.get("evidencia", []),
         "opciones": [{**opcion_a_dict(o), "elecciones_internas": elecciones_internas(vida, o),
-                      "ejemplo_real": empresas.para_opcion(pq, d["id"], o.id, vida.e, semilla, vida.anio)}
+                      "empresa": ofertas[o.id]}
                      for o in falta.opciones],
         "comparacion": comparar_pendiente(partida, semilla, n_gemelos, parametros),
     }

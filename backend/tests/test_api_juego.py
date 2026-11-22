@@ -303,11 +303,11 @@ def test_determinismo(client):
 def test_la_semilla_no_cambia_la_pregunta_solo_la_suerte(client):
     a = _ok(client, duda=DUDA, semilla=1, gemelos=0)["pendiente"]
     b = _ok(client, duda=DUDA, semilla=2, gemelos=0)["pendiente"]
-    # la historia de la carta (qué empresa, quién escribe) y el ejemplo real de cada opción
+    # la historia de la carta (qué empresa, quién escribe) y la empresa de cada opción
     # sí cambian con la semilla; la decisión no
     a.pop("narrativa"), b.pop("narrativa")
     for o in a["opciones"] + b["opciones"]:
-        o.pop("ejemplo_real")
+        o.pop("empresa")
     assert a == b
 
 

@@ -9,7 +9,7 @@ from collections import Counter
 
 from app.sim.motor.paquete import Paquete, paquete
 
-ORDEN = {"supuesto": 0, "mixto": 1, "dato": 2}
+ORDEN = {"supuesto": 0, "sintetico": 1, "mixto": 2, "dato": 3}
 
 
 def listar(pq: Paquete | None = None) -> dict:

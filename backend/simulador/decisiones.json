@@ -30,6 +30,11 @@
          "var": "tipo_institucion",
          "op": "fija",
          "valor": "'U'"
+        },
+        {
+         "var": "universidad_id",
+         "op": "fija",
+         "valor": "institucion_destino"
         }
        ],
        "luego": "elegir_carrera"
@@ -56,6 +61,11 @@
          "var": "tipo_institucion",
          "op": "fija",
          "valor": "'IP'"
+        },
+        {
+         "var": "universidad_id",
+         "op": "fija",
+         "valor": "institucion_destino"
         }
        ],
        "luego": "elegir_carrera"
@@ -81,6 +91,11 @@
          "var": "tipo_institucion",
          "op": "fija",
          "valor": "'CFT'"
+        },
+        {
+         "var": "universidad_id",
+         "op": "fija",
+         "valor": "institucion_destino"
         }
        ],
        "luego": "elegir_carrera"
@@ -791,7 +806,7 @@
         {
          "var": "sueldo_ref",
          "op": "multiplica",
-         "valor": "1 + k('PREMIO_MAGISTER', tabla('sies_magister_2026', 'selectiva', 'universidad_id', universidad_destino))"
+         "valor": "1 + si(tabla_o('Chile', 'universidades', 'pais', 'universidad_id', universidad_destino) == 'Chile', k('PREMIO_MAGISTER', tabla_o(0, 'sies_magister_2026', 'selectiva', 'universidad_id', universidad_destino)), k('PRIMA_EXTRANJERA'))"
         },
         {
          "var": "edad",
@@ -845,7 +860,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": "-(tabla('sies_magister_2026', 'arancel_anual', 'universidad_id', universidad_destino) * tabla('sies_magister_2026', 'anios', 'universidad_id', universidad_destino))"
+         "valor": "-(si(tabla_o('Chile', 'universidades', 'pais', 'universidad_id', universidad_destino) == 'Chile', tabla_o(0, 'sies_magister_2026', 'arancel_anual', 'universidad_id', universidad_destino), k('USD') * tabla_o(0, 'universidades', 'arancel_magister_usd', 'universidad_id', universidad_destino)) * si(tabla_o('Chile', 'universidades', 'pais', 'universidad_id', universidad_destino) == 'Chile', tabla_o(2, 'sies_magister_2026', 'anios', 'universidad_id', universidad_destino), tabla_o(1, 'universidades', 'anios_magister', 'universidad_id', universidad_destino)))"
         },
         {
          "var": "energia",
@@ -855,7 +870,7 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "1 + k('PREMIO_MAGISTER', tabla('sies_magister_2026', 'selectiva', 'universidad_id', universidad_destino))",
+         "valor": "1 + si(tabla_o('Chile', 'universidades', 'pais', 'universidad_id', universidad_destino) == 'Chile', k('PREMIO_MAGISTER', tabla_o(0, 'sies_magister_2026', 'selectiva', 'universidad_id', universidad_destino)), k('PRIMA_EXTRANJERA'))",
          "cuando": "estado == 'empleado'"
         }
        ]
@@ -869,7 +884,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": "-tabla('sies_magister_2026', 'arancel_anual', 'universidad_id', universidad_destino)"
+         "valor": "-si(tabla_o('Chile', 'universidades', 'pais', 'universidad_id', universidad_destino) == 'Chile', tabla_o(0, 'sies_magister_2026', 'arancel_anual', 'universidad_id', universidad_destino), k('USD') * tabla_o(0, 'universidades', 'arancel_magister_usd', 'universidad_id', universidad_destino))"
         },
         {
          "var": "energia",
@@ -1263,7 +1278,7 @@
      "resultados": [
       {
        "id": "queda",
-       "prob": "clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), 0.7) * si(y(edad <= 25, exposicion_ia >= k('IA_EXPUESTA')), k('IA_JOVEN'), 1) * si(recesion, 0.85, 1), 0.05, 0.97) * 0.9",
+       "prob": "clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), 0.7) * si(y(edad <= 25, exposicion_ia >= k('IA_EXPUESTA')), ia_castigo_joven, 1) * si(recesion, 0.85, 1), 0.05, 0.97) * 0.9",
        "texto": "Entras a una empresa grande.",
        "tono": "bueno",
        "efectos": [
@@ -1285,7 +1300,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * 1.06"
+         "valor": "(k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * 1.06) * tabla_o(1, 'universidades', 'prima_pregrado', 'universidad_id', universidad_id)"
         },
         {
          "var": "primer_grande",
@@ -1296,7 +1311,7 @@
       },
       {
        "id": "cae_pyme",
-       "prob": "(1 - clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), 0.7) * si(y(edad <= 25, exposicion_ia >= k('IA_EXPUESTA')), k('IA_JOVEN'), 1) * si(recesion, 0.85, 1), 0.05, 0.97) * 0.9) * 0.65",
+       "prob": "(1 - clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), 0.7) * si(y(edad <= 25, exposicion_ia >= k('IA_EXPUESTA')), ia_castigo_joven, 1) * si(recesion, 0.85, 1), 0.05, 0.97) * 0.9) * 0.65",
        "texto": "No quedas, pero entras a una pyme.",
        "tono": "neutro",
        "efectos": [
@@ -1318,7 +1333,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * 0.92"
+         "valor": "(k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * 0.92) * tabla_o(1, 'universidades', 'prima_pregrado', 'universidad_id', universidad_id)"
         }
        ]
       },
@@ -1355,7 +1370,7 @@
      "resultados": [
       {
        "id": "queda",
-       "prob": "clamp(clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), 0.7) * si(y(edad <= 25, exposicion_ia >= k('IA_EXPUESTA')), k('IA_JOVEN'), 1) * si(recesion, 0.85, 1), 0.05, 0.97) + 0.1, 0.05, 0.97)",
+       "prob": "clamp(clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), 0.7) * si(y(edad <= 25, exposicion_ia >= k('IA_EXPUESTA')), ia_castigo_joven, 1) * si(recesion, 0.85, 1), 0.05, 0.97) + 0.1, 0.05, 0.97)",
        "texto": "Entras a una pyme.",
        "tono": "bueno",
        "efectos": [
@@ -1377,7 +1392,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * 0.95"
+         "valor": "(k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * 0.95) * tabla_o(1, 'universidades', 'prima_pregrado', 'universidad_id', universidad_id)"
         }
        ]
       },
@@ -1413,7 +1428,7 @@
      "resultados": [
       {
        "id": "queda",
-       "prob": "clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), 0.7) * si(y(edad <= 25, exposicion_ia >= k('IA_EXPUESTA')), k('IA_JOVEN'), 1) * si(recesion, 0.85, 1), 0.05, 0.97)",
+       "prob": "clamp(si(carrera_id >= 0, tabla('mifuturo_carreras', 'empleabilidad_ano1', 'carrera_id', carrera_id), 0.7) * si(y(edad <= 25, exposicion_ia >= k('IA_EXPUESTA')), ia_castigo_joven, 1) * si(recesion, 0.85, 1), 0.05, 0.97)",
        "texto": "Entras a una startup.",
        "tono": "bueno",
        "efectos": [
@@ -1440,7 +1455,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * 0.94"
+         "valor": "(k('LIQUIDO') * si(carrera_id >= 0, tabla('mifuturo_carreras', 'p50_ano1', 'carrera_id', carrera_id), tabla_o(tabla('esi_perfil_edad_edu', 'p50', 'educacion', edu, 'banda', banda7), 'esi_ingreso_sexo_edad_edu', 'p50', 'sexo', sexo_txt, 'banda_edad', banda7, 'educacion', edu_esi) / k('LIQUIDO')) * 0.94) * tabla_o(1, 'universidades', 'prima_pregrado', 'universidad_id', universidad_id)"
         }
        ]
       },
@@ -3040,7 +3055,7 @@
         {
          "var": "p_encontrar",
          "op": "multiplica",
-         "valor": "si(exposicion_ia >= k('IA_EXPUESTA'), k('IA_JOVEN'), 1)",
+         "valor": "si(exposicion_ia >= k('IA_EXPUESTA'), ia_castigo_joven, 1)",
          "cuando": "edad <= 25"
         }
        ]

@@ -6,8 +6,10 @@ personas"). Reglas:
 
 - Solo texto. Ningún número del juego sale de aquí, y el texto no promete cifras: las cifras
   las pone el motor y se muestran aparte.
-- Empresas ficticias pero creíbles para el rubro de la persona. Con nombres reales la carta
-  inventaría hechos sobre empresas que existen ("la startup cierra").
+- Si la persona trabaja en una empresa del catálogo, o la oferta trae una (`contexto["empresa"]`,
+  `contexto["oferta"]`), se usa su nombre real: es la misma que muestra la carta. Lo que le pasa a la
+  empresa en la historia es de este mundo simulado, no un hecho sobre la empresa real. Sin empresa del
+  catálogo, quedan las ficticias de abajo.
 - Determinista: la misma partida (semilla) cuenta la misma historia. Usa dados propios, que no
   tocan los de la simulación.
 """
@@ -112,9 +114,14 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
     # tu propia empresa no cambia mientras sigas ahí: se sortea por el año en que entraste, no por el año de la carta
     entrada = int(contexto.get("edad", 0)) - int(contexto.get("antiguedad") or 0)
     propia = _Sorteo(semilla, 0, f"propia:{rubro}:{tipo}:{entrada}", 0)
-    aqui = _empresa(propia, rubro, tipo, "propia")
+    aqui = contexto.get("empresa") or _empresa(propia, rubro, tipo, "propia")
+    oferta = contexto.get("oferta") or {}
+    puesto = f"ser {oferta['cargo']}" if oferta.get("cargo") else CARGOS[min(nivel, 4)]
 
-    if decision == "oferta_externa":
+    if decision == "oferta_externa" and oferta:
+        texto = (f"{canal}, te contacta {quien} de {oferta['nombre']}. Buscan a alguien con tu experiencia "
+                 f"en {rubro.lower()} y te ofrecen {puesto}. Quieren una respuesta esta semana.")
+    elif decision == "oferta_externa":
         destino = _otro_tipo(s, tipo) if s.dados.u(anio, f"{s.base}:cambia_tipo") < 0.4 else tipo
         otra = _empresa(s, rubro, destino)
         for intento in range(1, 6):  # que no te ofrezca trabajo tu propia empresa
@@ -123,6 +130,9 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
             otra = _empresa(s, rubro, destino, f"empresa{intento}")
         texto = (f"{canal}, te contacta {quien} de {otra}. Buscan a alguien con tu experiencia "
                  f"en {rubro.lower()} para {CARGOS[min(nivel, 4)]}. Quieren una respuesta esta semana.")
+    elif decision == "unirse_a_startup" and oferta:
+        texto = (f"{oferta['nombre']} te ofrece {puesto} en su equipo. Pagan menos que tu pega actual, "
+                 f"pero te dan acciones. {canal}, te lo propone {quien}.")
     elif decision == "unirse_a_startup":
         nombre, desc = s.uno("startup", STARTUPS_RUBRO.get(rubro) or STARTUPS)
         texto = (f"{nombre}, {desc}, te ofrece entrar al equipo fundador. Pagan menos que tu pega actual, "
@@ -163,9 +173,14 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
     elif decision == "magister":
         texto = (f"Te llega la convocatoria de {s.uno('mg', ['un magíster en la Chile', 'un MBA en la Católica', 'un magíster en la Adolfo Ibáñez'])}. "
                  f"Varios de tu generación ya lo hicieron.")
+    elif decision == "emigrar" and oferta:
+        texto = (f"{oferta['nombre']} está contratando gente de Latinoamérica con visa de trabajo y te ofrece {puesto}. "
+                 f"{canal}, te escribe {quien}.")
     elif decision == "emigrar":
         nombre, desc = s.uno("afuera", EXTRANJERAS)
         texto = f"{nombre}, {desc}, está contratando gente de Latinoamérica con visa de trabajo. {canal}, te escribe {quien}."
+    elif decision == "remoto_para_afuera" and oferta:
+        texto = f"{oferta['nombre']} busca gente remota desde Chile, pagando en dólares: te ofrece {puesto}. {canal}, te llega la oferta."
     elif decision == "remoto_para_afuera":
         nombre, desc = s.uno("remoto", EXTRANJERAS)
         texto = f"{nombre}, {desc}, busca gente remota desde Chile, pagando en dólares. {canal}, te llega la oferta."

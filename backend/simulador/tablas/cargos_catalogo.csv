@@ -1,0 +1,121 @@
+cargo_id,nombre,ciuo08_1d,ocupacion_ia,exposicion_ia,area_getonbrd,prima_getonbrd,nivel_min,nivel_max,edu_min,areas,rubros,tipos,peso,calidad_ia,calidad_prima
+0,Gerente general,1,Chief Executives,0.156,,1,4,4,universitaria,Administración y Comercio|Tecnología|Ciencias Sociales|Derecho|Ciencias Básicas,*,grande|pyme|startup,0.003286666667,derivado,derivado
+1,Gerente de finanzas,1,Financial Managers,0.149,,1,3,4,universitaria,Administración y Comercio|Ciencias Básicas|Tecnología,*,grande|pyme|startup|extranjero,0.003286666667,derivado,derivado
+2,Gerente comercial,1,Sales Managers,0.164,,1,3,4,universitaria,Administración y Comercio|Ciencias Sociales|Tecnología,*,grande|pyme|startup|extranjero,0.003286666667,derivado,derivado
+3,Gerente de tecnología (CTO),1,Computer and Information Systems Managers,0.152,desarrollo,1.1778,3,4,universitaria,Tecnología|Ciencias Básicas,*,grande|pyme|startup|extranjero,0.003286666667,derivado,dato
+4,Gerente de personas,1,Human Resources Managers,0.137,,1,3,4,universitaria,Administración y Comercio|Ciencias Sociales|Humanidades|Derecho,*,grande|pyme|startup|publico,0.003286666667,derivado,derivado
+5,Gerente de marketing,1,Marketing Managers,0.189,comercial_marketing,0.7778,3,4,universitaria,Administración y Comercio|Ciencias Sociales|Humanidades|Arte y Arquitectura,*,grande|pyme|startup|extranjero,0.003286666667,derivado,dato
+6,Jefe de operaciones,1,General and Operations Managers,0.110,,1,3,4,media,*,*,*,0.003286666667,derivado,derivado
+7,Administrador de obra,1,Construction Managers,0.145,,1,2,4,tecnica,Tecnología|Arte y Arquitectura,Construcción|Minería|Otros servicios|Servicios profesionales,grande|pyme|startup|publico,0.003286666667,derivado,derivado
+8,Jefe de departamento,1,"Managers, All Other",0.146,,1,3,4,universitaria,*,*,publico,0.003286666667,sintetico,derivado
+9,Director de colegio,1,"Education Administrators, Kindergarten through Secondary",0.135,,1,3,4,universitaria,Educación|Humanidades|Ciencias Sociales,Enseñanza,grande|pyme|publico,0.003286666667,derivado,derivado
+10,Administrador de tienda,1,General and Operations Managers,0.110,,1,2,4,media,*,Comercio|Artes y entretención|Otros servicios,grande|pyme|startup,0.003286666667,sintetico,derivado
+11,Administrador de restaurante,1,Food Service Managers,0.091,,1,2,4,media,*,Hoteles y restaurantes,grande|pyme|startup,0.003286666667,derivado,derivado
+12,Jefe de establecimiento de salud,1,Medical and Health Services Managers,0.163,,1,3,4,universitaria,Salud|Administración y Comercio,Salud,grande|pyme|publico,0.003286666667,derivado,derivado
+13,Jefe de producción,1,Industrial Production Managers,0.120,,1,3,4,tecnica,Tecnología|Ciencias Básicas|Agropecuaria,Industria manufacturera|Minería|Agricultura y pesca,grande|pyme|startup,0.003286666667,derivado,derivado
+14,Jefe de logística,1,"Transportation, Storage, and Distribution Managers",0.205,,1,3,4,tecnica,*,Transporte|Comercio|Industria manufacturera|Minería|Agricultura y pesca,grande|pyme|startup,0.003286666667,derivado,derivado
+15,Desarrollador backend,2,Software Developers,0.278,desarrollo,1.1778,0,3,tecnica,Tecnología|Ciencias Básicas,*,*,0.004723809524,derivado,dato
+16,Desarrollador frontend,2,Web Developers,0.353,desarrollo,1.1778,0,3,tecnica,Tecnología|Ciencias Básicas|Arte y Arquitectura,*,*,0.004723809524,derivado,dato
+17,Desarrollador full stack,2,Software Developers,0.278,desarrollo,1.1778,0,3,tecnica,Tecnología|Ciencias Básicas,*,*,0.004723809524,derivado,dato
+18,Tech lead,2,Software Developers,0.278,desarrollo,1.1778,2,3,tecnica,Tecnología|Ciencias Básicas,*,grande|pyme|startup|extranjero,0.004723809524,derivado,dato
+19,Ingeniero DevOps,2,Network and Computer Systems Administrators,0.253,infra_devops_qa,1.0667,1,3,tecnica,Tecnología|Ciencias Básicas,*,grande|pyme|startup|extranjero,0.004723809524,sintetico,dato
+20,Analista QA,2,Software Quality Assurance Analysts and Testers,0.328,infra_devops_qa,1.0667,0,2,tecnica,Tecnología|Ciencias Básicas,*,grande|pyme|startup|extranjero,0.004723809524,derivado,dato
+21,Analista de ciberseguridad,2,Information Security Analysts,0.222,infra_devops_qa,1.0667,1,3,universitaria,Tecnología|Ciencias Básicas,Finanzas y seguros|Información y comunicaciones|Administración pública|Servicios profesionales|Minería|Comercio,grande|startup|publico|extranjero,0.004723809524,derivado,dato
+22,Ingeniero de datos,2,Database Architects,0.312,datos_ia,1.2222,1,3,universitaria,Tecnología|Ciencias Básicas,*,grande|pyme|startup|publico|extranjero,0.004723809524,sintetico,dato
+23,Analista de datos,2,Data Scientists,0.357,datos_ia,1.2222,0,2,universitaria,Tecnología|Ciencias Básicas|Administración y Comercio|Ciencias Sociales,*,*,0.004723809524,sintetico,dato
+24,Científico de datos,2,Data Scientists,0.357,datos_ia,1.2222,1,3,universitaria,Tecnología|Ciencias Básicas,*,grande|startup|publico|extranjero,0.004723809524,derivado,dato
+25,Ingeniero de machine learning,2,Computer and Information Research Scientists,0.169,datos_ia,1.2222,1,3,universitaria,Tecnología|Ciencias Básicas,Información y comunicaciones|Finanzas y seguros|Comercio|Salud|Servicios profesionales|Minería,grande|startup|extranjero,0.004723809524,sintetico,dato
+26,Product manager,2,Project Management Specialists,0.182,producto_diseno,0.8667,1,3,universitaria,Tecnología|Administración y Comercio|Ciencias Básicas|Arte y Arquitectura,*,grande|pyme|startup|extranjero,0.004723809524,sintetico,dato
+27,Diseñador UX/UI,2,Web and Digital Interface Designers,0.294,producto_diseno,0.8667,0,3,tecnica,Arte y Arquitectura|Tecnología|Humanidades,*,grande|pyme|startup|extranjero,0.004723809524,derivado,dato
+28,Diseñador gráfico,2,Graphic Designers,0.228,producto_diseno,0.8667,0,2,tecnica,Arte y Arquitectura|Humanidades,Información y comunicaciones|Servicios profesionales|Comercio|Artes y entretención|Industria manufacturera,grande|pyme|startup|extranjero,0.004723809524,derivado,dato
+29,Analista de marketing digital,2,Market Research Analysts and Marketing Specialists,0.350,comercial_marketing,0.7778,0,2,tecnica,Administración y Comercio|Ciencias Sociales|Humanidades|Arte y Arquitectura,*,grande|pyme|startup|extranjero,0.004723809524,derivado,dato
+30,Analista financiero,2,Financial and Investment Analysts,0.278,,1,0,2,universitaria,Administración y Comercio|Ciencias Básicas|Tecnología,*,*,0.004723809524,derivado,derivado
+31,Contador auditor,2,Accountants and Auditors,0.195,,1,0,3,universitaria,Administración y Comercio,*,*,0.004723809524,derivado,derivado
+32,Abogado,2,Lawyers,0.180,,1,0,3,universitaria,Derecho,*,grande|pyme|startup|publico,0.004723809524,derivado,derivado
+33,Consultor de negocios,2,Management Analysts,0.353,,1,0,3,universitaria,Administración y Comercio|Tecnología|Ciencias Sociales|Ciencias Básicas,Servicios profesionales|Finanzas y seguros|Otros servicios|Información y comunicaciones,grande|pyme|extranjero,0.004723809524,derivado,derivado
+34,Analista de políticas públicas,2,Management Analysts,0.353,,1,0,3,universitaria,Ciencias Sociales|Administración y Comercio|Derecho|Humanidades,*,publico,0.004723809524,sintetico,derivado
+35,Analista de recursos humanos,2,Human Resources Specialists,0.201,,1,0,2,tecnica,Administración y Comercio|Ciencias Sociales|Humanidades,*,*,0.004723809524,derivado,derivado
+36,Ingeniero civil en obras,2,Civil Engineers,0.205,,1,0,3,universitaria,Tecnología|Ciencias Básicas,Construcción|Minería|Otros servicios|Servicios profesionales|Transporte|Administración pública,grande|pyme|startup|publico,0.004723809524,derivado,derivado
+37,Ingeniero de minas,2,"Mining and Geological Engineers, Including Mining Safety Engineers",0.225,,1,0,3,universitaria,Tecnología|Ciencias Básicas,Minería|Servicios profesionales,grande|pyme,0.004723809524,derivado,derivado
+38,Geólogo,2,"Geoscientists, Except Hydrologists and Geographers",0.174,,1,0,3,universitaria,Ciencias Básicas,Minería|Servicios profesionales|Administración pública,grande|pyme|publico,0.004723809524,derivado,derivado
+39,Ingeniero de procesos,2,Industrial Engineers,0.253,,1,0,3,universitaria,Tecnología|Ciencias Básicas,Industria manufacturera|Minería|Comercio|Transporte|Agricultura y pesca|Hoteles y restaurantes,grande|pyme|startup,0.004723809524,derivado,derivado
+40,Arquitecto,2,"Architects, Except Landscape and Naval",0.175,,1,0,3,universitaria,Arte y Arquitectura,Construcción|Servicios profesionales|Administración pública|Otros servicios,grande|pyme|startup|publico,0.004723809524,derivado,derivado
+41,Médico general,2,Family Medicine Physicians,0.165,,1,0,3,universitaria,Salud,Salud|Minería|Servicios profesionales,grande|pyme|startup|publico,0.004723809524,derivado,derivado
+42,Enfermera,2,Registered Nurses,0.122,,1,0,3,universitaria,Salud,Salud|Enseñanza|Minería,grande|pyme|startup|publico,0.004723809524,derivado,derivado
+43,Kinesiólogo,2,Physical Therapists,0.172,,1,0,3,universitaria,Salud,Salud|Artes y entretención,grande|pyme|startup|publico,0.004723809524,derivado,derivado
+44,Psicólogo,2,Clinical and Counseling Psychologists,0.211,,1,0,3,universitaria,Ciencias Sociales|Salud,Salud|Enseñanza|Administración pública|Servicios profesionales,grande|pyme|startup|publico,0.004723809524,derivado,derivado
+45,Químico farmacéutico,2,Pharmacists,0.278,,1,0,3,universitaria,Salud|Ciencias Básicas,Salud|Comercio|Industria manufacturera,grande|pyme|publico,0.004723809524,derivado,derivado
+46,Nutricionista,2,Dietitians and Nutritionists,0.221,,1,0,3,universitaria,Salud,Salud|Hoteles y restaurantes|Enseñanza,grande|pyme|publico,0.004723809524,derivado,derivado
+47,Terapeuta ocupacional,2,Occupational Therapists,0.106,,1,0,3,universitaria,Salud,Salud,grande|pyme|publico,0.004723809524,derivado,derivado
+48,Profesor de educación básica,2,"Elementary School Teachers, Except Special Education",0.189,,1,0,3,universitaria,Educación,Enseñanza,grande|pyme|publico,0.004723809524,derivado,derivado
+49,Profesor de educación media,2,"Secondary School Teachers, Except Special and Career/Technical Education",0.176,,1,0,3,universitaria,Educación|Ciencias Básicas|Humanidades,Enseñanza,grande|pyme|publico,0.004723809524,derivado,derivado
+50,Educadora de párvulos,2,"Preschool Teachers, Except Special Education",0.159,,1,0,3,universitaria,Educación,Enseñanza,grande|pyme|publico,0.004723809524,derivado,derivado
+51,Académico universitario,2,"Business Teachers, Postsecondary",0.367,,1,1,4,postgrado,*,Enseñanza,grande|startup|publico,0.004723809524,sintetico,derivado
+52,Investigador,2,"Social Scientists and Related Workers, All Other",0.329,,1,0,4,postgrado,*,*,*,0.004723809524,sintetico,derivado
+53,Trabajador social,2,"Child, Family, and School Social Workers",0.334,,1,0,3,universitaria,Ciencias Sociales,Administración pública|Salud|Enseñanza|Otros servicios,grande|pyme|publico,0.004723809524,derivado,derivado
+54,Periodista,2,"News Analysts, Reporters, and Journalists",0.383,,1,0,3,universitaria,Ciencias Sociales|Humanidades,Información y comunicaciones|Administración pública|Artes y entretención|Servicios profesionales,grande|pyme|startup|publico|extranjero,0.004723809524,derivado,derivado
+55,Ingeniero agrónomo,2,Soil and Plant Scientists,0.182,,1,0,3,universitaria,Agropecuaria|Ciencias Básicas,Agricultura y pesca|Administración pública|Industria manufacturera,grande|pyme|startup|publico,0.004723809524,sintetico,derivado
+56,Médico veterinario,2,Veterinarians,0.155,,1,0,3,universitaria,Agropecuaria|Salud,Agricultura y pesca|Servicios profesionales|Administración pública|Industria manufacturera,grande|pyme|publico,0.004723809524,derivado,derivado
+57,Técnico en enfermería (TENS),3,Licensed Practical and Licensed Vocational Nurses,0.034,,1,0,2,tecnica,Salud,Salud|Minería|Enseñanza,grande|pyme|startup|publico,0.008076470588,sintetico,derivado
+58,Tecnólogo médico de laboratorio,3,Clinical Laboratory Technologists and Technicians,0.114,,1,0,3,tecnica,Salud|Ciencias Básicas,Salud,grande|pyme|startup|publico,0.008076470588,derivado,derivado
+59,Técnico en soporte informático,3,Computer User Support Specialists,0.334,operaciones_soporte,0.6667,0,2,tecnica,Tecnología,*,*,0.008076470588,derivado,dato
+60,Supervisor de obra,3,First-Line Supervisors of Construction Trades and Extraction Workers,0.110,,1,1,3,tecnica,Tecnología|Arte y Arquitectura,Construcción|Minería|Otros servicios,grande|pyme|startup|publico,0.008076470588,derivado,derivado
+61,Prevencionista de riesgos,3,Occupational Health and Safety Technicians,0.099,,1,0,3,tecnica,Tecnología|Salud|Ciencias Básicas,Minería|Construcción|Industria manufacturera|Transporte|Agricultura y pesca|Servicios administrativos|Administración pública,grande|pyme|publico,0.008076470588,derivado,derivado
+62,Técnico agrícola,3,Agricultural Technicians,0.127,,1,0,2,tecnica,Agropecuaria,Agricultura y pesca|Administración pública|Industria manufacturera,grande|pyme|startup|publico,0.008076470588,derivado,derivado
+63,Ejecutivo comercial,3,"Sales Representatives of Services, Except Advertising, Insurance, Financial Services, and Travel",0.449,comercial_marketing,0.7778,0,2,tecnica,*,*,grande|pyme|startup|extranjero,0.008076470588,derivado,dato
+64,Ejecutivo de cuentas bancario,3,Loan Officers,0.247,,1,0,2,tecnica,*,Finanzas y seguros,grande|pyme|startup,0.008076470588,sintetico,derivado
+65,Técnico en contabilidad,3,"Bookkeeping, Accounting, and Auditing Clerks",0.244,,1,0,2,tecnica,Administración y Comercio,*,*,0.008076470588,sintetico,derivado
+66,Asistente de gerencia,3,Executive Secretaries and Executive Administrative Assistants,0.261,,1,0,2,tecnica,*,*,*,0.008076470588,derivado,derivado
+67,Community manager,3,Public Relations Specialists,0.365,comercial_marketing,0.7778,0,2,tecnica,Administración y Comercio|Ciencias Sociales|Humanidades|Arte y Arquitectura,*,grande|pyme|startup|extranjero,0.008076470588,sintetico,dato
+68,Asistente de la educación,3,"Teaching Assistants, Except Postsecondary",0.169,,1,0,1,tecnica,*,Enseñanza,grande|pyme|publico,0.008076470588,derivado,derivado
+69,Técnico en logística,3,Logisticians,0.162,,1,0,2,tecnica,*,Transporte|Comercio|Industria manufacturera|Minería|Agricultura y pesca|Hoteles y restaurantes,grande|pyme|startup|extranjero,0.008076470588,sintetico,derivado
+70,Fiscalizador,3,Compliance Officers,0.199,,1,0,3,tecnica,*,*,publico,0.008076470588,sintetico,derivado
+71,Productor audiovisual,3,Audio and Video Technicians,0.172,,1,0,3,tecnica,Arte y Arquitectura|Humanidades|Tecnología,Artes y entretención|Información y comunicaciones|Servicios profesionales,grande|pyme|startup|publico|extranjero,0.008076470588,sintetico,derivado
+72,Instructor deportivo,3,Exercise Trainers and Group Fitness Instructors,0.115,,1,0,2,tecnica,*,Artes y entretención|Enseñanza,grande|pyme|publico,0.008076470588,derivado,derivado
+73,Chef,3,Chefs and Head Cooks,0.151,,1,1,3,tecnica,*,Hoteles y restaurantes|Artes y entretención,grande|pyme|startup,0.008076470588,derivado,derivado
+74,Asistente administrativo,4,"Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",0.256,,1,0,2,media,*,*,*,0.006475000000,derivado,derivado
+75,Administrativo,4,"Office Clerks, General",0.242,,1,0,2,media,*,*,publico,0.006475000000,derivado,derivado
+76,Cajero bancario,4,Tellers,0.250,,1,0,1,media,*,Finanzas y seguros,grande|pyme,0.006475000000,derivado,derivado
+77,Ejecutivo de atención al cliente,4,Customer Service Representatives,0.408,,1,0,1,media,*,*,*,0.006475000000,derivado,derivado
+78,Recepcionista,4,Receptionists and Information Clerks,0.241,,1,0,1,media,*,Salud|Servicios administrativos|Servicios profesionales|Otros servicios|Artes y entretención|Enseñanza,grande|pyme|publico,0.006475000000,derivado,derivado
+79,Analista de remuneraciones,4,Payroll and Timekeeping Clerks,0.218,,1,0,2,tecnica,*,*,grande|pyme|publico|startup,0.006475000000,derivado,derivado
+80,Encargado de bodega,4,"Shipping, Receiving, and Inventory Clerks",0.184,,1,0,2,media,*,Comercio|Industria manufacturera|Transporte|Minería|Agricultura y pesca|Construcción|Hoteles y restaurantes,grande|pyme|startup,0.006475000000,derivado,derivado
+81,Supervisor administrativo,4,First-Line Supervisors of Office and Administrative Support Workers,0.245,,1,2,3,media,*,*,*,0.006475000000,derivado,derivado
+82,Vendedor,5,Retail Salespersons,0.299,,1,0,1,media,*,*,grande|pyme|startup,0.017525000000,derivado,derivado
+83,Cajero,5,Cashiers,0.298,,1,0,1,media,*,Comercio|Hoteles y restaurantes|Artes y entretención|Transporte,grande|pyme,0.017525000000,derivado,derivado
+84,Supervisor de tienda,5,First-Line Supervisors of Retail Sales Workers,0.130,,1,1,3,media,*,Comercio,grande|pyme,0.017525000000,derivado,derivado
+85,Garzón,5,Waiters and Waitresses,0.261,,1,0,1,media,*,Hoteles y restaurantes|Artes y entretención,grande|pyme,0.017525000000,derivado,derivado
+86,Cocinero,5,"Cooks, Restaurant",0.172,,1,0,2,media,*,Hoteles y restaurantes|Salud|Enseñanza|Minería|Artes y entretención,grande|pyme|publico,0.017525000000,derivado,derivado
+87,Guardia de seguridad,5,Security Guards,0.139,,1,0,1,media,*,*,grande|pyme|publico,0.017525000000,derivado,derivado
+88,Auxiliar de enfermería,5,Nursing Assistants,0.029,,1,0,1,media,*,Salud,grande|pyme|publico,0.017525000000,derivado,derivado
+89,Asistente de párvulos,5,Childcare Workers,0.160,,1,0,1,media,*,Enseñanza|Otros servicios,grande|pyme|publico,0.017525000000,derivado,derivado
+90,Peluquero,5,"Hairdressers, Hairstylists, and Cosmetologists",0.069,,1,0,2,media,*,Otros servicios,grande|pyme,0.017525000000,derivado,derivado
+91,Gendarme,5,Correctional Officers and Jailers,0.108,,1,0,2,media,*,Administración pública,publico,0.017525000000,derivado,derivado
+92,Ejecutivo de televentas,5,Telemarketers,0.404,,1,0,1,media,*,Servicios administrativos|Finanzas y seguros|Información y comunicaciones|Comercio,grande|pyme|startup|extranjero,0.017525000000,derivado,derivado
+93,Tripulante de cabina,5,Flight Attendants,0.239,,1,0,2,media,*,Transporte,grande,0.017525000000,derivado,derivado
+94,Trabajador agrícola calificado,6,"Farmworkers and Laborers, Crop, Nursery, and Greenhouse",0.048,,1,0,2,media,*,Agricultura y pesca,grande|pyme|startup,0.004075000000,sintetico,derivado
+95,Operario de centro de cultivo,6,"Farmworkers, Farm, Ranch, and Aquacultural Animals",0.144,,1,0,2,media,*,Agricultura y pesca,grande|pyme,0.004075000000,derivado,derivado
+96,Capataz agrícola,6,"First-Line Supervisors of Farming, Fishing, and Forestry Workers",0.055,,1,1,3,media,*,Agricultura y pesca,grande|pyme,0.004075000000,derivado,derivado
+97,Brigadista forestal,6,Forest and Conservation Workers,0.074,,1,0,2,media,*,Agricultura y pesca|Administración pública,grande|pyme|publico,0.004075000000,derivado,derivado
+98,Maestro albañil,7,Brickmasons and Blockmasons,0.098,,1,0,2,media,*,Construcción,grande|pyme,0.015771428571,derivado,derivado
+99,Electricista,7,Electricians,0.151,,1,0,2,media,*,Construcción|Minería|Otros servicios|Industria manufacturera|Servicios administrativos,grande|pyme|startup,0.015771428571,derivado,derivado
+100,Soldador,7,"Welders, Cutters, Solderers, and Brazers",0.075,,1,0,2,media,*,Industria manufacturera|Minería|Construcción,grande|pyme,0.015771428571,derivado,derivado
+101,Mecánico de mantención industrial,7,Industrial Machinery Mechanics,0.104,,1,0,2,media,*,Minería|Industria manufacturera|Agricultura y pesca|Otros servicios,grande|pyme,0.015771428571,derivado,derivado
+102,Mecánico automotriz,7,Automotive Service Technicians and Mechanics,0.124,,1,0,2,media,*,Transporte|Comercio|Minería,grande|pyme,0.015771428571,derivado,derivado
+103,Mecánico de equipo pesado,7,"Mobile Heavy Equipment Mechanics, Except Engines",0.077,,1,0,2,media,*,Minería|Construcción,grande|pyme|startup,0.015771428571,derivado,derivado
+104,Instalador de telecomunicaciones,7,"Telecommunications Equipment Installers and Repairers, Except Line Installers",0.180,,1,0,2,media,*,Información y comunicaciones,grande|pyme,0.015771428571,derivado,derivado
+105,Conductor de camión,8,Heavy and Tractor-Trailer Truck Drivers,0.138,,1,0,2,media,*,Transporte|Minería|Construcción|Comercio|Agricultura y pesca|Industria manufacturera,grande|pyme|startup,0.010642857143,derivado,derivado
+106,Conductor de bus,8,"Bus Drivers, Transit and Intercity",0.188,,1,0,2,media,*,Transporte,grande|pyme,0.010642857143,derivado,derivado
+107,Operador de equipos mineros,8,"Excavating and Loading Machine and Dragline Operators, Surface Mining",0.097,,1,0,2,media,*,Minería,grande|pyme,0.010642857143,derivado,derivado
+108,Operador de planta,8,"Plant and System Operators, All Other",0.026,,1,0,2,media,*,Minería|Industria manufacturera|Otros servicios,grande|pyme,0.010642857143,sintetico,derivado
+109,Operador de máquinas de producción,8,Packaging and Filling Machine Operators and Tenders,0.020,,1,0,2,media,*,Industria manufacturera|Agricultura y pesca,grande|pyme|startup,0.010642857143,sintetico,derivado
+110,Conductor repartidor,8,Light Truck Drivers,0.119,,1,0,1,media,*,Transporte|Comercio|Hoteles y restaurantes,grande|pyme|startup,0.010642857143,derivado,derivado
+111,Operador de maquinaria de construcción,8,Operating Engineers and Other Construction Equipment Operators,0.098,,1,0,2,media,*,Construcción|Minería,grande|pyme|startup|publico,0.010642857143,derivado,derivado
+112,Auxiliar de aseo,9,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",0.108,,1,0,1,media,*,*,grande|pyme|publico,0.018412500000,derivado,derivado
+113,Reponedor,9,Stockers and Order Fillers,0.110,,1,0,1,media,*,Comercio,grande|pyme|startup,0.018412500000,derivado,derivado
+114,Peoneta,9,"Laborers and Freight, Stock, and Material Movers, Hand",0.054,,1,0,1,media,*,Transporte|Comercio|Industria manufacturera|Agricultura y pesca,grande|pyme|startup,0.018412500000,derivado,derivado
+115,Temporero agrícola,9,"Farmworkers and Laborers, Crop, Nursery, and Greenhouse",0.048,,1,0,1,media,*,Agricultura y pesca,grande|pyme,0.018412500000,derivado,derivado
+116,Ayudante de cocina,9,Food Preparation Workers,0.137,,1,0,1,media,*,Hoteles y restaurantes|Salud|Enseñanza|Minería,grande|pyme,0.018412500000,derivado,derivado
+117,Jornal de construcción,9,Construction Laborers,0.030,,1,0,1,media,*,Construcción,grande|pyme|startup,0.018412500000,derivado,derivado
+118,Camarera de hotel,9,Maids and Housekeeping Cleaners,0.008,,1,0,1,media,*,Hoteles y restaurantes|Salud,grande|pyme,0.018412500000,derivado,derivado
+119,Recolector de residuos,9,Refuse and Recyclable Material Collectors,0.035,,1,0,1,media,*,Otros servicios|Administración pública,grande|pyme|publico,0.018412500000,derivado,derivado

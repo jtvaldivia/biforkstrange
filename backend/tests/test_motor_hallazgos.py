@@ -48,7 +48,7 @@ def test_dos_ofertas_en_el_mismo_anio_se_sortean_por_separado():
     pares = []
     for g in range(400):
         v = vida(Perfil(edad=24), DadosGuion({"evento:oferta_llega": 0.0, "evento:separacion_empleo": NADA},
-                                             defecto=None, semilla=6, gemelo=g))
+                                             defecto=0.5, semilla=6, gemelo=g))
         v.dados.u = lambda anio, sitio, _d=v.dados: _d.guion.get(sitio, Dados(6, _d._reales.gemelo).u(anio, sitio))
         reg = v.vivir_anio(Guion({"oferta_externa": "cambiar"}, con_cartas=True), carta="oferta_externa")
         ofertas = [x["resultado"] for x in reg["decisiones"] if x["decision"] == "oferta_externa"]

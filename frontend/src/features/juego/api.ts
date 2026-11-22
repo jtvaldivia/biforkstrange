@@ -1,6 +1,6 @@
 import { http } from "@/shared/lib/http";
 import { guardarRetrato } from "./retrato";
-import type { Catalogo, Duda, EnJuego, MundoDetalle, ParametrosComparar, Partida, Perfil, PerfilLeido, PesoCv, Vista } from "./types";
+import type { Catalogo, Duda, EnJuego, MundoDetalle, Narrado, ParametrosComparar, Partida, Perfil, PerfilLeido, PesoCv, Vista } from "./types";
 
 export const GEMELOS = 100;
 
@@ -34,6 +34,18 @@ export const getEnJuego = (perfil: Perfil, dudas: string[]) =>
   http<EnJuego>("/api/juego/dudas-en-juego", {
     method: "POST",
     body: JSON.stringify({ perfil, dudas, gemelos: GEMELOS }),
+  });
+
+/** Textos de la partida contados por Sonnet. Sin gemelos: el servidor solo rejuega tu vida. */
+export const getNarracion = (
+  partida: Partida,
+  que: "pendiente" | "historia" | "mundo",
+  opciones: { mundo?: number; parametros?: ParametrosComparar; signal?: AbortSignal } = {},
+) =>
+  http<{ items: Narrado[] }>("/api/juego/narrar", {
+    method: "POST",
+    body: JSON.stringify({ ...partida, gemelos: 0, que, mundo: opciones.mundo, parametros: opciones.parametros ?? {} }),
+    signal: opciones.signal,
   });
 
 export const TEXTO_MAX = 60_000;

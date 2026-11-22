@@ -103,9 +103,31 @@ def _campos(bloque: str) -> dict[str, str]:
     return salida
 
 
+# Los campos que puede traer el bloque (los del prompt y los que acepta además)
+CAMPOS_DEL_BLOQUE = {"sueldo_liquido", "duda", "situacion", "riesgo", "ingles", "ia", "proyecto", "afuera", "rubro_sonado",
+                     "intereses", "retrato", "edad", "sexo", "estudios", "carrera", "institucion", "rubro", "tipo_empresa",
+                     "cargo", "ocupacion", "antiguedad", "region", "experiencia", "empleadores", "empresa"}
+
+
 def _entero(valor: str) -> int | None:
-    numeros = re.sub(r"[^\d]", "", valor.split(",")[0])
-    return int(numeros) if numeros else None
+    """Un número escrito como lo escribe una persona: "1.800.000", "$1,8 millones", "2M", "900 mil", "3,5"."""
+    v = _normal(valor).replace(" ", "")
+    crudo = valor.lower().replace("$", "").replace(" ", "")
+    escala = 1_000_000 if re.search(r"millon|\d(m|mm)$", v) else 1_000 if re.search(r"mil|\dk$", v) else 1
+    numero = re.match(r"[\d.,]+", re.sub(r"^[^\d]*", "", crudo))
+    if not numero:
+        return None
+    n = numero.group(0).rstrip(".,")
+    if re.fullmatch(r"\d{1,3}([.,]\d{3})+", n) and escala == 1:
+        n = re.sub(r"[.,]", "", n)  # separador de miles: 1.800.000
+    else:
+        n = n.replace(".", "x").replace(",", ".").replace("x", ".") if n.count(",") == 1 else n.replace(",", "")
+        if n.count(".") > 1:
+            n = n.replace(".", "")
+    try:
+        return round(float(n) * escala)
+    except ValueError:
+        return None
 
 
 def _carrera(nombre: str, institucion: str | None, pq: Paquete) -> tuple[int | None, str | None]:
@@ -141,10 +163,14 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
     from app.services.perfil_ia import PerfilLeido, completar
 
     pq = pq or paquete()
-    encontrado = _RE_BLOQUE.search(texto)
-    if not encontrado:
-        return None
-    c = _campos(encontrado.group(1))
+    bloques = _RE_BLOQUE.findall(texto)
+    if bloques:
+        c = _campos(bloques[-1])  # si se pegó la conversación entera, el último es la respuesta
+    else:
+        # tu Claude a veces responde el bloque sin las cercas ``` : se reconoce por sus campos
+        c = _campos(texto)
+        if len(set(c) & CAMPOS_DEL_BLOQUE) < 3:
+            return None
     avisos: list[str] = []
     leido: dict = {}
 
@@ -172,6 +198,10 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
     if "ia" in c:
         leido["usa_ia"] = USO_IA.get(_normal(c["ia"]))
     numero("experiencia", "anios_experiencia", "experiencia")
+    if leido.get("anios_experiencia") and 1950 <= leido["anios_experiencia"] <= 2100:  # "desde 2015"
+        from datetime import date
+
+        leido["anios_experiencia"] = max(0, date.today().year - leido["anios_experiencia"])
     numero("empleadores", "empleadores", "empleadores")
     if c.get("empresa") and _normal(c["empresa"]) not in _VACIO:
         leido["empresa_actual"] = c["empresa"]
@@ -241,8 +271,9 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
     # Qué campos del perfil dijo de verdad (para sumarlos a lo del CV sin pisarlo con valores por defecto)
     a_perfil = {"situacion": ["estado"], "anios_experiencia": ["skill"], "empleadores": ["red"],
                 "empresa_actual": ["tipo_empleador", "rubro"] if resultado.get("empresa") else []}
-    dados = sorted({k for campo, v in leido.items() if v is not None for k in a_perfil.get(campo, [campo])
-                    if k in resultado["perfil"]} | ({"rubro_sonado"} if "rubro_sonado" in resultado["perfil"] else set())
+    fuera_de_rango = {a.split(":", 1)[0] for a in avisos if "fuera de rango" in a}
+    dados = sorted({k for campo, v in leido.items() if v is not None and campo not in fuera_de_rango
+                    for k in a_perfil.get(campo, [campo]) if k in resultado["perfil"]} | ({"rubro_sonado"} if resultado["perfil"].get("rubro_sonado") else set())
                    | ({"anos_por_empleo"} if resultado["perfil"].get("anos_por_empleo") else set()))
     return {**resultado, "duda": sugeridas[0]["decision"] if sugeridas else None, "dudas_sugeridas": sugeridas[:3],
             "retrato": c.get("retrato") or resultado.get("retrato"), "intereses": intereses,

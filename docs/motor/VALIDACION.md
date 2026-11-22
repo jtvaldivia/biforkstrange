@@ -10,6 +10,7 @@ Reproducir, desde `backend/`: `python -m app.sim.motor.validacion [n] [semilla]`
 4. **Lo que no cuadra son los sueldos: 9 de 12 fallan.** El sueldo mediano simulado queda 12% a 32% bajo Chile y la brecha crece con la edad. No es un problema de pesos: son tres reglas del paquete y un error del motor (ver "Qué no cuadra").
 5. Además fallan el empleo público a los 35-39 y el cambio de empleador a los 45-59, los dos por reglas del paquete.
 6. Contra ELSOC, que no es insumo: 5 de 6 filas comparables cuadran. Falla la salida de la cesantía a los 30-44 (el motor devuelve al empleo a 69% al año; ELSOC, entre 49% y 60%).
+7. **Empresas, cargos y escenario de IA (22 de noviembre de 2026).** Con el catálogo de empresas (`empresas_catalogo.csv`), los cargos y el escenario de IA sorteado por gemelo cuadran 24 de 37 metas con la semilla 0, contra 25 sin ellos. Solo cambia de estado la de asalariados públicos a los 45-49: queda en 10,1%, que ya estaba documentada como al borde. Ese cambio no viene del sueldo: con el multiplicador de sueldo en 1 sale igual. El multiplicador de sueldo de cada empresa se normaliza con media geométrica 1, porque las metas son medianas. Con media aritmética 1, los sueldos medianos bajaban entre 2% y 3,5%. Con media geométrica quedan a menos de 2% de los de antes.
 
 ## Cómo se midió
 

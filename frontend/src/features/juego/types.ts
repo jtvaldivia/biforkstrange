@@ -1,6 +1,6 @@
 /** Formas de la API del juego (`/api/juego/*`). Ver backend/app/sim/motor/partida.py (vista) y gemelos.py (comparar). */
 
-export type Calidad = "dato" | "mixto" | "supuesto";
+export type Calidad = "dato" | "mixto" | "sintetico" | "supuesto";
 export type Tono = "bueno" | "malo" | "neutro";
 export type Sexo = "h" | "m";
 export type Educacion = "media" | "tecnica" | "universitaria" | "postgrado";
@@ -53,6 +53,8 @@ export type Perfil = {
   ascensos_por_ano?: number | null;
   /** Empresas propias que ya cerró: si sus gemelos tienen empresa, la cierran más seguido. */
   empresas_cerradas?: number;
+  /** universidad_id del catálogo; "" si no lo dice. */
+  universidad_id?: string;
   /** El rubro al que se cambiaría, según su Claude: "¿a qué rubro?" parte ahí. */
   rubro_sonado?: string | null;
 };
@@ -96,6 +98,8 @@ export type Catalogo = {
   carreras: Carrera[];
   /** Sueldo líquido por estudios y banda de edad (ESI 2025): la referencia del sueldo. */
   sueldos_ref: { educacion: Educacion; banda: string; p25: number; p50: number; p75: number }[];
+  /** Dónde estudió: chilenas (U, IP, CFT) y extranjeras. */
+  universidades?: Universidad[];
 };
 
 export type Duda = { decision: string; nombre: string; pregunta: string; categoria: string; calidad: Calidad };
@@ -117,6 +121,11 @@ export type Estado = {
   edu: string;
   antiguedad: number;
   ahorro: number;
+  empresa_id?: number;
+  /** Empresa del catálogo donde trabaja y su cargo; null si su empleo no es del catálogo. */
+  empresa?: string | null;
+  rol?: string | null;
+  ia_adopcion?: number;
 };
 
 /** La historia de la carta: qué empresa, quién te escribe. Solo texto; los números vienen aparte. */
@@ -219,15 +228,25 @@ export type AnioMundo = {
   edad: number;
   recesion: boolean;
   sucesos: Suceso[];
-  fin: { sueldo: number; sueldo_ref: number; cargo: string; estado: string; tipo_empleador: string } | null;
+  fin: {
+    sueldo: number; sueldo_ref: number; cargo: string; estado: string; tipo_empleador: string;
+    empresa?: string | null; rol?: string | null; rubro?: string;
+  } | null;
 };
+
+/** Qué tan rápido llega la IA en un mundo: se sortea por gemelo dentro del rango con fuente de IA_JOVEN. */
+export type EscenarioIA = { adopcion: number; escenario: "lento" | "medio" | "rapido"; castigo_joven: number };
 
 /** Respuesta de `POST /api/juego/mundo`: un mundo, con su historia por opción. */
 export type MundoDetalle = {
   mundo: number;
   decision: string;
   ganador: string | null;
-  opciones: { opcion: string; nombre: string; sueldo_final: number; estado_final: string; anios: AnioMundo[] }[];
+  ia?: EscenarioIA;
+  opciones: {
+    opcion: string; nombre: string; sueldo_final: number; estado_final: string;
+    empresa_final?: string | null; rol_final?: string | null; anios: AnioMundo[];
+  }[];
 };
 
 export type EleccionInterna = {
@@ -236,16 +255,36 @@ export type EleccionInterna = {
   alternativas: { valor: string | number; nombre: string; prob?: number }[];
 };
 
-/** Un empleador u oferta real del tipo al que lleva la opción. Es referencia: no entra a la simulación
- *  y no es la empresa de la historia (esa es ficticia, para no inventar hechos sobre empresas reales). */
-export type EjemploReal = {
-  tipo: string;
+/** La empresa real y el cargo que trae la opción: es la misma que vive tu gemelo si la toma.
+ *  Sus cifras NO son de la empresa: salen de su rubro y tamaño (calidad sintético). */
+export type EmpresaOferta = {
+  empresa_id: number;
   nombre: string;
-  detalle: string;
-  fuente: string;
-  cargo?: string;
-  url?: string;
+  rubro: string;
+  tipo: string;
+  pais: string;
+  dominio: string;
+  logo: boolean;
+  origen: string;
+  cargo_id: number;
+  cargo: string | null;
+  /** Relativas al promedio de su tipo y rubro (1 = promedio), salvo exposición a IA (0 a 1) y horas. */
+  cifras: { sueldo: number; despido: number; ascenso: number; cierre: number; exposicion_ia: number; horas: number };
+  calidad: Calidad;
 };
+
+export type Universidad = {
+  universidad_id: string;
+  nombre: string;
+  sigla: string;
+  pais: string;
+  tipo_institucion: "U" | "IP" | "CFT" | "EXT";
+  logo: boolean;
+  selectiva: boolean;
+};
+
+/** Un texto contado por Sonnet (o su plantilla si Sonnet no estaba). */
+export type Narrado = { id: string; texto: string; via: "sonnet" | "plantilla" };
 
 export type OpcionPendiente = {
   opcion: string;
@@ -253,7 +292,7 @@ export type OpcionPendiente = {
   detalle: string;
   calidad: Calidad;
   elecciones_internas: EleccionInterna[];
-  ejemplo_real?: EjemploReal | null;
+  empresa?: EmpresaOferta | null;
 };
 
 /** Por qué te tocó esta decisión. */

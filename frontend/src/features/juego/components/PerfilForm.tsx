@@ -5,6 +5,7 @@ import {
 import { ErrorApi, leerPerfil } from "../api";
 import { EDUCACION, TIPO_EMPLEADOR, pesos } from "../textos";
 import type { Catalogo, DudaSugerida, Perfil, PerfilLeido, Sexo } from "../types";
+import { Logo } from "./Logo";
 import { Cargando, ErrorCaja } from "./piezas";
 import { Trayectoria, type EstadoLectura } from "./Trayectoria";
 
@@ -128,7 +129,9 @@ export function PerfilForm({
 }) {
   const [p, setP] = useState<Perfil>(inicial);
   const [busca, setBusca] = useState("");
+  const [buscaU, setBuscaU] = useState("");
   const idCarrera = useId();
+  const idUniversidad = useId();
   const idRubro = useId();
   const idSueldo = useId();
   const [lectura, setLectura] = useState<EstadoLectura>({ fase: "nada" });
@@ -182,6 +185,16 @@ export function PerfilForm({
   };
 
   const carrera = catalogo?.carreras.find((c) => c.carrera_id === p.carrera_id);
+  const universidad = catalogo?.universidades?.find((u) => u.universidad_id === p.universidad_id);
+  const universidadesEncontradas = useMemo(() => {
+    const q = sinTildes(buscaU.trim());
+    if (!catalogo?.universidades || q.length < 2) return [];
+    // con carrera elegida: instituciones de su tipo (U, IP o CFT) y las extranjeras
+    return catalogo.universidades
+      .filter((u) => !carrera || u.tipo_institucion === carrera.tipo_institucion || u.tipo_institucion === "EXT")
+      .filter((u) => sinTildes(`${u.nombre} ${u.sigla} ${u.pais}`).includes(q))
+      .slice(0, 8);
+  }, [catalogo, buscaU, carrera]);
   const encontradas = useMemo(() => {
     const q = sinTildes(busca.trim());
     if (!catalogo || q.length < 2) return [];
@@ -303,6 +316,55 @@ export function PerfilForm({
               </>
             )}
           </Panel>
+
+          {catalogo.universidades && catalogo.universidades.length > 0 && (
+            <Panel>
+              <Stack gap={4}>
+                <label htmlFor={idUniversidad} className="vd-h3">
+                  Dónde estudiaste <span className="jg-chico">(opcional)</span>
+                </label>
+                <Text size="sm">Universidad, instituto o CFT, en Chile o afuera. Cuenta para tu primera pega y para un magíster.</Text>
+              </Stack>
+              {universidad ? (
+                <Row style={{ alignItems: "center" }}>
+                  <Logo carpeta="universidades" id={universidad.universidad_id} nombre={universidad.nombre} grupo={universidad.pais} hay={universidad.logo} tamano={28} />
+                  <Chip pressed onToggle={() => set("universidad_id", "")}>
+                    {universidad.sigla || universidad.nombre} · {universidad.pais} ✕
+                  </Chip>
+                </Row>
+              ) : (
+                <>
+                  <input
+                    id={idUniversidad}
+                    className="jg-campo"
+                    type="search"
+                    placeholder="Busca: Universidad de Chile, Duoc, Stanford…"
+                    value={buscaU}
+                    onChange={(e) => setBuscaU(e.target.value)}
+                  />
+                  {universidadesEncontradas.length > 0 && (
+                    <div className="jg-resultados">
+                      {universidadesEncontradas.map((u) => (
+                        <button
+                          key={u.universidad_id}
+                          type="button"
+                          onClick={() => {
+                            set("universidad_id", u.universidad_id);
+                            setBuscaU("");
+                          }}
+                        >
+                          {u.nombre}
+                          <small>
+                            {u.tipo_institucion === "EXT" ? "Extranjera" : u.tipo_institucion} · {u.pais}
+                          </small>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </Panel>
+          )}
 
           <Stack as="section" className={marca("ingles")}>
             <span className="jg-etiqueta">¿Podrías trabajar en inglés?</span>

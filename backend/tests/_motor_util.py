@@ -201,7 +201,13 @@ def estado_al_azar(R: random.Random) -> dict:
         "ocupacion": R.randint(0, 9), "edad_decide_estudios": R.choice([18, 19]), "cierra_en": R.choice([0, 0, 1, 3]),
         "rubro_destino": R.choice(RUBROS), "region_destino": R.choice(REGIONES), "ocupacion_destino": R.randint(0, 9),
         "quien_enferma": R.choice(["madre", "padre"]),
-        "universidad_destino": R.choice([f["universidad_id"] for f in p.filas("sies_magister_2026")]),
+        "universidad_destino": R.choice([f["universidad_id"] for f in p.filas("universidades")
+                                         if f["tipo_institucion"] in ("U", "EXT")]),
+        "universidad_id": R.choice([""] + [f["universidad_id"] for f in p.filas("universidades")]),
+        "institucion_destino": R.choice([f["universidad_id"] for f in p.filas("universidades") if f["tipo_institucion"] != "EXT"]),
+        "empresa_id": R.choice([-1, R.randint(0, len(p.filas("empresas_catalogo")) - 1)]),
+        "cargo_id": R.choice([-1, R.randint(0, len(p.filas("cargos_catalogo")) - 1)]),
+        "ia_adopcion": R.random(), "ia_castigo_joven": R.uniform(0.75, 0.9),
     }
     for v in p.variables.values():
         if v["tipo"] == "modificador":

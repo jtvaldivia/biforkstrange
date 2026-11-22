@@ -37,7 +37,7 @@
    "nombre": "Ascenso",
    "categoria": "trabajo",
    "cuando": "y(estado == 'empleado', nivel < 4, antiguedad >= 1)",
-   "prob_anual": "clamp(k('ASCENSO', nivel) * si(y(edu == 'media', nivel >= 1), 0.5, 1) + (skill - 50) * 0.0006 + prob_ascenso_extra + si(tipo_empleador == 'startup', 0.05, 0) - si(tipo_empleador == 'publico', 0.04, 0) - si(marcado, 0.06, 0), 0.01, 0.4) * si(parcial, 0.5, 1)",
+   "prob_anual": "clamp(tabla_o(1, 'empresas_catalogo', 'mult_ascenso', 'empresa_id', empresa_id) * (k('ASCENSO', nivel) * si(y(edu == 'media', nivel >= 1), 0.5, 1) + (skill - 50) * 0.0006 + prob_ascenso_extra + si(tipo_empleador == 'startup', 0.05, 0) - si(tipo_empleador == 'publico', 0.04, 0) - si(marcado, 0.06, 0)), 0.01, 0.4) * si(parcial, 0.5, 1)",
    "resultados": [
     {
      "id": "sube",
@@ -68,7 +68,7 @@
    "nombre": "Despido o fin de contrato",
    "categoria": "trabajo",
    "cuando": "y(estado == 'empleado', tipo_empleador != 'extranjero')",
-   "prob_anual": "k('P_SEPARACION', banda3) * k('MULT_DESPIDO_TIPO', tipo_empleador) * si(tipo_empleador == 'publico', 1, k('MULT_DESPIDO_RUBRO', rubro, 1)) * si(recesion, 1.4, 1)",
+   "prob_anual": "k('P_SEPARACION', banda3) * k('MULT_DESPIDO_TIPO', tipo_empleador) * si(tipo_empleador == 'publico', 1, k('MULT_DESPIDO_RUBRO', rubro, 1)) * si(recesion, 1.4, 1) * tabla_o(1, 'empresas_catalogo', 'mult_despido', 'empresa_id', empresa_id)",
    "resultados": [
     {
      "id": "reemplea",
@@ -559,7 +559,7 @@
    "nombre": "Tu startup cierra",
    "categoria": "trabajo",
    "cuando": "y(estado == 'empleado', tipo_empleador == 'startup')",
-   "prob_anual": "1 - pow(1 - k('YC_CERRADA'), 1 / 8)",
+   "prob_anual": "(1 - pow(1 - k('YC_CERRADA'), 1 / 8)) * tabla_o(1, 'empresas_catalogo', 'mult_cierre', 'empresa_id', empresa_id)",
    "resultados": [
     {
      "id": "cierra",

@@ -140,7 +140,7 @@ def test_vista_con_decision_pendiente():
     assert set(p) == {"decision", "nombre", "pregunta", "categoria", "calidad", "creencia_vs_dato", "evidencia", "narrativa",
                       "opciones", "comparacion", "por_que"}
     assert p["decision"] == "unirse_a_startup" and [o["opcion"] for o in p["opciones"]] == ["ir", "quedarse"]
-    assert all(set(o) == {"opcion", "nombre", "detalle", "calidad", "elecciones_internas", "ejemplo_real"} for o in p["opciones"])
+    assert all(set(o) == {"opcion", "nombre", "detalle", "calidad", "elecciones_internas", "empresa"} for o in p["opciones"])
     c = p["comparacion"]
     assert c["decision"] == "unirse_a_startup" and c["gemelos"] == n(40) and c["anios"] == 10 and c["base"] == "quedarse"
     assert [o["opcion"] for o in c["opciones"]] == ["ir", "quedarse"]
@@ -407,7 +407,9 @@ def test_cada_carta_trae_su_historia_y_tu_empresa_no_cambia():
     elecciones, propias = [], set()
     v = vista(perfil, 4, "oferta_externa", elecciones, n_gemelos=0)
     primera = v["pendiente"]["narrativa"]["situacion"]
-    assert "fintech" in primera and "$" not in primera and "%" not in primera
+    oferta = next(o["empresa"] for o in v["pendiente"]["opciones"] if o["empresa"])
+    # la historia nombra la misma empresa del catálogo que muestra la carta
+    assert oferta["nombre"] in primera and "$" not in primera and "%" not in primera
     while not v["terminada"]:
         pendiente = v["pendiente"]
         texto = (pendiente["narrativa"] or {}).get("situacion", "")

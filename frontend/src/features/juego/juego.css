@@ -346,10 +346,15 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-pensando-frase { min-height: 56px; max-width: 320px; text-align: center; font: 500 20px/28px var(--font); animation: vd-subir .35s var(--ease) both; }
 @media (prefers-reduced-motion: reduce) { .jg-pensando-dado { animation: none; } }
 
-/* Empleador u oferta real del tipo de la opción (referencia, no la empresa de la historia) */
-.jg-ejemplo-real {
-  font-style: italic;
-}
+/* La empresa real y el cargo de la opción, con sus cifras sintéticas */
+.jg-logo { flex: none; border-radius: 8px; object-fit: contain; background: var(--papel); }
+.jg-empresa { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 10px; border: 1.5px solid var(--linea); border-radius: 12px; text-align: left; }
+.jg-empresa-cabeza { display: flex; gap: 10px; align-items: center; }
+.jg-empresa-texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.jg-empresa-cifras { display: flex; flex-wrap: wrap; gap: 4px 10px; font: 500 12px/16px var(--font); }
+.jg-empresa-nota { font-style: italic; }
+.jg-chip-ia { padding: 2px 10px; border: 1.5px solid var(--linea); border-radius: 999px; font: 500 12px/18px var(--font); }
+.jg-mundo-historia { margin: 6px 0 0; font: 400 13px/19px var(--font); }
 
 /* Mundos explorables: un punto por mundo, del color de la opción que gana en él */
 .jg-color { display: inline-block; width: 11px; height: 11px; margin-right: 7px; border-radius: 50%; vertical-align: 1px; }

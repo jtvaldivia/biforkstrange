@@ -26,6 +26,16 @@ def _rango(valores: list[float]) -> dict:
     return {"p10": round(q[0]), "p50": round(q[4]), "p90": round(q[8])}
 
 
+def _parametros(vida: Vida, opcion, parametros: dict[str, dict]) -> dict:
+    """Lo elegido dentro de la opción; lo que no se mandó queda en su alternativa por defecto."""
+    return {**parametros_por_defecto(vida, opcion), **(parametros.get(opcion.id) or {})}
+
+
+def escenario_ia(adopcion: float) -> str:
+    """El escenario de IA de un mundo, por tercil de su velocidad de adopción."""
+    return "lento" if adopcion < 1 / 3 else "medio" if adopcion < 2 / 3 else "rapido"
+
+
 def _vivir(vida: Vida, decision_id: str, opcion: str, parametros: dict, anios: int) -> Vida:
     """Toma la opción y vive hasta cumplir `anios` años más (un doctorado ocupa varios)."""
     decisor = Fija(decision_id, opcion, parametros, Inercia(pesos_personales(vida.e)))
@@ -77,7 +87,7 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
     opciones = vida.opciones(decision_id)
     parametros = parametros or {}
     anio0, buscando0, ingreso0 = len(vida.historia), vida.anios_buscando, vida.ingreso_total
-    usados = {o.id: parametros.get(o.id) or parametros_por_defecto(vida, o) for o in opciones}
+    usados = {o.id: _parametros(vida, o, parametros) for o in opciones}
     finales: dict[str, list[Vida]] = {
         o.id: [_vivir(vida.clonar(Dados(semilla, g)), decision_id, o.id, usados[o.id], anios) for g in range(n)]
         for o in opciones
@@ -162,7 +172,8 @@ def _anios_vividos(v: Vida, anio0: int, antes: tuple[int, int]) -> list[dict]:
                   for e in eventos if not e.get("rutina")),
             ],
             "fin": None if fin is None else {"sueldo": fin["sueldo"], "sueldo_ref": fin["sueldo_ref"], "cargo": fin["cargo"],
-                                             "estado": fin["estado"], "tipo_empleador": fin["tipo_empleador"]},
+                                             "estado": fin["estado"], "tipo_empleador": fin["tipo_empleador"],
+                                             "empresa": fin.get("empresa"), "rol": fin.get("rol"), "rubro": fin.get("rubro")},
         })
     return anios
 
@@ -179,13 +190,17 @@ def mundo(vida: Vida, decision_id: str, numero: int, *, anios: int = HORIZONTE, 
     antes = (len(vida.registro["decisiones"]), len(vida.registro["eventos"])) if vida.cola and vida.registro else (0, 0)
     vidas = {}
     for o in opciones:
-        usados = parametros.get(o.id) or parametros_por_defecto(vida, o)
+        usados = _parametros(vida, o, parametros)
         vidas[o.id] = (o, _vivir(vida.clonar(Dados(semilla, numero)), decision_id, o.id, usados, anios))
     return {
         "mundo": numero, "decision": decision_id,
+        "ia": {"adopcion": round(next(iter(vidas.values()))[1].e.get("ia_adopcion", 0.5), 3),
+               "escenario": escenario_ia(next(iter(vidas.values()))[1].e.get("ia_adopcion", 0.5)),
+               "castigo_joven": round(next(iter(vidas.values()))[1].e.get("ia_castigo_joven", 0.81), 3)},
         "ganador": _ganador({k: v.sueldo_o_ultimo() for k, (_, v) in vidas.items()}),
         "opciones": [
             {"opcion": o.id, "nombre": o.nombre, "sueldo_final": round(v.sueldo_o_ultimo()), "estado_final": v.e["estado"],
+             "empresa_final": v.resumen()["empresa"], "rol_final": v.resumen()["rol"],
              "anios": _anios_vividos(v, anio0, antes)}
             for o, v in vidas.values()
         ],

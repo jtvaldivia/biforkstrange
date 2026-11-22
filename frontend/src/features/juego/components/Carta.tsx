@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, CheckIcon, Chip, DecisionArt, DecisionList, Heading, Meta, Panel, Pill, Row, Screen, ScreenHeader, Stack, Text, cssVars } from "@/shared/ui";
 import { CALIDAD, TIPO_EMPLEADOR, arte, cargoYSueldo, conSigno, minuscula, plata, sinSueldo } from "../textos";
-import type { ContraBase, EjemploReal, Eleccion, PorQue, MundoDetalle, OpcionComparada, OpcionPendiente, ParametrosComparar, Partida, Suceso, Vista } from "../types";
+import type { ContraBase, Eleccion, EmpresaOferta, EscenarioIA, PorQue, MundoDetalle, Narrado, OpcionComparada, OpcionPendiente, ParametrosComparar, Partida, Suceso, Vista } from "../types";
+import { useNarracion } from "../hooks/useNarracion";
+import { Logo } from "./Logo";
 import { Abanico, BarraPartes, Info, ProgresoAnios, type Reparto } from "./graficos";
 import { PesoDelCv } from "./PesoDelCv";
 import { CalidadTag, Cargando, ErrorCaja, LeyendaCalidad, Pensando, RangoSueldo } from "./piezas";
@@ -105,22 +107,59 @@ function Probabilidades({ o }: { o: OpcionComparada }) {
   );
 }
 
-/** Un empleador u oferta real de ese tipo, con su fuente. Es referencia: no es la empresa de la historia. */
-function EjemploRealLinea({ ejemplo }: { ejemplo: EjemploReal }) {
-  const quien = ejemplo.cargo ? `${ejemplo.cargo} en ${ejemplo.nombre}` : ejemplo.nombre;
+type Narrar = (que: "pendiente" | "historia" | "mundo", signal: AbortSignal, mundo?: number) => Promise<{ items: Narrado[] }>;
+
+/** "+8%" o "−20%" respecto del promedio de su tipo y rubro; "promedio" si casi no se mueve. */
+function relativo(x: number): string {
+  const d = Math.round((x - 1) * 100);
+  return Math.abs(d) < 3 ? "promedio" : `${d > 0 ? "+" : "−"}${Math.abs(d)}%`;
+}
+
+function nivelIA(x: number): string {
+  return x >= 0.35 ? "alta" : x >= 0.2 ? "media" : "baja";
+}
+
+export function ofertaTexto(e: EmpresaOferta): string {
+  return e.cargo ? `Te ofrecen ser ${e.cargo} en ${e.nombre}.` : `Te ofrecen entrar a ${e.nombre}.`;
+}
+
+/** La empresa real y el cargo que trae la opción, con sus cifras. Las cifras son sintéticas: salen de su rubro y tamaño. */
+function EmpresaLinea({ empresa, texto }: { empresa: EmpresaOferta; texto?: string }) {
+  const c = empresa.cifras;
   return (
-    <span className="vd-opcion-sub jg-ejemplo-real" title={`Fuente: ${ejemplo.fuente}`}>
-      Ejemplo real: {quien} · {ejemplo.detalle} <span className="jg-chico">({ejemplo.fuente})</span>
+    <span className="jg-empresa">
+      <span className="jg-empresa-cabeza">
+        <Logo carpeta="empresas" id={empresa.empresa_id} nombre={empresa.nombre} grupo={empresa.rubro} hay={empresa.logo} />
+        <span className="jg-empresa-texto">
+          <span className="jg-fuerte">{texto ?? ofertaTexto(empresa)}</span>
+          <span className="jg-chico">
+            {empresa.rubro} · {TIPO_EMPLEADOR[empresa.tipo] ?? empresa.tipo}
+            {empresa.pais && empresa.pais !== "Chile" ? ` · ${empresa.pais}` : ""}
+          </span>
+        </span>
+      </span>
+      <span className="jg-empresa-cifras">
+        <span>Sueldo {relativo(c.sueldo)}</span>
+        <span>Despidos {relativo(c.despido)}</span>
+        <span>Ascensos {relativo(c.ascenso)}</span>
+        {empresa.tipo === "startup" && <span>Cierre {relativo(c.cierre)}</span>}
+        <span>Exposición a IA {nivelIA(c.exposicion_ia)}</span>
+        <span>{c.horas} h</span>
+      </span>
+      <span className="jg-chico jg-empresa-nota">Cifras simuladas a partir de su rubro y tamaño: no son datos de la empresa.</span>
     </span>
   );
 }
 
+const ESCENARIO_IA: Record<EscenarioIA["escenario"], string> = { lento: "lenta", medio: "a ritmo medio", rapido: "rápida" };
+
 /** La opción para elegir: qué es, en cuántos mundos gana y el sueldo típico. La simulación va aparte, más abajo. */
 function OpcionConGemelos({
-  o, base, tope, riesgo, selected, onSelect, supuesto, edadFinal, color, ganadas, total, ejemplo,
+  o, base, tope, riesgo, selected, onSelect, supuesto, edadFinal, color, ganadas, total, empresa, textoEmpresa,
 }: {
   o: OpcionComparada;
-  ejemplo?: EjemploReal | null;
+  empresa?: EmpresaOferta | null;
+  textoEmpresa?: string;
   base: OpcionComparada | undefined;
   tope: number;
   riesgo: number;
@@ -144,7 +183,7 @@ function OpcionConGemelos({
         </span>
         {o.detalle && <span className="vd-opcion-sub">{o.detalle}</span>}
         {supuesto && <span className="vd-opcion-sub">En la simulación vas a: {supuesto}</span>}
-        {ejemplo && <EjemploRealLinea ejemplo={ejemplo} />}
+        {empresa && <EmpresaLinea empresa={empresa} texto={textoEmpresa} />}
         {ganadas !== null && (
           <span className="jg-veredicto">
             Gana en {ganadas} de {total} mundos
@@ -200,9 +239,10 @@ function sinRepetir(sucesos: Suceso[]): Suceso[] {
  * arriba; en cada vida, solo lo que cambia por la decisión, con el sueldo al cerrar cada año.
  */
 function MundoAbierto({
-  mundo, comparadas, colores, anioInicial, onCerrar,
+  mundo, comparadas, colores, anioInicial, onCerrar, onNarrar,
 }: {
   mundo: MundoDetalle;
+  onNarrar?: Narrar;
   comparadas: OpcionComparada[];
   colores: Record<string, string>;
   /** El año de la partida en que se toma la decisión: los años del mundo se cuentan desde ahí. */
@@ -226,11 +266,17 @@ function MundoAbierto({
   const esComun = (i: number, x: Suceso) => comunes[i].some((y) => claveSuceso(y) === claveSuceso(x));
   const anioDe = (i: number) => anioInicial + i;
   const delMundo = comunes.map((l, i) => ({ i, l })).filter((x) => x.l.length > 0);
+  const historias = useNarracion(onNarrar ? (signal) => onNarrar("mundo", signal, mundo.mundo) : null, `mundo:${mundo.mundo}`);
 
   return (
     <div className="jg-mundo" role="region" aria-label={`Mundo ${mundo.mundo + 1}`}>
       <div className="jg-mundo-cabeza">
         <span className="jg-fuerte">Mundo {mundo.mundo + 1}</span>
+        {mundo.ia && (
+          <span className="jg-chip-ia" title="Cada mundo sortea qué tan rápido llega la IA, dentro del rango medido por Brynjolfsson y otros (2025).">
+            La IA llega {ESCENARIO_IA[mundo.ia.escenario]}
+          </span>
+        )}
         <button type="button" className="jg-ayuda" onClick={onCerrar}>
           Cerrar
         </button>
@@ -287,6 +333,12 @@ function MundoAbierto({
                 </span>
                 <span className="jg-mundo-sueldo">{o.sueldo_final > 0 ? plata(o.sueldo_final) : "sin sueldo"}</span>
               </span>
+              {o.empresa_final && (
+                <span className="jg-chico">
+                  Terminas {o.rol_final ? `como ${o.rol_final} ` : ""}en {o.empresa_final}
+                </span>
+              )}
+              {historias[`mundo:${o.opcion}`] && <p className="jg-mundo-historia">{historias[`mundo:${o.opcion}`]}</p>}
               <ol className="jg-mundo-anios">
                 {filas.map(({ a, i, propios }) => (
                   <li key={i}>
@@ -320,8 +372,9 @@ function MundoAbierto({
  * ganando más en él. Los puntos van agrupados por color, como en el tutorial. Al tocar uno se abre ese mundo.
  */
 function Simulacion({
-  comparadas, ganadores, gemelos, colores, anioInicial, onVerMundo,
+  comparadas, ganadores, gemelos, colores, anioInicial, onVerMundo, onNarrar,
 }: {
+  onNarrar?: Narrar;
   comparadas: OpcionComparada[];
   ganadores: (string | null)[];
   gemelos: number;
@@ -427,7 +480,7 @@ function Simulacion({
         {abierto !== null && cargando && <Cargando>Abriendo el mundo {abierto + 1}…</Cargando>}
         {abierto !== null && error && <ErrorCaja error={error} />}
         {abierto !== null && detalle && (
-          <MundoAbierto mundo={detalle} comparadas={comparadas} colores={colores} anioInicial={anioInicial} onCerrar={() => setAbierto(null)} />
+          <MundoAbierto mundo={detalle} comparadas={comparadas} colores={colores} anioInicial={anioInicial} onCerrar={() => setAbierto(null)} onNarrar={onNarrar} />
         )}
       </div>
     </section>
@@ -478,10 +531,11 @@ function Porque({ o, base }: { o: OpcionComparada; base: OpcionComparada | undef
 
 /** La carta: la decisión pendiente con lo que vivieron los gemelos. Viene de "3 · Decisión del año" del kit. */
 export function Carta({
-  vista, partida, riesgo, cargando, recalculando, error, onElegir, onComparar, onAyuda, onVerMundo,
+  vista, partida, riesgo, cargando, recalculando, error, onElegir, onComparar, onAyuda, onVerMundo, onNarrar,
 }: {
   /** Perfil y semilla de la partida: con ellos se mide cuánto pesa cada línea del CV en la duda. */
   partida?: Partida | null;
+  onNarrar?: Narrar;
   onAyuda: () => void;
   onVerMundo: (n: number) => Promise<MundoDetalle>;
   vista: Vista;
@@ -499,6 +553,7 @@ export function Carta({
 
   // otra carta: se parte sin nada marcado
   const llave = `${vista.historia.length}:${vista.anio_en_curso?.decisiones.length ?? 0}:${pendiente.decision}`;
+  const narrados = useNarracion(onNarrar ? (signal) => onNarrar("pendiente", signal) : null, llave);
 
   useEffect(() => {
     setSel(null);
@@ -592,7 +647,7 @@ export function Carta({
               <i />
               <i />
             </span>
-            <p className="jg-mensaje-texto">{pendiente.narrativa.situacion}</p>
+            <p className="jg-mensaje-texto">{narrados.situacion ?? pendiente.narrativa.situacion}</p>
           </div>
         )}
         <Heading level={2} as="h1">
@@ -634,7 +689,8 @@ export function Carta({
               color={colores[o.opcion]}
               ganadas={ganadores && revelado ? ganadores.filter((g) => g === o.opcion).length : null}
               total={ganadores?.length ?? 0}
-              ejemplo={pendiente.opciones.find((x) => x.opcion === o.opcion)?.ejemplo_real}
+              empresa={pendiente.opciones.find((x) => x.opcion === o.opcion)?.empresa}
+              textoEmpresa={narrados[`oferta:${o.opcion}`]}
             />
           ))}
         </div>
@@ -652,7 +708,7 @@ export function Carta({
               id: o.opcion,
               art: <DecisionArt kind={arte(pendiente.categoria)} />,
               title: o.nombre,
-              subtitle: [o.detalle, o.ejemplo_real && `Ejemplo real: ${o.ejemplo_real.nombre}`].filter(Boolean).join(" · ") || undefined,
+              subtitle: [o.detalle, o.empresa && (narrados[`oferta:${o.opcion}`] ?? ofertaTexto(o.empresa))].filter(Boolean).join(" · ") || undefined,
               tags: [{ label: CALIDAD[o.calidad]?.nombre ?? o.calidad, tone: o.calidad === "supuesto" ? ("minus" as const) : ("default" as const) }],
             }))}
           />
@@ -722,6 +778,7 @@ export function Carta({
                 colores={colores}
                 anioInicial={anio}
                 onVerMundo={onVerMundo}
+                onNarrar={onNarrar}
               />
             </ApuestaAntesDeMirar>
           )}
