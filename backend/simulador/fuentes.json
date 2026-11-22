@@ -506,6 +506,174 @@
    "pais": "Internacional",
    "tipo": "datos",
    "verificacion": "leído en la fuente"
+  },
+  {
+   "id": "gem_chile_2025",
+   "cita": "GEM Chile, Reporte Nacional 2025 (Universidad del Desarrollo)",
+   "url": "https://negocios.udd.cl/cies/files/2026/08/gem_2025_27_jul.pdf",
+   "pais": "Chile",
+   "tipo": "informe",
+   "verificacion": "leído en la fuente"
+  },
+  {
+   "id": "ocec_udp_2023",
+   "cita": "OCEC UDP, Enfoque Laboral N°33 (noviembre 2023), con microdatos de la ENE del INE",
+   "url": "https://ocec.udp.cl/cms/wp-content/uploads/2023/11/Enfoque-Laboral-33-VF-comp.pdf",
+   "pais": "Chile",
+   "tipo": "informe",
+   "verificacion": "leído en la fuente"
+  },
+  {
+   "id": "dt_teletrabajo_2024",
+   "cita": "Dirección del Trabajo, Cuaderno de Investigación N°69 (2024), con datos de la ENE",
+   "url": "https://dt.gob.cl/portal/1629/articles-127266_recurso_1.pdf",
+   "pais": "Chile",
+   "tipo": "informe",
+   "verificacion": "leído en la fuente"
+  },
+  {
+   "id": "sies_matricula_2024",
+   "cita": "SIES, Matrícula en Educación Superior en Chile 2024, tabla 17",
+   "url": "https://www.mifuturo.cl/wp-content/uploads/2024/07/Informe_matricula_2024_SIES_.pdf",
+   "pais": "Chile",
+   "tipo": "informe",
+   "verificacion": "leído en la fuente"
+  },
+  {
+   "id": "bls_2019_ocupaciones",
+   "cita": "BLS, Monthly Labor Review 2019, Occupational separations",
+   "url": "https://www.bls.gov/opub/mlr/2019/article/occupational-separations.htm",
+   "pais": "EE.UU.",
+   "tipo": "paper",
+   "verificacion": "leído en la fuente"
+  },
+  {
+   "id": "barrett_oconnell_2000",
+   "cita": "Barrett y O'Connell 2000, ¿hay un premio salarial para los migrantes irlandeses que vuelven? (IZA DP 135)",
+   "url": "https://www.iza.org/publications/dp/135",
+   "pais": "Irlanda",
+   "tipo": "paper",
+   "verificacion": "leído en la fuente"
+  },
+  {
+   "id": "barrett_goggin_2010",
+   "cita": "Barrett y Goggin 2010, de vuelta a la pregunta del premio salarial de los migrantes que retornan (ESRI WP 337, National Institute Economic Review 213)",
+   "url": "https://www.esri.ie/system/files/media/file-uploads/2015-07/WP337.pdf",
+   "pais": "Irlanda",
+   "tipo": "paper",
+   "verificacion": "leído en la fuente"
+  },
+  {
+   "id": "sorenson_2021",
+   "cita": "Sorenson, Dahl, Canales y Burton 2021, ¿ganan más a la larga los empleados de startups? (Organization Science), registros daneses",
+   "url": "https://anderson-review.ucla.edu/wp-content/uploads/2021/03/Sorenson-et-al_StartupEmployees_Final_preprint2019.pdf",
+   "pais": "Dinamarca",
+   "tipo": "paper",
+   "verificacion": "leído en la fuente"
+  },
+  {
+   "id": "kambourov_manovskii_2009",
+   "cita": "Kambourov y Manovskii 2009, la especificidad ocupacional del capital humano (International Economic Review 50(1))",
+   "url": "https://ideas.repec.org/a/ier/iecrev/v50y2009i1p63-115.html",
+   "pais": "EE.UU.",
+   "tipo": "paper",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "fmst_2017",
+   "cita": "Faberman, Mueller, Şahin y Topa 2017, búsqueda de empleo de ocupados y no ocupados (NBER 23731; Econometrica 2022), módulo del SCE",
+   "url": "https://business.columbia.edu/sites/default/files-efs/pubfiles/20320/FMST_WP.pdf",
+   "pais": "EE.UU.",
+   "tipo": "paper",
+   "verificacion": "leído en la fuente"
+  },
+  {
+   "id": "nace_2025",
+   "cita": "NACE, 2025 Internship & Co-op Report: tasa de ofertas a practicantes de 2024",
+   "url": "https://naceweb.org/talent-acquisition/internships/intern-offer-and-conversion-rates-fall-acceptances-rise",
+   "pais": "EE.UU.",
+   "tipo": "informe",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "trabajando_2017",
+   "cita": "Estudio de Trabajando.com 2017 sobre prácticas, citado por El Dínamo (16 de agosto de 2018)",
+   "url": "https://www.eldinamo.cl/educacion/2018/08/16/practicas-profesionales-en-la-busqueda-de-nuevos-talentos/",
+   "pais": "Chile",
+   "tipo": "prensa",
+   "verificacion": "por confirmar"
+  },
+  {
+   "id": "dipres_talento_digital_2024",
+   "cita": "Neilson, Egaña y Humphries 2024, Evaluación de impacto del programa Talento Digital para Chile, DIPRES",
+   "url": "https://www.dipres.gob.cl/597/articles-341574_informe_final.pdf",
+   "pais": "Chile",
+   "tipo": "informe",
+   "verificacion": "leído en la fuente"
+  },
+  {
+   "id": "cirr_2017",
+   "cita": "CIRR, primer informe de resultados de bootcamps (primer semestre 2016), citado por Higher Ed Dive (12 de abril de 2017)",
+   "url": "https://www.highereddive.com/news/cirr-report-shows-overwhelmingly-positive-numbers-for-coding-bootcamps/440267/",
+   "pais": "EE.UU.",
+   "tipo": "prensa",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "sii_dolar_2025",
+   "cita": "SII, Dólar Observado 2025 (dato del Banco Central de Chile), promedio de los 12 promedios mensuales",
+   "url": "https://www.sii.cl/valores_y_fechas/dolar/dolar2025.htm",
+   "pais": "Chile",
+   "tipo": "serie oficial",
+   "verificacion": "descargado"
+  },
+  {
+   "id": "bm_wdi_pib_chile",
+   "cita": "Banco Mundial, WDI, crecimiento anual del PIB de Chile (cuentas nacionales del Banco Central), 1986-2025",
+   "url": "https://api.worldbank.org/v2/country/CHL/indicator/NY.GDP.MKTP.KD.ZG?format=json&date=1986:2025&per_page=100",
+   "pais": "Chile",
+   "tipo": "serie oficial",
+   "verificacion": "descargado"
+  },
+  {
+   "id": "sii_impuesto_unico_2025",
+   "cita": "SII, Impuesto Único de Segunda Categoría, tabla mensual 2025, con cotizaciones de AFP, salud y seguro de cesantía",
+   "url": "https://www.sii.cl/valores_y_fechas/impuesto_2da_categoria/impuesto2025.htm",
+   "pais": "Chile",
+   "tipo": "normativa",
+   "verificacion": "descargado"
+  },
+  {
+   "id": "spensiones_rentabilidad",
+   "cita": "Superintendencia de Pensiones, rentabilidad real de los Fondos de Pensiones (deflactada por UF), Fondo C desde septiembre 2002",
+   "url": "https://www.spensiones.cl/apps/rentabilidad/getRentabilidad.php",
+   "pais": "Chile",
+   "tipo": "serie oficial",
+   "verificacion": "descargado"
+  },
+  {
+   "id": "minsal_sobrevida_cancer_2023",
+   "cita": "Navarro y Bralic, Depto. de Epidemiología MINSAL, Sobrevivencia relativa de cáncer en Chile 1998-2020 (registros poblacionales, diagnósticos 2010-2014)",
+   "url": "https://congreso2023.ufro.cl/images/presentaciones/orales/viernes11/202/8.-%20ov1203_656_SOBREVIVENCIA%20DE%20CANCER%20EN%20CHILE%201998-2020%20APROXIMACION.pdf",
+   "pais": "Chile",
+   "tipo": "estudio",
+   "verificacion": "descargado"
+  },
+  {
+   "id": "superdesalud_ges_cancer",
+   "cita": "Superintendencia de Salud, GES cáncer de mama: copago 0% en FONASA A-D y 20% en ISAPRE, con tope por evento",
+   "url": "https://www.superdesalud.gob.cl/orientacion-en-salud/cancer-de-mama",
+   "pais": "Chile",
+   "tipo": "normativa",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "canaries_2026",
+   "cita": "Brynjolfsson, Chandar y Chen, Canaries in the Coal Mine? Six Facts about the Recent Employment Effects of Artificial Intelligence, Stanford Digital Economy Lab, agosto 2026",
+   "url": "https://digitaleconomy.stanford.edu/app/uploads/2026/08/Canaries_August2026.pdf",
+   "pais": "EE.UU.",
+   "tipo": "estudio",
+   "verificacion": "descargado"
   }
  ]
 }

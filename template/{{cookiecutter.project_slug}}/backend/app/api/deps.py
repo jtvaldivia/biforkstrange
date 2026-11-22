@@ -9,17 +9,12 @@ from app.core.config import get_settings
 from app.repositories.simulations import (
     InMemorySimulationRepository,
     SimulationRepository,
-    SupabaseSimulationRepository,
 )
 from app.services.simulation_service import SimulationService
 
 
 @lru_cache
 def get_simulation_repo() -> SimulationRepository:
-    if get_settings().supabase_enabled:
-        from app.core.supabase import get_supabase
-
-        return SupabaseSimulationRepository(get_supabase())
     return InMemorySimulationRepository()
 
 

@@ -110,8 +110,13 @@ def pool(pq: Paquete, tipo: str, rubro: str | None) -> list[dict]:
     return cat["pools"][clave]
 
 
-def sortear_empresa(pq: Paquete, dados: Dados, anio: int, sitio: str, tipo: str, rubro: str | None) -> dict | None:
-    """Una empresa del tipo y rubro, en proporción a `peso`. None si el catálogo no tiene ninguna."""
+def sortear_empresa(pq: Paquete, dados: Dados, anio: int, sitio: str, tipo: str, rubro: str | None,
+                    e: dict | None = None) -> dict | None:
+    """Una empresa del tipo y rubro, en proporción a `peso`. None si el catálogo no tiene ninguna.
+
+    Con la persona (`e`), solo entre las empresas que tienen algún cargo de su línea de trabajo: así la
+    oferta no le propone a un desarrollador ser periodista. Si ninguna tiene, cualquiera del tipo y rubro.
+    """
     if tipo not in TIPOS:
         return None
     filas = pool(pq, tipo, PUBLICA if tipo == "publico" and rubro is None else rubro)
@@ -119,23 +124,80 @@ def sortear_empresa(pq: Paquete, dados: Dados, anio: int, sitio: str, tipo: str,
         # servicios del Estado de cualquier rubro; remoto para afuera y startups: casi todo es tecnología,
         # así que si no hay en tu rubro se toma cualquiera y la persona pasa al rubro de esa empresa
         filas = pool(pq, tipo, None)
+    if e is not None and filas:
+        familias = set(familias_de(pq, e))
+        de_su_linea = [x for x in filas if familias and any(c.get("familia") in familias for c in _duros(pq, x, e))]
+        filas = de_su_linea or filas
     if not filas:
         return None
     return filas[dados.elegir(anio, sitio, [x["peso"] for x in filas])]
 
 
+# Palabras que, en el cargo que escribió la persona, dicen su línea de trabajo aunque el catálogo no tenga
+# ese nombre exacto ("Ingeniero de software" -> tecnología). Las genéricas (analista, jefe...) no deciden solas.
+_PISTAS = {
+    "software": "tecnologia", "programador": "tecnologia", "developer": "tecnologia", "desarrollador": "tecnologia",
+    "informatico": "tecnologia", "sistemas": "tecnologia", "devops": "tecnologia", "frontend": "tecnologia",
+    "backend": "tecnologia", "fullstack": "tecnologia", "datos": "datos", "data": "datos", "marketing": "marketing_comunicaciones",
+    "ventas": "comercial_ventas", "comercial": "comercial_ventas", "contador": "finanzas", "finanzas": "finanzas",
+    "financiero": "finanzas", "abogado": "legal", "abogada": "legal", "rrhh": "personas_rrhh", "personas": "personas_rrhh",
+    "profesor": "educacion", "profesora": "educacion", "docente": "educacion", "enfermero": "salud", "enfermera": "salud",
+    "medico": "salud", "medica": "salud", "disenador": "diseno_arte", "disenadora": "diseno_arte", "ux": "diseno_arte",
+}
+_GENERICAS = {"analista", "jefe", "jefa", "gerente", "ingeniero", "ingeniera", "supervisor", "asistente", "ejecutivo",
+              "ejecutiva", "tecnico", "tecnica", "encargado", "encargada", "administrador", "senior", "junior", "semi",
+              "lider", "lead", "coordinador", "coordinadora", "especialista", "de", "del", "la", "el", "en", "y"}
+
+
+def _palabras(texto: str) -> set[str]:
+    import unicodedata
+
+    texto = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode().lower()
+    return {p for p in "".join(c if c.isalnum() else " " for c in texto).split() if p}
+
+
+def familia_por_nombre(pq: Paquete, nombre: str | None) -> str | None:
+    """La familia del cargo que escribió la persona: por una palabra clave o por el cargo del catálogo que
+    más palabras propias comparte con el suyo. None si no se reconoce."""
+    palabras = _palabras(nombre or "")
+    for p in palabras:
+        if p in _PISTAS:
+            return _PISTAS[p]
+    propias = palabras - _GENERICAS
+    mejor, puntos = None, 0
+    for c in _catalogo(pq)["cargos"]:
+        n = len(propias & (_palabras(c["nombre"]) - _GENERICAS))
+        if n > puntos and c.get("familia"):
+            mejor, puntos = c["familia"], n
+    return mejor
+
+
 def familias_de(pq: Paquete, e: dict) -> list[str]:
-    """La línea de trabajo de la persona: la familia de su cargo (el actual o el último que tuvo); sin cargo,
-    las afines a su carrera; sin carrera, las de su rubro (tabla `familias`, cruce curado)."""
+    """La línea de trabajo de la persona, de lo más seguro a lo menos: la familia de su cargo del catálogo
+    (el actual o el último que tuvo); el cargo que escribió; las afines a su carrera; y sin nada de eso, las
+    dos más comunes de su rubro (tabla `familias`, cruce curado). El rubro solo no alcanza: en él trabaja
+    gente de casi todas las líneas."""
     car = cargo(pq, e.get("cargo_id", -1))
     if car is not None and car.get("familia"):
         return [car["familia"]]
+    if e.get("familia_inicial"):
+        return [e["familia_inicial"]]
     fam = _catalogo(pq)["familias"]
     if e.get("area"):
         return fam.get(("area", e["area"]), [])
     if e.get("rubro"):
-        return fam.get(("rubro", e["rubro"]), [])
+        return fam.get(("rubro", e["rubro"]), [])[:2]
     return []
+
+
+def _duros(pq: Paquete, emp: dict, e: dict) -> list[dict]:
+    """Cargos que la empresa podría ofrecerle: tipo y rubro de la empresa, nivel actual y educación mínima."""
+    nivel, edu = int(e.get("nivel", 0)), EDU_ORDEN.get(e.get("edu", "media"), 0)
+    return [c for c in _catalogo(pq)["cargos"]
+            if (c["_tipos"] is None or emp["tipo"] in c["_tipos"])
+            and (c["_rubros"] is None or emp["rubro"] in c["_rubros"])
+            and c["nivel_min"] <= nivel <= c["nivel_max"]
+            and EDU_ORDEN.get(c["edu_min"], 0) <= edu and c["peso"] > 0]
 
 
 def compatibles(pq: Paquete, emp: dict, e: dict) -> list[dict]:
@@ -145,12 +207,7 @@ def compatibles(pq: Paquete, emp: dict, e: dict) -> list[dict]:
     (finanzas, tecnología, salud...), su grupo ocupacional de hoy y el área de su carrera. Se sueltan de a
     uno, el área primero y la familia al final, hasta que quede alguno.
     """
-    nivel, edu = int(e.get("nivel", 0)), EDU_ORDEN.get(e.get("edu", "media"), 0)
-    duros = [c for c in _catalogo(pq)["cargos"]
-             if (c["_tipos"] is None or emp["tipo"] in c["_tipos"])
-             and (c["_rubros"] is None or emp["rubro"] in c["_rubros"])
-             and c["nivel_min"] <= nivel <= c["nivel_max"]
-             and EDU_ORDEN.get(c["edu_min"], 0) <= edu and c["peso"] > 0]
+    duros = _duros(pq, emp, e)
     area, ocup = e.get("area") or "", int(e.get("ocupacion", -1))
     familias = set(familias_de(pq, e))
 
@@ -228,7 +285,8 @@ def sitio_empresa(origen: str) -> str:
 def _tipo_y_rubro(vida, decision_id: str, opcion_id: str) -> tuple[str, str | None] | None:
     """Con qué tipo de empleador y rubro termina la opción si sale bien; None si no lleva a un empleador.
 
-    Se lee de los efectos del primer resultado que emplea. Si el resultado sigue en `tipo_de_empleador`
+    Se lee del resultado principal (el primero): "Usarla para negociar" no trae la empresa, aunque uno de
+    sus resultados sea irte a ella. Si el resultado sigue en `tipo_de_empleador`
     (cesantía, oferta externa), se predice con los mismos dados que usará el motor: sus probabilidades son
     constantes del paquete, así que la predicción es exacta.
     """
@@ -236,7 +294,7 @@ def _tipo_y_rubro(vida, decision_id: str, opcion_id: str) -> tuple[str, str | No
     opcion = next((o for o in vida.opciones(decision_id) if o.id == opcion_id), None)
     if opcion is None:
         return None
-    for r in opcion.resultados:
+    for r in opcion.resultados[:1]:
         tipo, rubro, emplea = None, None, False
         for ef in r.get("efectos", []):
             v = str(ef.get("valor", ""))
@@ -306,7 +364,7 @@ def oferta(vida, decision_id: str, opcion_id: str, ocurrencia: int) -> dict | No
         return None
     tipo, rubro = destino
     sitio = sitio_empresa(origen_decision(decision_id, ocurrencia))
-    emp = sortear_empresa(vida.pq, vida.dados, vida.anio, sitio, tipo, rubro)
+    emp = sortear_empresa(vida.pq, vida.dados, vida.anio, sitio, tipo, rubro, vida.e)
     car = sortear_cargo(vida.pq, vida.dados, vida.anio, sitio + ":cargo", emp, vida.e)
     return ficha(vida.pq, emp, car)
 

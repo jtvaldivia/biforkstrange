@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from app.sim.motor import empresas
 from app.sim.motor.azar import Dados
 from app.sim.motor.paquete import Paquete
-from app.sim.motor.perfil import NIVELES
+from app.sim.motor.perfil import NIVELES, estudio_sin_carrera, tipo_institucion_de
 
 # "Solo lo laboral": fuera las decisiones de vida personal y los eventos de salud, duelo y pareja.
 DECISIONES_PERSONALES = frozenset(
@@ -36,6 +36,24 @@ EVENTOS_PERSONALES = frozenset(
 EVENTO_MUNDO = "recesion"
 # Decisiones cuya historia nombra a la empresa que te ofrece trabajo
 DECISIONES_CON_OFERTA = frozenset({"oferta_externa", "unirse_a_startup", "remoto_para_afuera", "emigrar"})
+
+# La suerte en la pega (ascenso, despido, oferta, alza) va con el trabajo: dos vidas de un mismo mundo
+# la comparten mientras están en la misma pega, y deja de ser la misma cuando una se cambia.
+# La recesión (EVENTO_MUNDO) siempre es igual para todas. Ver docs/DECISIONES.md, decisión 3.
+SUERTE_POR_PEGA = True
+EVENTOS_DE_LA_PEGA = frozenset({"alza_anual", "ascenso", "separacion_empleo", "oferta_llega", "startup_cierra"})
+
+# Cada año: si la vida te obliga, decides eso. Si no, a veces te llega algo (LLEGAN). Si lo que sale es algo
+# que la gente busca por su cuenta, el año es tranquilo: la persona puede buscar lo que quiera o seguir igual,
+# y el gemelo considera lo que salió y responde como la gente real. Ver docs/DECISIONES.md, decisión 13.
+TRANQUILO = "anio_tranquilo"
+LLEGAN = frozenset({"oferta_externa", "unirse_a_startup", "jefatura", "remoto_para_afuera", "practica",
+                    "intercambio", "volver_a_chile"})
+_DECISION_TRANQUILO = {
+    "id": TRANQUILO, "nombre": "Año tranquilo", "categoria": "trabajo", "calidad": "supuesto",
+    "pregunta": "Este año no te llegó ninguna propuesta. ¿Quieres mover algo tú?",
+    "cuando": "1", "aparicion": {"tipo": "tranquilo"}, "opciones": [], "evidencia": [],
+}
 EDAD_MAXIMA = 60
 
 # Reglas del cierre de año que el paquete deja al simulador. Supuestos del equipo.
@@ -112,7 +130,6 @@ class Vida:
         self.anios_buscando = 0
         self.ingreso_total = 0.0
         self._anios_con_hueco = 0
-        self.afinidad: dict[str, float] = {}  # cuánto te tira cada carta según tu gemelo (solo tu partida)
         self.variedad = 1.0               # peso de una carta ya vista; la partida de la persona usa REPETIR_CARTA
         # empleo actual: cuánto paga respecto del nivel de referencia (empresa × cargo); 1 = neutro
         self._factor_empleo = 1.0
@@ -120,6 +137,9 @@ class Vida:
         self._espera_tipo = False       # el resultado sigue en tipo_de_empleador: la empresa se asigna ahí
         self._nuevo_empleador = False
         self._sortear_ia()
+        self.pega = 0                     # sube cada vez que esta vida entra a un trabajo nuevo
+        self.sugerida: str | None = None  # en un año tranquilo, lo que la gente como tú suele buscar
+        self.primer_anio_con_propuesta = False  # la persona: su partida no parte con un año tranquilo
         self._derivar(inicio=True)
         self.reparto: dict | None = None
 
@@ -131,7 +151,6 @@ class Vida:
         otra.temporales = [dict(t) for t in self.temporales]
         otra.historia = list(self.historia)
         otra.registro = copy.deepcopy(self.registro)
-        otra.afinidad = {}  # los mundos de comparación viven con las cartas de la población: tu gemelo no mueve sus números
         if dados is not None:
             otra.dados = dados
             otra._sortear_ia()
@@ -204,22 +223,41 @@ class Vida:
 
     # ------------------------------------------------------------------ año
     def iniciar_anio(self, con_cartas: bool, carta: str | None = None) -> None:
-        """Sortea el mundo y arma la cola del año. `carta` fuerza la decisión (la duda inicial)."""
+        """Sortea el mundo y arma la cola del año. `carta` (la duda inicial) va primero, antes de las forzadas."""
         if self.cola:
             raise RuntimeError("el año en curso no ha terminado")
         self.registro = {"anio": self.anio + 1, "edad": self.e["edad"], "recesion": False,
                          "decisiones": [], "eventos": []}
         self.reparto = None  # cómo se sorteó la carta de este año, si hubo sorteo
+        self.sugerida = None
         self._derivar(inicio=True)
         self._evento(EVENTO_MUNDO)
         self.registro["recesion"] = bool(self.e["recesion"])
+        decisiones = self._forzadas()
         if carta is not None:
-            decisiones = [carta]
+            # la duda va primero (es la carta que la persona eligió), pero no tapa las forzadas: quien está
+            # cesante igual tiene que buscar pega ese año y al fundador igual le toca seguir con su empresa.
+            # Si la duda las resuelve (encuentra trabajo), al llegarles su turno ya no aplican y se saltan.
+            decisiones = [carta] + [d for d in decisiones if d != carta]
         else:
-            decisiones = self._forzadas()
             if not decisiones and con_cartas:
                 sorteada = self._sortear_carta()
-                decisiones = [sorteada] if sorteada else []
+                if sorteada and sorteada not in LLEGAN | self._huecos() and self.primer_anio_con_propuesta and self.anio == 0:
+                    # la partida no parte con un año tranquilo: el primer año te llega algo que decidir
+                    llegan = [(id_, peso) for id_, peso in self.cartas_posibles() if id_ in LLEGAN]
+                    if llegan:
+                        sorteada = llegan[self.dados.elegir(self.anio, "carta:primera", [p for _, p in llegan])][0]
+                        self.reparto = {"carta": sorteada, "prob": dict(llegan)[sorteada] / sum(p for _, p in llegan),
+                                        "posibles": len(llegan)}
+                if sorteada in self._huecos() and not (self.primer_anio_con_propuesta and self.anio == 0):
+                    # una carta que solo llega por su evento (la oferta): ocupa su lugar en el sorteo, para no
+                    # inflar a las demás, pero como carta no trae nada: año tranquilo sin sugerencia
+                    decisiones = [TRANQUILO]
+                elif sorteada and sorteada not in LLEGAN:
+                    self.sugerida = sorteada  # no te llegó nada: año tranquilo, puedes buscar algo
+                    decisiones = [TRANQUILO]
+                else:
+                    decisiones = [sorteada] if sorteada else []
         self.cola = self.cola + [("decision", d, "carta") for d in decisiones]
         self.cola += [("evento", id_) for id_ in self.pq.eventos if id_ != EVENTO_MUNDO and self._evento_en_alcance(id_)]
         self.cola.append(("cierre",))
@@ -257,7 +295,16 @@ class Vida:
         return self
 
     # ------------------------------------------------------------------ decisiones
+    def decision(self, decision_id: str) -> dict:
+        return _DECISION_TRANQUILO if decision_id == TRANQUILO else self.pq.decisiones[decision_id]
+
+    def buscables(self) -> list[str]:
+        """Lo que esta persona podría buscar por su cuenta este año."""
+        return [id_ for id_, _ in self.cartas_posibles() if id_ not in LLEGAN]
+
     def aplica(self, decision_id: str) -> bool:
+        if decision_id == TRANQUILO:
+            return True
         d = self.pq.decisiones[decision_id]
         return bool(self.pq.evaluar(d["cuando"], self.e)) and bool(self.opciones(decision_id))
 
@@ -274,12 +321,15 @@ class Vida:
             peso = self.pq.evaluar(d["aparicion"]["peso"], self.e)
             if id_ == "renunciar":
                 peso *= self.e["p_renuncia"]
-            peso *= self.afinidad.get(id_, 1.0)
             if self.variedad != 1.0:  # solo en tu partida: la población calibrada no se toca
                 peso *= self.variedad ** self._veces_vista(id_)
             if peso > 0:
                 salida.append((id_, float(peso)))
         return salida
+
+    def _huecos(self) -> frozenset[str]:
+        """Cartas que solo ocupan su lugar en el sorteo: lo que traen llega por un evento (ver `solo_por_evento`)."""
+        return frozenset(id_ for id_, d in self.pq.decisiones.items() if d["aparicion"].get("solo_por_evento"))
 
     def _sortear_carta(self) -> str | None:
         cartas = self.cartas_posibles()
@@ -291,6 +341,15 @@ class Vida:
         return elegida
 
     def opciones(self, decision_id: str) -> list[Opcion]:
+        if decision_id == TRANQUILO:
+            seguir = Opcion("seguir", "Seguir igual", "Este año no cambias nada.",
+                            [{"id": "sigue", "prob": 1, "texto": "Sigues igual.", "tono": "neutro", "efectos": []}])
+            return [seguir] + [
+                Opcion(id_, self.pq.decisiones[id_]["nombre"], self.pq.decisiones[id_]["pregunta"],
+                       [{"id": "busca", "prob": 1, "texto": f"Decides moverte: {self.pq.decisiones[id_]['nombre'].lower()}.",
+                         "tono": "neutro", "efectos": []}])
+                for id_ in self.buscables()
+            ]
         d = self.pq.decisiones[decision_id]
         salida = [
             Opcion(o["id"], o["nombre"], o.get("detalle", ""), o["resultados"], o.get("costo", []), o.get("calidad", ""))
@@ -307,7 +366,7 @@ class Vida:
         return salida
 
     def _decidir(self, decision_id: str, origen: str, decisor) -> None:
-        d = self.pq.decisiones[decision_id]
+        d = self.decision(decision_id)
         vigente = self._decision_en_alcance(decision_id) and (origen != "carta" or self.pq.evaluar(d["cuando"], self.e))
         opciones = self.opciones(decision_id) if vigente else []
         if not opciones:
@@ -347,10 +406,44 @@ class Vida:
             "texto": resultado["texto"] if resultado else "", "tono": (resultado or {}).get("tono", "neutro"),
             "prob": prob, "ocurrencia": ocurrencia, "contexto": contexto,
         })
+        if decision_id == TRANQUILO:
+            del self.registro["decisiones"][-1]["contexto"]  # no tiene historia que narrar
+            if opcion.id != "seguir":
+                self.cola.insert(0, ("decision", opcion.id, "buscada"))
+            return
         if resultado:
             self._aplicar(resultado["efectos"], sitio + ":" + resultado["id"], opcion.fila)
             self._encolar_luego(resultado.get("luego"))
         self._espera_tipo = False
+
+    def resultado_previsto(self, decision_id: str, opcion_id: str) -> str | None:
+        """El resultado que saldría si elige esa opción ahora: los dados ya están echados (mismo sitio que `_decidir`)."""
+        opcion = next((o for o in self.opciones(decision_id) if o.id == opcion_id), None)
+        if opcion is None:
+            return None
+        ocurrencia = sum(1 for x in (self.registro or {}).get("decisiones", []) if x["decision"] == decision_id)
+        sitio = f"dec:{decision_id}:{opcion_id}" + (f":{ocurrencia}" if ocurrencia else "")
+        resultado, _ = self._sortear(opcion.resultados, sitio, decision_id)
+        return resultado["id"] if resultado else None
+
+    def sueldo_si_elige(self, decision_id: str, opcion_id: str) -> float | None:
+        """El sueldo con que quedaría si elige esa opción ahora, con la empresa nueva incluida.
+
+        Se vive la decisión en una copia de la vida (mismos dados y mismo paquete), así que es exactamente lo
+        que pasará si la elige: sirve para mostrar el sueldo de una oferta antes de aceptarla.
+        """
+        if not self.cola or self.cola[0][:2] != ("decision", decision_id):
+            return None
+        copia = copy.deepcopy(self, memo={id(self.pq): self.pq, id(self.dados): self.dados})
+
+        class _Elige:
+            def elegir(self_, vida, decision, opciones):
+                return opcion_id, {}
+
+        copia._decidir(decision_id, copia.cola[0][2], _Elige())
+        while copia.cola and copia.cola[0][:2] == ("decision", "tipo_de_empleador"):
+            copia._decidir("tipo_de_empleador", copia.cola[0][2], _Elige())
+        return float(copia.e["sueldo"])
 
     def contexto_empleo(self) -> dict:
         """Empresa, cargo e institución de hoy, para contar la historia con nombres."""
@@ -424,6 +517,10 @@ class Vida:
             else:
                 self.e[var] = valor
             self.e[var] = self._acotar(var, self.e[var])
+            if (var == "estado" and self.e[var] == "empleado" and previo != "empleado") or (
+                var == "antiguedad" and ef["op"] == "fija" and self.e[var] == 0 and previo != 0
+            ) or (var == "tipo_empleador" and self.e[var] != previo):
+                self.pega += 1  # trabajo nuevo: desde aquí, su suerte en la pega es otra
             if ef.get("duracion"):
                 self.temporales.append({"quedan": ef["duracion"], "var": var, "op": ef["op"],
                                         "valor": valor, "previo": previo})
@@ -485,7 +582,7 @@ class Vida:
         else:
             rubro = empresas.rubro_actual(e)
         sitio = empresas.sitio_empresa(self._origen)
-        emp = empresas.sortear_empresa(self.pq, self.dados, self.anio, sitio, e["tipo_empleador"], rubro)
+        emp = empresas.sortear_empresa(self.pq, self.dados, self.anio, sitio, e["tipo_empleador"], rubro, e)
         if emp is not None and e["tipo_empleador"] != "publico":
             e["rubro"] = emp["rubro"]  # sin rubro, o startup/remota de otro rubro: la empresa lo fija
         car = empresas.sortear_cargo(self.pq, self.dados, self.anio, sitio + ":cargo", emp, e)
@@ -549,16 +646,25 @@ class Vida:
         valor = min(max(valor, dom[0]), dom[1])
         return int(round(valor)) if v["tipo"] in ("entero", "bool") else valor
 
+    def _sitio_evento(self, id_: str) -> str:
+        """Lo del mundo (la recesión) se comparte entre las vidas de un mundo. Lo de la pega
+        (ascenso, despido, oferta, alza) se comparte mientras están en el mismo trabajo:
+        al cambiarse de pega, esa vida pasa a tener otra suerte."""
+        if not SUERTE_POR_PEGA or id_ not in EVENTOS_DE_LA_PEGA:
+            return f"evento:{id_}"  # lo del país y lo personal (pareja, salud) es igual en todas las vidas
+        return f"evento:{id_}@{self.pega}"
+
     def _evento(self, id_: str, directo: bool = False) -> None:
         ev = self.pq.eventos[id_]
+        sitio = self._sitio_evento(id_)
         prob = 1.0
         if not directo:
             if not self.pq.evaluar(ev["cuando"], self.e):
                 return
             prob = min(max(float(self.pq.evaluar(ev["prob_anual"], self.e)), 0.0), 1.0)
-            if self.dados.u(self.anio, f"evento:{id_}") >= prob:
+            if self.dados.u(self.anio, sitio) >= prob:
                 return
-        resultado, prob_resultado = self._sortear(ev["resultados"], f"evento:{id_}:res")
+        resultado, prob_resultado = self._sortear(ev["resultados"], f"{sitio}:res")
         if resultado is None:
             return
         self._origen = f"evento:{id_}"
@@ -570,7 +676,7 @@ class Vida:
             "prob_evento": prob, "directo": directo,
             "rutina": ev["prob_anual"] == 1,  # pasa todos los años (alza anual, ánimo)
         })
-        self._aplicar(resultado["efectos"], f"evento:{id_}:{resultado['id']}")
+        self._aplicar(resultado["efectos"], f"{sitio}:{resultado['id']}")
         self._encolar_luego(resultado.get("luego"))
         self._espera_tipo = False
 
@@ -616,11 +722,17 @@ class Vida:
             e.update(estado="inactivo", sueldo=0.0, deja_de_trabajar=0)
 
         # estudios
-        if e["estado"] == "estudiando" and e["carrera_id"] >= 0:
+        # sin carrera del catálogo, estudia lo que supone perfil.estudio_sin_carrera (semestres puestos al partir)
+        if e["estado"] == "estudiando" and (e["carrera_id"] >= 0 or e["semestres_restantes"] > 0):
             e["semestres_restantes"] -= 2
             e["anos_en_carrera"] += 1
             if e["semestres_restantes"] <= 0:
-                e.update(edu=EDU_AL_TITULARSE.get(e["tipo_institucion"], e["edu"]), estado="buscando",
+                titulo = EDU_AL_TITULARSE.get(e["tipo_institucion"]) or estudio_sin_carrera(
+                    e["edu"], tipo_institucion_de(self.pq, e.get("universidad_id", "")))[0]
+                # recién titulado de pregrado: su primera pega parte en Junior (el cargo que traía era el del
+                # perfil, por omisión semi senior). Quien termina un postgrado conserva el cargo que declaró.
+                nivel = e["nivel"] if titulo == "postgrado" else 0
+                e.update(edu=titulo, estado="buscando", nivel=nivel,
                          primer_empleo=1, anos_titulado=0, semestres_restantes=0, anos_en_carrera=0)
         elif e["estado"] != "estudiando":
             e["anos_titulado"] = self._acotar("anos_titulado", e["anos_titulado"] + 1)

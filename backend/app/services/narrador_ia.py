@@ -1,4 +1,4 @@
-"""Sonnet reescribe los textos del juego con la empresa, el rubro y el cargo concretos.
+"""Claude reescribe los textos del juego con la empresa, el rubro y el cargo concretos.
 
 Narra tres cosas: la ficha de una oferta, un evento del año y la historia de un mundo. El
 texto de `narrativa.py` llega como `plantilla` y es el respaldo: si Claude no está, falla, se
@@ -14,7 +14,7 @@ Reglas que se validan en código, no solo en el prompt:
 Variables de entorno:
 
 - `NARRADOR_IA=0` lo apaga. Prendido por defecto si hay credenciales de Anthropic.
-- `NARRADOR_MODELO` cambia el modelo (por defecto Sonnet 5.5).
+- `NARRADOR_MODELO` cambia el modelo (por defecto Haiku 5.5).
 - `NARRADOR_ESPERA` es el tope en segundos de una llamada a `narrar` (por defecto 10).
 
 No hay respaldo por el comando `claude`: sin credenciales, plantilla directa.
@@ -38,7 +38,9 @@ from app.services import claude_comun
 
 log = logging.getLogger(__name__)
 
-MODELO = os.environ.get("NARRADOR_MODELO", "claude-sonnet-5-5")
+MODELO = os.environ.get("NARRADOR_MODELO", "claude-haiku-5-5")
+# Haiku acepta el razonamiento apagado (con esfuerzo bajo); en Sonnet y Opus 5.5 apagarlo da 400.
+SIN_RAZONAR = MODELO.startswith("claude-haiku-5")
 ESPERA_MAX = float(os.environ.get("NARRADOR_ESPERA", "10"))
 MAX_POR_LLAMADA = 12
 LLAMADAS_SIMULTANEAS = 4
@@ -65,7 +67,7 @@ class Item(BaseModel):
 class Narrado(BaseModel):
     id: str
     texto: str
-    via: Literal["sonnet", "plantilla"]
+    via: Literal["claude", "plantilla"]
 
 
 class _Texto(BaseModel):
@@ -90,7 +92,9 @@ concretos del contexto. Máximo 220 caracteres.
 - mundo: la historia de un futuro posible de la persona, en un párrafo corto. Máximo 600 caracteres.
 
 La plantilla trae los hechos que decidió el juego: respétalos. Mismo resultado, misma empresa, \
-mismo cargo, mismo desenlace. No agregues sucesos que la plantilla y el contexto no traen.
+mismo cargo, mismo desenlace. No agregues sucesos que la plantilla y el contexto no traen. \
+Cada item es independiente: no lleves hechos de un item a otro (por ejemplo, no menciones una \
+recesión, un despido o un ascenso en un item cuya plantilla no lo trae).
 
 No inventes la historia de la persona. No menciones trabajos, empresas, jefaturas ni cargos \
 anteriores, años de experiencia, estudios ni logros que el contexto y la plantilla no traen: lo que \
@@ -194,6 +198,10 @@ def _motivo_rechazo(item: Item, texto: str) -> str | None:
         return "largo"
     if item.contexto.get("tono") == "malo" and item.contexto.get("empresa") and not tiene_marca_simulacion(texto):
         return "sin_marca"
+    # un hecho de otro item que se coló (la recesión de un año contada en todos los años)
+    for hecho in ("recesi", "despid", "quiebr"):
+        if hecho in texto.lower() and hecho not in item.plantilla.lower():
+            return "hecho_ajeno"
     return None
 
 
@@ -208,6 +216,7 @@ def _por_api(lote: list[Item], relato: str = "") -> dict[str, str]:
     entrada = [{"id": i.id, "tipo": i.tipo, "contexto": _contexto_limpio(i.contexto), "plantilla": i.plantilla}
                for i in lote]
     cuerpo = {"relato": relato, "items": entrada} if relato else {"items": entrada}
+    extra = {"thinking": {"type": "disabled"}} if SIN_RAZONAR else {}  # textos cortos: más rápido sin razonar
     try:
         respuesta = claude_comun.cliente(ESPERA_MAX, max_retries=1).messages.parse(
             model=MODELO,
@@ -217,6 +226,7 @@ def _por_api(lote: list[Item], relato: str = "") -> dict[str, str]:
             system=[{"type": "text", "text": INSTRUCCIONES, "cache_control": {"type": "ephemeral"}}],
             messages=[{"role": "user", "content": json.dumps(cuerpo, ensure_ascii=False, default=str)}],
             output_format=_Lote,
+            **extra,
         )
     except claude_comun.ERRORES_API as error:
         raise claude_comun.traducir_error(error) from error
@@ -271,7 +281,7 @@ def narrar(items: list[Item], relato: str = "") -> list[Narrado]:
 
 
 def _narrar(items: list[Item], relato: str = "") -> list[Narrado]:
-    textos: dict[int, str] = {}  # posición -> texto de Sonnet
+    textos: dict[int, str] = {}  # posición -> texto de Claude
     if items and _activo():
         llaves = [_llave(i, relato) for i in items]
         pendientes: dict[str, Item] = {}  # llave -> primer item con esa llave, sin repetir
@@ -295,6 +305,6 @@ def _narrar(items: list[Item], relato: str = "") -> list[Narrado]:
             texto = _de_cache(llave)
             if texto is not None:
                 textos[pos] = texto
-    return [Narrado(id=i.id, texto=textos[pos], via="sonnet") if pos in textos
+    return [Narrado(id=i.id, texto=textos[pos], via="claude") if pos in textos
             else Narrado(id=i.id, texto=i.plantilla, via="plantilla")
             for pos, i in enumerate(items)]

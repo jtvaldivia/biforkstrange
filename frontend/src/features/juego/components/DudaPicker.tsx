@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import {
-  Button, ChevronLeftIcon, DecisionArt, DecisionList, Heading, IconButton, Pill, Screen, ScreenHeader, Stack, Tag, Text, cssVars,
+  Button, ChevronLeftIcon, DecisionArt, DecisionList, Heading, IconButton, Pill, Screen, ScreenHeader, Stack, Tag, Text,
 } from "@/shared/ui";
 import { GEMELOS, getEnJuego } from "../api";
 import { arteDuda, mayuscula, plata, preguntaCorta } from "../textos";
 import type { Duda, DudaEnJuego, DudaSugerida, Perfil } from "../types";
-import { Cargando, ErrorCaja } from "./piezas";
+import { AvisoPerfil, Cargando, ErrorCaja } from "./piezas";
 
 const VISIBLES = 4;
 /** Las dudas más comunes van primero; el resto sigue en el orden del paquete. */
@@ -38,6 +38,7 @@ function useMasEnJuego(perfil: Perfil | undefined, dudas: Duda[] | null, sugerid
 }
 
 export function DudaPicker({
+  fuentes = null,
   perfil,
   dudas,
   sugeridas = [],
@@ -45,16 +46,29 @@ export function DudaPicker({
   error,
   onVolver,
   onElegir,
+  onReintentarDudas,
+  onReintentar,
+  onSinDuda,
 }: {
+  /** Empezar sin una duda: la vida decide qué te llega el primer año, como en cualquier otro. */
+  onSinDuda?: () => void;
+  /** De dónde salió cada dato del perfil: lo que falta es supuesto. */
+  fuentes?: Record<string, string> | null;
+  /** De dónde vienen las sugeridas: del CV, o de lo que contaste a tu Claude. */
+  origenSugeridas?: "cv" | "claude" | null;
   /** Con el perfil se mide cuál de las dudas sugeridas tiene más en juego para esta persona. */
   perfil?: Perfil;
   dudas: Duda[] | null;
-  /** Las dudas que le calzan según su CV, con el porqué: van primero y la primera queda elegida. */
+  /** Las dudas que le calzan según su CV o su Claude, con el porqué: van primero y la primera queda elegida. */
   sugeridas?: DudaSugerida[];
   cargando: boolean;
   error: string | null;
   onVolver: () => void;
   onElegir: (decision: string) => void;
+  /** Si la lista de dudas no llegó, se vuelve a pedir. */
+  onReintentarDudas?: () => void;
+  /** Si lo que falló fue simular la primera carta, se repite eso. */
+  onReintentar?: () => void;
 }) {
   const porQue = new Map(sugeridas.map((s) => [s.decision, s.por_que]));
   const rango = (id: string) => {
@@ -81,6 +95,7 @@ export function DudaPicker({
       />
       <Stack gap={6}>
         <Heading level={1}>¿Qué duda te trajo?</Heading>
+        <AvisoPerfil fuentes={fuentes} />
       </Stack>
       {enJuego && (
         <div className="jg-en-juego" role="note">
@@ -125,11 +140,16 @@ export function DudaPicker({
         </Button>
       )}
       <div className="jg-pie-fijo">
-        {error && <ErrorCaja error={error} />}
+        {error && <ErrorCaja error={error} onReintentar={dudas ? onReintentar : onReintentarDudas} />}
         {simulando && <Cargando frases={[`Simulando tus ${GEMELOS} mundos…`, "Diez años con cada opción…"]} />}
         <Button onClick={() => sel && onElegir(sel)} disabled={!sel || cargando}>
-          {simulando ? "Simulando…" : `Ver mis ${GEMELOS} mundos`}
+          {simulando ? "Simulando…" : sel ? `Ver mis ${GEMELOS} mundos` : "Elige una duda"}
         </Button>
+        {onSinDuda && !simulando && (
+          <Button variant="quiet" onClick={onSinDuda} disabled={cargando}>
+            Empezar sin una duda: que la vida decida
+          </Button>
+        )}
       </div>
     </Screen>
   );

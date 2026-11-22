@@ -4,19 +4,21 @@ La corrida de verdad es `python -m app.sim.motor.validacion` (5.000 personas) y 
 está en `docs/motor/VALIDACION.md`. Aquí se fija lo que no debe romperse:
 
 - cuántas metas cuadran como mínimo;
-- las metas clave una por una, con un margen extra por el tamaño de la cohorte;
-- las brechas conocidas, en `xfail(strict=True)`: si una empieza a cuadrar (porque se
-  arregló el motor o el paquete), el test avisa y hay que actualizar el informe.
+- las metas clave una por una, con un margen extra por el tamaño de la cohorte.
 
 Metas que quedan al borde de la tolerancia y cambian con la semilla no se fijan en ningún
-sentido: `ingreso_p50_18-24`, `ingreso_p50_25-29`, `ingreso_p75_35-39`, `ingreso_p25_45-49`,
-`publico_45-49`, `cambio_45_59`.
+sentido: `ingreso_p50_18-24`, `ingreso_p50_25-29`, `ingreso_p75_35-39`, `ingreso_p25_25-29`,
+`ingreso_p25_35-39`, `ingreso_p25_45-49`, `publico_45-49`, `cambio_45_59`.
 """
 
 import pytest
 
 from app.sim.motor import validacion
+from app.sim.motor.azar import Dados
+from app.sim.motor.motor import Vida
 from app.sim.motor.paquete import paquete
+from app.sim.motor.perfil import Perfil, estado_inicial
+from app.sim.motor.politicas import Poblacion
 
 N, SEMILLA = 600, 0
 MINIMO_CUADRAN = 22        # con 600 personas cuadran 26; con 5.000, 25 o 26
@@ -35,12 +37,6 @@ CUADRAN = [
     # desde que el alza anual no baja el sueldo de quien sigue en su pega, los sueldos medianos cuadran
     "ingreso_p50_30-34", "ingreso_p50_35-39", "ingreso_p50_40-44", "ingreso_p50_45-49", "ingreso_p75_45-49",
 ]
-# ingreso_p25_25-29 e ingreso_p25_35-39 dejaron de ser brecha: con prima_personal los independientes ya no
-# caen todos a la mediana informal. Quedan fuera de CUADRAN porque cuadran al borde (simulado ~14% bajo la
-# meta, tolerancia 15%).
-BRECHAS = {
-    "publico_35-39": "P_REEMPLEO_PUBLICO = 0,12 fija el empleo público en 12% de los asalariados a toda edad",
-}
 
 
 @pytest.fixture(scope="module")
@@ -78,11 +74,6 @@ def test_meta_clave_cuadra(metas, id_):
     assert abs(m["error"]) <= m["tolerancia"] + margen, (m["meta"], m["simulado"])
 
 
-@pytest.mark.parametrize("id_", [pytest.param(i, marks=pytest.mark.xfail(strict=True, reason=r)) for i, r in BRECHAS.items()])
-def test_brecha_conocida(metas, id_):
-    assert metas[id_]["cumple"], (metas[id_]["meta"], metas[id_]["simulado"])
-
-
 def test_los_insumos_estan_marcados(metas):
     """Reproducir un insumo no es validar: esas metas no cuentan como validación."""
     for id_ in ("separacion_18_29", "cambio_30_44", "sigue_cesante_12m", "empresa_grande", "startup_anos"):
@@ -109,6 +100,27 @@ def test_elsoc(resultado):
         sin_empleo = filas[f"elsoc_ocupado_a_no_ocupado_{banda}"]
         assert sin_empleo["comparable"] is False and sin_empleo["cumple"] is None
         assert sin_empleo["error"] < -0.03
+
+
+def test_el_ascenso_que_descuenta_el_alza_anual_es_el_promedio_de_la_cohorte():
+    """ASCENSO_POBLACION se midió con esta cohorte: si cambia la regla de ascenso o los pesos, hay que medirla
+    de nuevo; si no, el alza anual vuelve a contar los ascensos dos veces (o a no contarlos)."""
+    pq = paquete()
+
+    class Espia(Vida):
+        diferencias: list[float] = []
+
+        def _evento(self, id_, directo=False):
+            if id_ == "alza_anual" and self.e["estado"] == "empleado":
+                Espia.diferencias.append(self.e["prob_ascenso"] - pq.k("ASCENSO_POBLACION", self.e["banda7"]))
+            super()._evento(id_, directo)
+
+    for g in range(300):
+        v = Espia(estado_inicial(Perfil.a_los_18(sexo="hm"[g % 2]), pq), Dados(SEMILLA, g), pq)
+        while v.e["edad"] < validacion.EDAD_FIN:
+            v.vivir_anio(Poblacion())
+    assert len(Espia.diferencias) > 5000
+    assert abs(sum(Espia.diferencias) / len(Espia.diferencias)) < 0.005
 
 
 def test_misma_semilla_mismo_resultado_en_serie_y_en_paralelo():

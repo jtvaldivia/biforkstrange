@@ -1,17 +1,49 @@
-# Agarra la pala: desarrollo
+# Bifurca: desarrollo
 
 ## Arranque
 
 ```bash
-cp backend/.env.example backend/.env      # SUPABASE_URL y SUPABASE_SERVICE_KEY
-cp frontend/.env.example frontend/.env    # VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY
+cp backend/.env.example backend/.env      # CORS_ORIGINS y, opcional, ANTHROPIC_API_KEY
+cp frontend/.env.example frontend/.env    # VITE_API_URL
 make install
 make back    # http://localhost:8000/docs
 make front   # http://localhost:5173
 make test
 ```
 
-Sin credenciales de Supabase el backend guarda las corridas en memoria.
+No hay base de datos: el juego no guarda estado en el servidor y las corridas de `/api/simulations` viven en memoria.
+
+## Producción (Render)
+
+`make back` es para desarrollo: un solo proceso con `--reload`, que atiende las partidas en fila (diez
+`/partida` a la vez esperan ~2 s cada una). En producción corre `backend/scripts/prod.sh` (o `make prod`
+en local): uvicorn con `--workers`, sin `--reload`, en `0.0.0.0:$PORT`.
+
+**Comando de arranque del servicio de la API** (Render → Settings → Start Command), con *Root Directory*
+`backend`:
+
+```bash
+sh scripts/prod.sh
+```
+
+Si el servicio no usa `backend` como raíz, `sh backend/scripts/prod.sh`. El script usa `uv run` si `uv` está
+instalado y si no `python -m uvicorn` con las dependencias ya instaladas en el build.
+
+Variables de entorno:
+
+| Servicio | Variable | Ejemplo | Para qué |
+|---|---|---|---|
+| API | `ANTHROPIC_API_KEY` | `sk-ant-...` | Leer el CV con Claude y narrar. Sin ella, el perfil se llena a mano y los textos salen de plantillas |
+| API | `CORS_ORIGINS` | `["https://bifurca.onrender.com"]` | Orígenes que pueden llamar a la API. Va en **formato JSON** (una lista entre corchetes con comillas dobles); una URL suelta no se lee |
+| API | `WEB_CONCURRENCY` | `2` | Procesos de uvicorn. Cada uno usa ~170 MB después de jugar: 2 caben en 512 MB. Más procesos solo ayudan si el plan tiene más CPUs |
+| Front | `VITE_API_URL` | `https://bifurca-api.onrender.com` | URL de la API. Vite la mete en el build: si cambia, hay que volver a construir el front |
+
+`PORT` lo pone Render. En local, el backend lee estas mismas variables de `backend/.env` (incluida
+`ANTHROPIC_API_KEY`); una variable de entorno pesa más que el `.env`.
+
+El juego no guarda estado entre llamadas, así que cualquier proceso puede atender cualquier request. Lo
+único en memoria por proceso es el historial de `/api/simulations`: con varios procesos, una corrida
+guardada en uno no aparece en otro, y se pierde al reiniciar.
 
 ## Backend (`backend/app`)
 
@@ -22,14 +54,14 @@ Las dependencias van en una sola dirección: `api → services → (sim, reposit
 | `sim/` | Dominio puro (numpy, sin FastAPI ni DB). `state.py` es el estado vectorizado, `engine.py` el loop Monte Carlo, `metrics.py` los resúmenes por año. |
 | `sim/decisions/` | Una clase por decisión. Se registran solas al heredar de `Decision`. |
 | `schemas/` | Modelos Pydantic de entrada y salida de la API. |
-| `repositories/` | Persistencia detrás de un `Protocol`: Supabase o memoria. |
+| `repositories/` | Persistencia detrás de un `Protocol` (hoy, en memoria). |
 | `services/` | Casos de uso que orquestan motor y repositorio. |
 | `api/` | Rutas delgadas. `deps.py` es el único lugar que elige implementaciones. |
 | `core/` | Configuración y clientes externos. |
 
 **Agregar una decisión:** crear una subclase en `sim/decisions/catalog.py` con `key`, `label` y `apply()` (o heredar de `ParametricDecision` y fijar tres números). Aparece sola en `GET /api/decisions`.
 
-**Agregar un atributo del gemelo:** sumarlo a `State` (o usar `state.extra`) y resumirlo en `metrics.py`.
+**Agregar un atributo de la copia:** sumarlo a `State` (o usar `state.extra`) y resumirlo en `metrics.py`.
 
 ### Motor del juego (`backend/app/sim/motor`)
 
@@ -38,11 +70,11 @@ El juego corre sobre el paquete de datos de `backend/simulador/` (43 decisiones,
 | Archivo | Qué hace |
 |---|---|
 | `paquete.py` | Carga el paquete y traduce cada fórmula a una función de Python |
-| `azar.py` | Dados con suerte compartida: cada sorteo se identifica por gemelo, año y sitio |
+| `azar.py` | Dados con suerte compartida: cada sorteo se identifica por copia, año y sitio |
 | `perfil.py` | De los 9 campos del perfil a las variables iniciales |
 | `motor.py` | El año: mundo, decisión, dado del resultado, eventos, cierre |
-| `politicas.py` | Quién decide: la persona, los gemelos por inercia o la población (pesos calibrados) |
-| `gemelos.py` | 500 gemelos por opción con los mismos dados |
+| `politicas.py` | Quién decide: la persona, las copias por inercia o la población (pesos calibrados) |
+| `gemelos.py` | 100 mundos: en cada uno la copia vive todas las opciones con los mismos dados |
 | `partida.py` | La partida de la persona; no guarda nada, se vuelve a jugar en cada llamada |
 | `validacion.py` | Cohorte de 5.000 personas contra las 37 metas del paquete y el panel ELSOC |
 | `supuestos.py` | Cada parámetro con su calidad (dato, mixto, supuesto), fuente y país |
@@ -52,7 +84,7 @@ API: `GET /api/juego/catalogo`, `POST /api/juego/dudas`, `POST /api/juego/partid
 
 ```bash
 make jugar DUDA=unirse_a_startup   # partida en el terminal
-make comparar DUDA=oferta_externa  # solo la tabla de gemelos de una decisión
+make comparar DUDA=oferta_externa  # solo la tabla de copias de una decisión
 make validar                       # cuántas metas de Chile cuadran
 make supuestos CALIDAD=supuesto    # qué números siguen siendo supuestos del equipo
 ```
@@ -67,7 +99,7 @@ El esqueleto anterior (`sim/engine.py`, `sim/decisions/`, `sim/labor.py`) sigue 
 
 - `app/`: shell de la app.
 - `features/<feature>/`: todo lo de una funcionalidad (api, tipos, hooks, componentes); se expone por su `index.ts`.
-- `shared/`: config, cliente HTTP, Supabase y utilidades sin dominio.
+- `shared/`: config, cliente HTTP y utilidades sin dominio.
 
 Importa con el alias `@/` (apunta a `src/`).
 

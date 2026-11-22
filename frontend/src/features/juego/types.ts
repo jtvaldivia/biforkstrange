@@ -8,6 +8,8 @@ export type TipoEmpleador = "grande" | "pyme" | "startup" | "publico" | "extranj
 
 export type Perfil = {
   edad: number;
+  /** Hasta qué edad se juega (y miran los mundos). Sin dato: 10 años desde hoy. No es parte del perfil del motor. */
+  edad_final?: number;
   sexo: Sexo;
   edu: Educacion;
   carrera_id: number; // -1 = sin carrera
@@ -60,12 +62,10 @@ export type Perfil = {
   cargo_nombre?: string;
   /** El rubro al que se cambiaría, según su Claude: "¿a qué rubro?" parte ahí. */
   rubro_sonado?: string | null;
+  /** 1 si busca su primer empleo (sin experiencia tras titularse): parte en la primera pega, no en cesantía. */
+  primer_empleo?: 0 | 1;
   /** Cómo se describe con sus palabras: el narrador cuenta las cartas a su medida. */
   relato?: string;
-  /** Su gemelo digital (/gemelo): sus rasgos afinados mueven qué cartas le salen. */
-  gemelo_id?: string | null;
-  /** La afinidad del gemelo congelada al empezar la partida: rejugarla da siempre las mismas cartas. */
-  afinidad?: Record<string, number>;
 };
 
 export type DudaSugerida = { decision: string; nombre?: string; por_que: string };
@@ -191,6 +191,10 @@ export type ContraBase = {
   /** Mediana de la diferencia con la base, en pesos al mes. */
   diferencia_tipica: number | null;
   diferencia_si_cambia?: number | null;
+  /** En los mundos donde te va mejor que con la base: por cuánto, típico (pesos al mes). */
+  cuanto_mejor?: number | null;
+  /** En los mundos donde te va peor que con la base: por cuánto, típico (pesos al mes, positivo). */
+  cuanto_peor?: number | null;
 };
 
 export type PorResultado = ContraBase & {
@@ -294,8 +298,8 @@ export type Universidad = {
   selectiva: boolean;
 };
 
-/** Un texto contado por Sonnet (o su plantilla si Sonnet no estaba). */
-export type Narrado = { id: string; texto: string; via: "sonnet" | "plantilla" };
+/** Un texto contado por Claude (o su plantilla si Claude no estaba). */
+export type Narrado = { id: string; texto: string; via: "claude" | "plantilla" };
 
 export type OpcionPendiente = {
   opcion: string;
@@ -304,11 +308,25 @@ export type OpcionPendiente = {
   calidad: Calidad;
   elecciones_internas: EleccionInterna[];
   empresa?: EmpresaOferta | null;
+  /** De dónde sale la probabilidad de cada resultado: fuente, calidad y su valor si no depende de tu situación. */
+  respaldo?: Respaldo[];
+};
+
+export type Respaldo = {
+  resultado: string;
+  texto: string;
+  fuentes: string[];
+  calidad: Calidad;
+  es_resto: boolean;
+  /** Probabilidad del paquete; null si es una fórmula que depende de tu situación. */
+  valor: number | null;
 };
 
 /** Por qué te tocó esta decisión. */
 export type PorQue =
-  | { tipo: "sorteo"; prob: number; posibles: number }
+  | { tipo: "llega"; prob?: number; posibles?: number }
+  | { tipo: "buscada" }
+  | { tipo: "tranquilo" }
   | { tipo: "obligada" }
   | { tipo: "consecuencia" }
   | { tipo: "elegida" };
@@ -324,8 +342,23 @@ export type Pendiente = {
   creencia_vs_dato: string | null;
   evidencia: { fuente: string; cifra: string; uso: string }[];
   opciones: OpcionPendiente[];
-  /** null cuando la decisión tiene demasiadas opciones para simular gemelos. */
+  /** Una oferta llega con su sueldo: el de hoy y el que tendrías si la aceptas, con la empresa nueva incluida. */
+  oferta_sueldo?: { hoy: number; si_aceptas: number | null } | null;
+  /** null cuando la decisión tiene demasiadas opciones para simular gemelos, o en un año tranquilo. */
   comparacion: Comparacion | null;
+  /** En un año tranquilo: algo que gente como tú se plantea este año. */
+  sugerida?: string | null;
+  /** En un año tranquilo: la propuesta del año, con un dato del paquete que la respalda. */
+  sugerencia?: {
+    decision: string;
+    nombre: string;
+    pregunta: string;
+    dato: string | null;
+    fuente: string | null;
+    /** true si el dato es la estadística oficial de qué tan seguido la gente hace esto. */
+    es_frecuencia?: boolean;
+    creencia_vs_dato: string | null;
+  } | null;
 };
 
 export type Cierre = {

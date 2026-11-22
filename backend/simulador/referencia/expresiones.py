@@ -149,6 +149,7 @@ class Paquete:
         e['pareja_previa'] = e.get('pareja', 'no')
         e['crecimiento_esi'] = self.crecimiento_esi(e)
         e['crecimiento_carrera'] = self.crecimiento_carrera(e)
+        e['crecimiento_cuenta_propia'] = self.crecimiento_cuenta_propia(e)
         e.setdefault('prob_ascenso', 0.05)
         return e
 
@@ -174,6 +175,19 @@ class Paquete:
         a = self.tabla('esi_perfil_edad_edu', 'p50', 'educacion', e['edu'], 'banda', bandas[i])
         b = self.tabla('esi_perfil_edad_edu', 'p50', 'educacion', e['edu'], 'banda', bandas[i + 1])
         return max(0, min(0.06, (b / a) ** (1 / 5) - 1))
+
+    def crecimiento_cuenta_propia(self, e):
+        """Alza anual del ingreso de quien trabaja por cuenta propia: mediana de la banda siguiente sobre la
+        actual en esi_ingreso_categoria_formalidad (cuenta propia, formal o informal según `formal`), anualizada.
+        Puede ser negativa: en la ESI ese ingreso no siempre sube con la edad."""
+        bandas = ['18-24', '25-29', '30-34', '35-39', '40-44', '45-49', '50-54']
+        i = bandas.index(e['banda7'])
+        if i == len(bandas) - 1:
+            return 0
+        formalidad = 'formal' if e.get('formal', 1) else 'informal'
+        a, b = (self.tabla('esi_ingreso_categoria_formalidad', 'p50', 'categoria', 'cuenta_propia', 'banda_edad', banda,
+                           'formalidad', formalidad) for banda in bandas[i:i + 2])
+        return max(-0.06, min(0.06, (b / a) ** (1 / 5) - 1))
 
     def crecimiento_carrera(self, e):
         cid, t = e.get('carrera_id', -1), e.get('anos_titulado', 9)

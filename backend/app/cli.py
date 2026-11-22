@@ -214,7 +214,7 @@ def texto_simulacion(twin: Twin, n_runs: int, resultado: dict) -> str:
     lineas = [
         f"Tu último trabajo: {tablas().nombres[twin.ocupacion]} (tipo {twin.ocupacion})",
         f"Partes a los {twin.edad} años con un sueldo de {_pesos(twin.sueldo)} al mes.",
-        f"Simulamos {_miles(n_runs * 1000)} versiones de ti (tus gemelos), una decisión por año.",
+        f"Simulamos {_miles(n_runs * 1000)} versiones de ti (tus copias), una decisión por año.",
         "",
         celdas(titulos) + "  Trabajo más probable",
         "-" * ANCHO,
@@ -225,13 +225,13 @@ def texto_simulacion(twin: Twin, n_runs: int, resultado: dict) -> str:
     final = anios[-1]
     lineas += [
         "",
-        "Sueldo: el del gemelo del medio, en miles de pesos al mes.",
-        "Rango: 8 de cada 10 gemelos quedan dentro.",
-        "Sin trabajo: gemelos sin empleo al cierre del año.",
-        "Empleo nuevo: gemelos que empezaron un trabajo ese año.",
-        "Trabajo más probable: el tipo de trabajo donde hay más gemelos.",
+        "Sueldo: el de la copia del medio, en miles de pesos al mes.",
+        "Rango: 8 de cada 10 copias quedan dentro.",
+        "Sin trabajo: copias sin empleo al cierre del año.",
+        "Empleo nuevo: copias que empezaron un trabajo ese año.",
+        "Trabajo más probable: el tipo de trabajo donde hay más copias.",
         "",
-        f"¿En qué tipo de trabajo terminan tus gemelos a los {final['edad']} años?",
+        f"¿En qué tipo de trabajo terminan tus copias a los {final['edad']} años?",
         "(los que están sin trabajo cuentan en el tipo de su último empleo)",
         "",
         *_barras([(o["nombre"], o["prob"]) for o in final["ocupaciones"]]),
@@ -366,7 +366,7 @@ def _tabla_gemelos(comp: dict) -> list[str]:
         ancho = min(24, (ANCHO - 2 - ANCHO_ETIQUETA) // len(bloque))
         filas = [
             ("", [f"{i}. {o['nombre']}" for i, o in bloque]),
-            ("El gemelo del medio gana", [_plata(o["sueldo"]["p50"]) for o in opciones]),
+            ("La copia del medio gana", [_plata(o["sueldo"]["p50"]) for o in opciones]),
             ("1 de cada 10 gana menos de", [_plata(o["sueldo"]["p10"]) for o in opciones]),
             ("1 de cada 10 gana más de", [_plata(o["sueldo"]["p90"]) for o in opciones]),
             ("Pasaron por cesantía", [_de_cada_cien(o["paso_por_cesantia"]) for o in opciones]),
@@ -383,11 +383,11 @@ def _tabla_gemelos(comp: dict) -> list[str]:
 def _texto_comparacion(comp: dict, supuestos: list[str] | None = None) -> list[str]:
     n, anios = comp["gemelos"], comp["anios"]
     lineas = _envolver(
-        f"Así les fue {anios} años después a {n} gemelos tuyos (la misma persona y la misma decisión, "
+        f"Así les fue {anios} años después a {n} copias tuyas (la misma persona y la misma decisión, "
         "con otra suerte):"
     )
     lineas += ["", *_tabla_gemelos(comp), ""]
-    lineas += _envolver("Sueldos líquidos al mes; el gemelo que termina sin trabajo cuenta con el sueldo al que "
+    lineas += _envolver("Sueldos líquidos al mes; la copia que termina sin trabajo cuenta con el sueldo al que "
                         "apunta al volver.", "  ")
     for s in supuestos or []:
         lineas += _envolver(s, "  ")
@@ -395,14 +395,14 @@ def _texto_comparacion(comp: dict, supuestos: list[str] | None = None) -> list[s
     if con_dado:
         lineas.append("")
     for o in con_dado:
-        lineas.append(f"  El dado de «{o['nombre']}», según lo que les salió a los gemelos:")
+        lineas.append(f"  El dado de «{o['nombre']}», según lo que les salió a las copias:")
         for r in o["por_resultado"]:
             lineas += _envolver(f"{_de_cada_cien(r['prob'])}: {r['texto'] or 'sin novedad'}", "      ", "    ")
     base = next((o for o in comp["opciones"] if o["es_base"]), None)
     frases = [_frase_mundos(o, base) for o in comp["opciones"]
               if base and not o["es_base"] and o["gana_mas_que_base"] is not None]
     if frases:
-        frases.insert(0, "Cada gemelo contra sí mismo, según lo que elige (sueldo al final):")
+        frases.insert(0, "Cada copia contra sí misma, según lo que elige (sueldo al final):")
     if frases:
         lineas.append("")
     for k, f in enumerate(frases):
@@ -434,7 +434,7 @@ def _supuestos_internos(pendiente: dict) -> list[str]:
             valor = usados.get(o["opcion"], {}).get(interna["variable"])
             alt = next((a for a in interna["alternativas"] if a["valor"] == valor),
                        interna["alternativas"][_por_defecto(interna)])
-            salida.append(f"Los gemelos de «{o['nombre']}» responden «{interna['pregunta']}» con «{alt['nombre']}».")
+            salida.append(f"Las copias de «{o['nombre']}» responden «{interna['pregunta']}» con «{alt['nombre']}».")
     return salida
 
 
@@ -448,7 +448,7 @@ def _texto_pendiente(pendiente: dict) -> list[str]:
     if comp:
         lineas += ["", *_texto_comparacion(comp, _supuestos_internos(pendiente))]
     else:
-        lineas += ["", "  (Para esta decisión no se simulan gemelos.)"]
+        lineas += ["", "  (Para esta decisión no se simulan copias.)"]
     lineas += _texto_pie(pendiente["creencia_vs_dato"], pendiente["calidad"])
     return lineas
 
@@ -512,7 +512,7 @@ def _texto_cierre(v: dict, internas: frozenset) -> list[str]:
             cual = "Tu sueldo final" if estado["sueldo"] > 0 else "El sueldo al que apuntas al volver"
             lineas += ["", *_envolver(
                 f"{cual} ({_plata(cierre['sueldo_final'])}) es más alto que el de "
-                f"{_de_cada_cien(cierre['mejor_que_gemelos'])} gemelos que eligieron «{elegida}» como tú.", "  ")]
+                f"{_de_cada_cien(cierre['mejor_que_gemelos'])} copias que eligieron «{elegida}» como tú.", "  ")]
         lineas += _texto_pie(comp["creencia_vs_dato"], comp["calidad"])
     return lineas
 
@@ -701,7 +701,7 @@ def _texto_interna(interna: dict) -> list[str]:
     lineas = ["", f"  {interna['pregunta']}"]
     defecto = _por_defecto(interna)
     for i, alt in enumerate(interna["alternativas"], 1):
-        marca = "  ← la más común (la de los gemelos)" if i - 1 == defecto else ""
+        marca = "  ← la más común (la de las copias)" if i - 1 == defecto else ""
         lineas.append(_cortar(f"    {i:>2}. {alt['nombre']}{marca}", ANCHO))
     return lineas
 
@@ -710,6 +710,8 @@ def _base(pendiente: dict) -> str:
     """La opción de no cambiar nada, según el motor (con o sin comparación a la vista)."""
     if pendiente["comparacion"]:
         return pendiente["comparacion"]["base"]
+    if pendiente["decision"] == "anio_tranquilo":
+        return "seguir"  # en un año tranquilo, no cambiar nada es seguir igual
     from types import SimpleNamespace
 
     from app.sim.motor.paquete import paquete
@@ -758,7 +760,7 @@ def _elegir(pendiente: dict, guion: list[list[int]], auto: bool) -> tuple[dict, 
             j = _por_defecto(interna)
         else:
             print("\n".join(_texto_interna(interna)))
-            j = _preguntar(f"  ¿Cuál? (1 a {len(alternativas)}, Enter para la de los gemelos): ", len(alternativas),
+            j = _preguntar(f"  ¿Cuál? (1 a {len(alternativas)}, Enter para la de las copias): ", len(alternativas),
                            _por_defecto(interna))
         parametros[interna["variable"]] = alternativas[j]["valor"]
         escrito.append(j + 1)
@@ -802,7 +804,7 @@ def cmd_comparar(args: argparse.Namespace) -> str:
         return json.dumps(comp, ensure_ascii=False, indent=2)
     lineas = [*_texto_perfil_juego(perfil), "", *_envolver(pendiente["pregunta"]), ""]
     if comp is None:
-        lineas.append("Esta decisión tiene demasiadas opciones: no se simulan gemelos para ella.")
+        lineas.append("Esta decisión tiene demasiadas opciones: no se simulan copias para ella.")
         return "\n".join(lineas)
     for i, o in enumerate(pendiente["opciones"], 1):
         detalle = f": {o['detalle']}" if o["detalle"] else ""
@@ -947,7 +949,7 @@ def _parser() -> argparse.ArgumentParser:
     si.add_argument("--sueldo", type=float, default=Twin.sueldo, help="sueldo mensual en pesos")
     si.add_argument("--decisiones", help="una por año, separadas por coma (ej: seguir,cambiar_pega)")
     si.add_argument("--anios", type=int, help="años con 'seguir' si no pasas --decisiones (por defecto 5)")
-    si.add_argument("--runs", type=int, default=2000, help="cuántos gemelos simular")
+    si.add_argument("--runs", type=int, default=2000, help="cuántas copias simular")
     si.add_argument("--seed", type=int, help="semilla, para repetir el mismo resultado")
     si.set_defaults(func=cmd_simular)
 
@@ -970,14 +972,14 @@ def _parser() -> argparse.ArgumentParser:
 
     def gemelos(p: argparse.ArgumentParser) -> None:
         p.add_argument("--gemelos", type=int, default=GEMELOS_POR_DEFECTO,
-                       help=f"cuántos gemelos simular por opción (por defecto {GEMELOS_POR_DEFECTO})")
+                       help=f"cuántas copias simular por opción (por defecto {GEMELOS_POR_DEFECTO})")
 
     du = sub.add_parser("dudas", help="las dudas con las que tu perfil puede empezar una partida")
     perfil_juego(du)
     du.add_argument("--json", action="store_true", help="imprime la lista cruda en JSON")
     du.set_defaults(func=cmd_dudas)
 
-    co = sub.add_parser("comparar", help="cómo les va a tus gemelos con cada opción de una decisión, sin jugar")
+    co = sub.add_parser("comparar", help="cómo les va a tus copias con cada opción de una decisión, sin jugar")
     perfil_juego(co)
     gemelos(co)
     co.add_argument("--duda", required=True, help="la decisión a comparar (míralas con: dudas)")

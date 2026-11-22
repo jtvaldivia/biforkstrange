@@ -66,10 +66,10 @@ def test_apagado_por_variable_devuelve_plantillas(monkeypatch):
     assert api.llamadas == []
 
 
-def test_texto_valido_sale_por_sonnet(monkeypatch):
+def test_texto_valido_sale_por_claude(monkeypatch):
     monkeypatch.setattr(narrador_ia, "_por_api", _Api())
     r = narrar([_oferta()])
-    assert r[0].via == "sonnet" and r[0].texto.startswith("Te ofrecen ser analista")
+    assert r[0].via == "claude" and r[0].texto.startswith("Te ofrecen ser analista")
 
 
 @pytest.mark.parametrize("texto", [
@@ -94,7 +94,7 @@ def test_evento_malo_con_marca_de_simulacion_pasa(monkeypatch):
     texto = "En este mundo simulado, Falabella cierra tu área y te despiden."
     monkeypatch.setattr(narrador_ia, "_por_api", _Api(lambda item: texto))
     r = narrar([_despido()])
-    assert r[0].via == "sonnet" and r[0].texto == texto
+    assert r[0].via == "claude" and r[0].texto == texto
 
 
 def test_marca_de_simulacion_acepta_variantes():
@@ -114,7 +114,7 @@ def test_la_cache_evita_la_segunda_llamada(monkeypatch):
     primero = narrar([_oferta()])
     segundo = narrar([_oferta()])
     assert len(api.llamadas) == 1
-    assert segundo[0].via == "sonnet" and segundo[0].texto == primero[0].texto
+    assert segundo[0].via == "claude" and segundo[0].texto == primero[0].texto
 
 
 def test_los_items_en_cache_no_se_reenvian(monkeypatch):
@@ -130,14 +130,14 @@ def test_un_lote_de_treinta_se_parte_en_tres_llamadas(monkeypatch):
     monkeypatch.setattr(narrador_ia, "_por_api", api)
     r = narrar([_oferta(i) for i in range(30)])
     assert sorted(len(ll) for ll in api.llamadas) == [6, 12, 12]
-    assert all(n.via == "sonnet" for n in r)
+    assert all(n.via == "claude" for n in r)
 
 
 def test_id_faltante_cae_a_plantilla_solo_para_ese_item(monkeypatch):
     api = _Api(lambda item: None if item.id == "o1" else f"Te ofrecen ser analista en Falabella, {_letras(item.id)}.")
     monkeypatch.setattr(narrador_ia, "_por_api", api)
     r = narrar([_oferta(0), _oferta(1), _oferta(2)])
-    assert [n.via for n in r] == ["sonnet", "plantilla", "sonnet"]
+    assert [n.via for n in r] == ["claude", "plantilla", "claude"]
     assert r[1].texto == "Plantilla de oferta 1."
 
 
@@ -184,3 +184,23 @@ def test_por_api_arma_la_llamada_sin_datos_privados(monkeypatch):
     assert vistos["model"] == narrador_ia.MODELO
     assert vistos["system"][0]["cache_control"] == {"type": "ephemeral"}
     assert "sueldo" not in vistos["messages"][0]["content"]
+
+
+def test_con_haiku_el_pedido_va_sin_razonar(monkeypatch):
+    """Haiku es el modelo por defecto: el pedido apaga el razonamiento (permitido con esfuerzo bajo)."""
+    from types import SimpleNamespace
+
+    pedidos = []
+
+    def parse(**kw):
+        pedidos.append(kw)
+        return SimpleNamespace(stop_reason="end_turn",
+                               parsed_output=narrador_ia._Lote(items=[narrador_ia._Texto(id="o0", texto="Hola.")]))
+
+    cliente = SimpleNamespace(messages=SimpleNamespace(parse=parse))
+    monkeypatch.setattr(narrador_ia.claude_comun, "cliente", lambda *a, **k: cliente)
+    monkeypatch.setattr(narrador_ia, "MODELO", "claude-haiku-5-5")
+    monkeypatch.setattr(narrador_ia, "SIN_RAZONAR", True)
+    narrador_ia._por_api([_oferta()])
+    assert pedidos[0]["model"] == "claude-haiku-5-5" and pedidos[0]["thinking"] == {"type": "disabled"}
+    assert pedidos[0]["output_config"] == {"effort": "low"}

@@ -438,3 +438,48 @@ def test_cada_carta_dice_por_que_te_toco(client):
     _, _, vistas = _jugar_entera(client, lambda p: p["opciones"][-1], duda=DUDA)
     tipos = {v["pendiente"]["por_que"]["tipo"] for v in vistas if v["pendiente"]}
     assert tipos <= {"elegida", "sorteo", "obligada", "consecuencia"} and "elegida" in tipos
+
+
+# ── lo que llega mal se rechaza con un 422 que dice qué (antes: 500 o 200 en silencio) ──────
+
+
+def _detalle(r) -> str:
+    assert r.status_code == 422, r.text
+    return str(r.json()["detail"])
+
+
+@pytest.mark.parametrize("numero", ["Infinity", "-Infinity", "NaN", "1e300"])
+def test_ahorro_infinito_o_absurdo_da_422(client, numero):
+    r = client.post("/api/juego/partida", content=f'{{"perfil": {{"ahorro": {numero}}}, "gemelos": 0}}',
+                    headers={"content-type": "application/json"})
+    assert "ahorro" in _detalle(r)
+    assert _partida(client, perfil={"ahorro": -2_000_000}, duda=DUDA).status_code == 200  # una deuda sí
+
+
+def test_rubros_fuera_del_paquete_dan_422(client):
+    assert "Criptomonedas" in _detalle(_partida(client, perfil={"rubro": "Criptomonedas"}, duda=DUDA))
+    assert "Criptomonedas" in _detalle(_partida(client, perfil={"rubro_sonado": "Criptomonedas"}, duda=DUDA))
+    assert _partida(client, perfil={"rubro_sonado": "Salud"}, duda=DUDA).status_code == 200
+    assert _partida(client, perfil={"rubro_sonado": None}, duda=DUDA).status_code == 200
+
+
+def test_parametros_fuera_del_dominio_dan_422(client):
+    duda = "cambiar_de_rubro"
+    # la opción no existe, la variable no se elige, o el valor no es una alternativa
+    assert "'zzz' no es una opción" in _detalle(_partida(client, duda=duda, parametros={"zzz": {}}))
+    assert "'nope'" in _detalle(_partida(client, duda=duda, parametros={"cambiar": {"nope": "x"}}))
+    assert "no es una alternativa de rubro_destino" in _detalle(
+        _partida(client, duda=duda, parametros={"cambiar": {"rubro_destino": "Criptomonedas"}}))
+    eleccion = {"decision": duda, "opcion": "cambiar", "parametros": {"rubro_destino": "Criptomonedas"}}
+    assert "rubro_destino" in _detalle(_partida(client, duda=duda, elecciones=[eleccion]))
+    # una alternativa que ofrece la carta sí sirve
+    pendiente = _ok(client, duda=duda)["pendiente"]
+    cambiar = next(o for o in pendiente["opciones"] if o["opcion"] == "cambiar")
+    valor = cambiar["elecciones_internas"][0]["alternativas"][-1]["valor"]
+    assert _partida(client, duda=duda, parametros={"cambiar": {"rubro_destino": valor}}).status_code == 200
+
+
+def test_un_mundo_mas_alla_de_los_gemelos_da_422(client):
+    r = client.post("/api/juego/mundo", json={"duda": DUDA, "gemelos": N, "mundo": N})
+    assert f"del 0 al {N - 1}" in _detalle(r)
+    assert client.post("/api/juego/mundo", json={"duda": DUDA, "gemelos": N, "mundo": N - 1}).status_code == 200

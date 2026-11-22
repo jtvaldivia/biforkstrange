@@ -653,9 +653,11 @@
       }
      ],
      "fuentes": [
+      "trabajando_2017",
+      "nace_2025",
       "equipo"
      ],
-     "calidad": "supuesto"
+     "calidad": "mixto"
     },
     {
      "id": "pasar",
@@ -681,9 +683,19 @@
      "fuente": "arellano_bover_2024",
      "cifra": "Un primer empleador 10% más grande sube el ingreso de toda la vida cerca de 1,2%",
      "uso": "valor de entrar por una empresa grande"
+    },
+    {
+     "fuente": "trabajando_2017",
+     "cifra": "32% de los estudiantes que hacen práctica termina contratado por la empresa",
+     "uso": "probabilidad de quedar (0,35)"
+    },
+    {
+     "fuente": "nace_2025",
+     "cifra": "62% de los practicantes de 2024 recibió oferta de trabajo de jornada completa (empresas grandes de EE.UU. con programa de prácticas)",
+     "uso": "cota alta"
     }
    ],
-   "calidad": "supuesto",
+   "calidad": "mixto",
    "en_juego": "e_practica"
   },
   {
@@ -924,6 +936,11 @@
    ],
    "evidencia": [
     {
+     "fuente": "sies_matricula_2024",
+     "cifra": "44.588 personas estudiaban un magíster en Chile en 2024",
+     "uso": "frecuencia: cuántos estudian un magíster"
+    },
+    {
      "fuente": "dipres_2026",
      "cifra": "Prima de USD 150 mensuales al séptimo año; retorno 28,1% (becarios)",
      "uso": "premio de sueldo"
@@ -1127,9 +1144,11 @@
      ],
      "fuentes": [
       "bootcamps",
-      "getonbrd_api"
+      "getonbrd_api",
+      "dipres_talento_digital_2024",
+      "cirr_2017"
      ],
-     "calidad": "supuesto"
+     "calidad": "mixto"
     },
     {
      "id": "no",
@@ -1155,9 +1174,19 @@
      "fuente": "bootcamps",
      "cifra": "Colocación declarada 75% a 85%, sin auditoría",
      "uso": "se usa 60%"
+    },
+    {
+     "fuente": "dipres_talento_digital_2024",
+     "cifra": "Ser preseleccionado sube 8% la probabilidad de tener contrato formal a los 6 meses (regresión discontinua); 23% de los egresados declara un cargo tech después del curso; de 231 encuestados que encontraron trabajo, 30,3% lo hizo en su sub-área",
+     "uso": "colocación en Chile, cota baja de P_BOOTCAMP_COLOCA"
+    },
+    {
+     "fuente": "cirr_2017",
+     "cifra": "80% de colocación en el área a 3-6 meses y 92% de graduación (bootcamps de EE.UU. con datos auditados, primer semestre 2016)",
+     "uso": "cota alta de P_BOOTCAMP_COLOCA"
     }
    ],
-   "calidad": "supuesto",
+   "calidad": "mixto",
    "en_juego": "reconvertir"
   },
   {
@@ -1600,6 +1629,11 @@
          "var": "empresa_anos",
          "op": "fija",
          "valor": 0
+        },
+        {
+         "var": "base_empresa",
+         "op": "fija",
+         "valor": 0
         }
        ],
        "luego": "seguir_con_tu_empresa"
@@ -1647,11 +1681,11 @@
     {
      "id": "rapido",
      "nombre": "Tomar lo primero que salga",
-     "detalle": "Más probable, y más aún mientras más llevas buscando. Sueldo menor.",
+     "detalle": "Más probable que esperar algo de tu nivel, por menos sueldo.",
      "resultados": [
       {
        "id": "encuentra",
-       "prob": "clamp(clamp((1 - exp(-12 / k('MESES_CESANTIA', banda3))) * si(hueco, k('PENAL_HUECO'), 1) * si(recesion, 0.85, 1) * (1 + (red - 30) / 400), 0.08, 0.95) * 1.15 + 0.1 * min(3, meses_cesante / 12), 0, 0.96)",
+       "prob": "clamp(clamp((1 - exp(-12 / k('MESES_CESANTIA', banda3))) * si(hueco, k('PENAL_HUECO'), 1) * si(recesion, 0.85, 1) * (1 + (red - 30) / 400), 0.08, 0.95) * 1.15, 0, 0.96)",
        "texto": "Vuelves a trabajar, por menos.",
        "tono": "bueno",
        "efectos": [
@@ -1840,6 +1874,11 @@
          "var": "empresa_anos",
          "op": "fija",
          "valor": 0
+        },
+        {
+         "var": "base_empresa",
+         "op": "fija",
+         "valor": 0
         }
        ],
        "luego": "seguir_con_tu_empresa"
@@ -1885,7 +1924,8 @@
    "aparicion": {
     "tipo": "carta",
     "peso": "8 * k('P_CAMBIO_EMPLEADOR', banda3) * (1 + red / 100)",
-    "proactiva": false
+    "proactiva": false,
+    "solo_por_evento": true
    },
    "opciones": [
     {
@@ -1895,7 +1935,7 @@
      "resultados": [
       {
        "id": "mejora",
-       "prob": "k('P_SUBE_CAMBIO')",
+       "prob": "k('P_SUBE_CAMBIO') / (k('P_SUBE_CAMBIO') + k('ACEPTA_SI_PAGA_MAS') * (1 - k('P_SUBE_CAMBIO')))",
        "texto": "El cambio te sube el sueldo.",
        "tono": "bueno",
        "efectos": [
@@ -2087,6 +2127,7 @@
      ],
      "fuentes": [
       "nyfed_sce",
+      "fmst_2017",
       "equipo"
      ],
      "calidad": "mixto"
@@ -2112,9 +2153,19 @@
    ],
    "evidencia": [
     {
+     "fuente": "ocec_udp_2023",
+     "cifra": "616.580 ocupados buscaban otro empleo en jul-sep 2023, el 6,2% de la fuerza laboral",
+     "uso": "frecuencia: cuántos buscan estando empleados"
+    },
+    {
      "fuente": "nyfed_sce",
      "cifra": "Probabilidad de recibir ofertas según búsqueda (EE.UU.)",
      "uso": "ver tabla sce_ofertas"
+    },
+    {
+     "fuente": "fmst_2017",
+     "cifra": "29,9% de los ocupados que buscan trabajo recibió al menos una oferta en las últimas 4 semanas (34,5% contando ofertas no concretadas); 5,7% de los que no buscan",
+     "uso": "probabilidad de oferta al buscar (0,35 + red / 300)"
     }
    ],
    "calidad": "mixto",
@@ -2679,6 +2730,11 @@
    ],
    "evidencia": [
     {
+     "fuente": "dt_teletrabajo_2024",
+     "cifra": "8,7% de los ocupados trabajó principalmente desde su casa (sep-nov 2022)",
+     "uso": "frecuencia: cuántos trabajan a distancia"
+    },
+    {
      "fuente": "bloom_2024",
      "cifra": "Renuncias de 7,2% a 4,8%, sin diferencia en ascensos a 2 años",
      "uso": "efecto en permanencia"
@@ -2858,6 +2914,7 @@
      ],
      "fuentes": [
       "ine_esi_2025",
+      "kambourov_manovskii_2009",
       "equipo"
      ],
      "calidad": "mixto"
@@ -2886,6 +2943,11 @@
      "fuente": "ine_esi_2025",
      "cifra": "Mediana por rubro: Finanzas $1,43 M, Minería e Información $1,20 M, Comercio $587 mil",
      "uso": "premio del rubro"
+    },
+    {
+     "fuente": "kambourov_manovskii_2009",
+     "cifra": "Controlando por experiencia en la ocupación, la antigüedad en la industria o el empleador pesa relativamente poco",
+     "uso": "descuento chico al cambiar de rubro (× 0,95)"
     }
    ],
    "calidad": "mixto",
@@ -2943,6 +3005,7 @@
      "fuentes": [
       "jobhop",
       "ine_esi_2025",
+      "kambourov_manovskii_2009",
       "equipo"
      ],
      "calidad": "mixto"
@@ -2968,6 +3031,11 @@
    ],
    "evidencia": [
     {
+     "fuente": "bls_2019_ocupaciones",
+     "cifra": "En EE.UU., 6,4% de los trabajadores cambia de ocupación cada año (cerca de 4% a los 25-29)",
+     "uso": "frecuencia: cuántos cambian de ocupación"
+    },
+    {
      "fuente": "jobhop",
      "cifra": "Transiciones entre grupos de ocupación en CVs belgas",
      "uso": "qué cambios son comunes"
@@ -2976,6 +3044,11 @@
      "fuente": "ine_esi_2025",
      "cifra": "Ingreso por ocupación CIUO a 1 dígito",
      "uso": "sueldo de destino"
+    },
+    {
+     "fuente": "kambourov_manovskii_2009",
+     "cifra": "5 años en la misma ocupación suben el sueldo 12% a 20%, todo lo demás igual",
+     "uso": "descuento al empezar en otra ocupación (× 0,9 de la mediana)"
     }
    ],
    "calidad": "mixto",
@@ -3258,7 +3331,8 @@
       }
      ],
      "fuentes": [
-      "yc_directorio"
+      "yc_directorio",
+      "sorenson_2021"
      ],
      "calidad": "mixto"
     },
@@ -3291,6 +3365,11 @@
      "fuente": "hall_woodward_2010",
      "cifra": "Tres de cada cuatro fundadores con capital de riesgo salen con cero",
      "uso": "las acciones casi nunca pagan"
+    },
+    {
+     "fuente": "sorenson_2021",
+     "cifra": "Los contratados por una startup ganan 17% menos en los 10 años siguientes que los contratados por firmas grandes y establecidas; 8% menos al comparar personas similares (coeficiente −0,081 con pareo)",
+     "uso": "sueldo al entrar (× 0,9)"
     }
    ],
    "calidad": "mixto",
@@ -3449,6 +3528,11 @@
          "var": "empresa_anos",
          "op": "fija",
          "valor": 0
+        },
+        {
+         "var": "base_empresa",
+         "op": "fija",
+         "valor": 0
         }
        ],
        "luego": "seguir_con_tu_empresa"
@@ -3524,6 +3608,11 @@
    ],
    "evidencia": [
     {
+     "fuente": "gem_chile_2025",
+     "cifra": "29,4% de los adultos de 18 a 64 años tiene un emprendimiento en etapa inicial (2025); la edad casi no cambia esa tasa",
+     "uso": "frecuencia: cuántos emprenden"
+    },
+    {
      "fuente": "hamilton_2000",
      "cifra": "Mediana a 10 años 35% bajo un empleado comparable",
      "uso": "ingreso"
@@ -3574,7 +3663,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "k('MICRO_MEDIANA') * azar_lognormal(0.3, 1, 4) * (1 + empresa_anos / 4)"
+         "valor": "si(base_empresa > 0, base_empresa, k('MICRO_MEDIANA')) * azar_lognormal(0.3, 1, 4) * (1 + empresa_anos / 4)"
         }
        ]
       },
@@ -3739,7 +3828,7 @@
     {
      "fuente": "ine_eme_2025",
      "cifra": "Mediana de $400 mil al mes",
-     "uso": "ingreso del fundador"
+     "uso": "ingreso de quien recién emprende"
     }
    ],
    "calidad": "mixto",
@@ -3750,7 +3839,7 @@
    "nombre": "Irte a trabajar afuera",
    "categoria": "lugar",
    "pregunta": "¿Te vas a trabajar a Estados Unidos?",
-   "cuando": "y(pais == 'chile', edad >= 22, edad <= 45, en(edu, 'tecnica', 'universitaria', 'postgrado'))",
+   "cuando": "y(pais == 'chile', estado == 'empleado', edad >= 22, edad <= 45, en(edu, 'tecnica', 'universitaria', 'postgrado'))",
    "aparicion": {
     "tipo": "carta",
     "peso": 0.25,
@@ -4014,7 +4103,7 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "1 / k('PREMIO_EEUU') * 1.15"
+         "valor": "1 / k('PREMIO_EEUU') * 1.11"
         },
         {
          "var": "tiempo_con_tu_gente",
@@ -4030,9 +4119,12 @@
       }
      ],
      "fuentes": [
+      "barrett_goggin_2010",
+      "barrett_oconnell_2000",
+      "clemens_2008",
       "equipo"
      ],
-     "calidad": "supuesto"
+     "calidad": "mixto"
     },
     {
      "id": "quedarse",
@@ -4053,8 +4145,24 @@
      "calidad": "supuesto"
     }
    ],
-   "evidencia": [],
-   "calidad": "supuesto",
+   "evidencia": [
+    {
+     "fuente": "barrett_goggin_2010",
+     "cifra": "Quien vuelve gana 7% más que un comparable que nunca se fue; 11% si volvió de EE.UU. o Canadá; 10% con postgrado",
+     "uso": "premio al volver (1,11)"
+    },
+    {
+     "fuente": "barrett_oconnell_2000",
+     "cifra": "Hombres que vuelven ganan 10% más; 15% si se fueron por trabajo; sin premio para mujeres",
+     "uso": "rango del premio al volver"
+    },
+    {
+     "fuente": "clemens_2008",
+     "cifra": "Sueldo afuera de un trabajador idéntico (PREMIO_EEUU)",
+     "uso": "deshacer el premio de estar afuera"
+    }
+   ],
+   "calidad": "mixto",
    "en_juego": null
   },
   {

@@ -160,7 +160,10 @@ export function PerfilForm({
   inicial,
   catalogo,
   errorCatalogo,
+  onReintentarCatalogo,
+  onReintentar,
   onVolver,
+  onLeido,
   onListo,
   onElegirDuda,
   cargando = false,
@@ -169,7 +172,13 @@ export function PerfilForm({
   inicial: Perfil;
   catalogo: Catalogo | null;
   errorCatalogo: string | null;
-  onVolver: () => void;
+  onReintentarCatalogo?: () => void;
+  /** Repite lo que falló al empezar la partida. */
+  onReintentar?: () => void;
+  /** Vuelve atrás con lo editado: no se pierde. */
+  onVolver: (p: Perfil) => void;
+  /** Lo que leyó Claude aquí (tu CV o lo de tu Claude): para el retrato y las dudas sugeridas. */
+  onLeido?: (r: PerfilLeido, origen: "pdf" | "texto") => void;
   /** Empieza la partida: la primera carta sale al azar, como todas. */
   onListo: (p: Perfil) => void;
   /** Para quien prefiere partir por una duda concreta. */
@@ -224,6 +233,7 @@ export function PerfilForm({
       setSugeridas(r.dudas_sugeridas?.length ? r.dudas_sugeridas : r.duda ? [{ decision: r.duda, por_que: "La trajo tu Claude." }] : []);
       setRetrato(r.retrato ?? null);
       setEmpresa(r.empresa ?? null);
+      onLeido?.(r, typeof entrada === "string" ? "texto" : "pdf");
       setEmpresaCatalogo(r.empresa_catalogo ?? null);
       setLectura({
         fase: "listo", inferido: r.inferido, supuestos: pendientes.map((x) => x.nombre), avisos: r.avisos ?? [],
@@ -261,7 +271,7 @@ export function PerfilForm({
     <Screen>
       <ScreenHeader
         left={
-          <IconButton label="Volver al inicio" onClick={onVolver}>
+          <IconButton label="Volver" onClick={() => onVolver(p)}>
             <ChevronLeftIcon />
           </IconButton>
         }
@@ -269,7 +279,7 @@ export function PerfilForm({
       />
       <Heading level={1}>Cuéntanos de ti.</Heading>
 
-      {errorCatalogo && <ErrorCaja error={errorCatalogo} />}
+      {errorCatalogo && <ErrorCaja error={errorCatalogo} onReintentar={onReintentarCatalogo} />}
       {!catalogo && !errorCatalogo && <Cargando>Cargando opciones…</Cargando>}
 
       {retrato && (
@@ -533,7 +543,7 @@ export function PerfilForm({
       )}
 
       <ScreenFooter>
-        {error && <ErrorCaja error={error} />}
+        {error && <ErrorCaja error={error} onReintentar={onReintentar} />}
         {cargando && <Cargando frases={["Simulando tus mundos…", "Sorteando tu primera carta…"]} />}
         <Button onClick={() => onElegirDuda(p, sugeridas)} disabled={!catalogo || !sueldoValido || cargando}>
           {sugeridas.length ? "Ver mis dudas" : "Elegir mi duda"}

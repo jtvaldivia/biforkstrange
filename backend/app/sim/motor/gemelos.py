@@ -11,10 +11,13 @@ from statistics import median, quantiles
 from app.sim.motor.azar import Dados
 from app.sim.motor.motor import Vida
 from app.sim.motor.perfil import NIVELES
-from app.sim.motor.politicas import Fija, Inercia, opcion_base, parametros_por_defecto, pesos_personales
+from app.sim.motor.politicas import Fija, Inercia, Poblacion, opcion_base, parametros_por_defecto, pesos_personales
 
 N_GEMELOS = 100
 HORIZONTE = 10
+# Después de la decisión que se compara, el gemelo vive con la misma regla que la persona: le llegan cosas,
+# tiene años tranquilos y busca lo que busca la gente real (`Poblacion`).
+GEMELOS_CON_DECISIONES = True
 IGUAL = 0.005  # dos sueldos a menos de 0,5% se cuentan como iguales
 
 
@@ -38,7 +41,8 @@ def escenario_ia(adopcion: float) -> str:
 
 def _vivir(vida: Vida, decision_id: str, opcion: str, parametros: dict, anios: int) -> Vida:
     """Toma la opción y vive hasta cumplir `anios` años más (un doctorado ocupa varios)."""
-    decisor = Fija(decision_id, opcion, parametros, Inercia(pesos_personales(vida.e)))
+    despues = (Poblacion if GEMELOS_CON_DECISIONES else Inercia)(pesos_personales(vida.e))
+    decisor = Fija(decision_id, opcion, parametros, despues)
     edad_final = vida.e["edad"] + anios
     if not vida.cola:
         vida.iniciar_anio(con_cartas=False, carta=decision_id)
@@ -53,11 +57,16 @@ def _contra_base(pares: list[tuple[float, float]]) -> dict:
     n = len(pares)
     if not n:
         return {"gana_mas_que_base": None, "igual_que_base": None, "gana_menos_que_base": None,
-                "diferencia_tipica": None, "diferencia_si_cambia": None}
+                "diferencia_tipica": None, "diferencia_si_cambia": None, "cuanto_mejor": None, "cuanto_peor": None}
     mas = sum(1 for a, b in pares if a > b * (1 + IGUAL))
     menos = sum(1 for a, b in pares if a < b * (1 - IGUAL))
     distintos = [a - b for a, b in pares if a > b * (1 + IGUAL) or a < b * (1 - IGUAL)]
+    mejoras = [a - b for a, b in pares if a > b * (1 + IGUAL)]
+    perdidas = [b - a for a, b in pares if a < b * (1 - IGUAL)]
     return {
+        # como una apuesta: en los mundos donde te va mejor, por cuánto (típico); y en los que te va peor, por cuánto
+        "cuanto_mejor": round(median(mejoras)) if mejoras else 0,
+        "cuanto_peor": round(median(perdidas)) if perdidas else 0,
         "gana_mas_que_base": mas / n, "igual_que_base": (n - mas - menos) / n, "gana_menos_que_base": menos / n,
         "diferencia_tipica": round(median(a - b for a, b in pares)),  # del gemelo del medio, en pesos al mes
         # lo mismo, pero solo entre los mundos donde la opción cambia algo (sin los empates)

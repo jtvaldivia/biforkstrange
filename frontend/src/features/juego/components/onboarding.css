@@ -92,7 +92,7 @@
 .ob-claude-abrir strong { color: var(--tinta); }
 .ob-claude-abrir:hover { border-color: var(--acento); transform: translateY(-1px); }
 .ob-claude-abrir:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
-.ob-claude-chispa { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--sol); color: var(--tinta); font-size: 16px; animation: ob-girar 6s linear infinite; }
+.ob-claude-chispa { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--sol); color: var(--sobre-sol); font-size: 16px; animation: ob-girar 6s linear infinite; }
 @keyframes ob-girar { to { transform: rotate(360deg); } }
 .ob-claude { padding: 14px; border: 1.5px solid var(--acento); border-radius: 16px; background: var(--acento-suave); animation: vd-subir .35s ease-out both; }
 .ob-claude-texto { min-height: 96px; font: 400 13px/18px ui-monospace, Menlo, monospace; }
@@ -114,7 +114,7 @@
 .ob-fuente:hover:not(:disabled), .ob-fuente[data-encima] { border-color: var(--acento); transform: translateY(-1px); }
 .ob-fuente:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
 .ob-fuente:disabled { cursor: progress; }
-.ob-fuente[data-listo] { border-color: var(--dinero); background: #effaf4; }
+.ob-fuente[data-listo] { border-color: var(--dinero); background: color-mix(in srgb, var(--dinero) 12%, var(--papel)); }
 .ob-fuente .ob-anim { width: 120px; height: 44px; transform: scale(.75); transform-origin: left center; margin-right: -24px; }
 .ob-fuente-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .ob-icono { flex: none; width: 40px; height: 40px; font-size: 20px; }
@@ -122,7 +122,7 @@
 .ob-accion { flex: none; font: 600 13px/18px var(--font); color: var(--acento); }
 .ob-check {
   flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
-  background: var(--dinero); color: #fff; font: 700 15px/1 var(--font); animation: vd-pop .35s cubic-bezier(.3, 1.6, .5, 1) both;
+  background: var(--dinero); color: var(--papel); font: 700 15px/1 var(--font); animation: vd-pop .35s cubic-bezier(.3, 1.6, .5, 1) both;
 }
 @media (prefers-reduced-motion: reduce) { .ob-check { animation: none; } }
 .ob-icono--tu { display: grid; place-items: center; border-radius: 50%; background: var(--niebla); color: var(--tinta); border: 1.5px solid var(--linea); }
@@ -155,7 +155,7 @@
 .ob-relato-texto {
   width: 100%; min-height: 150px; resize: vertical; box-sizing: border-box;
   padding: 14px 16px; border: 2px solid var(--tinta); border-radius: 18px;
-  background: var(--fondo, #fff); color: var(--tinta); font: 400 15px/22px var(--font);
+  background: var(--papel); color: var(--tinta); font: 400 15px/22px var(--font);
 }
 .ob-relato-texto:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
 .ob-pistas { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -163,31 +163,8 @@
   padding: 4px 10px; border: 1px solid var(--linea); border-radius: 999px;
   font: 400 12px/16px var(--font); color: var(--media);
 }
-.ob-usar-gemelo { width: 100%; padding: 12px 14px; border-radius: 14px; background: var(--acento-suave); font: 400 14px/20px var(--font); color: var(--tinta); }
-.ob-usar-gemelo label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
-.ob-usar-gemelo input { margin-top: 3px; accent-color: var(--acento); }
-.ob-usar-gemelo a { color: inherit; font-weight: 600; }
 .ob-o { display: flex; align-items: center; gap: 10px; width: 100%; color: var(--suave); font: 400 13px/18px var(--font); }
 .ob-o::before, .ob-o::after { content: ""; flex: 1; height: 1px; background: var(--linea); }
-
-/* Paso final: ¿tu gemelo te conoce? */
-.ob-prueba { display: flex; flex-direction: column; gap: 14px; width: 100%; padding: 18px; border: 2px solid var(--tinta); border-radius: 20px; background: var(--fondo, #fff); }
-.ob-prueba-espera { padding: 12px 14px; border-radius: 12px; background: var(--acento-suave); font: 400 14px/20px var(--font); color: var(--tinta); animation: ob-latir 1.4s ease-in-out infinite; }
-@keyframes ob-latir { 50% { opacity: .55; } }
-.ob-prueba-sello { color: var(--suave); }
-.ob-prueba-op {
-  text-align: left; width: 100%; padding: 12px 14px; border: 2px solid var(--linea); border-radius: 14px;
-  background: none; font: 400 15px/21px var(--font); color: var(--tinta); cursor: pointer; transition: border-color .15s, background .15s;
-}
-.ob-prueba-op:hover { border-color: var(--acento); background: var(--acento-suave); }
-.ob-prueba-op:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
-.ob-prueba-comp { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.ob-prueba-comp > div { display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 14px; background: var(--acento-suave); }
-.ob-prueba-comp > div[data-tu] { background: none; border: 2px solid var(--tinta); }
-.ob-prueba-comp span { font: 600 14px/19px var(--font); color: var(--tinta); }
-.ob-prueba-comp small { font: 400 12px/16px var(--font); color: var(--suave); }
-.ob-prueba-pq { font-style: italic; color: var(--media); }
-.ob-prueba a { color: inherit; font-weight: 600; }
 
 /* Prompt para que tu propia IA te describa */
 .ob-agente { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 14px; background: var(--acento-suave); font: 400 14px/20px var(--font); color: var(--tinta); }
@@ -196,5 +173,5 @@
 .ob-agente summary { cursor: pointer; font: 600 13px/18px var(--font); color: var(--media); }
 .ob-agente pre {
   max-height: 260px; overflow: auto; white-space: pre-wrap; margin: 8px 0 0; padding: 12px;
-  border-radius: 10px; background: var(--fondo, #fff); font: 400 12px/17px var(--font); user-select: all;
+  border-radius: 10px; background: var(--papel); color: var(--tinta); font: 400 12px/17px var(--font); user-select: all;
 }

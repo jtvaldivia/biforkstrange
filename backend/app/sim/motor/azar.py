@@ -3,7 +3,8 @@
 Cada sorteo se identifica por (semilla, gemelo, año, sitio) y no por el orden en
 que se pide. Así un mismo gemelo que vive dos veces con decisiones distintas
 recibe la misma suerte en todo lo que no depende de la decisión: la misma
-recesión, el mismo despido. La diferencia entre sus dos vidas es solo la decisión.
+recesión siempre, y el mismo ascenso o despido mientras sigue en la misma pega
+(`motor.py` agrega el número de pega al sitio de esos eventos).
 """
 
 import math

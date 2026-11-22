@@ -7,4 +7,4 @@ back:
 front:
 	cd frontend && npm run dev
 test:
-	cd backend && uv run pytest -q
+	cd backend && uv run pytest -q -n auto

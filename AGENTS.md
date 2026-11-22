@@ -2,6 +2,8 @@
 
 Reglas para cualquier agente (Claude Code, Codex, Cursor, etc.) o persona que trabaje en este repo.
 
+Antes de cambiar algo, lee [docs/COMO-FUNCIONA.md](docs/COMO-FUNCIONA.md): qué vive quien juega, de dónde sale cada número y cómo agregar preguntas, resultados o datos sin romper el respaldo estadístico. Usa las palabras de [docs/GLOSARIO.md](docs/GLOSARIO.md) y no cambies nada de [docs/DECISIONES.md](docs/DECISIONES.md) sin decirlo en el PR. Regla central: los números salen de los datos; la IA hace todo lo demás. Ninguna probabilidad ni efecto sale de un LLM ni se escribe suelto en el código; vive en `backend/simulador/` con su fuente.
+
 ## Git
 
 - Nunca hagas push directo a `main`. Todo cambio va en una rama y entra por PR.

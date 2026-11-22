@@ -3,8 +3,8 @@ import { TIPO_EMPLEADOR, aniosDe, cargoYSueldo, conSigno, deCada, deCada10, deCi
 import type { Anio, Estado, Narrado, Vista } from "../types";
 import { useNarracion } from "../hooks/useNarracion";
 import { GEMELOS } from "../api";
-import { Info, LineaSueldo, Ruleta, type Casilla } from "./graficos";
-import { Noticia, Pensando } from "./piezas";
+import { Info, LineaSueldo, Ruleta, sinMovimiento, type Casilla } from "./graficos";
+import { Noticia, Pensando, Salir } from "./piezas";
 
 /** Todo lo que pasó entre la elección y la siguiente decisión pendiente: años cerrados y lo que va del año en curso. */
 export function loNuevo(previa: Vista | null, vista: Vista): Anio[] {
@@ -19,7 +19,17 @@ export function loNuevo(previa: Vista | null, vista: Vista): Anio[] {
 
 const queTanProbable = (prob: number) => (prob >= 0.995 ? "Seguro" : deCien(prob));
 
-function Quedaste({ antes, ahora, recorrido, espera }: { antes: Estado | undefined; ahora: Estado; recorrido: { edad: number; sueldo: number }[]; espera: number }) {
+/** Por qué bajó el sueldo, según lo que de verdad pasó: un despido, otro empleador o el mismo trabajo. */
+function porQueBajo(antes: Estado, ahora: Estado, despido: boolean): string {
+  const otroEmpleador = (antes.empresa_id ?? -1) !== (ahora.empresa_id ?? -1) || antes.tipo_empleador !== ahora.tipo_empleador;
+  if (despido && otroEmpleador)
+    return "No es el mismo trabajo: perdiste el anterior y encontraste otro el mismo año. Quien encuentra trabajo después de un despido entra ganando, típicamente, entre 85% y 102% de lo que ganaba (Couch y Placzek 2010). Y cada empleador paga distinto: una pyme, por ejemplo, paga menos que una empresa grande.";
+  if (otroEmpleador)
+    return "Cambiaste de empleador, y cada uno paga distinto según su tipo, su rubro y el cargo. En el mismo trabajo, en cambio, el sueldo no baja.";
+  return "En el mismo trabajo el alza anual nunca es negativa. Si bajó, es por algo que elegiste o te pasó este año, como menos horas o un cambio de cargo.";
+}
+
+function Quedaste({ antes, ahora, recorrido, espera, despido }: { antes: Estado | undefined; ahora: Estado; recorrido: { edad: number; sueldo: number }[]; espera: number; despido: boolean }) {
   const cargo = antes && antes.cargo !== ahora.cargo ? `${antes.cargo} → ${ahora.cargo}` : ahora.cargo;
   const donde = [TIPO_EMPLEADOR[ahora.tipo_empleador] ?? ahora.tipo_empleador, ahora.rubro].filter(Boolean).join(" · ");
   const comparable = antes && !sinSueldo(antes) && !sinSueldo(ahora);
@@ -40,9 +50,7 @@ function Quedaste({ antes, ahora, recorrido, espera }: { antes: Estado | undefin
           {sinSueldo(ahora) ? `El último fue ${pesos(ahora.sueldo_ref)}` : comparable && delta !== 0 ? `Antes: ${pesos(antes!.sueldo)}` : "al mes"}
         </span>
       </div>
-      {comparable && delta < -1000 && antes!.cargo === ahora.cargo && (
-        <Info pregunta="¿Por qué bajó?">Además de tus decisiones, cada año tu sueldo se mueve solo, según tu edad y tu dado.</Info>
-      )}
+      {comparable && delta < -1000 && <Info pregunta="¿Por qué bajó?">{porQueBajo(antes!, ahora, despido)}</Info>}
       <LineaSueldo puntos={recorrido} />
       <div className="jg-datos">
         <div className="jg-dato">
@@ -69,13 +77,15 @@ function Quedaste({ antes, ahora, recorrido, espera }: { antes: Estado | undefin
  * Viene de "4 · Work and travel" / "5 · Las noches largas" (resultado del año) y "6 · Años sin decidir" (años que pasan) del kit.
  */
 export function QuePaso({
-  previa, vista, sueldoInicial, onSeguir, onNarrar,
+  previa, vista, sueldoInicial, onSeguir, onNarrar, onSalir,
 }: {
   previa: Vista | null;
   vista: Vista;
   sueldoInicial: number;
   onSeguir: () => void;
-  /** Los eventos de cada año contados por Sonnet; sin él (o si falla) queda el texto del paquete. */
+  /** Volver a la portada sin perder la partida. */
+  onSalir?: () => void;
+  /** Los eventos de cada año contados por Claude; sin él (o si falla) queda el texto del paquete. */
   onNarrar?: (que: "historia", signal: AbortSignal) => Promise<{ items: Narrado[] }>;
 }) {
   const { textos: narrados, listo } = useNarracion(onNarrar ? (signal) => onNarrar("historia", signal) : null, `${vista.historia.length}:${vista.anio_en_curso?.decisiones.length ?? 0}`);
@@ -93,11 +103,17 @@ export function QuePaso({
   const tocada = dado ? casillas.find((c) => c.id === dado.resultado) : undefined;
   const hayRuleta = casillas.length > 1 && tocada !== undefined;
   // el sorteo ya se vio en la espera: acá el resultado aparece de una
-  const espera = 0.15;
+  const espera = sinMovimiento() ? 0 : 0.15;
   const recorrido = [
     { edad: edadInicial, sueldo: sueldoInicial },
     ...vista.historia.filter((a) => a.fin).map((a) => ({ edad: a.fin!.edad, sueldo: a.fin!.sueldo })),
   ];
+  // con el año todavía en curso, el número grande ya es el de hoy: la línea tiene que terminar ahí también
+  const ultimo = recorrido[recorrido.length - 1];
+  if (vista.anio_en_curso && !sinSueldo(vista.estado) && ultimo && ultimo.sueldo !== vista.estado.sueldo)
+    recorrido.push({ edad: vista.estado.edad, sueldo: vista.estado.sueldo });
+  const despido = tramos.some((a) => a.eventos.some((e) => e.evento === "separacion_empleo"));
+  const conProbabilidad = tramos.some((a) => a.eventos.some((e) => !e.rutina && !e.directo) || a.decisiones.length > (a === tramos[0] ? 1 : 0));
   const proximo = Math.min(vista.anio + 1, vista.anios);
   // una ronda puede ocupar varios años (un doctorado, cinco): se cuentan por edad
   const edades: number[] = [];
@@ -105,15 +121,16 @@ export function QuePaso({
   const mismoAnio = !vista.terminada && cerrados.length === 0;
   const boton = vista.terminada ? "Ver cómo terminaste" : mismoAnio ? "Otra decisión este año" : `Seguir al año ${proximo}`;
 
-  // el dado sigue girando hasta que Sonnet cuenta el año: las noticias se muestran una vez y no cambian
+  // el dado sigue girando hasta que Claude cuenta el año: las noticias se muestran una vez y no cambian
   if (!listo) return <Pensando titulo={`Mundo ${GEMELOS + 1} · ${primero ? `${primero.edad} años` : `año ${proximo}`}`} />;
 
   return (
     <Screen tone={noche ? "noche" : "dia"} gap={16} className="jg-quepaso" key={`${vista.historia.length}:${vista.anio_en_curso?.decisiones.length ?? 0}`}>
       <ScreenHeader
         left={<Pill style={{ whiteSpace: "nowrap" }}>{primero ? `${aniosDe(primero.edad, primero.fin?.edad, edadInicial)} · ${primero.edad} años` : `Año ${proximo}`}</Pill>}
-        right={<Meta>Mundo {GEMELOS + 1}</Meta>}
+        right={onSalir && <Salir onSalir={onSalir} />}
       />
+      <h1 className="vd-sr">{dado ? `Qué te pasó al elegir «${dado.opcion_nombre}»` : "Qué te pasó"}</h1>
 
       {edades.length > 1 && (
         <Stack gap={6}>
@@ -182,6 +199,13 @@ export function QuePaso({
         );
       })}
 
+      {conProbabilidad && (
+        <Info pregunta="¿Qué son los «X de 100»?">
+          Qué tan probable era que te pasara eso este año, a alguien en tu situación. Por ejemplo, «4 de 100» junto a un despido: de cada 100 personas como tú,
+          a unas 4 las despiden en un año. Junto a una decisión, es qué tan probable era el resultado que te tocó.
+        </Info>
+      )}
+
       {quedoSinTrabajo && (
         <NightBand>
           <Meta>Quedaste sin trabajo</Meta>
@@ -189,7 +213,7 @@ export function QuePaso({
         </NightBand>
       )}
 
-      <Quedaste antes={previa?.estado} ahora={vista.estado} recorrido={recorrido} espera={espera + 0.3} />
+      <Quedaste antes={previa?.estado} ahora={vista.estado} recorrido={recorrido} espera={espera + 0.3} despido={despido} />
 
       <ScreenFooter>
         <Button variant={vista.terminada ? "sol" : "primary"} onClick={onSeguir}>

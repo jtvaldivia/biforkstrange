@@ -10,6 +10,7 @@ y un generador de estados que no pasa por `perfil.py`.
 
 import math
 import os
+import re
 import random
 
 from app.sim.motor.azar import Dados
@@ -68,10 +69,16 @@ class DadosGuion:
         self._reales = Dados(semilla, gemelo)
 
     def u(self, anio: int, sitio: str) -> float:
-        self.pedidos.append((anio, sitio))
+        self.pedidos.append((anio, re.sub(r"@\d+", "", sitio)))  # los tests nombran los sitios sin el número de pega
         if (anio, sitio) in self.guion:
             return self.guion[(anio, sitio)]
-        return self.guion.get(sitio, self.defecto)
+        if sitio in self.guion:
+            return self.guion[sitio]
+        # la suerte de la pega lleva el número de pega (`evento:ascenso@2`); el guion la nombra sin él
+        sin_pega = re.sub(r"@\d+", "", sitio)
+        if (anio, sin_pega) in self.guion:
+            return self.guion[(anio, sin_pega)]
+        return self.guion.get(sin_pega, self.defecto)
 
     def flujo(self, anio: int, sitio: str):
         return self._reales.flujo(anio, sitio)
@@ -191,7 +198,8 @@ def estado_al_azar(R: random.Random) -> dict:
         "deuda_estudios": R.choice([0, 0, 8e6]), "animo": R.uniform(20, 90), "energia": R.uniform(10, 95),
         "salud": R.choice(["bien", "bien", "licencia", "cancer", "cronica"]), "red": R.uniform(0, 100),
         "skill": R.uniform(0, 100), "riesgo": R.uniform(0, 100), "ambicion": R.uniform(0, 100),
-        "usa_ia": R.randint(0, 1), "empresa_anos": R.randint(0, 8), "empresa_fondos": R.randint(0, 1),
+        "usa_ia": R.randint(0, 1), "empresa_anos": R.randint(0, 8),
+        "base_empresa": R.choice([0, 0, round(R.lognormvariate(math.log(600000), 0.6))]), "empresa_fondos": R.randint(0, 1),
         "madre_edad": madre, "padre_edad": madre + 2 if madre > 0 and R.random() < 0.85 else -1,
         "familiar_enfermo": R.choice(["", "", "", "madre", "padre"]), "recesion": 1 if R.random() < 0.2 else 0,
         "anos_en_carrera": R.randint(0, 5), "anos_en_startup": R.randint(0, 6),

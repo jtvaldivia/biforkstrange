@@ -148,13 +148,13 @@ def test_la_empresa_de_la_carta_es_la_que_vive_la_persona(semilla):
                 assert fin["empresa_id"] == carta["empresa_id"], (duda, semilla)
 
 
-def test_la_oferta_externa_trae_la_misma_empresa_al_cambiarse_o_pedir_contraoferta():
+def test_la_oferta_externa_muestra_la_empresa_solo_al_cambiarse():
+    """Usarla para negociar es quedarte en tu trabajo: no lleva la empresa que te ofrece, aunque a veces te vayas."""
     perfil = Perfil(edad=32, rubro="Comercio", tipo_empleador="pyme", nivel=2)
     v = partida.vista(perfil, 5, "oferta_externa", [], 0)
     ofertas = {o["opcion"]: o["empresa"] for o in v["pendiente"]["opciones"]}
-    assert ofertas["quedarse"] is None
-    if ofertas["cambiar"] and ofertas["contraoferta"]:
-        assert ofertas["cambiar"]["empresa_id"] == ofertas["contraoferta"]["empresa_id"]
+    assert ofertas["cambiar"] is not None
+    assert ofertas["contraoferta"] is None and ofertas["quedarse"] is None
 
 
 def test_al_quedar_sin_trabajo_se_suelta_la_empresa_y_se_recuerda_el_cargo():

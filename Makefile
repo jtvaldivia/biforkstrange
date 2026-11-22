@@ -1,13 +1,16 @@
-.PHONY: install back front test perfil simular jugar comparar dudas validar supuestos empresas universidades logos transiciones
+.PHONY: install back prod front test perfil simular jugar comparar dudas validar supuestos empresas universidades logos transiciones
 install:
 	cd backend && uv sync
 	cd frontend && npm install
 back:
 	cd backend && uv run uvicorn app.main:app --reload --port 8000
+# Como en producción: varios procesos, sin --reload. Ej: make prod WEB_CONCURRENCY=4
+prod:
+	backend/scripts/prod.sh
 front:
 	cd frontend && npm run dev
 test:
-	cd backend && uv run pytest -q
+	cd backend && uv run pytest -q -n auto
 # Trayectoria laboral desde el terminal. Ej: make perfil OCUPACION=4 EDAD=24
 OCUPACION ?= 2
 EDAD ?= 30

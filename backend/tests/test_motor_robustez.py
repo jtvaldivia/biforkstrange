@@ -12,6 +12,7 @@ import pytest
 from _motor_util import n, pq, vida
 
 from app.sim.motor.azar import Dados
+from app.sim.motor.motor import TRANQUILO
 from app.sim.motor.perfil import Perfil
 from app.sim.motor.politicas import Poblacion
 
@@ -59,7 +60,7 @@ def _violaciones(v, registro) -> list[str]:
     if fin["edad"] <= registro["edad"] or v.cola or v.registro is not None:
         malas.append("el año no cerró bien")
     for d in registro["decisiones"]:
-        if d["decision"] not in p.decisiones or not 0 <= d["prob"] <= 1:
+        if (d["decision"] not in p.decisiones and d["decision"] != TRANQUILO) or not 0 <= d["prob"] <= 1:
             malas.append(f"decisión rara {d['decision']}")
         if d["resultado"] is None and e["p_encontrar"] >= 1:
             malas.append(f"decisión sin resultado {d['decision']}/{d['opcion']}")

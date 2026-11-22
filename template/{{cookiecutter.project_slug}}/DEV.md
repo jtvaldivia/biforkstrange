@@ -3,15 +3,15 @@
 ## Arranque
 
 ```bash
-cp backend/.env.example backend/.env      # SUPABASE_URL y SUPABASE_SERVICE_KEY
-cp frontend/.env.example frontend/.env    # VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY
+cp backend/.env.example backend/.env      # CORS_ORIGINS y, opcional, ANTHROPIC_API_KEY
+cp frontend/.env.example frontend/.env    # VITE_API_URL
 make install
 make back    # http://localhost:{{cookiecutter.backend_port}}/docs
 make front   # http://localhost:5173
 make test
 ```
 
-Sin credenciales de Supabase el backend guarda las corridas en memoria.
+No hay base de datos: el juego no guarda estado en el servidor y las corridas de `/api/simulations` viven en memoria.
 
 ## Backend (`backend/app`)
 
@@ -22,7 +22,7 @@ Las dependencias van en una sola dirección: `api → services → (sim, reposit
 | `sim/` | Dominio puro (numpy, sin FastAPI ni DB). `state.py` es el estado vectorizado, `engine.py` el loop Monte Carlo, `metrics.py` los resúmenes por año. |
 | `sim/decisions/` | Una clase por decisión. Se registran solas al heredar de `Decision`. |
 | `schemas/` | Modelos Pydantic de entrada y salida de la API. |
-| `repositories/` | Persistencia detrás de un `Protocol`: Supabase o memoria. |
+| `repositories/` | Persistencia detrás de un `Protocol` (hoy, en memoria). |
 | `services/` | Casos de uso que orquestan motor y repositorio. |
 | `api/` | Rutas delgadas. `deps.py` es el único lugar que elige implementaciones. |
 | `core/` | Configuración y clientes externos. |
@@ -35,7 +35,7 @@ Las dependencias van en una sola dirección: `api → services → (sim, reposit
 
 - `app/`: shell de la app.
 - `features/<feature>/`: todo lo de una funcionalidad (api, tipos, hooks, componentes); se expone por su `index.ts`.
-- `shared/`: config, cliente HTTP, Supabase y utilidades sin dominio.
+- `shared/`: config, cliente HTTP y utilidades sin dominio.
 
 Importa con el alias `@/` (apunta a `src/`).
 

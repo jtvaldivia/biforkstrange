@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Avatar, Button, Tag, cx } from "@/shared/ui";
-import { CALIDAD, plata } from "../textos";
+import { Button, Tag, cx } from "@/shared/ui";
+import { CALIDAD, CAMPOS_PERFIL, enLista, plata } from "../textos";
 import type { Calidad, Rango } from "../types";
 import { Espera } from "./Apuesta";
 
@@ -28,7 +28,7 @@ export function LeyendaCalidad() {
  * Rango de sueldos de los gemelos de una opción, del 10% peor al 10% mejor, con la raya en el gemelo del medio.
  * Usa la pista de <RangeCompare> del kit, pero en pesos y con una escala común (`tope`) para todas las opciones.
  */
-export function RangoSueldo({ rango, tope, color = "var(--dinero)" }: { rango: Rango; tope: number; color?: string }) {
+export function RangoSueldo({ rango, tope, color = "var(--dinero)", enPalabras = false }: { rango: Rango; tope: number; color?: string; enPalabras?: boolean }) {
   const pos = (n: number) => (tope > 0 ? Math.min(100, Math.max(0, (n / tope) * 100)) : 0);
   return (
     <span
@@ -41,10 +41,16 @@ export function RangoSueldo({ rango, tope, color = "var(--dinero)" }: { rango: R
         <i style={{ left: `${pos(rango.p10)}%`, width: `${Math.max(pos(rango.p90) - pos(rango.p10), 2)}%`, background: color }} />
         <b style={{ left: `${pos(rango.p50)}%` }} />
       </span>
-      <span className="jg-extremos">
-        <span>10% · {plata(rango.p10)}</span>
-        <span>90% · {plata(rango.p90)}</span>
-      </span>
+      {enPalabras ? (
+        <span className="jg-chico">
+          8 de cada 10 mundos terminan entre {plata(rango.p10)} y {plata(rango.p90)}
+        </span>
+      ) : (
+        <span className="jg-extremos">
+          <span>10% · {plata(rango.p10)}</span>
+          <span>90% · {plata(rango.p90)}</span>
+        </span>
+      )}
     </span>
   );
 }
@@ -83,11 +89,40 @@ export function ErrorCaja({ error, onReintentar }: { error: string; onReintentar
   );
 }
 
+/**
+ * Si el perfil no es del todo tuyo, se dice: sin datos es un perfil de ejemplo; si saltaste preguntas, esas quedan
+ * como supuesto. `fuentes` son los campos que sí se saben; null si no se sabe (una partida guardada de antes).
+ */
+export function AvisoPerfil({ fuentes }: { fuentes: Record<string, string> | null }) {
+  if (!fuentes) return null;
+  const supuestos = Object.keys(CAMPOS_PERFIL).filter((k) => !(k in fuentes));
+  if (supuestos.length === 0) return null;
+  const ejemplo = supuestos.length === Object.keys(CAMPOS_PERFIL).length;
+  return (
+    <div className="jg-aviso-perfil" role="note">
+      <Tag tone="sol">{ejemplo ? "Perfil de ejemplo" : "Con supuestos"}</Tag>
+      <span className="jg-chico">
+        {ejemplo
+          ? "Jugaste sin datos: estos mundos son de una persona de ejemplo, no los tuyos."
+          : `No nos dijiste tu ${enLista(supuestos.map((k) => CAMPOS_PERFIL[k]))}: ahí usamos un supuesto.`}
+      </span>
+    </div>
+  );
+}
+
+/** Salir de la partida: vuelve a la portada, donde se puede continuar o empezar otra. La partida no se borra. */
+export function Salir({ onSalir }: { onSalir: () => void }) {
+  return (
+    <button type="button" className="jg-ayuda jg-salir" onClick={onSalir}>
+      Salir
+    </button>
+  );
+}
+
 /** Algo que pasó en el año. Es la <Notification> del kit, con el texto completo en vez de cortado. */
 export function Noticia({ titulo, texto, lado, className }: { titulo: string; texto: string; lado?: string; className?: string }) {
   return (
     <div className={cx("vd-noti", "jg-noti", className)}>
-      <Avatar name={titulo} />
       <span className="vd-noti-texto">
         <span className="vd-noti-quien">{titulo}</span>
         <span className="vd-noti-msg">{texto}</span>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Heading, Text, cssVars } from "@/shared/ui";
+import { Stack, Text, cssVars } from "@/shared/ui";
 import { getPesoCv } from "../api";
 import { plata } from "../textos";
 import type { CampoCv, Perfil, PesoCv, PesoDato } from "../types";
@@ -112,24 +112,32 @@ export function PesoDelCv({ perfil, duda, semilla }: { perfil: Perfil; duda: str
   }, [clave]);
 
   if (error) return null; // es un extra de la carta: si falla, la carta sigue igual
-  if (!peso) return <Cargando>Midiendo cuánto pesa cada línea de tu CV…</Cargando>;
-  if (peso.datos.length === 0) return null;
-  const quietos = peso.sin_efecto.map((c) => CORTO[c]).filter(Boolean);
+  if (peso && peso.datos.length === 0) return null;
+  const quietos = peso?.sin_efecto.map((c) => CORTO[c]).filter(Boolean) ?? [];
+  // plegado: es un extra de la carta, no lo que se decide
   return (
-    <section className="jg-seccion jg-peso">
-      <Heading level={3} as="h2">
-        Lo que vale cada línea de tu CV
-      </Heading>
-      <Text size="sm">Volvimos a vivir tus {peso.gemelos} mundos con los mismos dados, quitando un dato de tu CV a la vez.</Text>
-      {peso.datos.map((d, i) => (
-        <Linea key={d.campo} d={d} i={i} />
-      ))}
-      {quietos.length > 0 && <Text size="sm">En esta duda casi no pesan {lista(quietos)}.</Text>}
-      <Info pregunta="¿Cómo se calcula?">
-        Cada mundo tiene sus dados: si te despiden, si hay recesión, si te sale la oferta. Para cada dato de tu CV repetimos los mismos {peso.gemelos} mundos
-        cambiando solo ese dato por lo que el simulador supone cuando no lo sabe (sin inglés, una red promedio, la habilidad que dan tus años). Lo que cambia
-        es lo que vale esa línea en esta decisión.
-      </Info>
-    </section>
+    <details className="jg-plegable jg-peso">
+      <summary>Lo que vale cada línea de tu CV</summary>
+      {!peso ? (
+        <Cargando>Midiendo cuánto pesa cada línea de tu CV…</Cargando>
+      ) : (
+        <Stack gap={10}>
+          <Text size="sm">Volvimos a vivir tus {peso.gemelos} mundos con los mismos dados, quitando un dato de tu CV a la vez.</Text>
+          {peso.datos.map((d, i) => (
+            <Linea key={d.campo} d={d} i={i} />
+          ))}
+          {quietos.length > 0 && (
+            <Text size="sm">
+              En esta duda casi no {quietos.length === 1 ? "pesa" : "pesan"} {lista(quietos)}.
+            </Text>
+          )}
+          <Info pregunta="¿Cómo se calcula?">
+            Cada mundo tiene sus dados: si te despiden, si hay recesión, si te sale la oferta. Para cada dato de tu CV repetimos los mismos {peso.gemelos} mundos
+            cambiando solo ese dato por lo que el simulador supone cuando no lo sabe (sin inglés, una red promedio, la habilidad que dan tus años). Lo que cambia
+            es lo que vale esa línea en esta decisión.
+          </Info>
+        </Stack>
+      )}
+    </details>
   );
 }

@@ -1,14 +1,19 @@
-import logging
 """Lo que comparten los servicios que llaman a Claude: credenciales, cliente y errores.
 
-Lo usan `perfil_ia` (leer el CV), `narrador_ia` (narrar ofertas, eventos y mundos) y el gemelo
-(`app.core.llm`).
+Lo usan `perfil_ia` (leer el CV) y `narrador_ia` (narrar ofertas, eventos y mundos).
+
+La llave sale de `Settings.anthropic_api_key`, que pydantic-settings lee de la variable de entorno
+`ANTHROPIC_API_KEY` (Render) o, si no está, de `backend/.env` (local). Sin llave, el SDK prueba sus
+otras fuentes: `ANTHROPIC_AUTH_TOKEN` o un perfil de `ant auth login`.
 """
 
+import logging
 import os
 from pathlib import Path
 
 import anthropic
+
+from app.core.config import get_settings
 
 # Los errores del SDK que significan "Claude no respondió": llave inválida, límite de uso,
 # error del servidor, sin conexión o tiempo agotado (APITimeoutError es un APIConnectionError).
@@ -20,20 +25,18 @@ class ClaudeNoDisponible(RuntimeError):
 
 
 def _llave() -> str | None:
-    """La llave de `backend/.env`: la config la lee aunque no esté exportada en el entorno."""
-    from app.core.config import get_settings
-
-    return get_settings().anthropic_api_key or None
+    """La llave de Settings (entorno o `.env`); None deja que el SDK busque en sus otras fuentes."""
+    return get_settings().anthropic_api_key.strip() or None
 
 
 def hay_credenciales() -> bool:
-    """`backend/.env` más las fuentes que resuelve el SDK: variables de entorno o un perfil de `ant auth login`."""
+    """La llave de Settings, o las mismas fuentes que resuelve el SDK: entorno o un perfil de `ant auth login`."""
     return bool(_llave() or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")
                 or (Path.home() / ".config" / "anthropic").is_dir())
 
 
 def cliente(timeout: float, max_retries: int) -> anthropic.Anthropic:
-    """Un cliente con la llave de `.env` o, si no hay, las credenciales del entorno. `timeout` es por intento, en segundos."""
+    """Un cliente con la llave de Settings (o, sin ella, las credenciales del SDK). `timeout` es por intento, en segundos."""
     return anthropic.Anthropic(api_key=_llave(), timeout=timeout, max_retries=max_retries)
 
 

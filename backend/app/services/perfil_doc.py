@@ -56,7 +56,7 @@ def prompt(pq: Paquete | None = None) -> str:
     rubros = [r for r in pq.variables["rubro"]["dominio"] if r]
     dudas = _dudas_laborales(pq)
     lineas = [
-        "Voy a jugar Agarrar la pala, un simulador de carrera en Chile: 100 \"gemelos\" míos viven 10 años "
+        "Voy a jugar Bifurca, un simulador de carrera en Chile: 100 \"copias\" mías viven 10 años "
         "con cada decisión. Con lo que sabes de mí por nuestras conversaciones, llena este bloque.",
         "",
         "Reglas:",
@@ -293,13 +293,9 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
             vistas.add(decision)
             sugeridas.append({"decision": decision, "nombre": posibles[decision]["nombre"], "por_que": por_que})
     intereses = [x.strip() for x in re.split(r"[,;]", c.get("intereses", "")) if x.strip()][:5]
-    # Qué campos del perfil dijo de verdad (para sumarlos a lo del CV sin pisarlo con valores por defecto)
-    a_perfil = {"situacion": ["estado"], "anios_experiencia": ["skill"], "empleadores": ["red"],
-                "empresa_actual": ["empresa_nombre", *(["tipo_empleador", "rubro"] if resultado.get("empresa") else [])],
-                "cargo_actual": ["cargo_nombre"]}
-    fuera_de_rango = {a.split(":", 1)[0] for a in avisos if "fuera de rango" in a}
-    dados = sorted({k for campo, v in leido.items() if v is not None and campo not in fuera_de_rango
-                    for k in a_perfil.get(campo, [campo]) if k in resultado["perfil"]} | ({"rubro_sonado"} if resultado["perfil"].get("rubro_sonado") else set())
+    # Qué campos del perfil dijo de verdad (para sumarlos a lo del CV sin pisarlo con valores por defecto):
+    # los que `completar` llenó desde el bloque, más el rubro soñado
+    dados = sorted(set(resultado["dados"]) | ({"rubro_sonado"} if resultado["perfil"].get("rubro_sonado") else set())
                    | ({"anos_por_empleo"} if resultado["perfil"].get("anos_por_empleo") else set()))
     return {**resultado, "duda": sugeridas[0]["decision"] if sugeridas else None, "dudas_sugeridas": sugeridas[:3],
             "retrato": c.get("retrato") or resultado.get("retrato"), "intereses": intereses,

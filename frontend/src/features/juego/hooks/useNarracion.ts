@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import type { Narrado } from "../types";
 
 export type Narracion = {
-  /** Los textos que contó Sonnet, por id. Lo que no está aquí se muestra con su plantilla. */
+  /** Los textos que contó Claude, por id. Lo que no está aquí se muestra con su plantilla. */
   textos: Record<string, string>;
   /** Ya respondió el narrador (o falló, o no hay narrador): lo que se muestre ahora no cambia más. */
   listo: boolean;
 };
 
 /**
- * Textos contados por Sonnet para lo que hay en pantalla. La pantalla espera a `listo` antes de mostrar
+ * Textos contados por Claude para lo que hay en pantalla. La pantalla espera a `listo` antes de mostrar
  * esos textos, para que nunca aparezca la plantilla y después cambie. El servidor corta a los 10 segundos;
  * si falla, `listo` llega igual y queda la plantilla. Si cambia `llave` antes de que respondan, el pedido
  * anterior se cancela.
@@ -26,7 +26,7 @@ export function useNarracion(
       if (!control.signal.aborted) setEstado({ llave, textos });
     };
     pedir(control.signal)
-      .then(({ items }) => terminar(Object.fromEntries(items.filter((x) => x.via === "sonnet").map((x) => [x.id, x.texto]))))
+      .then(({ items }) => terminar(Object.fromEntries(items.filter((x) => x.via !== "plantilla").map((x) => [x.id, x.texto]))))
       .catch(() => terminar({})); // sin narración: queda la plantilla
     return () => control.abort();
     // `pedir` cambia con cada render del padre; la llave dice cuándo hay algo nuevo que narrar

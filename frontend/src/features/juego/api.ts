@@ -1,14 +1,9 @@
 import { http } from "@/shared/lib/http";
-import { guardarRetrato } from "./retrato";
 import type { Catalogo, Duda, EnJuego, MundoDetalle, Narrado, ParametrosComparar, Partida, Perfil, PerfilLeido, PesoCv, Vista } from "./types";
 
 export const GEMELOS = 100;
 
 export const getCatalogo = () => http<Catalogo>("/api/juego/catalogo");
-
-/** La afinidad de tu gemelo (cuánto te tira cada carta), para congelarla al empezar la partida. */
-export const getAfinidad = (gemelo_id: string) =>
-  http<{ afinidad: Record<string, number> }>("/api/juego/afinidad", { method: "POST", body: JSON.stringify({ gemelo_id }) });
 
 export const getDudas = (perfil: Perfil) =>
   http<Duda[]>("/api/juego/dudas", { method: "POST", body: JSON.stringify({ perfil }) });
@@ -16,14 +11,14 @@ export const getDudas = (perfil: Perfil) =>
 export const getVista = (partida: Partida, parametros: ParametrosComparar = {}) =>
   http<Vista>("/api/juego/partida", {
     method: "POST",
-    body: JSON.stringify({ ...partida, gemelos: GEMELOS, parametros }),
+    body: JSON.stringify({ ...partida, gemelos: GEMELOS, parametros, edad_final: partida.perfil.edad_final ?? null }),
   });
 
 /** Un mundo de la comparación de la decisión pendiente, con lo que te pasa en él con cada opción. */
 export const getMundo = (partida: Partida, mundo: number, parametros: ParametrosComparar = {}) =>
   http<MundoDetalle>("/api/juego/mundo", {
     method: "POST",
-    body: JSON.stringify({ ...partida, gemelos: GEMELOS, parametros, mundo }),
+    body: JSON.stringify({ ...partida, gemelos: GEMELOS, parametros, mundo, edad_final: partida.perfil.edad_final ?? null }),
   });
 
 /** Lo que vale cada línea del CV en la duda: la misma comparación de la carta, sin cada dato. */
@@ -40,7 +35,7 @@ export const getEnJuego = (perfil: Perfil, dudas: string[]) =>
     body: JSON.stringify({ perfil, dudas, gemelos: GEMELOS }),
   });
 
-/** Textos de la partida contados por Sonnet. Sin gemelos: el servidor solo rejuega tu vida. */
+/** Textos de la partida contados por Claude. Sin gemelos: el servidor solo rejuega tu vida. */
 export const getNarracion = (
   partida: Partida,
   que: "pendiente" | "historia" | "mundo",
@@ -67,9 +62,13 @@ export class ErrorApi extends Error {
   }
 }
 
-function comoErrorApi(e: unknown): ErrorApi {
+/** Sin respuesta del servidor (caído, sin red, CORS): el navegador dice "Failed to fetch" o "Load failed". */
+const SIN_RESPUESTA = "Puede que esté caído o que se haya cortado tu conexión. Prueba de nuevo en un rato.";
+
+export function comoErrorApi(e: unknown): ErrorApi {
+  if (e instanceof ErrorApi) return e;
   const m = /^(\d{3}): ([\s\S]*)$/.exec(e instanceof Error ? e.message : String(e));
-  if (!m) return new ErrorApi(0, e instanceof Error ? e.message : String(e));
+  if (!m) return new ErrorApi(0, e instanceof TypeError ? SIN_RESPUESTA : e instanceof Error ? e.message : String(e));
   let detalle = m[2];
   try {
     const d = (JSON.parse(m[2]) as { detail?: unknown }).detail;
@@ -81,14 +80,20 @@ function comoErrorApi(e: unknown): ErrorApi {
   return new ErrorApi(Number(m[1]), detalle);
 }
 
+/** El error en palabras de persona, para poner después de "No pudimos hablar con el simulador.". */
+export function textoError(e: unknown): string {
+  const err = comoErrorApi(e);
+  if (err.status === 0) return err.detalle || SIN_RESPUESTA;
+  if (err.status >= 500) return `Algo le falló al calcular (error ${err.status}). Prueba de nuevo.`;
+  return err.detalle;
+}
+
 /** Lee el documento que armó el Claude de la persona (al tiro). Si es texto libre, Claude lo lee (cerca de medio minuto). */
 /** Claude lee un texto, o un PDF en base64 (el CV o el "Guardar como PDF" de LinkedIn), y llena el perfil. */
 export async function leerPerfil(entrada: string | { pdf: string }): Promise<PerfilLeido> {
   const cuerpo = typeof entrada === "string" ? { texto: entrada } : entrada;
   try {
-    const leido = await http<PerfilLeido>("/api/juego/perfil", { method: "POST", body: JSON.stringify(cuerpo) });
-    guardarRetrato(leido); // para la tarjeta que se comparte al final
-    return leido;
+    return await http<PerfilLeido>("/api/juego/perfil", { method: "POST", body: JSON.stringify(cuerpo) });
   } catch (e) {
     throw comoErrorApi(e);
   }

@@ -53,6 +53,23 @@ def test_quien_no_trabaja_parte_sin_sueldo_pero_recuerda_el_ultimo():
     assert joven["anos_titulado"] == 0 and joven["primer_empleo"] == 1
 
 
+def test_quien_busca_su_primer_empleo_no_parte_cesante():
+    """El criterio era sueldo == 0, pero la API exige sueldo > 0 y completar siempre lo llena: quien buscaba
+    su primera pega caía en cesantia (y su práctica no llegaba). Ahora lo dice el flag o la práctica."""
+    for perfil in (Perfil(estado="buscando", primer_empleo=1, sueldo=700_000),
+                   Perfil(estado="buscando", practica="publico", sueldo=700_000)):
+        e = estado_inicial(perfil, pq())
+        assert e["primer_empleo"] == 1
+        v = Vida(e, Dados(0, "t"), pq())
+        assert v._forzadas() == ["primera_pega"]
+    assert estado_inicial(Perfil(estado="buscando", practica="publico", sueldo=700_000), pq())["practica"] == "publico"
+    # quien estudia busca su primera pega al titularse, declare el sueldo que declare
+    assert _e(estado="estudiando", sueldo=900_000)["primer_empleo"] == 1
+    # quien ya trabajó (sin flag ni práctica) sigue siendo cesante
+    assert _e(estado="buscando", sueldo=700_000)["primer_empleo"] == 0
+    assert _e(estado="empleado", primer_empleo=1)["primer_empleo"] == 0
+
+
 def test_la_carrera_trae_su_area_y_tipo_de_institucion():
     fila = pq().filas("mifuturo_carreras")[57]
     e = _e(carrera_id=int(fila["carrera_id"]))
@@ -70,7 +87,7 @@ def _estudiante(**extra):
 
 
 def test_sin_estudiar_una_carrera_no_cambia_nada():
-    """Regla dura: quien no estudia una carrera del catálogo parte como siempre, con 0 semestres."""
+    """Regla dura: quien no estudia (o sale del colegio) parte como siempre, con 0 semestres."""
     for e in (_e(), _e(carrera_id=ICI), estado_inicial(Perfil.a_los_18(), pq()),
               _e(semestres_restantes=4, anos_en_carrera=2)):  # el dato solo cuenta si estudia
         assert (e["semestres_restantes"], e["anos_en_carrera"]) == (0, 0)
@@ -86,6 +103,27 @@ def test_quien_estudia_parte_con_lo_que_le_falta():
     assert (e["semestres_restantes"], e["anos_en_carrera"]) == (14, 0)
     e = _e(**_estudiante(edad=35))  # mayor que la carrera: igual le queda un año
     assert (e["semestres_restantes"], e["anos_en_carrera"]) == (2, 6)
+
+
+@pytest.mark.parametrize(("edu", "universidad", "titulo", "semestres"), [
+    ("media", "", "universitaria", 8), ("tecnica", "", "universitaria", 8),
+    ("universitaria", "", "postgrado", 4), ("media", "IP", "tecnica", 5), ("media", "CFT", "tecnica", 5)])
+def test_quien_estudia_sin_carrera_del_catalogo_se_titula(edu, universidad, titulo, semestres):
+    """Antes estudiaba para siempre: el cierre solo descontaba semestres con carrera_id. Ahora se supone la
+    duración (8 semestres universitaria, 5 técnica, 4 un postgrado) y al terminar se titula y busca pega."""
+    uid = next((f["universidad_id"] for f in pq().filas("universidades") if f["tipo_institucion"] == universidad), "")
+    perfil = Perfil(**_estudiante(edad=20, edu=edu, carrera_id=-1, universidad_id=uid, anos_en_carrera=0))
+    e = estado_inicial(perfil, pq())
+    assert (e["semestres_restantes"], e["anos_en_carrera"], e["carrera_id"], e["tipo_institucion"]) == (
+        semestres, 0, -1, "")
+    v = Vida(e, Dados(0, "t"), pq())
+    for _ in range((semestres + 1) // 2 - 1):
+        v.vivir_anio(Inercia())
+        assert v.e["estado"] == "estudiando"
+    v.vivir_anio(Inercia())
+    assert (v.e["estado"], v.e["edu"], v.e["primer_empleo"]) == ("buscando", titulo, 1)
+    # sin dato, como con carrera: entró a los 18 y va al día; siempre le queda al menos un año
+    assert _e(**_estudiante(edad=23, carrera_id=-1))["semestres_restantes"] == 2
 
 
 def test_quien_estudia_ya_no_se_titula_al_primer_anio():

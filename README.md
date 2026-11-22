@@ -1,20 +1,20 @@
-# Agarra la pala
+# Bifurca
 
-<img src="./project-logo.png" alt="Agarra la pala" width="200" />
+<img src="./project-logo.png" alt="Bifurca" width="200" />
 
-> ¿Me cambio de pega? ¿Hago el magíster? ¿Emprendo? Que la crisis existencial la tenga tu gemelo y no tú.
+> Simula tu próxima decisión de carrera en 100 vidas paralelas, con datos reales del trabajo en Chile, antes de tomarla.
 
 Track: Simulations · Platanus Hack 26 Santiago, team 32
 
-Las decisiones de carrera se toman una sola vez y nunca sabes cómo te habría ido con la otra. **Agarra la pala** se las pasa a tu gemelo digital: él prueba cada opción en 100 mundos distintos, con la misma suerte en todos, y recién ahí eliges tú.
+Las decisiones de carrera se toman una sola vez y nunca sabes cómo te habría ido con la otra. **Bifurca** es un simulador para ensayarlas antes: vive cada opción en 100 mundos paralelos con la misma suerte en todos, así que la diferencia entre caminos es efecto de la decisión y no del azar. Te muestra en cuántos mundos gana cada opción, el rango de sueldos posible y el riesgo de cesantía, y recién ahí eliges tú.
 
 ## Cómo funciona
 
-1. **Armas tu gemelo.** Nueve datos: edad, estudios, rubro, cargo, sueldo, tipo de empresa y cuánto riesgo toleras. O le pasas un prompt a tu propio Claude, que ya te conoce, y pegas lo que te responde.
+1. **Armas tu copia.** Nueve datos: edad, estudios, rubro, cargo, sueldo, tipo de empresa y cuánto riesgo toleras. O le pasas un prompt a tu propio Claude, que ya te conoce, y pegas lo que te responde.
 2. **Llega una decisión.** Una situación concreta: te ofrecen irte a una startup, te despiden, aparece un magíster, una recesión. Cuál llega depende de cómo vas.
-3. **Miras los 100 mundos.** En cada uno, tu gemelo vive *todas* las opciones con la misma suerte: la misma recesión, el mismo despido, el mismo ascenso. Si en un mundo gana más cambiándose, es por la decisión y no por el azar. Ves en cuántos mundos gana cada opción, el abanico de sueldos (del 10% con peor suerte al 10% con mejor) y cuántos pasaron por la cesantía. Puedes abrir cualquier mundo y leer su historia.
-4. **Eliges y tiras el dado.** Vives uno solo de esos caminos. La ficha amarilla eres tú dentro del abanico de tus gemelos.
-5. **Al final** ves tu línea contra la de tus gemelos, año a año, y puedes simular otra vida con el mismo perfil para ver qué cambia.
+3. **Miras los 100 mundos.** En cada uno, tu copia vive *todas* las opciones con la misma suerte: la misma recesión, el mismo despido, el mismo ascenso. Si en un mundo gana más cambiándose, es por la decisión y no por el azar. Ves en cuántos mundos gana cada opción, el abanico de sueldos (del 10% con peor suerte al 10% con mejor) y cuántos pasaron por la cesantía. Puedes abrir cualquier mundo y leer su historia.
+4. **Eliges y tiras el dado.** Vives uno solo de esos caminos. La ficha amarilla eres tú dentro del abanico de tus copias.
+5. **Al final** ves tu línea contra la de tus copias, año a año, y puedes simular otra vida con el mismo perfil para ver qué cambia.
 
 ## Datos de Chile, no opiniones de una IA
 
@@ -28,7 +28,6 @@ Las opciones de trabajo traen empleadores u ofertas reales como ejemplo (SII, Ge
 
 - `backend/`: FastAPI y un motor Monte Carlo en numpy que lee el paquete de reglas de `backend/simulador/`
 - `frontend/`: Vite, React y TypeScript
-- `supabase/`: esquema y migraciones
 
 ## Correr local
 
@@ -42,12 +41,12 @@ make front   # http://localhost:5173
 
 ```bash
 make jugar DUDA=unirse_a_startup   # una simulación completa, decisión por decisión
-make comparar DUDA=oferta_externa  # solo los gemelos de una decisión
+make comparar DUDA=oferta_externa  # solo las copias de una decisión
 make validar                       # cuántas metas de Chile cuadran
 make supuestos CALIDAD=supuesto    # qué números siguen siendo supuestos
 ```
 
-Arquitectura y detalles del motor en [DEV.md](DEV.md). Hay un video demo con subtítulos en [`docs/demo/`](docs/demo/).
+Cómo funciona, de dónde salen los números y cómo agregar cosas: [docs/COMO-FUNCIONA.md](docs/COMO-FUNCIONA.md). Arquitectura y detalles del motor en [DEV.md](DEV.md). Hay un video demo con subtítulos en [`docs/demo/`](docs/demo/).
 
 ## Equipo
 

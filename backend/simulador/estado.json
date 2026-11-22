@@ -462,6 +462,17 @@
    "inicio": "0"
   },
   {
+   "nombre": "base_empresa",
+   "tipo": "numero",
+   "dominio": [
+    0,
+    30000000
+   ],
+   "unidad": "CLP al mes",
+   "descripcion": "Lo que gana el fundador en su empresa antes de contar los años que lleva: cada año gana esto × (1 + empresa_anos / 4) × su suerte del año. 0 es la ganancia mediana de un microemprendedor (MICRO_MEDIANA), la de quien recién emprende. Quien ya tenía empresa al empezar parte de su sueldo declarado: sueldo / (1 + empresa_anos / 4), así su primer año gana, en la mediana, lo que declaró.",
+   "inicio": "0"
+  },
+  {
    "nombre": "empresa_fondos",
    "tipo": "bool",
    "dominio": [
@@ -702,6 +713,17 @@
    ],
    "unidad": "tasa",
    "descripcion": "Deriva: alza anual del sueldo de la carrera entre los años 1 y 5 de titulado (mifuturo_carreras).",
+   "inicio": "deriva"
+  },
+  {
+   "nombre": "crecimiento_cuenta_propia",
+   "tipo": "numero",
+   "dominio": [
+    -0.06,
+    0.06
+   ],
+   "unidad": "tasa",
+   "descripcion": "Deriva: alza anual del ingreso por cuenta propia según su edad (esi_ingreso_categoria_formalidad, categoría cuenta_propia, formal o informal según formal): mediana de la banda siguiente sobre la actual, anualizada. Puede ser negativa.",
    "inicio": "deriva"
   },
   {

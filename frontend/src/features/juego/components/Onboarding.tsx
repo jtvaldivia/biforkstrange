@@ -3,18 +3,15 @@ import { useEffect, useId, useRef, useState } from "react";
 import {
   Button, ChevronLeftIcon, Chip, Heading, IconButton, Meta, Pill, Row, Screen, ScreenFooter, ScreenHeader, Segmented, Slider, Stack, Tag, Text,
 } from "@/shared/ui";
-import { ErrorApi, getPrompt, leerPerfil } from "../api";
+import { getPrompt, textoError } from "../api";
+import { MANUAL, type Onboarding as OnboardingEstado } from "../hooks/useBorrador";
 import { EDUCACION, TIPO_EMPLEADOR, pesos } from "../textos";
-import type { Catalogo, DudaSugerida, Perfil, PerfilLeido } from "../types";
-import { ErrorCaja } from "./piezas";
-import { Prueba } from "./Prueba";
+import type { Catalogo, DudaSugerida, Perfil, Sexo } from "../types";
+import { Cargando, ErrorCaja } from "./piezas";
 import { PerfilForm, RUBROS_TOP, SLIDER_MAX, SLIDER_MIN, TuPega, banda } from "./PerfilForm";
 
-type Paso = "entrada" | "leyendo" | "tu" | "pega" | "plata" | "prueba";
-/** Los pasos de cada camino: con CV se salta lo que el CV ya contestó. */
-const MANUAL: Paso[] = ["tu", "pega", "plata"];
 /** Las elecciones de cada tarjeta: parten vacías y hay que tocarlas para seguir. */
-const ELEGIR: Record<string, (keyof Perfil)[]> = { tu: ["edu"], pega: ["tipo_empleador", "nivel", "rubro"], plata: ["ingles"] };
+const ELEGIR: Record<string, (keyof Perfil)[]> = { tu: ["sexo", "edu"], pega: ["tipo_empleador", "nivel", "rubro"], plata: ["ingles"] };
 /** Los sliders siempre tienen un valor: cuentan como respuesta al pasar de tarjeta. */
 const DESLIZAR: Record<string, (keyof Perfil)[]> = { tu: ["edad"], plata: ["sueldo"] };
 const SITUACION: Record<string, string> = {
@@ -26,117 +23,54 @@ const FRASES = ["Leyendo tu experiencia…", "Buscando tu empresa en el SII…",
  * Onboarding en 3 pantallas: subes tu CV (o el PDF de LinkedIn) o contestas unas pocas preguntas, después solo
  * lo que falta, y vas a tu duda. Arriba, la ficha de tu gemelo se arma con cada dato.
  * El formulario completo queda detrás de "Revisar todos mis datos".
+ * El estado vive en `usePartida` (`o`): volver desde las dudas lo encuentra igual.
  */
 export function Onboarding({
-  inicial,
+  o,
   catalogo,
   errorCatalogo,
+  onReintentarCatalogo,
+  onReintentar,
   onVolver,
   onListo,
   onElegirDuda,
   cargando = false,
   error = null,
 }: {
-  inicial: Perfil;
+  o: OnboardingEstado;
   catalogo: Catalogo | null;
   errorCatalogo: string | null;
+  onReintentarCatalogo?: () => void;
+  onReintentar?: () => void;
   onVolver: () => void;
   onListo: (p: Perfil) => void;
   onElegirDuda: (p: Perfil, sugeridas: DudaSugerida[]) => void;
   cargando?: boolean;
   error?: string | null;
 }) {
-  const [p, setP] = useState<Perfil>(inicial);
-  const [paso, setPaso] = useState<Paso>("entrada");
-  /** Campos que ya sabemos de la persona (los que contestó o leyó Claude): esos aparecen en la ficha. */
-  const [sabidos, setSabidos] = useState<ReadonlySet<string>>(new Set());
-  const [faltan, setFaltan] = useState<Paso[]>(MANUAL);
-  const [leido, setLeido] = useState<PerfilLeido | null>(null);
-  const [errorLectura, setErrorLectura] = useState<string | null>(null);
-  const [completo, setCompleto] = useState(false);
+  const { perfil: p, paso, faltan, leido, claude: extra, completo } = o.borrador;
+  const sabidos = new Set(Object.keys(o.borrador.fuentes));
+  const cv = o.leyendoCv ? "leyendo" : leido ? "listo" : "nada";
+  const claudeListo = extra !== null;
   const [otroRubro, setOtroRubro] = useState(false);
-  /** Lo que contó tu Claude o ChatGPT: se suma a lo del CV. */
-  const [extra, setExtra] = useState<{ intereses: string[]; proyecto: string | null; retrato: string | null; sugeridas: DudaSugerida[] }>({
-    intereses: [], proyecto: null, retrato: null, sugeridas: [],
-  });
   const [conClaude, setConClaude] = useState(false);
-  /** Las dos fuentes, en cualquier orden y combinables: tu LinkedIn o CV, y tu Claude o ChatGPT. */
-  const [cv, setCv] = useState<"nada" | "leyendo" | "listo">("nada");
-  const [claudeListo, setClaudeListo] = useState(false);
-  const [leyendoClaude, setLeyendoClaude] = useState(false);
-  const [errorClaude, setErrorClaude] = useState<string | null>(null);
-  const pedido = useRef(0);
-  useEffect(() => () => void pedido.current++, []);
-  useEffect(() => {
-    const id = gemeloGuardado();
-    if (id && inicial.gemelo_id === undefined) setP((x) => ({ ...x, gemelo_id: id }));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const set = o.set;
+  const sugeridas = o.sugeridas;
 
-  const set = <K extends keyof Perfil>(k: K, v: Perfil[K]) => {
-    setP((x) => ({ ...x, [k]: v }));
-    setSabidos((s) => new Set(s).add(k));
-  };
-
-  const leerPdf = async (pdf: string) => {
-    const mio = ++pedido.current;
-    setErrorLectura(null);
-    setCv("leyendo");
-    try {
-      const r = await leerPerfil({ pdf });
-      if (mio !== pedido.current) return;
-      const supuestos = new Set(r.supuestos.map((s) => s.campo));
-      // lo que ya contó tu Claude manda; el CV llena el resto
-      const delCv = Object.keys(r.perfil).filter((k) => !supuestos.has(k) && !sabidos.has(k));
-      setP((x) => ({ ...x, ...Object.fromEntries(delCv.map((k) => [k, r.perfil[k as keyof Perfil]])) }));
-      setSabidos((s) => new Set([...s, ...delCv]));
-      setLeido(r);
-      setCv("listo");
-    } catch (e) {
-      if (mio !== pedido.current) return;
-      setErrorLectura(e instanceof ErrorApi ? e.detalle : "No pudimos leer tu CV.");
-      setCv("nada");
-    }
-  };
-
-  /** Pega la respuesta de tu Claude: lo que dijo se suma a lo que ya sabíamos, sin pisarlo con valores por defecto. */
   const leerTuClaude = async (texto: string) => {
-    setErrorClaude(null);
-    setLeyendoClaude(true);
-    try {
-      const r = await leerPerfil(texto);
-      const supuestos = new Set(r.supuestos.map((x) => x.campo));
-      // un nombre vacío (el texto no traía empresa o cargo) no borra el que ya sabíamos
-      const dados = (r.dados ?? Object.keys(r.perfil).filter((k) => !supuestos.has(k))).filter((k) => r.perfil[k as keyof Perfil] !== "");
-      const nuevos = Object.fromEntries(dados.map((k) => [k, r.perfil[k as keyof Perfil]])) as Partial<Perfil>;
-      const perfil = { ...p, ...nuevos, relato: texto }; // lo que pegaste también es tu relato: el narrador lo usa
-      const ahora = new Set([...sabidos, ...dados]);
-      const sugeridas = [...(r.dudas_sugeridas ?? []), ...(leido?.dudas_sugeridas ?? [])]
-        .filter((d, k, todas) => todas.findIndex((x) => x.decision === d.decision) === k)
-        .slice(0, 3);
-      setP(perfil);
-      setSabidos(ahora);
-      setExtra({ intereses: r.intereses ?? [], proyecto: r.proyecto ?? null, retrato: r.retrato ?? null, sugeridas });
-      setConClaude(false);
-      setClaudeListo(true);
-    } catch (e) {
-      setErrorClaude(e instanceof ErrorApi ? e.detalle : "No pudimos leer lo que pegaste.");
-    } finally {
-      setLeyendoClaude(false);
-    }
+    if (await o.leerTuClaude(texto)) setConClaude(false);
   };
-  const sugeridas = extra.sugeridas.length ? extra.sugeridas : leido?.dudas_sugeridas ?? [];
+  const usoFuentes = cv === "listo" || claudeListo;
+  /** Las tarjetas de lo que tus fuentes no dijeron (todas, si no usaste fuentes). */
+  const pasosQueFaltan = usoFuentes
+    ? MANUAL.filter((x) => [...(ELEGIR[x] ?? []), ...(DESLIZAR[x] ?? [])].some((k) => !sabidos.has(k)))
+    : MANUAL;
   /** Seguir: solo las tarjetas de lo que tus fuentes no dijeron; si dijeron todo, directo a tus dudas. */
   const seguir = () => {
-    pedido.current++;
-    const usoFuentes = cv === "listo" || claudeListo;
-    const pasos: Paso[] = [
-      ...(usoFuentes
-        ? MANUAL.filter((x) => [...(ELEGIR[x] ?? []), ...(DESLIZAR[x] ?? [])].some((k) => !sabidos.has(k)))
-        : MANUAL),
-      "prueba", // al final, tu gemelo apuesta cómo vas a responder y comparan
-    ];
-    setFaltan(pasos);
-    setPaso(pasos[0]);
+    o.soltarLecturas();
+    const pasos = pasosQueFaltan;
+    if (pasos.length === 0) return onElegirDuda(p, sugeridas);
+    o.irA(pasos[0], pasos);
   };
 
   if (completo) {
@@ -145,9 +79,23 @@ export function Onboarding({
         inicial={p}
         catalogo={catalogo}
         errorCatalogo={errorCatalogo}
-        onVolver={() => setCompleto(false)}
-        onListo={onListo}
-        onElegirDuda={(perfil) => onElegirDuda(perfil, sugeridas)}
+        onReintentarCatalogo={onReintentarCatalogo}
+        onReintentar={onReintentar}
+        onVolver={(perfil) => {
+          o.aplicarFormulario(perfil);
+          o.verCompleto(false);
+        }}
+        onLeido={o.anotarLectura}
+        onListo={(perfil) => {
+          o.aplicarFormulario(perfil, true);
+          onListo(perfil);
+        }}
+        onElegirDuda={(perfil, suyas) => {
+          o.aplicarFormulario(perfil, true);
+          // las que trajo el formulario primero, después las de tus fuentes, sin repetir
+          const todas = [...suyas, ...sugeridas].filter((d, k, xs) => xs.findIndex((x) => x.decision === d.decision) === k).slice(0, 3);
+          onElegirDuda(perfil, todas);
+        }}
         cargando={cargando}
         error={error}
       />
@@ -156,19 +104,19 @@ export function Onboarding({
 
   const i = faltan.indexOf(paso);
   const ultimo = i === faltan.length - 1;
-  const atras = () => (i > 0 ? setPaso(faltan[i - 1]) : (setPaso("entrada"), setFaltan(MANUAL)));
+  const atras = () => (i > 0 ? o.irA(faltan[i - 1]) : o.irA("entrada", MANUAL));
   const siguiente = () => {
-    setSabidos((s) => new Set([...s, ...(DESLIZAR[paso] ?? [])]));
+    o.marcar(DESLIZAR[paso] ?? []);
     if (ultimo) onElegirDuda(p, sugeridas);
-    else setPaso(faltan[i + 1]);
+    else o.irA(faltan[i + 1]);
   };
   /** Saltar: a tus dudas con lo que ya sabemos; lo que falta queda como supuesto. */
   const saltarTodo = () => {
-    pedido.current++; // si Claude estaba leyendo, esa respuesta ya no se usa
+    o.soltarLecturas(); // si Claude estaba leyendo, esa respuesta ya no se usa
     onElegirDuda(p, sugeridas);
   };
   /** Saltar esta pregunta: sigue sin elegir; el valor queda como supuesto. */
-  const saltarEsta = () => (ultimo ? onElegirDuda(p, sugeridas) : setPaso(faltan[i + 1]));
+  const saltarEsta = () => (ultimo ? onElegirDuda(p, sugeridas) : o.irA(faltan[i + 1]));
   const elegido = (k: keyof Perfil) => sabidos.has(k);
   const faltaElegir = (ELEGIR[paso] ?? []).some((k) => !elegido(k));
   const ref = catalogo?.sueldos_ref?.find((f) => f.educacion === p.edu && f.banda === banda(p.edad));
@@ -184,36 +132,46 @@ export function Onboarding({
         right={
           <Row gap={10} style={{ alignItems: "center" }}>
             {i >= 0 ? (
-              <div className="ob-puntos" aria-label={`Paso ${i + 1} de ${faltan.length}`}>
+              <div
+                className="ob-puntos"
+                role="progressbar"
+                aria-label="Preguntas"
+                aria-valuemin={1}
+                aria-valuemax={faltan.length}
+                aria-valuenow={i + 1}
+                aria-valuetext={`Pregunta ${i + 1} de ${faltan.length}`}
+              >
                 {faltan.map((f, k) => (
                   <i key={f} data-hecho={k <= i || undefined} />
                 ))}
               </div>
             ) : (
-              <Pill>Tu gemelo</Pill>
+              <Pill>Tu copia</Pill>
             )}
           </Row>
         }
       />
 
       {(paso !== "entrada" || sabidos.size > 0) && (
-        <Ficha p={p} sabidos={sabidos} catalogo={catalogo} retrato={extra.retrato ?? leido?.retrato ?? null} intereses={extra.intereses} proyecto={extra.proyecto} />
+        <Ficha p={p} sabidos={sabidos} catalogo={catalogo} retrato={extra?.retrato ?? leido?.retrato ?? null} intereses={extra?.intereses} proyecto={extra?.proyecto} />
       )}
 
-      {errorCatalogo && <ErrorCaja error={errorCatalogo} />}
+      {errorCatalogo && <ErrorCaja error={errorCatalogo} onReintentar={onReintentarCatalogo} />}
+      {!catalogo && !errorCatalogo && i >= 0 && <Cargando>Cargando las alternativas…</Cargando>}
 
       {paso === "entrada" && (
         <Entrada
           cv={cv}
-          error={errorLectura}
-          onPdf={(pdf) => void leerPdf(pdf)}
+          error={o.errorCv}
+          onPdf={(pdf) => void o.leerPdf(pdf)}
           claudeListo={claudeListo}
           claudeAbierto={conClaude}
           onAbrirClaude={() => setConClaude((x) => !x)}
-          claude={<TuClaude leyendo={leyendoClaude} error={errorClaude} onTexto={(t) => void leerTuClaude(t)} />}
+          claude={<TuClaude leyendo={o.leyendoClaude} error={o.errorClaude} onTexto={(t) => void leerTuClaude(t)} />}
           onSeguir={seguir}
+          faltaAlgo={pasosQueFaltan.length > 0}
           onSaltar={saltarTodo}
-          gemelo={<UsarGemelo gemeloId={p.gemelo_id ?? null} onGemelo={(id) => setP((x) => ({ ...x, gemelo_id: id }))} />}
+          onRevisar={() => o.verCompleto(true)}
           cargando={cargando}
         />
       )}
@@ -221,6 +179,18 @@ export function Onboarding({
       {catalogo && paso === "tu" && (
         <Tarjeta key="tu" titulo="Primero, tú.">
           <Slider label="Edad" value={p.edad} min={18} max={50} onChange={(n) => set("edad", n)} display={`${p.edad} años`} />
+          <Stack gap={8}>
+            <span className="jg-etiqueta">Sexo</span>
+            <Segmented<string>
+              label="Sexo"
+              value={elegido("sexo") ? p.sexo : ""}
+              onChange={(v) => set("sexo", v as Sexo)}
+              options={[
+                { value: "m", label: "Mujer" },
+                { value: "h", label: "Hombre" },
+              ]}
+            />
+          </Stack>
           <Stack gap={8}>
             <span className="jg-etiqueta">Estudios terminados</span>
             <Row>
@@ -313,6 +283,16 @@ export function Onboarding({
               Mediana para tu edad y estudios: <strong>{pesos(ref.p50)}</strong>
             </Text>
           )}
+          <Slider
+            label="¿Hasta qué edad quieres jugar?"
+            value={Math.min(60, Math.max(p.edad + 1, p.edad_final ?? p.edad + 10))}
+            min={p.edad + 1}
+            max={60}
+            step={1}
+            color="var(--carrera)"
+            onChange={(n) => set("edad_final", n)}
+            display={`${p.edad_final ?? p.edad + 10} años`}
+          />
           <Stack gap={8}>
             <span className="jg-etiqueta">¿Podrías trabajar en inglés?</span>
             <Segmented<string>
@@ -328,11 +308,9 @@ export function Onboarding({
         </Tarjeta>
       )}
 
-      {paso === "prueba" && <Prueba perfil={p} onGemelo={(id) => setP((x) => ({ ...x, gemelo_id: id }))} />}
-
       {i >= 0 && (
         <ScreenFooter>
-          {error && <ErrorCaja error={error} />}
+          {error && <ErrorCaja error={error} onReintentar={onReintentar} />}
           <Button onClick={siguiente} disabled={!catalogo || cargando || faltaElegir}>
             {ultimo ? (sugeridas.length ? "Ver mis dudas" : "Elegir mi duda") : "Siguiente"}
           </Button>
@@ -340,7 +318,7 @@ export function Onboarding({
             Saltar
           </Button>
           {ultimo && (
-            <button type="button" className="ob-link" onClick={() => setCompleto(true)}>
+            <button type="button" className="ob-link" onClick={() => o.verCompleto(true)}>
               Revisar todos mis datos
             </button>
           )}
@@ -355,9 +333,8 @@ export function Onboarding({
  * después Seguir pregunta solo lo que falta. O juegas sin datos.
  */
 function Entrada({
-  cv, error, onPdf, claudeListo, claudeAbierto, onAbrirClaude, claude, onSeguir, onSaltar, cargando, gemelo,
+  cv, error, onPdf, claudeListo, claudeAbierto, onAbrirClaude, claude, onSeguir, faltaAlgo, onSaltar, onRevisar, cargando,
 }: {
-  gemelo: React.ReactNode;
   cv: "nada" | "leyendo" | "listo";
   error: string | null;
   onPdf: (pdf: string) => void;
@@ -366,7 +343,11 @@ function Entrada({
   onAbrirClaude: () => void;
   claude: React.ReactNode;
   onSeguir: () => void;
+  /** Si tus fuentes no contestaron todo, Seguir lleva a las preguntas que faltan; si no, a tus dudas. */
+  faltaAlgo: boolean;
   onSaltar: () => void;
+  /** El formulario completo, para corregir lo que leyeron tus fuentes. */
+  onRevisar: () => void;
   cargando: boolean;
 }) {
   const entrada = useRef<HTMLInputElement>(null);
@@ -388,7 +369,7 @@ function Entrada({
   return (
     <>
       <Stack gap={6} className="ob-entra">
-        <Heading level={1}>Armemos a tu gemelo.</Heading>
+        <Heading level={1}>Armemos tu copia.</Heading>
         <Text>Súmale lo que quieras: elige una o combínalas.</Text>
       </Stack>
 
@@ -451,32 +432,42 @@ function Entrada({
           <span className="ob-claude-chispa ob-icono" aria-hidden="true">✦</span>
           <span className="ob-fuente-texto">
             <strong>Tu Claude o ChatGPT</strong>
-            <span className="ob-chico">{claudeListo ? "Listo. Lo que contó ya está en tu gemelo." : "Sabe de tus proyectos y lo que te apasiona."}</span>
+            <span className="ob-chico">{claudeListo ? "Listo. Lo que contó ya está en tu copia." : "Sabe de tus proyectos y lo que te apasiona."}</span>
           </span>
           <Marca listo={claudeListo} accion={claudeAbierto ? "Cerrar" : "Abrir"} />
         </button>
         {claudeAbierto && claude}
 
-        <button type="button" className="ob-fuente" onClick={onSeguir} disabled={cv === "leyendo" || cargando}>
-          <span className="ob-icono ob-icono--tu" aria-hidden="true">✎</span>
-          <span className="ob-fuente-texto">
-            <strong>{algo ? "Completar lo que falta" : "Contesto yo unas preguntas"}</strong>
-            <span className="ob-chico">{algo ? "Solo lo que tus fuentes no dijeron." : "Edad, estudios, tu trabajo y tu sueldo. Un toque cada una."}</span>
-          </span>
-          <Marca listo={false} accion="Empezar" />
-        </button>
+        {/* con alguna fuente cargada, esto mismo es el botón de abajo: no se repite */}
+        {!algo && (
+          <button type="button" className="ob-fuente" onClick={onSeguir} disabled={cv === "leyendo" || cargando}>
+            <span className="ob-icono ob-icono--tu" aria-hidden="true">✎</span>
+            <span className="ob-fuente-texto">
+              <strong>Contesto yo unas preguntas</strong>
+              <span className="ob-chico">Edad, sexo, estudios, tu trabajo y tu sueldo. Un toque cada una.</span>
+            </span>
+            <Marca listo={false} accion="Empezar" />
+          </button>
+        )}
       </Stack>
 
-      {gemelo}
 
       <ScreenFooter>
         {algo && (
-          <Button onClick={onSeguir} disabled={cv === "leyendo" || cargando}>
-            Seguir
-          </Button>
+          <>
+            <Button onClick={onSeguir} disabled={cv === "leyendo" || cargando}>
+              {faltaAlgo ? "Completar lo que falta" : "Elegir mi duda"}
+            </Button>
+            {faltaAlgo && <span className="ob-chico">Solo lo que tus fuentes no dijeron.</span>}
+          </>
+        )}
+        {algo && (
+          <button type="button" className="ob-link" onClick={onRevisar} disabled={cv === "leyendo" || cargando}>
+            Revisar todos mis datos
+          </button>
         )}
         <button type="button" className="ob-link" onClick={onSaltar} disabled={cargando}>
-          Jugar sin datos
+          {algo ? "Saltar las preguntas" : "Jugar sin datos"}
         </button>
       </ScreenFooter>
     </>
@@ -515,6 +506,7 @@ function Ficha({
   const nivel = catalogo?.niveles.find((n) => n.nivel === p.nivel)?.nombre;
   const datos: [string, string | undefined][] = [
     ["edad", `${p.edad} años`],
+    ["sexo", p.sexo === "h" ? "Hombre" : "Mujer"],
     ["edu", EDUCACION[p.edu] ?? p.edu],
     ["cargo_nombre", p.cargo_nombre?.trim() || undefined],
     ["empresa_nombre", p.empresa_nombre?.trim() ? `En ${p.empresa_nombre.trim()}` : undefined],
@@ -535,7 +527,7 @@ function Ficha({
     <div className="ob-ficha">
       <Silueta lleno={Math.min(visibles.length + intereses.length, 7) / 7} />
       <Stack gap={6}>
-        <Meta>Tu gemelo</Meta>
+        <Meta>Tu copia</Meta>
         {retrato && <Text size="sm">«{retrato}»</Text>}
         <div className="ob-tags">
           {visibles.length === 0 && <span className="ob-chico">Se va armando con cada respuesta.</span>}
@@ -575,18 +567,20 @@ function Tarjeta({ titulo, children }: { titulo: string; children: React.ReactNo
  */
 function TuClaude({ leyendo, error, onTexto }: { leyendo: boolean; error: string | null; onTexto: (texto: string) => void }) {
   const [prompt, setPrompt] = useState<string | null>(null);
+  const [errorPrompt, setErrorPrompt] = useState<string | null>(null);
+  const [intento, setIntento] = useState(0);
   const [texto, setTexto] = useState("");
   const [copiado, setCopiado] = useState(false);
   useEffect(() => {
-    if (prompt) return;
     let vivo = true;
+    setErrorPrompt(null);
     getPrompt()
       .then((r) => vivo && setPrompt(r.prompt + PROMPT_RELATO))
-      .catch(() => vivo && setPrompt(null));
+      .catch((e: unknown) => vivo && setErrorPrompt(textoError(e)));
     return () => {
       vivo = false;
     };
-  }, [prompt]);
+  }, [intento]);
 
   const abrir = async (url: string) => {
     if (!prompt) return;
@@ -613,6 +607,10 @@ function TuClaude({ leyendo, error, onTexto }: { leyendo: boolean; error: string
           Abrir ChatGPT
         </Button>
       </Row>
+      {!prompt && !errorPrompt && <span className="ob-chico" role="status">Trayendo el prompt del simulador…</span>}
+      {errorPrompt && (
+        <ErrorCaja error={`Sin el prompt no hay qué abrir en Claude ni en ChatGPT. ${errorPrompt}`} onReintentar={() => setIntento((n) => n + 1)} />
+      )}
       {copiado && <span className="ob-chico">También quedó copiado, por si no aparece escrito.</span>}
       <label className="ob-chico" htmlFor="ob-claude-texto">
         <strong>2.</strong> Pega aquí lo que te respondió
@@ -631,7 +629,7 @@ function TuClaude({ leyendo, error, onTexto }: { leyendo: boolean; error: string
         </div>
       )}
       <Button onClick={() => onTexto(texto.trim())} disabled={!texto.trim() || leyendo}>
-        {leyendo ? "Leyendo…" : "Sumar a mi gemelo"}
+        {leyendo ? "Leyendo…" : "Sumar a mi copia"}
       </Button>
     </Stack>
   );
@@ -662,36 +660,3 @@ function Silueta({ lleno }: { lleno: number }) {
 const PROMPT_RELATO = `
 
 4. Después del bloque, agrega una sección "## Sobre mí, en mis palabras" escrita en primera persona, como si yo me presentara (150–300 palabras): qué hago y qué me cansa de mi pega, cómo decido frente al riesgo y los cambios, cómo soy trabajando con otras personas, lo que me importa fuera del trabajo y las dudas o planes que tengo hoy. Solo lo que sabes de verdad.`;
-
-const CLAVE_GEMELO = "biforkstrange.twinProfileId"; // la misma que usa /gemelo
-
-function gemeloGuardado(): string | null {
-  try {
-    return localStorage.getItem(CLAVE_GEMELO);
-  } catch {
-    return null;
-  }
-}
-
-/** Usar tu gemelo digital: sus rasgos afinados deciden qué cartas te salen (nada más). */
-function UsarGemelo({ gemeloId, onGemelo }: { gemeloId: string | null; onGemelo: (id: string | null) => void }) {
-  const guardado = gemeloGuardado();
-  return (
-    <div className="ob-usar-gemelo ob-entra">
-      {guardado ? (
-        <label>
-          <input type="checkbox" checked={gemeloId === guardado} onChange={(e) => onGemelo(e.target.checked ? guardado : null)} />
-          <span>
-            <strong>Usar mi gemelo digital.</strong> Sus rasgos afinados deciden qué cartas te salen.{" "}
-            <a href="/gemelo" target="_blank" rel="noreferrer">Afinarlo</a>
-          </span>
-        </label>
-      ) : (
-        <span className="ob-chico">
-          ¿Quieres que las cartas sigan tu personalidad? Al final tu gemelo se pone a prueba, o{" "}
-          <a href="/gemelo" target="_blank" rel="noreferrer">ármalo con más preguntas</a>.
-        </span>
-      )}
-    </div>
-  );
-}

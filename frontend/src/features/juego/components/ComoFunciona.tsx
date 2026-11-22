@@ -19,11 +19,11 @@ const PASOS = [
     texto: "Cómo te va depende de lo que elijas y de la suerte.",
   },
   {
-    titulo: "Un gemelo tuyo en cada mundo.",
+    titulo: "Una copia tuya en cada mundo.",
     texto: `Son ${GEMELOS} mundos. De uno a otro solo cambia la suerte.`,
   },
   {
-    titulo: "Cada gemelo vive todas las opciones.",
+    titulo: "Cada copia vive todas las opciones.",
     texto: "Con la misma suerte. Así, lo que cambia es por la decisión.",
   },
   {
@@ -81,7 +81,7 @@ function DosVidas() {
       className="jg-vidas"
       viewBox={`0 0 340 ${MUNDOS.length * ALTO_MUNDO + 22}`}
       role="img"
-      aria-label="Cuatro mundos de ejemplo. En cada uno, tu gemelo vive diez años dos veces: cambiándose y quedándose. La recesión o el despido de ese mundo caen el mismo año en las dos vidas. Al final se compara con cuál terminó ganando más."
+      aria-label="Cuatro mundos de ejemplo. En cada uno, tu copia vive diez años dos veces: cambiándose y quedándose. La recesión o el despido de ese mundo caen el mismo año en las dos vidas. Al final se compara con cuál terminó ganando más."
     >
       <text className="jg-vidas-chico" x={x(1)} y={10} textAnchor="middle">año 1</text>
       <text className="jg-vidas-chico" x={x(10)} y={10} textAnchor="middle">año 10</text>

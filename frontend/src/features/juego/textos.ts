@@ -34,6 +34,15 @@ export function deCada(p: number): string {
 /** Siempre sobre 10, para comparar opciones entre sí: "7 de cada 10". */
 export const deCada10 = (p: number) => `${Math.round(p * 10)} de cada 10`;
 
+/** Los datos del perfil que se preguntan en el onboarding: si no los dijiste, quedan como supuesto. */
+export const CAMPOS_PERFIL: Record<string, string> = {
+  edad: "edad", sexo: "sexo", edu: "estudios", tipo_empleador: "tipo de empresa", nivel: "cargo", rubro: "rubro", sueldo: "sueldo", ingles: "inglés",
+};
+
+/** "a, b y c" */
+export function enLista(xs: string[]): string {
+  return xs.length <= 1 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} y ${xs[xs.length - 1]}`;
+}
 /** Sobre 100, como se cuentan los mundos: "63 de 100". Lo que pasa muy rara vez no se redondea a cero. */
 export const deCien = (p: number) => (p > 0 && p < 0.005 ? "menos de 1 de 100" : `${Math.round(p * 100)} de 100`);
 

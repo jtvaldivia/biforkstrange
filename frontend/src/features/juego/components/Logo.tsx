@@ -36,6 +36,8 @@ export function Logo({
         alt=""
         width={tamano}
         height={tamano}
+        // margen y radio proporcionales: el logo no toca el borde y la baldosa se ve igual en cualquier tamaño
+        style={{ padding: Math.round(tamano * 0.1), borderRadius: Math.round(tamano * 0.25) }}
         loading="lazy"
         onError={() => setFallo(true)}
       />
@@ -43,9 +45,11 @@ export function Logo({
   }
   const h = tono(grupo || nombre);
   return (
-    <svg className="jg-logo" width={tamano} height={tamano} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill={`hsl(${h} 45% 88%)`} />
-      <text x="16" y="21" textAnchor="middle" fontSize="13" fontWeight="700" fill={`hsl(${h} 50% 30%)`} fontFamily="inherit">
+    <svg className="jg-logo jg-logo--iniciales" width={tamano} height={tamano} viewBox="0 0 32 32" aria-hidden="true">
+      {/* tono de la empresa mezclado con el papel y la tinta del tema: pastel en claro, oscuro en oscuro */}
+      <rect width="32" height="32" rx="8" style={{ fill: `color-mix(in srgb, hsl(${h} 60% 50%) 22%, var(--papel))` }} />
+      <text x="16" y="21" textAnchor="middle" fontSize="13" fontWeight="700" fontFamily="inherit"
+        style={{ fill: `color-mix(in srgb, hsl(${h} 55% 40%) 55%, var(--tinta))` }}>
         {iniciales(nombre)}
       </text>
     </svg>

@@ -12,7 +12,7 @@ Los pesos son supuestos del equipo, calibrados contra las frecuencias de las
 encuestas (ver `validacion.py`); no son datos.
 """
 
-from app.sim.motor.motor import FaltaEleccion, Opcion, Vida
+from app.sim.motor.motor import TRANQUILO, FaltaEleccion, Opcion, Vida
 from app.sim.motor.paquete import ref as referencia
 
 # Respuesta cuando la vida obliga a elegir: {decisión: {opción: peso}}
@@ -116,6 +116,15 @@ def pesos_personales(e: dict) -> dict[str, dict[str, float]]:
 
 # Opción que equivale a no hacer nada, donde no es la última de la lista
 STATU_QUO = {"oferta_externa": "quedarse", "ahorro": "normal"}
+# Respuesta a una decisión que llega encadenada (`luego`) desde una opción que ya la eligió: quien,
+# cesante, elige "reconvertirte con un bootcamp" se inscribe ("Te inscribes"); no vuelve a dudar. Sin esto
+# los gemelos respondían la carta bootcamp con su peso de carta (Inercia: siempre "no").
+PESOS_ENCADENADAS: dict[str, dict[str, float]] = {"bootcamp": {"hacer": 1.0}}
+
+
+def _llega_encadenada(vida: Vida, decision_id: str) -> bool:
+    """Si la decisión que se está respondiendo llegó por el `luego` de otra (es el primer paso de la cola)."""
+    return bool(vida.cola) and vida.cola[0] == ("decision", decision_id, "luego")
 
 
 def opcion_base(decision: dict, opciones: list[Opcion]) -> str:
@@ -267,13 +276,28 @@ class _PorPesos:
 
     def elegir(self, vida: Vida, decision: dict, opciones: list[Opcion]) -> tuple[str, dict]:
         id_ = decision["id"]
+        if id_ == TRANQUILO:
+            # como la gente real: considera lo que suele buscar alguien como él, y esa decisión la responde con sus pesos
+            return (vida.sugerida if any(o.id == vida.sugerida for o in opciones) else "seguir"), {}
         ocurrencia = sum(1 for x in (vida.registro or {}).get("decisiones", []) if x["decision"] == id_)
         sitio = f"elige:{id_}" + (f":{ocurrencia}" if ocurrencia else "")
         if decision.get("opciones_desde_tabla") and not decision["opciones"]:
             pesos = [1.0] * len(opciones)  # carrera: al azar entre las de su tipo de institución
+        elif id_ in PESOS_ENCADENADAS and _llega_encadenada(vida, id_):
+            pesos = _pesos(decision, opciones, PESOS_ENCADENADAS)
         else:
             tabla = next((t for t in (self.pesos, *self.tablas) if id_ in t), {})
             pesos = _pesos(decision, opciones, {id_: tabla.get(id_, {})})
+        if id_ == "oferta_externa":
+            # la gente ve el sueldo de la oferta antes de decidir: acepta más seguido la que paga más
+            # la chance de aceptar sube exactamente ACEPTA_SI_PAGA_MAS veces (no el peso, que compite con las demás)
+            for i, o in enumerate(opciones):
+                if o.id == "cambiar" and vida.resultado_previsto(id_, "cambiar") == "mejora":
+                    total = sum(pesos)
+                    a = pesos[i] / total if total > 0 else 0.0
+                    q = min(0.95, a * vida.pq.k("ACEPTA_SI_PAGA_MAS"))
+                    if 0 < a < 1:
+                        pesos[i] = q * (total - pesos[i]) / (1 - q)
         opcion = opciones[vida.dados.elegir(vida.anio, sitio, pesos)]
         return opcion.id, parametros_al_azar(vida, opcion, sitio)
 

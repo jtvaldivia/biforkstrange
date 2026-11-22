@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getAfinidad, getDudas, getMundo, getNarracion, getVista } from "../api";
+import { sinMovimiento } from "../components/graficos";
+import { comoErrorApi, getDudas, getMundo, getNarracion, getVista, textoError } from "../api";
 import type { Duda, DudaSugerida, Eleccion, ParametrosComparar, Partida, Perfil, Vista } from "../types";
+import { borradorInicial, useBorrador, type Borrador, type Fuente } from "./useBorrador";
 
 export type Fase = "inicio" | "perfil" | "duda" | "carta" | "paso" | "cierre";
 
@@ -16,17 +18,37 @@ export const PERFIL_INICIAL: Perfil = {
   riesgo: 5,
 };
 
-const CLAVE = "gemelo-laboral:juego:v1";
+/**
+ * La clave lleva la versión de lo que se guarda: si cambia su forma, se sube y lo de antes no se lee
+ * (v2: el borrador del onboarding, las fuentes y el retrato van con la partida).
+ */
+const CLAVE = "gemelo-laboral:juego:v2";
+const CLAVES_VIEJAS = ["gemelo-laboral:juego:v1"];
 
-type Guardado = { perfil: Perfil; partida: Partida | null };
+/** `fuentes`: de dónde salió cada dato de `perfil` (lo que falta es supuesto); null en partidas de antes. */
+type Guardado = {
+  perfil: Perfil;
+  partida: Partida | null;
+  borrador?: Borrador;
+  fuentes?: Record<string, Fuente> | null;
+  /** "Lo que tu gemelo sabe de ti", de este perfil: va en la tarjeta que se comparte. */
+  retrato?: string | null;
+};
+
+/** Antes el retrato se guardaba aparte y se asociaba por edad, sexo y estudios: podía salir el de otra persona. */
+const RETRATO_VIEJO = "gemelo-laboral:retrato:v1";
 
 function leer(): Guardado | null {
   try {
+    window.localStorage.removeItem(RETRATO_VIEJO);
+    for (const vieja of CLAVES_VIEJAS) window.localStorage.removeItem(vieja);
     const crudo = window.localStorage.getItem(CLAVE);
     if (!crudo) return null;
     const g = JSON.parse(crudo) as Guardado;
     if (!g || typeof g.perfil !== "object" || g.perfil === null) return null;
-    return { perfil: { ...PERFIL_INICIAL, ...g.perfil }, partida: g.partida ?? null };
+    const borrador = g.borrador && typeof g.borrador === "object" ? { ...borradorInicial(PERFIL_INICIAL), ...g.borrador } : undefined;
+    if (borrador) borrador.perfil = { ...PERFIL_INICIAL, ...borrador.perfil };
+    return { perfil: { ...PERFIL_INICIAL, ...g.perfil }, partida: g.partida ?? null, borrador, fuentes: g.fuentes ?? null, retrato: g.retrato ?? null };
   } catch {
     return null;
   }
@@ -40,20 +62,7 @@ function guardar(g: Guardado) {
   }
 }
 
-const mensaje = (e: unknown) => (e instanceof Error ? e.message : String(e));
-
-/**
- * Congela la afinidad del gemelo al empezar. El servidor rejuega la partida en cada llamada: si leyera el
- * gemelo vivo y este cambiara (otra pestaña en /gemelo) o se perdiera (reinicio), las cartas cambiarían.
- */
-async function congelarAfinidad(p: Perfil): Promise<Perfil> {
-  if (!p.gemelo_id) return { ...p, afinidad: undefined };
-  try {
-    return { ...p, afinidad: (await getAfinidad(p.gemelo_id)).afinidad };
-  } catch {
-    return { ...p, afinidad: {} }; // el gemelo ya no está: la partida se juega sin él, siempre igual
-  }
-}
+const mensaje = textoError;
 
 /**
  * La partida de la persona. El servidor no guarda nada: aquí vive (perfil, semilla, duda, elecciones)
@@ -71,15 +80,35 @@ export function usePartida() {
   const [cargando, setCargando] = useState(false);
   const [recalculando, setRecalculando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Un aviso para la portada (no un error): por ejemplo, que la partida guardada ya no se puede seguir. */
+  const [aviso, setAviso] = useState<string | null>(null);
   const turno = useRef(0);
   /** Lo elegido dentro de las opciones de la carta actual: los mundos se ven con eso mismo. */
   const parametrosCarta = useRef<ParametrosComparar>({});
+  /** El onboarding a medio armar: sobrevive a ir y volver de las dudas. */
+  const onboarding = useBorrador(guardado?.borrador ?? borradorInicial(guardado?.perfil ?? PERFIL_INICIAL));
+  const borrador = onboarding.borrador;
+  const borradorActual = onboarding.actual;
+  /** De dónde salió cada dato del perfil con que se juega: lo que no está quedó como supuesto. */
+  const [fuentes, setFuentes] = useState<Record<string, Fuente> | null>(guardado?.fuentes ?? null);
+  const [retrato, setRetrato] = useState<string | null>(guardado?.retrato ?? null);
+  /** El perfil con que se va a jugar: con él van sus fuentes y su retrato, sacados del borrador de ahora. */
+  const fijarPerfil = useCallback((p: Perfil) => {
+    const b = borradorActual.current;
+    setPerfil(p);
+    setFuentes(b.fuentes);
+    setRetrato(b.claude?.retrato ?? b.leido?.retrato ?? null);
+  }, []);
 
-  useEffect(() => guardar({ perfil, partida }), [perfil, partida]);
+  useEffect(() => guardar({ perfil, partida, borrador, fuentes, retrato }), [perfil, partida, borrador, fuentes, retrato]);
+
+  /** Lo último que falló, para el botón "Reintentar": se repite eso mismo, no otra cosa. */
+  const reintento = useRef<(() => void) | null>(null);
 
   /** Pide la vista de `p`; si llega (y nadie pidió otra cosa entremedio) corre `listo`. */
-  const pedir = useCallback(async (p: Partida, listo: (v: Vista) => void, parametros?: ParametrosComparar, minimo = 0) => {
+  const pedir = useCallback(async (p: Partida, listo: (v: Vista) => void, parametros?: ParametrosComparar, minimo = 0): Promise<void> => {
     const mio = ++turno.current;
+    reintento.current = null;
     setError(null);
     const inicio = Date.now();
     try {
@@ -89,7 +118,14 @@ export function usePartida() {
       if (falta > 0) await new Promise((r) => setTimeout(r, falta));
       if (mio === turno.current) listo(v);
     } catch (e) {
-      if (mio === turno.current) setError(mensaje(e));
+      if (mio === turno.current) {
+        setError(mensaje(e));
+        reintento.current = () => {
+          if (parametros) setRecalculando(true);
+          else setCargando(true);
+          void pedir(p, listo, parametros, minimo);
+        };
+      }
     } finally {
       if (mio === turno.current) {
         setCargando(false);
@@ -114,12 +150,16 @@ export function usePartida() {
 
   /** Perfil listo: se piden las dudas que esa persona puede elegir. */
   const [dudasSugeridas, setDudasSugeridas] = useState<DudaSugerida[]>([]);
+  /** Si las sugeridas las trajo tu Claude (van primero) o solo el CV: la pantalla lo dice. */
+  const [origenSugeridas, setOrigenSugeridas] = useState<"cv" | "claude" | null>(null);
 
-  const verDudas = useCallback(async (conAfinidad: Perfil, sugeridas: DudaSugerida[] = []) => {
+  const verDudas = useCallback(async (p: Perfil, sugeridas: DudaSugerida[] = []) => {
     const mio = ++turno.current;
-    const p = { ...conAfinidad, afinidad: undefined }; // la de una partida anterior no vale: se congela al empezar
     setDudasSugeridas(sugeridas);
-    setPerfil(p);
+    const b = borradorActual.current;
+    const deClaude = new Set(b.claude?.sugeridas.map((d) => d.decision) ?? []);
+    setOrigenSugeridas(sugeridas.length === 0 ? null : sugeridas.some((d) => deClaude.has(d.decision)) ? "claude" : "cv");
+    fijarPerfil(p);
     setPartida(null);
     setVista(null);
     setPrevia(null);
@@ -135,19 +175,18 @@ export function usePartida() {
     } finally {
       if (mio === turno.current) setCargando(false);
     }
-  }, []);
+  }, [fijarPerfil]);
 
-  /** Perfil listo y sin duda elegida: la primera carta se sortea como todas las demás. */
-  /** Una partida nueva de `p` con la duda dada (o sin duda), con la afinidad del gemelo congelada. */
+  /** Si las dudas no llegaron (el backend no respondía), se vuelven a pedir con el mismo perfil. */
+  const reintentar = useCallback(() => reintento.current?.(), []);
+  const reintentarDudas = useCallback(() => verDudas(perfil, dudasSugeridas), [verDudas, perfil, dudasSugeridas]);
+
+  /** Una partida nueva de `p` con la duda dada (o sin duda). */
   const nuevaPartida = useCallback(
-    async (p: Perfil, duda: string | null) => {
-      const mio = ++turno.current;
+    (p: Perfil, duda: string | null) => {
       parametrosCarta.current = {};
       setCargando(true);
-      const congelado = await congelarAfinidad(p);
-      if (mio !== turno.current) return; // alguien pidió otra cosa mientras tanto
-      setPerfil(congelado);
-      const nueva: Partida = { perfil: congelado, semilla: Math.floor(Math.random() * 1_000_000), duda, elecciones: [] };
+      const nueva: Partida = { perfil: p, semilla: Math.floor(Math.random() * 1_000_000), duda, elecciones: [] };
       void pedir(nueva, (v) => {
         setPartida(nueva);
         setPrevia(null);
@@ -158,29 +197,55 @@ export function usePartida() {
     [pedir],
   );
 
+  /** Perfil listo y sin duda elegida: la primera carta se sortea como todas las demás. */
   const empezarAlAzar = useCallback(
     (p: Perfil) => {
-      setPerfil(p);
+      turno.current++;
+      fijarPerfil(p);
       setDudasSugeridas([]);
       setVista(null);
       setPrevia(null);
-      void nuevaPartida(p, null);
+      nuevaPartida(p, null);
     },
-    [nuevaPartida],
+    [nuevaPartida, fijarPerfil],
   );
 
-  const empezar = useCallback((duda: string) => void nuevaPartida(perfil, duda), [perfil, nuevaPartida]);
+  const empezar = useCallback((duda: string) => nuevaPartida(perfil, duda), [perfil, nuevaPartida]);
 
-  /** Retoma la partida guardada (al recargar la página). */
-  const continuar = useCallback(() => {
+  /**
+   * Retoma la partida guardada (al recargar la página). Si el motor cambió desde que se guardó y ya no la
+   * acepta (422: una decisión u opción que ya no existe), se descarta y se avisa en la portada: reintentar
+   * no la arreglaría.
+   */
+  const continuar = useCallback(async () => {
     if (!partida) return;
+    const mio = ++turno.current;
+    reintento.current = null;
+    setAviso(null);
+    setError(null);
     setCargando(true);
-    void pedir(partida, (v) => {
+    try {
+      const v = await getVista(partida);
+      if (mio !== turno.current) return;
       setPrevia(null);
       setVista(v);
       setFase(v.terminada ? "cierre" : "carta");
-    });
-  }, [partida, pedir]);
+    } catch (e) {
+      if (mio !== turno.current) return;
+      if (comoErrorApi(e).status === 422) {
+        setPartida(null);
+        setVista(null);
+        setPrevia(null);
+        setFase("inicio");
+        setAviso("Tu partida guardada es de una versión anterior del simulador y ya no se puede seguir. Empieza una nueva.");
+      } else {
+        setError(mensaje(e));
+        reintento.current = () => void continuar();
+      }
+    } finally {
+      if (mio === turno.current) setCargando(false);
+    }
+  }, [partida]);
 
   const elegir = useCallback(
     (eleccion: Eleccion) => {
@@ -188,13 +253,15 @@ export function usePartida() {
       const siguiente: Partida = { ...partida, elecciones: [...partida.elecciones, eleccion] };
       parametrosCarta.current = {};
       const antes = vista;
+      // en un año tranquilo, buscar algo abre esa decisión de inmediato: no hay dado que tirar todavía
+      const busca = eleccion.decision === "anio_tranquilo" && eleccion.opcion !== "seguir";
       setCargando(true);
       void pedir(siguiente, (v) => {
         setPartida(siguiente);
         setPrevia(antes);
         setVista(v);
-        setFase("paso");
-      }, undefined, 2400);
+        setFase(busca && v.pendiente ? "carta" : "paso");
+      }, undefined, busca || sinMovimiento() ? 0 : 2400); // buscando o sin animaciones, no se espera al dado
     },
     [partida, vista, pedir],
   );
@@ -216,7 +283,7 @@ export function usePartida() {
     return getMundo(partida, mundo, parametrosCarta.current);
   }, [partida]);
 
-  /** Textos de la partida contados por Sonnet (la carta, la historia o un mundo de la carta). */
+  /** Textos de la partida contados por Claude (la carta, la historia o un mundo de la carta). */
   const narrar = useCallback(
     (que: "pendiente" | "historia" | "mundo", signal: AbortSignal, mundo?: number) => {
       if (!partida) return Promise.reject(new Error("No hay partida"));
@@ -241,8 +308,30 @@ export function usePartida() {
     setError(null);
   }, []);
 
+  /**
+   * "Empezar": una persona nueva parte de cero. Ni el perfil, ni lo que leyó Claude, ni las dudas sugeridas
+   * de quien jugó antes en este navegador.
+   */
+  const empezarDeCero = useCallback(() => {
+    turno.current++;
+    setPartida(null);
+    setVista(null);
+    setPrevia(null);
+    setDudas(null);
+    setDudasSugeridas([]);
+    setPerfil(PERFIL_INICIAL);
+    setFuentes({});
+    setRetrato(null);
+    setAviso(null);
+    onboarding.reiniciar(PERFIL_INICIAL);
+    setCargando(false);
+    setError(null);
+    setFase("perfil");
+  }, [onboarding.reiniciar]);
+
   return {
-    fase, perfil, partida, vista, previa, dudas, dudasSugeridas, cargando, recalculando, error,
+    aviso, fuentes, retrato, origenSugeridas, empezarDeCero, reintentarDudas, reintentar,
+    fase, perfil, partida, vista, previa, dudas, dudasSugeridas, cargando, recalculando, error, onboarding,
     irAInicio, irAPerfil, verDudas, empezar, empezarAlAzar, continuar, elegir, compararCon, verMundo, narrar, seguir, jugarDeNuevo, descartar,
   };
 }

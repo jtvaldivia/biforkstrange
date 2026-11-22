@@ -156,6 +156,33 @@ def test_carta_forzada_por_la_duda_inicial_reemplaza_al_sorteo():
     assert [d["decision"] for d in reg["decisiones"] if d["origen"] == "carta"] == ["pedir_aumento"]
 
 
+def test_la_duda_inicial_no_se_salta_las_forzadas_del_anio():
+    """La duda va primero y después lo que la vida obliga: quien está cesante y duda si invertir en su red
+    igual busca pega ese año (antes la duda tapaba la cesantía y todos sus gemelos quedaban un año
+    entero sin trabajo). Y al fundador le sigue tocando decidir sobre su empresa."""
+    cesante = Perfil(edad=35, estado="buscando", sueldo=1_000_000)
+    v = vida(cesante, DadosGuion({"dec:cesantia:rapido": 0.0}), tipo_empleador="pyme", rubro="Comercio")
+    reg = v.vivir_anio(Guion({"invertir_en_red": "si", "cesantia": "rapido", **QUIETA}), carta="invertir_en_red")
+    assert [d["decision"] for d in reg["decisiones"] if d["origen"] == "carta"] == ["invertir_en_red", "cesantia"]
+    assert v.e["estado"] == "empleado"
+    fundador = Perfil(edad=35, estado="fundador", sueldo=2_000_000, empresa_anos=2)
+    reg = vida(fundador, DadosGuion()).vivir_anio(Guion({"invertir_en_red": "si", "seguir_con_tu_empresa": "seguir"}),
+                                                   carta="invertir_en_red")
+    assert [d["decision"] for d in reg["decisiones"]][:2] == ["invertir_en_red", "seguir_con_tu_empresa"]
+
+
+def test_si_la_duda_resuelve_la_forzada_esta_ya_no_se_pregunta():
+    """Con la duda en la misma forzada no se pregunta dos veces; y si la duda deja de estar cesante
+    (el bootcamp la coloca), la cesantía ya no aplica cuando le llega su turno."""
+    cesante = Perfil(edad=35, estado="buscando", sueldo=1_000_000)
+    v = vida(cesante, DadosGuion(), tipo_empleador="pyme", rubro="Comercio")
+    reg = v.vivir_anio(Guion({"cesantia": "nivel", **QUIETA}), carta="cesantia")
+    assert [d["decision"] for d in reg["decisiones"]] == ["cesantia"]
+    v = vida(cesante, DadosGuion({"dec:bootcamp:hacer": 0.0}), tipo_empleador="pyme", rubro="Comercio")
+    reg = v.vivir_anio(Guion({"bootcamp": "hacer", **QUIETA}), carta="bootcamp")
+    assert "cesantia" not in [d["decision"] for d in reg["decisiones"]] and v.e["estado"] == "empleado"
+
+
 # ------------------------------------------------------------------ luego
 def test_luego_decision_a_decision_en_el_mismo_anio():
     v = vida(Perfil.a_los_18(), DadosGuion())
@@ -299,21 +326,22 @@ def test_vivir_se_detiene_a_los_60():
 
 # ------------------------------------------------------------------ cierre
 def _independiente(**estado):
-    """Trabaja por cuenta propia: ningún evento le mueve el sueldo, así el cierre se ve limpio."""
+    """Trabaja por cuenta propia a los 50: ningún evento le mueve el sueldo (50-54 es la última banda de la ESI,
+    así que el alza por cuenta propia es 0), y el cierre se ve limpio."""
     base = dict(tasa_ahorro=0.08, ahorro=1_000_000.0, skill=50)
-    return vida(Perfil(edad=35, estado="independiente", sueldo=1_000_000), DadosGuion(), **{**base, **estado})
+    return vida(Perfil(edad=50, estado="independiente", sueldo=1_000_000), DadosGuion(), **{**base, **estado})
 
 
 def test_cierre_edad_ahorro_y_oficio():
     v = _independiente()
     v.vivir_anio(Guion())
-    assert v.e["edad"] == 36 and v.anio == 1
+    assert v.e["edad"] == 51 and v.anio == 1
     # ahorro: lo que había + 8% de 12 sueldos, y sobre eso el retorno real de 3%
     assert v.e["ahorro"] == pytest.approx((1_000_000 + 12 * 1_000_000 * 0.08) * 1.03)
     assert v.e["skill"] == pytest.approx(51.5)       # +1,5 de oficio por año trabajado
     assert v.ingreso_total == pytest.approx(12_000_000)
     assert v.e["antiguedad"] == 0                     # la antigüedad es del empleo dependiente
-    assert v.e["anos_titulado"] == 12                 # 35 - 24, más el año
+    assert v.e["anos_titulado"] == 27                 # 50 - 24, más el año
     v.vivir_anio(Guion())
     assert v.e["ahorro"] == pytest.approx(((1_000_000 + 960_000) * 1.03 + 960_000) * 1.03)
     assert v.ingreso_total == pytest.approx(24_000_000) and v.e["skill"] == pytest.approx(53)
@@ -382,11 +410,29 @@ def test_cierre_titulacion_al_terminar_los_semestres(tipo_institucion, edu):
     v.vivir_anio(Guion())
     assert (v.e["estado"], v.e["edu"], v.e["primer_empleo"], v.e["anos_titulado"]) == ("buscando", edu, 1, 0)
     assert (v.e["semestres_restantes"], v.e["anos_en_carrera"], v.e["carrera_id"]) == (0, 0, carrera)
+    assert estudiante.nivel == 1 and v.e["nivel"] == 0  # recién titulado: Junior, no el semi senior del perfil
     assert v.anios_buscando == 1
     # el año siguiente la vida le pone delante su primera pega
     with pytest.raises(FaltaEleccion) as falta:
         v.vivir_anio(Jugador([]))
     assert falta.value.decision["id"] == "primera_pega"
+
+
+def test_al_titularse_la_primera_pega_parte_en_junior_y_el_postgrado_conserva_el_cargo():
+    """Antes el nivel no se tocaba al titularse: 187 de 200 estudiantes (nivel 1 por omisión) entraban a su
+    primera pega como semi senior. Quien termina un postgrado (ya tenía título) conserva su cargo."""
+    carrera = next(int(f["carrera_id"]) for f in pq().filas("mifuturo_carreras") if f["tipo_institucion"] == "U")
+    for nivel in (1, 3):
+        v = vida(Perfil(estado="estudiando", edad=23, edu="media", carrera_id=carrera, nivel=nivel,
+                        semestres_restantes=2), DadosGuion(), financia="familia")
+        v.vivir_anio(Guion())
+        assert (v.e["estado"], v.e["nivel"]) == ("buscando", 0)
+        v.vivir_anio(Guion({"primera_pega": "pyme", **QUIETA}, resto=Inercia()))
+        assert v.e["nivel"] == 0
+    magister = vida(Perfil(estado="estudiando", edad=30, edu="universitaria", nivel=2, semestres_restantes=2),
+                    DadosGuion())
+    magister.vivir_anio(Guion())
+    assert (magister.e["estado"], magister.e["edu"], magister.e["nivel"]) == ("buscando", "postgrado", 2)
 
 
 def test_cierre_el_hueco_de_una_pausa_pesa_dos_anios():

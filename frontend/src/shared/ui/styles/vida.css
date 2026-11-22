@@ -1,4 +1,4 @@
-/* Agarrar la pala · estilos del kit de UI (portados desde el Claude Design "Gemelo Laboral")
+/* Bifurca · estilos del kit de UI (portados desde el Claude Design "Gemelo Laboral")
    LA PALETA VIVE AQUI: cambia estas variables y todas las pantallas siguen.
    Los componentes de React en shared/ui envuelven estas clases vd-*.
    Esta es la paleta clara. La oscura redefine las mismas variables en "Modo oscuro", más abajo;
@@ -49,6 +49,8 @@
   --borde-noche: transparent;
   /* Velo detrás de la hoja que sube desde abajo */
   --velo: rgb(20 21 26 / .45);
+  /* Los logos de marca vienen hechos para fondo blanco: su baldosa es blanca en los dos temas */
+  --logo-fondo: #FFFFFF;
 }
 
 :root {

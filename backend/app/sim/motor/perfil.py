@@ -69,6 +69,7 @@ class Perfil:
     emprendio_antes: int = 0              # ya tuvo una empresa propia antes de la de hoy
     anos_independiente: int | None = None  # si hoy trabaja por su cuenta: hace cuántos años
     practica: str = ""                    # tipo de empleador de su práctica (grande | pyme | startup | publico)
+    primer_empleo: int = 0                # 1 si busca su primer empleo: nunca ha trabajado después de titularse
     toda_su_carrera_en: str = ""          # publico | startup, si todos sus empleos (dos o más) fueron ahí
     ascensos_por_ano: float | None = None  # ascensos dentro de una misma empresa por año de experiencia
     empresas_cerradas: int = 0            # empresas propias que ya cerró
@@ -129,6 +130,38 @@ def avance_en_carrera(perfil: Perfil, pq: Paquete) -> tuple[int, int]:
     real de su carrera (mifuturo_carreras); siempre le queda al menos un año, porque sigue estudiando.
     """
     duracion = round(float(pq.tabla("mifuturo_carreras", "duracion_real_semestres", "carrera_id", perfil.carrera_id)))
+    return _avance(perfil, duracion)
+
+
+# Quien estudia una carrera que no está en el catálogo (el CV no la nombra). Supuesto del equipo: si su
+# institución es un IP o un CFT, una carrera técnica de 5 semestres; si no, según lo que ya terminó: con media
+# o técnica, una universitaria de 8 (la mayor parte de la matrícula de pregrado es universitaria); con un
+# título universitario o un postgrado, un postgrado de 4. Al terminar se titula de eso.
+SEMESTRES_SIN_CARRERA = {"universitaria": 8, "tecnica": 5, "postgrado": 4}
+
+
+def tipo_institucion_de(pq: Paquete, universidad_id: str) -> str:
+    """U, IP, CFT o EXT según el catálogo de instituciones; vacío si no se sabe."""
+    if not universidad_id:
+        return ""
+    try:
+        return str(pq.tabla("universidades", "tipo_institucion", "universidad_id", universidad_id))
+    except Exception:  # noqa: BLE001 - sin catálogo o sin fila
+        return ""
+
+
+def estudio_sin_carrera(edu: str, tipo_institucion: str) -> tuple[str, int]:
+    """(título al terminar, semestres que dura) de quien estudia sin carrera del catálogo. Ver SEMESTRES_SIN_CARRERA."""
+    if edu in ("universitaria", "postgrado"):
+        titulo = "postgrado"
+    elif tipo_institucion in ("IP", "CFT"):
+        titulo = "tecnica"
+    else:
+        titulo = "universitaria"
+    return titulo, SEMESTRES_SIN_CARRERA[titulo]
+
+
+def _avance(perfil: Perfil, duracion: int) -> tuple[int, int]:
     anos, restantes = perfil.anos_en_carrera, perfil.semestres_restantes
     if anos is None and restantes is not None:
         anos = (duracion - restantes) // 2
@@ -139,6 +172,17 @@ def avance_en_carrera(perfil: Perfil, pq: Paquete) -> tuple[int, int]:
     if restantes is None:
         restantes = max(2, duracion - 2 * anos)
     return max(1, min(16, restantes)), anos
+
+
+def busca_primer_empleo(perfil: Perfil) -> bool:
+    """Quien estudia (su primera pega viene al titularse) o busca sin haber trabajado: lo dice el flag
+    `primer_empleo` del CV, o una práctica declarada (solo se declara si nunca tuvo empleo tras titularse).
+    No se mira el sueldo: la API lo exige mayor que 0 y `perfil_ia.completar` siempre lo llena, así que
+    "sueldo 0" dejaba en cesantía a todos los que buscaban su primera pega. El sueldo 0 sigue valiendo
+    para los perfiles armados a mano (la cohorte de validación parte con sueldo 0)."""
+    if perfil.estado == "estudiando":
+        return True
+    return perfil.estado == "buscando" and bool(perfil.primer_empleo or perfil.practica or perfil.sueldo == 0)
 
 
 def _literal(inicio: str):
@@ -196,7 +240,7 @@ def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
         remoto=perfil.remoto if trabaja else 0, usa_ia=perfil.usa_ia,
         empresa_anos=perfil.empresa_anos if perfil.estado == "fundador" else 0,
         empresa_fondos=perfil.empresa_fondos if perfil.estado == "fundador" else 0,
-        primer_empleo=1 if perfil.estado in ("estudiando", "buscando") and perfil.sueldo == 0 else 0,
+        primer_empleo=1 if busca_primer_empleo(perfil) else 0,
         anos_titulado=max(0, min(40, perfil.edad - EDAD_TITULO[perfil.edu])),
         ocupacion=perfil.ocupacion if perfil.ocupacion is not None
         else (1 if perfil.nivel >= 3 else OCUPACION_POR_EDU[perfil.edu]),
@@ -219,6 +263,13 @@ def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
         empresa_inicial=perfil.empresa_nombre.strip() if perfil.estado == "empleado" else "",
         cargo_inicial=perfil.cargo_nombre.strip() if perfil.estado == "empleado" else "",
     )
+    # su línea de trabajo según el cargo que escribió: queda aunque se borre el nombre, para que las ofertas sigan
+    # en lo suyo mientras no tenga un cargo del catálogo (ver empresas.familias_de)
+    from app.sim.motor.empresas import familia_por_nombre
+
+    familia = familia_por_nombre(pq, perfil.cargo_nombre) if perfil.cargo_nombre.strip() else None
+    if familia:
+        e["familia_inicial"] = familia
     # su historia no es del paquete: la lee la política de los gemelos, y solo si el CV la trae
     for rasgo in HISTORIA:
         if getattr(perfil, rasgo):
@@ -227,6 +278,10 @@ def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
         e.pop("anos_independiente", None)  # solo describe a quien hoy trabaja por su cuenta
     if perfil.practica and (perfil.estado == "estudiando" or e["primer_empleo"]):
         e["practica"] = perfil.practica  # solo pesa en su primera pega
+    if perfil.estado == "fundador" and perfil.sueldo > 0:
+        # ya tiene empresa: su ganancia parte de lo que declaró (el primer año gana eso en la mediana) y crece
+        # con los años como la de cualquier empresa; MICRO_MEDIANA queda para quien recién emprende
+        e["base_empresa"] = float(perfil.sueldo) / (1 + e["empresa_anos"] / 4)
     if perfil.ascensos_por_ano is not None:
         e["prob_ascenso_extra"] = ascenso_extra(perfil.ascensos_por_ano, perfil.nivel, pq)  # sin dato, 0 (estado.json)
     propios = parametros_propios(perfil, pq)
@@ -238,6 +293,11 @@ def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
         if perfil.estado == "estudiando":
             # antes quedaba en 0 semestres: todo estudiante se titulaba al cerrar su primer año
             e["semestres_restantes"], e["anos_en_carrera"] = avance_en_carrera(perfil, pq)
+    elif perfil.estado == "estudiando" and not (perfil.edu == "media" and perfil.edad <= 18):
+        # sin carrera del catálogo (y no es quien sale del colegio, que elige con salir_del_colegio): antes nadie
+        # le descontaba semestres y estudiaba para siempre. Se supone su duración (SEMESTRES_SIN_CARRERA)
+        _, duracion = estudio_sin_carrera(perfil.edu, tipo_institucion_de(pq, perfil.universidad_id))
+        e["semestres_restantes"], e["anos_en_carrera"] = _avance(perfil, duracion)
     d = pq.derivar(e)
     tramo = "p80+" if d["percentil"] >= 80 else "p50-79" if d["percentil"] >= 50 else "p0-49"
     e["tasa_ahorro"] = pq.k("TASA_AHORRO", tramo)

@@ -165,7 +165,7 @@ def estado_al_azar():
          'region_perfil': R.choice(REGIONES), 'pareja': pareja, 'hijos': hijos, 'edad_hijo_menor': R.randint(0, 15) if hijos else -1,
          'ahorro': round(R.uniform(-5e6, 6e7)), 'deuda_estudios': R.choice([0, 0, 8e6]), 'animo': R.uniform(20, 90), 'energia': R.uniform(10, 95), 'salud': 'bien',
          'red': R.uniform(0, 100), 'skill': R.uniform(0, 100), 'riesgo': R.uniform(0, 100), 'ambicion': R.uniform(0, 100), 'usa_ia': R.randint(0, 1),
-         'empresa_anos': R.randint(0, 8), 'empresa_fondos': R.randint(0, 1), 'madre_edad': madre, 'padre_edad': madre + 2 if madre > 0 and R.random() < 0.85 else -1,
+         'empresa_anos': R.randint(0, 8), 'base_empresa': R.choice([0, 0, round(R.lognormvariate(math.log(600000), 0.6))]), 'empresa_fondos': R.randint(0, 1), 'madre_edad': madre, 'padre_edad': madre + 2 if madre > 0 and R.random() < 0.85 else -1,
          'familiar_enfermo': R.choice(['', '', '', 'madre', 'padre']), 'recesion': 1 if R.random() < 0.12 else 0,
          'anos_en_carrera': R.randint(0, 5), 'anos_en_startup': R.randint(0, 6), 'financia': R.choice(['', 'cae']), 'ingles': R.randint(0, 1), 'isapre': R.randint(0, 1),
          'marcado': R.randint(0, 1), 'validado': 0, 'propietario': R.randint(0, 1), 'primer_grande': R.randint(0, 1), 'oferta_al_titularse': 0, 'ocupacion': R.randint(1, 9),

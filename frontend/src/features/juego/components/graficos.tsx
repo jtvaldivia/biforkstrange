@@ -4,7 +4,7 @@ import { GEMELOS } from "../api";
 import { minuscula, plata } from "../textos";
 import type { Tono } from "../types";
 
-const sinMovimiento = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+export const sinMovimiento = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 /** Reparte `total` puntos según las proporciones, sin que el redondeo sume de más o de menos. */
 export function repartir(partes: number[], total = 100): number[] {
@@ -182,7 +182,15 @@ export function BarraPartes({ partes, sinLeyenda }: { partes: { nombre: string; 
 /** Los años de la partida como puntos: los vividos llenos, el actual marcado. */
 export function ProgresoAnios({ actual, total }: { actual: number; total: number }) {
   return (
-    <span className="jg-progreso" role="img" aria-label={`Año ${actual} de ${total}`}>
+    <span
+      className="jg-progreso"
+      role="progressbar"
+      aria-label="Años de la partida"
+      aria-valuemin={1}
+      aria-valuemax={total}
+      aria-valuenow={actual}
+      aria-valuetext={`Año ${actual} de ${total}`}
+    >
       {Array.from({ length: total }, (_, i) => (
         <i key={i} data-estado={i + 1 < actual ? "vivido" : i + 1 === actual ? "ahora" : "falta"} />
       ))}

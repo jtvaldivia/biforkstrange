@@ -5,50 +5,50 @@
  "parametros": [
   {
    "id": "LIQUIDO",
-   "valor": 0.82,
+   "valor": 0.81,
    "unidad": "fracción",
-   "descripcion": "Líquido sobre bruto para un asalariado formal.",
-   "fuente": "equipo",
-   "calidad": "supuesto",
+   "descripcion": "Líquido sobre bruto para un asalariado formal: 10% AFP más comisión, 7% salud, 0,6% seguro de cesantía e impuesto único 2025, para un sueldo típico.",
+   "fuente": "sii_impuesto_unico_2025",
+   "calidad": "mixto",
    "rango": [
-    0.78,
-    0.86
+    0.79,
+    0.82
    ]
   },
   {
    "id": "USD",
-   "valor": 950,
+   "valor": 951,
    "unidad": "CLP por USD",
-   "descripcion": "Tipo de cambio.",
-   "fuente": "equipo",
-   "calidad": "supuesto",
+   "descripcion": "Tipo de cambio: dólar observado, promedio 2025.",
+   "fuente": "sii_dolar_2025",
+   "calidad": "dato",
    "rango": [
-    850,
-    1050
+    916,
+    1001
    ]
   },
   {
    "id": "P_RECESION",
-   "valor": 0.12,
+   "valor": 0.08,
    "unidad": "probabilidad anual",
-   "descripcion": "Probabilidad de que un año sea de recesión.",
-   "fuente": "equipo",
-   "calidad": "supuesto",
+   "descripcion": "Probabilidad de que un año sea de recesión: años con caída del PIB de Chile, 3 de 40 entre 1986 y 2025 (1999, 2009, 2020).",
+   "fuente": "bm_wdi_pib_chile",
+   "calidad": "dato",
    "rango": [
-    0.08,
-    0.15
+    0.05,
+    0.12
    ]
   },
   {
    "id": "RETORNO_REAL",
-   "valor": 0.03,
+   "valor": 0.04,
    "unidad": "tasa anual",
-   "descripcion": "Retorno real del ahorro.",
-   "fuente": "equipo",
-   "calidad": "supuesto",
+   "descripcion": "Retorno real del ahorro: el del Fondo C de pensiones desde 2002 (4,2% real al año), como aproximación al ahorro de una persona.",
+   "fuente": "spensiones_rentabilidad",
+   "calidad": "mixto",
    "rango": [
-    0.0,
-    0.05
+    0.027,
+    0.059
    ]
   },
   {
@@ -292,15 +292,15 @@
    "id": "ASCENSO",
    "valor": {
     "0": 0.1,
-    "1": 0.08,
-    "2": 0.05,
+    "1": 0.07,
+    "2": 0.04,
     "3": 0.025,
     "4": 0
    },
    "unidad": "probabilidad anual",
-   "descripcion": "Ascenso según nivel actual.",
+   "descripcion": "Ascenso según nivel actual. El de junior es calibración del equipo; cómo baja por nivel sigue la Tabla II de Baker, Gibbs y Holmström 1994 (el segundo nivel 0,68 veces el primero, el tercero 0,41).",
    "fuente": "baker_gibbs_1994",
-   "calidad": "supuesto",
+   "calidad": "mixto",
    "rango": null
   },
   {
@@ -313,6 +313,23 @@
    "descripcion": "Alza de sueldo al ascender, rango uniforme.",
    "fuente": "baker_gibbs_1994",
    "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "ASCENSO_POBLACION",
+   "valor": {
+    "18-24": 0.056,
+    "25-29": 0.061,
+    "30-34": 0.061,
+    "35-39": 0.055,
+    "40-44": 0.05,
+    "45-49": 0.045,
+    "50-54": 0.045
+   },
+   "unidad": "probabilidad anual",
+   "descripcion": "Probabilidad de ascenso promedio de los años de empleado de la población, por tramo de edad. Es lo que el alza anual descuenta: el perfil por edad de la ESI ya incluye los ascensos promedio, así que quien asciende más que el promedio gana más y quien asciende menos, menos. Medida con la cohorte de validación (5.000 personas desde los 18, semilla 0, prob_ascenso de cada año de empleado); 50-54 repite 45-49 porque la cohorte llega a los 50. Si cambia la regla de ascenso, hay que volver a medirla (tests/test_motor_validacion.py lo revisa).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
    "rango": null
   },
   {
@@ -439,9 +456,9 @@
    "id": "IA_EXPUESTA",
    "valor": 0.25,
    "unidad": "puntaje",
-   "descripcion": "Umbral de aplicabilidad de IA desde el que un área cuenta como expuesta.",
-   "fuente": "microsoft_ia",
-   "calidad": "supuesto",
+   "descripcion": "Umbral de aplicabilidad de IA desde el que un área cuenta como expuesta: 0,25 es el quintil superior de las 785 ocupaciones de Microsoft, el grupo más expuesto en Canaries.",
+   "fuente": "canaries_2026",
+   "calidad": "mixto",
    "rango": null
   },
   {
@@ -484,11 +501,11 @@
    "id": "P_BOOTCAMP_COLOCA",
    "valor": 0.6,
    "unidad": "probabilidad",
-   "descripcion": "Colocación tras un bootcamp. Las escuelas declaran 75% a 85% sin auditoría; se descuenta.",
-   "fuente": "bootcamps",
-   "calidad": "supuesto",
+   "descripcion": "Colocación en un trabajo del área tras un bootcamp pagado. Talento Digital (Chile, programa público, DIPRES 2024): 23% de los egresados declara un cargo tech en LinkedIn después del curso y, de los encuestados que encontraron trabajo, 30% lo hizo en su sub-área; CIRR (EE.UU., primer semestre 2016): 80% de colocación en el área a 3-6 meses. Las escuelas chilenas declaran 75% a 85% sin auditoría.",
+   "fuente": "dipres_talento_digital_2024",
+   "calidad": "mixto",
    "rango": [
-    0.4,
+    0.25,
     0.8
    ]
   },
@@ -698,12 +715,12 @@
    "id": "P_MUERE_ENFERMO",
    "valor": 0.134,
    "unidad": "probabilidad anual",
-   "descripcion": "Morir el año siguiente si un familiar tiene una enfermedad grave.",
-   "fuente": "equipo",
-   "calidad": "supuesto",
+   "descripcion": "Morir el año siguiente si un familiar tiene una enfermedad grave: mortalidad anual media en 5 años de un cáncer en Chile (sobrevida neta 54% a 5 años; 36% muere el primer año).",
+   "fuente": "minsal_sobrevida_cancer_2023",
+   "calidad": "mixto",
    "rango": [
-    0.08,
-    0.25
+    0.11,
+    0.36
    ]
   },
   {
@@ -824,12 +841,12 @@
    "id": "COPAGO_CANCER",
    "valor": 3000000,
    "unidad": "CLP",
-   "descripcion": "Copago de un tratamiento.",
-   "fuente": "equipo",
-   "calidad": "supuesto",
+   "descripcion": "Copago de un tratamiento de cáncer: entre 0 (GES en FONASA A-D) y el tope GES en ISAPRE (20%, unos $4,8 M al año).",
+   "fuente": "superdesalud_ges_cancer",
+   "calidad": "mixto",
    "rango": [
-    1000000,
-    8000000
+    0,
+    4850000
    ]
   },
   {
@@ -879,6 +896,18 @@
    "rango": [
     0.0,
     0.12
+   ]
+  },
+  {
+   "id": "ACEPTA_SI_PAGA_MAS",
+   "valor": 2,
+   "unidad": "veces",
+   "descripcion": "Cuántas veces más seguido se acepta una oferta que sube el sueldo que una que no. Con eso, la chance de que una oferta pague más se despeja de P_SUBE_CAMBIO: de las ofertas, pagan más P/(P + r(1-P)); de los cambios que la gente hace, 54% sube el sueldo, como mide el Banco Central.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": [
+    1.5,
+    3
    ]
   }
  ]
