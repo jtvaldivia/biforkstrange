@@ -1,0 +1,47 @@
+# Blueprint de Render. Despliega la rama `produccion`.
+# Render espera a que pase el CI de GitHub (.github/workflows/ci.yml) antes de desplegar.
+services:
+  # API: FastAPI + motor Monte Carlo
+  - type: web
+    name: agarrar-la-pala-api
+    runtime: python
+    plan: standard
+    region: virginia
+    branch: produccion
+    rootDir: backend
+    buildCommand: pip install uv && uv sync --frozen --no-dev
+    startCommand: .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      # Si Render le pone sufijo a la URL del front, corregir aquí
+      - key: CORS_ORIGINS
+        value: '["https://agarrar-la-pala.onrender.com"]'
+      # Opcional: POST /api/juego/perfil. Render la pide al crear el Blueprint
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+  # Front: Vite + React como sitio estático
+  - type: web
+    name: agarrar-la-pala
+    runtime: static
+    branch: produccion
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: frontend/dist
+    autoDeployTrigger: checksPass
+    buildFilter:
+      paths:
+        - frontend/**
+    # App.tsx elige la pantalla por la ruta (/ui, /simulacion), sin router
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Se incrusta en el build; si cambia la URL de la API hay que redesplegar
+      - key: VITE_API_URL
+        value: https://agarrar-la-pala-api.onrender.com

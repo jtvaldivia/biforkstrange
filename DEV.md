@@ -85,6 +85,14 @@ Componentes del Claude Design "Gemelo Laboral · simulador de vida". Todo se imp
 
 Las escenas animadas usan un reloj CSS (`--vd-t`): pon `scene="once"` en el `Screen` y usa `revealAt` en indicadores y notificaciones para que entren en su momento (ver `shared/ui/scene.ts`). Catálogo vivo y las 8 pantallas armadas con el kit en **http://localhost:5173/ui** (`features/ui-kit`).
 
+## Deploy (Render)
+
+La rama `produccion` es lo que está en línea. Para publicar, abre un PR de `main` a `produccion` y mergéalo. El CI (`.github/workflows/ci.yml`) corre los tests y el build, y Render despliega solo si pasan.
+
+`render.yaml` define los dos servicios: la API (`agarrar-la-pala-api`, Python, plan Standard) y el front (`agarrar-la-pala`, sitio estático con rewrite a `index.html`). El front se rebuildea solo si cambia algo en `frontend/`.
+
+Antes de pushear, `uv.lock` tiene que estar al día (`cd backend && uv lock`): Render instala con `uv sync --frozen`.
+
 ## Plantilla
 
 El proyecto sale de `template/` con cookiecutter. Para cambiar la estructura base, edita la plantilla y regenera desde la carpeta padre:
