@@ -1,0 +1,3 @@
+# Commits de solo formato: `git config blame.ignoreRevsFile .git-blame-ignore-revs`
+# chore: ruff format en todo el backend
+d3436050bf4839225fec3de8e97f9261cdef6dea
