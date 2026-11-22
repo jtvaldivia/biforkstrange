@@ -1,32 +1,8 @@
-# Blueprint de Render para la rama `produccion`.
+# Blueprint de Render para la rama `produccion`. Solo el front: la API corre en un computador y sale a
+# internet con un túnel de Cloudflare (`make tunel`, ver DEV.md "API local con túnel").
 # Render no despliega solo (autoDeployTrigger: off): lo hace el job `deploy` de .github/workflows/ci.yml,
-# que después de pasar los tests llama a los deploy hooks con el commit exacto y espera a que quede sano.
-# Así un deploy siempre corresponde a un commit con el CI en verde y se ve en GitHub si salió bien.
+# que después de pasar los tests llama al deploy hook con el commit exacto.
 services:
-  # API: FastAPI + motor Monte Carlo
-  - type: web
-    name: bifurca-api
-    runtime: python
-    # Free: 0,1 CPU / 512 MB, se duerme tras 15 min sin tráfico y tarda ~1 min en despertar.
-    # Con los créditos, cambiar a `standard` (1 CPU / 2 GB).
-    plan: free
-    region: virginia
-    branch: produccion
-    rootDir: backend
-    buildCommand: pip install uv && uv sync --frozen --no-dev
-    startCommand: .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port $PORT
-    healthCheckPath: /health
-    autoDeployTrigger: "off"
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.12.8
-      # Si Render le pone sufijo a la URL del front, corregir aquí
-      - key: CORS_ORIGINS
-        value: '["https://bifurca.onrender.com"]'
-      # Opcional: POST /api/juego/perfil. Render la pide al crear el Blueprint
-      - key: ANTHROPIC_API_KEY
-        sync: false
-
   # Front: Vite + React como sitio estático
   - type: web
     name: bifurca
@@ -46,6 +22,7 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "22"
-      # Se incrusta en el build; si cambia la URL de la API hay que redesplegar
+      # URL pública del túnel de la API. Vite la mete en el build: si cambia, hay que redesplegar el front.
+      # sync: false para que el Blueprint no la pise; se cambia en el dashboard o la cambia `make tunel`.
       - key: VITE_API_URL
-        value: https://bifurca-api.onrender.com
+        sync: false
