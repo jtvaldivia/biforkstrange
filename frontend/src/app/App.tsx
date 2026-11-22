@@ -1,17 +1,21 @@
-import { SimulationPage } from "@/features/simulation";
+import { AppShell } from "@/app/AppShell";
+import { StoryPage } from "@/features/story";
+import { TwinPage } from "@/features/twin";
 import { UiKitPage } from "@/features/ui-kit";
 
 export default function App() {
-  // Catálogo del kit de UI en /ui (sin router por ahora)
-  if (window.location.pathname.startsWith("/ui")) return <UiKitPage />;
-
+  // Rutas mínimas por pathname (sin router por ahora)
+  const path = window.location.pathname;
+  if (path.startsWith("/ui")) return <UiKitPage />;
+  if (path.startsWith("/gemelo"))
+    return (
+      <AppShell active="gemelo">
+        <TwinPage />
+      </AppShell>
+    );
   return (
-    <main style={{ fontFamily: "system-ui", maxWidth: 720, margin: "2rem auto", padding: "0 1rem" }}>
-      <h1>BiforkStrange</h1>
-      <p>
-        <a href="/ui">Ver el kit de UI</a>
-      </p>
-      <SimulationPage />
-    </main>
+    <AppShell active="historia">
+      <StoryPage />
+    </AppShell>
   );
 }

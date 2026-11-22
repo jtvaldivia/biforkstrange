@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from app.api.deps import SimulationServiceDep
-from app.schemas.simulation import SimulationIn, SimulationOut
+from app.schemas.simulation import CompareIn, CompareOut, SimulationIn, SimulationOut
 from app.sim.decisions.base import _REGISTRY
 
 router = APIRouter(prefix="/simulations", tags=["simulations"])
@@ -13,6 +13,14 @@ def run_simulation(body: SimulationIn, service: SimulationServiceDep):
     if unknown:
         raise HTTPException(422, f"Decisiones desconocidas: {unknown}")
     return service.run(body)
+
+
+@router.post("/compare", response_model=CompareOut)
+def compare(body: CompareIn, service: SimulationServiceDep):
+    unknown = [d for d in body.a + body.b if d not in _REGISTRY]
+    if unknown:
+        raise HTTPException(422, f"Decisiones desconocidas: {unknown}")
+    return service.compare(body)
 
 
 @router.get("/{sim_id}", response_model=SimulationOut)

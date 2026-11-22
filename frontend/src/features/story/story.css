@@ -1,0 +1,103 @@
+/*
+ * Tu historia. Lenguaje del kit: relato grande, tinta gruesa, noche para los años duros.
+ * Teléfono: columna de 430px. ≥1024px: el camino a la izquierda y el capítulo en una hoja al centro.
+ */
+
+/* ───────── Portada ───────── */
+.st-start { width: 100%; max-width: 430px; margin: 0 auto; padding: 24px 20px 48px; display: flex; flex-direction: column; gap: 28px; }
+.st-hero { display: flex; flex-direction: column; gap: 16px; }
+.st-form { display: flex; flex-direction: column; gap: 18px; }
+.st-field { display: flex; flex-direction: column; gap: 6px; }
+.st-label { font: 600 18px/24px var(--font); }
+.st-textarea {
+  width: 100%; box-sizing: border-box; padding: 14px 16px; border: 2px solid var(--tinta); border-radius: 16px;
+  background: var(--papel); color: var(--tinta); font: 400 16px/24px var(--font); resize: vertical;
+}
+.st-textarea::placeholder { color: var(--control); }
+.st-textarea:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+.st-error { margin: 0; padding: 12px 14px; border: 2px solid var(--tinta); border-radius: 14px; background: #FDE7EE; color: #6E0F2D; font: 500 14px/20px var(--font); }
+
+/* ───────── Layout de la partida ───────── */
+.st-layout { width: 100%; max-width: 430px; margin: 0 auto; padding: 20px 20px 56px; display: flex; flex-direction: column-reverse; gap: 32px; }
+.st-main { min-width: 0; }
+
+/* ───────── Capítulo ───────── */
+.st-chapter { display: flex; flex-direction: column; gap: 22px; color: var(--tinta); animation: st-in .5s var(--ease) both; }
+.st-chapter--noche { margin: 0 -20px; padding: 28px 20px; background: var(--papel); }
+.st-chapter-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.st-relato { display: flex; flex-direction: column; gap: 18px; }
+.st-relato .vd-relato { color: var(--tinta); font-weight: 400; font-size: 19px; line-height: 30px; }
+
+.st-estado { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.st-estado-item { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border: 2px solid var(--tinta); border-radius: 14px; }
+.st-estado-word { font: 600 17px/22px var(--font); }
+
+.st-balance { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.st-chapter--noche .vd-banda-noche { border: 2px solid var(--noche-linea); }
+.st-balance-text { margin: 0; font: 500 16px/23px var(--font); }
+.st-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font: 500 15px/21px var(--font); }
+
+@keyframes st-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ───────── Dilema ───────── */
+.st-dilemma { display: flex; flex-direction: column; gap: 18px; padding-top: 24px; border-top: 2px dashed var(--linea); }
+.st-options { display: flex; flex-direction: column; gap: 14px; }
+.st-own { border-style: dashed; box-shadow: none; min-height: 64px; }
+.st-own[aria-pressed="true"] { box-shadow: none; transform: none; }
+.st-own-mark { flex: none; display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border: 2px dashed var(--control); border-radius: 12px; font-size: 22px; color: var(--suave); }
+.st-cta .vd-btn { max-width: 420px; }
+.st-early { display: flex; flex-wrap: wrap; gap: 16px; }
+.st-link, .st-back { padding: 0; border: 0; background: none; color: var(--suave); font: 500 14px/20px var(--font); text-decoration: underline; cursor: pointer; }
+.st-back { align-self: flex-start; color: var(--acento); font-weight: 600; text-decoration: none; }
+.st-link:hover { color: var(--tinta); }
+.st-link:focus-visible, .st-back:focus-visible, .st-path-btn:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+
+/* ───────── Mientras escribe ───────── */
+.st-living { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--papel); color: var(--tinta); }
+.st-living-big { font: 700 72px/80px var(--font); letter-spacing: -0.03em; }
+.st-living .vd-relato { max-width: 420px; }
+.st-dots { display: inline-flex; gap: 8px; margin-top: 8px; }
+.st-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--sol); animation: st-dot 1.2s ease-in-out infinite; }
+.st-dots i:nth-child(2) { animation-delay: .2s; }
+.st-dots i:nth-child(3) { animation-delay: .4s; }
+@keyframes st-dot { 0%, 100% { opacity: .25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-4px); } }
+
+/* ───────── Tu historia hasta ahora (camino) ───────── */
+.st-side-title { font: 700 20px/26px var(--font); letter-spacing: -0.01em; }
+.st-path { position: relative; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.st-path::before { content: ""; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 3px; background: var(--tinta); border-radius: 2px; }
+.st-path-item { position: relative; display: grid; gap: 2px; padding: 6px 0 6px 30px; }
+.st-path-dot { position: absolute; left: 0; top: 10px; width: 17px; height: 17px; box-sizing: border-box; border: 3px solid var(--tinta); border-radius: 50%; background: var(--papel); }
+.st-path-item.is-night .st-path-dot { background: var(--tinta); }
+.st-path-item--next .st-path-dot { border-style: dashed; }
+.st-path-item--next { opacity: .7; }
+.st-path-btn { display: grid; gap: 2px; padding: 6px 10px; margin: -6px -10px; border: 2px solid transparent; border-radius: 12px; background: none; color: var(--tinta); text-align: left; cursor: pointer; font-family: var(--font); }
+.st-path-btn:hover { background: var(--niebla); }
+.st-path-btn[aria-current="step"] { border-color: var(--tinta); background: var(--sol); color: var(--sobre-sol); }
+.st-path-what { font: 600 15px/20px var(--font); }
+.st-side-now { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 16px; background: var(--niebla); }
+
+/* ───────── Releer ───────── */
+.st-reread { border: 2px solid var(--tinta); border-radius: 18px; padding: 14px 16px; background: var(--papel); }
+.st-reread summary { display: grid; gap: 2px; cursor: pointer; list-style: none; }
+.st-reread summary::-webkit-details-marker { display: none; }
+.st-reread-title { font: 600 18px/24px var(--font); }
+.st-reread[open] summary { margin-bottom: 16px; }
+
+/* ───────── Escritorio ───────── */
+@media (min-width: 1024px) {
+  .st-start { max-width: 1180px; padding: 40px 32px 64px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+  .st-hero { position: sticky; top: 100px; }
+  .st-hero .vd-h1 { font-size: 46px; line-height: 50px; }
+  .st-form { padding: 32px; background: var(--papel); border: 2px solid var(--tinta); border-radius: 24px; box-shadow: 0 6px 0 var(--tinta); }
+
+  .st-layout { max-width: 1180px; padding: 32px 32px 72px; display: grid; grid-template-columns: 280px minmax(0, 760px); justify-content: center; gap: 40px; align-items: start; }
+  .st-side { position: sticky; top: 96px; max-height: calc(100dvh - 120px); overflow-y: auto; overflow-x: hidden; padding: 4px 14px 8px 4px; }
+  .st-main { padding: 40px 48px 44px; background: var(--papel); border: 2px solid var(--tinta); border-radius: 24px; box-shadow: 0 6px 0 var(--tinta); }
+
+  .st-chapter--noche { margin: -40px -48px 0; padding: 40px 48px 36px; border-radius: 22px 22px 0 0; }
+  .st-relato .vd-relato { font-size: 20px; line-height: 32px; }
+  .st-estado { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .st-balance { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .st-living-big { font-size: 120px; line-height: 128px; }
+}
