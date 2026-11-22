@@ -81,77 +81,120 @@ class DudaSugerida(BaseModel):
 class PerfilLeido(BaseModel):
     """Lo que Claude encontró en el texto. `None` = el texto no lo dice."""
 
-    edad: int | None = Field(None, description="Edad actual en años, solo si el texto la dice así (\"33 años\").")
+    edad: int | None = Field(None, description='Edad actual en años, solo si el texto la dice así ("33 años").')
     anio_nacimiento: int | None = Field(None, description="Año de nacimiento, solo si el texto lo dice.")
     sexo: Literal["h", "m"] | None = Field(None, description="h hombre, m mujer. Solo si el texto lo deja claro.")
     edu: Literal["media", "tecnica", "universitaria", "postgrado"] | None = Field(
-        None, description="Nivel de estudios más alto TERMINADO.")
+        None, description="Nivel de estudios más alto TERMINADO."
+    )
     carrera_id: int | None = Field(None, description="carrera_id del catálogo que mejor calza con lo que estudió.")
-    universidad_id: str | None = Field(None, description="universidad_id del catálogo de instituciones donde estudió el pregrado. Solo si el texto la nombra.")
+    universidad_id: str | None = Field(
+        None,
+        description="universidad_id del catálogo de instituciones donde estudió el pregrado. Solo si el texto la nombra.",
+    )
     rubro: str | None = Field(None, description="Rubro del empleador actual, exactamente como aparece en la lista.")
     tipo_empleador: Literal["grande", "pyme", "startup", "publico", "extranjero"] | None = None
-    nivel: int | None = Field(None, description="Cargo actual: 0 junior, 1 semi senior, 2 senior, 3 jefatura, 4 gerencia.")
+    nivel: int | None = Field(
+        None, description="Cargo actual: 0 junior, 1 semi senior, 2 senior, 3 jefatura, 4 gerencia."
+    )
     # sueldo es el líquido mensual en pesos ya convertido: lo trae el documento de tu Claude, o lo calcula
     # `completar` desde los cuatro campos literales de abajo. Claude no lo llena (no va en `esquema_api`).
     sueldo: int | None = Field(None, description="Sueldo LÍQUIDO mensual en pesos chilenos.")
     sueldo_monto: int | None = Field(
-        None, description="La cifra del sueldo tal como aparece, sin convertirla (\"$3,2 millones\" es 3200000; "
-                          "\"USD 4.000\" es 4000; \"60 UF\" es 60). Solo si el texto da una cifra.")
+        None,
+        description='La cifra del sueldo tal como aparece, sin convertirla ("$3,2 millones" es 3200000; '
+        '"USD 4.000" es 4000; "60 UF" es 60). Solo si el texto da una cifra.',
+    )
     sueldo_moneda: Literal["CLP", "USD", "EUR", "UF", "otra"] | None = Field(
-        None, description="Moneda de esa cifra: CLP si son pesos chilenos (\"$\" en un texto chileno).")
+        None, description='Moneda de esa cifra: CLP si son pesos chilenos ("$" en un texto chileno).'
+    )
     sueldo_periodo: Literal["mensual", "anual"] | None = Field(
-        None, description="Si esa cifra es por mes o por año, solo si el texto lo dice.")
+        None, description="Si esa cifra es por mes o por año, solo si el texto lo dice."
+    )
     sueldo_tipo: Literal["liquido", "bruto"] | None = Field(
-        None, description="Si esa cifra es líquida o bruta, solo si el texto lo dice.")
+        None, description="Si esa cifra es líquida o bruta, solo si el texto lo dice."
+    )
     riesgo: int | None = Field(None, description="Tolerancia al riesgo de 0 a 10. Solo si el texto la declara.")
     ocupacion: int | None = Field(None, description="Grupo ocupacional (0 a 9) de su trabajo actual, según la lista.")
     antiguedad: int | None = Field(None, description="Años completos en su empleador actual.")
     region: Literal["rm", "otra"] | None = Field(None, description="rm si vive o trabaja en la Región Metropolitana.")
     inferido: list[str] = Field(
         default_factory=list,
-        description="Una frase corta por cada campo que dedujiste sin que el texto lo dijera literal, con el porqué.")
-    ingles: bool | None = Field(None, description="true si el texto dice inglés intermedio, avanzado o nativo; false si dice básico o nada.")
-    anios_experiencia: int | None = Field(None, description="Años de experiencia laboral desde su primer trabajo formal.")
+        description="Una frase corta por cada campo que dedujiste sin que el texto lo dijera literal, con el porqué.",
+    )
+    ingles: bool | None = Field(
+        None, description="true si el texto dice inglés intermedio, avanzado o nativo; false si dice básico o nada."
+    )
+    anios_experiencia: int | None = Field(
+        None, description="Años de experiencia laboral desde su primer trabajo formal."
+    )
     empleadores: int | None = Field(None, description="Cuántos empleadores distintos ha tenido, contando el actual.")
     situacion: Literal["empleado", "independiente", "fundador", "buscando", "estudiando"] | None = Field(
-        None, description="Su situación HOY: empleado, independiente (freelance o boletas), fundador de su empresa, buscando trabajo o estudiando.")
-    meses_sin_trabajo: int | None = Field(None, description="Si hoy está buscando: meses desde que terminó su último trabajo.")
+        None,
+        description="Su situación HOY: empleado, independiente (freelance o boletas), fundador de su empresa, buscando trabajo o estudiando.",
+    )
+    meses_sin_trabajo: int | None = Field(
+        None, description="Si hoy está buscando: meses desde que terminó su último trabajo."
+    )
     jornada_parcial: bool | None = Field(None, description="true si su trabajo actual es part-time o media jornada.")
     remoto: bool | None = Field(None, description="true si su trabajo actual es remoto o mayormente remoto.")
-    usa_ia: bool | None = Field(None, description="true si el texto muestra que trabaja con herramientas de IA (ChatGPT, Copilot, Claude, LLMs).")
+    usa_ia: bool | None = Field(
+        None,
+        description="true si el texto muestra que trabaja con herramientas de IA (ChatGPT, Copilot, Claude, LLMs).",
+    )
     empresa_propia_anos: int | None = Field(None, description="Si es fundador: años que tiene su empresa.")
-    levanto_inversion: bool | None = Field(None, description="Si es fundador: true si su empresa levantó inversión externa.")
+    levanto_inversion: bool | None = Field(
+        None, description="Si es fundador: true si su empresa levantó inversión externa."
+    )
     empresa_actual: str | None = Field(None, description="Su empleador de hoy: el nombre legal en Chile si lo conoces.")
     cargo_actual: str | None = Field(
-        None, description="El nombre de su cargo de hoy, como lo escribe el texto (\"Analista de riesgo\"), sin la empresa.")
+        None,
+        description='El nombre de su cargo de hoy, como lo escribe el texto ("Analista de riesgo"), sin la empresa.',
+    )
     anio_egreso_esperado: int | None = Field(
-        None, description="Si hoy estudia: el año en que espera titularse, solo si el texto lo dice (\"egreso esperado 2028\").")
+        None,
+        description='Si hoy estudia: el año en que espera titularse, solo si el texto lo dice ("egreso esperado 2028").',
+    )
     anio_que_cursa: int | None = Field(
-        None, description="Si hoy estudia: qué año de la carrera está cursando (\"cursando 3er año\" es 3).")
+        None, description='Si hoy estudia: qué año de la carrera está cursando ("cursando 3er año" es 3).'
+    )
     volvio_a_su_nivel: bool | None = Field(
-        None, description="Si en su historia hay más de 6 meses sin trabajo entre dos pegas: true si la pega siguiente "
-                          "fue de igual o mayor cargo que la anterior, false si fue de menor cargo.")
+        None,
+        description="Si en su historia hay más de 6 meses sin trabajo entre dos pegas: true si la pega siguiente "
+        "fue de igual o mayor cargo que la anterior, false si fue de menor cargo.",
+    )
     freelance_entre_pegas: bool | None = Field(
-        None, description="true si entre dos empleos trabajó por su cuenta (freelance, consultorías, boletas).")
+        None, description="true si entre dos empleos trabajó por su cuenta (freelance, consultorías, boletas)."
+    )
     emprendio_antes: bool | None = Field(
-        None, description="true si antes de su situación de hoy tuvo una empresa o emprendimiento propio.")
+        None, description="true si antes de su situación de hoy tuvo una empresa o emprendimiento propio."
+    )
     anos_independiente: int | None = Field(
-        None, description="Si hoy trabaja por su cuenta (freelance, boletas): hace cuántos años, según las fechas.")
+        None, description="Si hoy trabaja por su cuenta (freelance, boletas): hace cuántos años, según las fechas."
+    )
     practica: Literal["grande", "pyme", "startup", "publico"] | None = Field(
-        None, description="Si estudia o busca su primer empleo: tipo de empleador donde hizo su práctica profesional.")
+        None, description="Si estudia o busca su primer empleo: tipo de empleador donde hizo su práctica profesional."
+    )
     toda_su_carrera_en: Literal["publico", "startup"] | None = Field(
-        None, description="\"publico\" si todos sus empleos (dos o más, contando el actual) fueron en el Estado; "
-                          "\"startup\" si todos fueron en startups.")
+        None,
+        description='"publico" si todos sus empleos (dos o más, contando el actual) fueron en el Estado; '
+        '"startup" si todos fueron en startups.',
+    )
     ascensos_internos: int | None = Field(
-        None, description="Cuántas veces lo ascendieron DENTRO de una misma empresa (un cargo mayor con el mismo "
-                          "empleador), sumando todas sus empresas.")
+        None,
+        description="Cuántas veces lo ascendieron DENTRO de una misma empresa (un cargo mayor con el mismo "
+        "empleador), sumando todas sus empresas.",
+    )
     empresas_cerradas: int | None = Field(
-        None, description="Cuántas empresas o emprendimientos propios cerró (no cuenta los que vendió ni el actual).")
+        None, description="Cuántas empresas o emprendimientos propios cerró (no cuenta los que vendió ni el actual)."
+    )
     dudas_sugeridas: list[DudaSugerida] = Field(
         default_factory=list,
-        description="Hasta 3 dudas de la lista DUDAS que más le calzan a esta persona, la más relevante primero.")
+        description="Hasta 3 dudas de la lista DUDAS que más le calzan a esta persona, la más relevante primero.",
+    )
     retrato: str | None = Field(
-        None, description="Lo que su copia sabe de ella: máximo 25 palabras, en segunda persona, solo hechos del texto.")
+        None, description="Lo que su copia sabe de ella: máximo 25 palabras, en segunda persona, solo hechos del texto."
+    )
 
 
 INSTRUCCIONES = """\
@@ -251,15 +294,27 @@ def _catalogo(pq: Paquete) -> str:
     rubros = [r for r in pq.variables["rubro"]["dominio"] if r]
     ocupaciones = sorted({(int(f["origen"]), f["origen_nombre"]) for f in pq.filas("jobhop_transiciones")})
     carreras = [f"{f['carrera_id']} | {f['tipo_institucion']} | {f['carrera']}" for f in pq.filas("mifuturo_carreras")]
-    return "\n".join([
-        "RUBROS (copia el nombre exacto):", *[f"- {r}" for r in rubros], "",
-        "GRUPOS OCUPACIONALES (número | nombre):", *[f"{g} | {n}" for g, n in ocupaciones], "",
-        "CARGOS (nivel | nombre):", *[f"{i} | {n}" for i, n in enumerate(NIVELES)], "",
-        "DUDAS (id | nombre | pregunta):", *[f"{d['id']} | {d['nombre']} | {d['pregunta']}" for d in _dudas(pq)], "",
-        "CATÁLOGO DE CARRERAS (carrera_id | tipo de institución | carrera):", *carreras, "",
-        "CATÁLOGO DE INSTITUCIONES (universidad_id | nombre | país):",
-        *[f"{u['universidad_id']} | {u['nombre']} | {u['pais']}" for u in universidades(pq)],
-    ])
+    return "\n".join(
+        [
+            "RUBROS (copia el nombre exacto):",
+            *[f"- {r}" for r in rubros],
+            "",
+            "GRUPOS OCUPACIONALES (número | nombre):",
+            *[f"{g} | {n}" for g, n in ocupaciones],
+            "",
+            "CARGOS (nivel | nombre):",
+            *[f"{i} | {n}" for i, n in enumerate(NIVELES)],
+            "",
+            "DUDAS (id | nombre | pregunta):",
+            *[f"{d['id']} | {d['nombre']} | {d['pregunta']}" for d in _dudas(pq)],
+            "",
+            "CATÁLOGO DE CARRERAS (carrera_id | tipo de institución | carrera):",
+            *carreras,
+            "",
+            "CATÁLOGO DE INSTITUCIONES (universidad_id | nombre | país):",
+            *[f"{u['universidad_id']} | {u['nombre']} | {u['pais']}" for u in universidades(pq)],
+        ]
+    )
 
 
 def _dudas(pq: Paquete) -> list[dict]:
@@ -285,8 +340,12 @@ def esquema_api() -> type[BaseModel]:
     for nombre, f in PerfilLeido.model_fields.items():
         if nombre in NO_LO_LLENA_CLAUDE:
             continue
-        args =[a for a in typing.get_args(f.annotation) if a is not type(None)]
-        base = args[0] if typing.get_origin(f.annotation) in (typing.Union, types.UnionType) and len(args) == 1 else f.annotation
+        args = [a for a in typing.get_args(f.annotation) if a is not type(None)]
+        base = (
+            args[0]
+            if typing.get_origin(f.annotation) in (typing.Union, types.UnionType) and len(args) == 1
+            else f.annotation
+        )
         descripcion = f.description or ""
         if typing.get_origin(base) is typing.Literal:
             tipo, extra = typing.Literal[(*typing.get_args(base), NO_SE)], ' "?" si el texto no lo dice.'
@@ -330,13 +389,34 @@ def _por_api(texto: str, hoy: str, pq: Paquete, pdf: bytes | None = None) -> Per
             # el catálogo es largo y no cambia: queda en caché una hora entre llamadas
             {"type": "text", "text": _catalogo(pq), "cache_control": {"type": "ephemeral", "ttl": "1h"}},
         ],
-        messages=[{"role": "user", "content": [
-            # el PDF va como documento: Claude lo lee completo, con su formato, sin extraer el texto antes
-            *([{"type": "document", "source": {"type": "base64", "media_type": "application/pdf",
-                                               "data": base64.standard_b64encode(pdf).decode()}}] if pdf else []),
-            {"type": "text", "text": f"Fecha de hoy: {hoy}\n\n<texto_de_la_persona>\n{texto}\n</texto_de_la_persona>"
-             if texto else f"Fecha de hoy: {hoy}\n\nEl documento adjunto es el CV o el perfil de LinkedIn de la persona."},
-        ]}],
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    # el PDF va como documento: Claude lo lee completo, con su formato, sin extraer el texto antes
+                    *(
+                        [
+                            {
+                                "type": "document",
+                                "source": {
+                                    "type": "base64",
+                                    "media_type": "application/pdf",
+                                    "data": base64.standard_b64encode(pdf).decode(),
+                                },
+                            }
+                        ]
+                        if pdf
+                        else []
+                    ),
+                    {
+                        "type": "text",
+                        "text": f"Fecha de hoy: {hoy}\n\n<texto_de_la_persona>\n{texto}\n</texto_de_la_persona>"
+                        if texto
+                        else f"Fecha de hoy: {hoy}\n\nEl documento adjunto es el CV o el perfil de LinkedIn de la persona.",
+                    },
+                ],
+            }
+        ],
         output_format=esquema_api(),
     )
     if respuesta.stop_reason == "refusal" or respuesta.parsed_output is None:
@@ -350,8 +430,11 @@ def _por_api(texto: str, hoy: str, pq: Paquete, pdf: bytes | None = None) -> Per
 AISLADO = [
     "--no-session-persistence",  # no guarda la sesión en disco: el CV no queda en ~/.claude/projects
     "--safe-mode",  # sin CLAUDE.md, hooks, plugins, skills ni MCP del usuario (la autenticación sigue igual)
-    "--tools", "",  # ninguna herramienta: solo lee y responde
-    "--strict-mcp-config", "--mcp-config", '{"mcpServers": {}}',  # ningún servidor MCP
+    "--tools",
+    "",  # ninguna herramienta: solo lee y responde
+    "--strict-mcp-config",
+    "--mcp-config",
+    '{"mcpServers": {}}',  # ningún servidor MCP
     "--disable-slash-commands",
 ]
 
@@ -363,10 +446,28 @@ def _por_comando(texto: str, hoy: str, pq: Paquete) -> PerfilLeido:
         # en un directorio vacío, para que no descubra el CLAUDE.md ni la configuración del repo
         with tempfile.TemporaryDirectory(prefix="perfil-") as vacio:
             salida = subprocess.run(
-                ["claude", "-p", "--model", MODELO, "--effort", "low", "--output-format", "json", *AISLADO,
-                 "--system-prompt", f"{INSTRUCCIONES}\n\n{_catalogo(pq)}",
-                 "--json-schema", json.dumps(esquema_api().model_json_schema())],
-                input=prompt, capture_output=True, text=True, encoding="utf-8", timeout=90, check=True, cwd=vacio,
+                [
+                    "claude",
+                    "-p",
+                    "--model",
+                    MODELO,
+                    "--effort",
+                    "low",
+                    "--output-format",
+                    "json",
+                    *AISLADO,
+                    "--system-prompt",
+                    f"{INSTRUCCIONES}\n\n{_catalogo(pq)}",
+                    "--json-schema",
+                    json.dumps(esquema_api().model_json_schema()),
+                ],
+                input=prompt,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                timeout=90,
+                check=True,
+                cwd=vacio,
             )
         cuerpo = json.loads(salida.stdout)
         datos = cuerpo.get("structured_output")
@@ -400,14 +501,21 @@ def leer(texto: str, hoy: str, pq: Paquete | None = None, pdf: bytes | None = No
             texto = f"{texto}\n\n{del_pdf}".strip()
         return _por_comando(texto, hoy, pq), "comando"
     raise ModeloNoDisponible(
-        "No hay credenciales para llamar a Claude. Define ANTHROPIC_API_KEY o llena el perfil a mano.")
+        "No hay credenciales para llamar a Claude. Define ANTHROPIC_API_KEY o llena el perfil a mano."
+    )
 
 
 # Lo que Claude copia literal del texto y la app convierte (no entra tal cual al perfil)
 LITERALES = {"anio_nacimiento", "sueldo_monto", "sueldo_moneda", "sueldo_periodo", "sueldo_tipo"}
 # Fuera de estos rangos, lo leído se descarta y queda el valor por defecto (los mismos de PerfilIn)
-LIMITES = {"edad": (18, 50), "nivel": (0, 4), "riesgo": (0, 10), "ocupacion": (0, 9), "antiguedad": (0, 40),
-           "sueldo": (1, 30_000_000)}
+LIMITES = {
+    "edad": (18, 50),
+    "nivel": (0, 4),
+    "riesgo": (0, 10),
+    "ocupacion": (0, 9),
+    "antiguedad": (0, 40),
+    "sueldo": (1, 30_000_000),
+}
 # Pesos por unidad de cada moneda. El dólar y el líquido sobre bruto salen del paquete (USD, LIQUIDO);
 # el euro y la UF no están en el paquete: son supuestos del equipo (noviembre de 2026, redondeados).
 EUR = 1_050
@@ -415,10 +523,22 @@ UF = 40_000
 
 
 # Los campos del formulario que, si el texto no los dice, quedan con un valor que puso la app (campo: nombre)
-VISIBLES = {"edad": "edad", "sexo": "sexo", "edu": "estudios", "rubro": "rubro", "tipo_empleador": "tipo de empresa",
-            "nivel": "cargo", "sueldo": "sueldo líquido", "riesgo": "tolerancia al riesgo", "ingles": "inglés",
-            "estado": "situación", "region": "región", "antiguedad": "años en tu pega", "carrera_id": "carrera",
-            "ocupacion": "tipo de trabajo"}
+VISIBLES = {
+    "edad": "edad",
+    "sexo": "sexo",
+    "edu": "estudios",
+    "rubro": "rubro",
+    "tipo_empleador": "tipo de empresa",
+    "nivel": "cargo",
+    "sueldo": "sueldo líquido",
+    "riesgo": "tolerancia al riesgo",
+    "ingles": "inglés",
+    "estado": "situación",
+    "region": "región",
+    "antiguedad": "años en tu pega",
+    "carrera_id": "carrera",
+    "ocupacion": "tipo de trabajo",
+}
 
 
 class _Anotado(dict):
@@ -475,9 +595,19 @@ def sueldo_liquido_mensual(leido: PerfilLeido, pq: Paquete) -> tuple[int | None,
     if not pasos:
         return int(monto), None
     sueldo = int(round(sueldo, -3))
-    dice = f"{monto:,}".replace(",", ".") + f" {moneda}" + "".join(
-        f" {x}" for x in (leido.sueldo_periodo, {"liquido": "líquido"}.get(leido.sueldo_tipo, leido.sueldo_tipo)) if x)
-    return sueldo, f"Sueldo líquido {_pesos(sueldo)} al mes: tu texto dice {dice} ({'; '.join(pasos)}; supuesto del equipo)."
+    dice = (
+        f"{monto:,}".replace(",", ".")
+        + f" {moneda}"
+        + "".join(
+            f" {x}"
+            for x in (leido.sueldo_periodo, {"liquido": "líquido"}.get(leido.sueldo_tipo, leido.sueldo_tipo))
+            if x
+        )
+    )
+    return (
+        sueldo,
+        f"Sueldo líquido {_pesos(sueldo)} al mes: tu texto dice {dice} ({'; '.join(pasos)}; supuesto del equipo).",
+    )
 
 
 def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = None) -> dict:
@@ -496,10 +626,29 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
     base = PerfilIn().model_dump()
     rubros = [r for r in pq.variables["rubro"]["dominio"] if r]
     perfil = _Anotado(base)  # anota cada campo que se escribe desde lo leído
-    extras = {"ingles", "anios_experiencia", "empleadores", "empresa_actual", "cargo_actual", "situacion", "meses_sin_trabajo",
-              "jornada_parcial", "remoto", "usa_ia", "empresa_propia_anos", "levanto_inversion",
-              "anio_egreso_esperado", "anio_que_cursa", "anos_independiente", "practica", "toda_su_carrera_en",
-              "ascensos_internos", "empresas_cerradas", *HISTORIA_LEIDA, *LITERALES}
+    extras = {
+        "ingles",
+        "anios_experiencia",
+        "empleadores",
+        "empresa_actual",
+        "cargo_actual",
+        "situacion",
+        "meses_sin_trabajo",
+        "jornada_parcial",
+        "remoto",
+        "usa_ia",
+        "empresa_propia_anos",
+        "levanto_inversion",
+        "anio_egreso_esperado",
+        "anio_que_cursa",
+        "anos_independiente",
+        "practica",
+        "toda_su_carrera_en",
+        "ascensos_internos",
+        "empresas_cerradas",
+        *HISTORIA_LEIDA,
+        *LITERALES,
+    }
     datos = leido.model_dump(exclude={"inferido", "dudas_sugeridas", "retrato"} | extras)
     inferido = list(leido.inferido)
     # lo que Claude copió literal y la app convierte: la cuenta y sus supuestos quedan a la vista
@@ -507,8 +656,9 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
         edad = _anio(hoy) - leido.anio_nacimiento
         if LIMITES["edad"][0] <= edad <= LIMITES["edad"][1]:
             datos["edad"] = edad
-            inferido.append(f"Edad {edad}: naciste en {leido.anio_nacimiento} (si aún no cumples años este año, "
-                            f"tienes {edad - 1}).")
+            inferido.append(
+                f"Edad {edad}: naciste en {leido.anio_nacimiento} (si aún no cumples años este año, tienes {edad - 1})."
+            )
     if datos["sueldo"] is None and leido.sueldo_monto:
         sueldo, frase = sueldo_liquido_mensual(leido, pq)
         if frase:
@@ -532,8 +682,14 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
         estado = pq.derivar({"edad": perfil["edad"], "sexo": perfil["sexo"], "edu": perfil["edu"], "sueldo": 0})
         # la institución mueve ese sueldo solo aquí: si lo declaró, su prima ya está adentro
         prima = prima_universidad(pq, perfil.get("universidad_id") or "")
-        dict.__setitem__(perfil, "sueldo", round(prima * pq.tabla("esi_perfil_edad_edu", "p50", "educacion", perfil["edu"],
-                                                                  "banda", estado["banda7"]), -4))  # no es un dato
+        dict.__setitem__(
+            perfil,
+            "sueldo",
+            round(
+                prima * pq.tabla("esi_perfil_edad_edu", "p50", "educacion", perfil["edu"], "banda", estado["banda7"]),
+                -4,
+            ),
+        )  # no es un dato
     if leido.ingles is not None:
         perfil["ingles"] = int(leido.ingles)
     # Fórmulas del equipo (supuesto): skill y red están centradas en 50 y 30 en el paquete
@@ -541,12 +697,15 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
         from app.sim.motor.perfil import skill_por_experiencia
 
         perfil["skill"] = skill_por_experiencia(leido.anios_experiencia)
-        inferido.append(f"Habilidad {perfil['skill']} de 100 por {leido.anios_experiencia} años de experiencia "
-                        "(fórmula del equipo).")
+        inferido.append(
+            f"Habilidad {perfil['skill']} de 100 por {leido.anios_experiencia} años de experiencia "
+            "(fórmula del equipo)."
+        )
     if leido.empleadores is not None:
         perfil["red"] = max(10, min(70, 20 + 5 * leido.empleadores + (5 if perfil["nivel"] >= 3 else 0)))
-        inferido.append(f"Red de contactos {perfil['red']} de 100 por {leido.empleadores} empleadores "
-                        "(fórmula del equipo).")
+        inferido.append(
+            f"Red de contactos {perfil['red']} de 100 por {leido.empleadores} empleadores (fórmula del equipo)."
+        )
     if leido.situacion:
         perfil["estado"] = leido.situacion
     if leido.situacion == "buscando" and leido.meses_sin_trabajo is not None:
@@ -557,8 +716,12 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
         inferido.append("Buscas tu primera pega: tus gemelos postulan como recién titulados, no como cesantes.")
     if datos["nivel"] is None and (perfil["estado"] == "estudiando" or perfil["primer_empleo"]):
         perfil["nivel"] = 0  # sin cargo en el CV, su primera pega parte en Junior, no en el semi senior por omisión
-    for campo, valor in (("parcial", leido.jornada_parcial), ("remoto", leido.remoto), ("usa_ia", leido.usa_ia),
-                         ("empresa_fondos", leido.levanto_inversion)):
+    for campo, valor in (
+        ("parcial", leido.jornada_parcial),
+        ("remoto", leido.remoto),
+        ("usa_ia", leido.usa_ia),
+        ("empresa_fondos", leido.levanto_inversion),
+    ):
         if valor is not None:
             perfil[campo] = int(valor)
     if leido.empresa_propia_anos is not None:
@@ -568,8 +731,10 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
 
         perfil["anos_por_empleo"] = max(0.1, min(40.0, round(leido.anios_experiencia / leido.empleadores, 1)))
         cambiar = pesos_personales({"anos_por_empleo": perfil["anos_por_empleo"]})["oferta_externa"]["cambiar"]
-        inferido.append(f"Te cambias de trabajo cada {str(perfil['anos_por_empleo']).replace('.', ',')} años: tus copias aceptan una oferta "
-                        f"{round(cambiar * 100)}% de las veces (la gente, {round(PESOS_FORZADAS['oferta_externa']['cambiar'] * 100)}%).")
+        inferido.append(
+            f"Te cambias de trabajo cada {str(perfil['anos_por_empleo']).replace('.', ',')} años: tus copias aceptan una oferta "
+            f"{round(cambiar * 100)}% de las veces (la gente, {round(PESOS_FORZADAS['oferta_externa']['cambiar'] * 100)}%)."
+        )
     inferido += _avance_en_carrera(leido, perfil, pq, hoy)
     inferido += _historia(leido, perfil)
     inferido += _independiente(leido, perfil)
@@ -589,14 +754,17 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
         if datos["rubro"] is None and empresa["rubro"] in rubros:
             perfil["rubro"] = empresa["rubro"]
         tipo = "organismo del Estado" if empresa["tipo_empleador"] == "publico" else empresa["tamano"]
-        inferido.append(f"{empresa['nombre']}: {tipo}, {empresa['rubro']}, "
-                        f"{empresa['trabajadores']} trabajadores según el SII.")
+        inferido.append(
+            f"{empresa['nombre']}: {tipo}, {empresa['rubro']}, {empresa['trabajadores']} trabajadores según el SII."
+        )
     final = PerfilIn(**perfil).model_dump()
     # lo que dijo de su historia, aunque sea "no" (que es también el valor por defecto)
     dados = perfil.escritos | {c for c in HISTORIA_LEIDA if getattr(leido, c) is not None}
     supuestos = [c for c in VISIBLES if c not in dados and not (c == "carrera_id" and final["edu"] == "media")]
     # para mostrar su logo: la empresa del CV en el catálogo, si está (no mueve números: su empleo actual es neutro)
-    catalogo = empresas.buscar(pq, leido.empresa_actual) or (empresas.buscar(pq, empresa["nombre"]) if empresa else None)
+    catalogo = empresas.buscar(pq, leido.empresa_actual) or (
+        empresas.buscar(pq, empresa["nombre"]) if empresa else None
+    )
     return {
         "perfil": final,
         "leido": leido.model_dump(),
@@ -613,12 +781,22 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
 # Lo que Claude lee de los trabajos anteriores y cómo se lo contamos a la persona: (campo, efecto en simple).
 # El campo se llama igual en PerfilLeido y en el perfil; el efecto sale de politicas.pesos_personales.
 HISTORIA_LEIDA = {
-    "volvio_a_su_nivel": ("cesantia", "nivel", "Ya pasaste por una cesantía larga y volviste a tu nivel: si quedan "
-                          "cesantes, tus copias esperan un cargo como el tuyo"),
-    "freelance_entre_pegas": ("cesantia", "informal", "Entre un trabajo y otro trabajaste por tu cuenta: si quedan "
-                              "cesantes, tus copias hacen boletas"),
-    "emprendio_antes": ("cesantia", "emprender", "Ya tuviste una empresa propia: si quedan cesantes, tus copias "
-                        "emprenden"),
+    "volvio_a_su_nivel": (
+        "cesantia",
+        "nivel",
+        "Ya pasaste por una cesantía larga y volviste a tu nivel: si quedan "
+        "cesantes, tus copias esperan un cargo como el tuyo",
+    ),
+    "freelance_entre_pegas": (
+        "cesantia",
+        "informal",
+        "Entre un trabajo y otro trabajaste por tu cuenta: si quedan cesantes, tus copias hacen boletas",
+    ),
+    "emprendio_antes": (
+        "cesantia",
+        "emprender",
+        "Ya tuviste una empresa propia: si quedan cesantes, tus copias emprenden",
+    ),
 }
 
 
@@ -631,8 +809,10 @@ def _historia(leido: PerfilLeido, perfil: dict) -> list[str]:
         if getattr(leido, campo):
             perfil[campo] = 1
             suyo = pesos_personales({campo: 1})[decision][opcion]
-            frases.append(f"{frase} {round(suyo * 100)}% de las veces (la gente, "
-                          f"{round(PESOS_FORZADAS[decision][opcion] * 100)}%; supuesto del equipo).")
+            frases.append(
+                f"{frase} {round(suyo * 100)}% de las veces (la gente, "
+                f"{round(PESOS_FORZADAS[decision][opcion] * 100)}%; supuesto del equipo)."
+            )
     return frases
 
 
@@ -644,16 +824,21 @@ def _independiente(leido: PerfilLeido, perfil: dict) -> list[str]:
 
     if leido.anos_independiente is not None:
         perfil["anos_independiente"] = max(0, min(40, leido.anos_independiente))
-    suya = p_independiente_busca_empleo({k: perfil[k] for k in ("freelance_entre_pegas", "anos_independiente")
-                                         if perfil[k]})
+    suya = p_independiente_busca_empleo(
+        {k: perfil[k] for k in ("freelance_entre_pegas", "anos_independiente") if perfil[k]}
+    )
     if suya == P_INDEPENDIENTE_BUSCA_EMPLEO:
         return []
-    cada = (f"{suya * 100:.1f}% de tus copias por año (la gente, {P_INDEPENDIENTE_BUSCA_EMPLEO * 100:.1f}%; "
-            "supuesto del equipo)").replace(".", ",")
+    cada = (
+        f"{suya * 100:.1f}% de tus copias por año (la gente, {P_INDEPENDIENTE_BUSCA_EMPLEO * 100:.1f}%; "
+        "supuesto del equipo)"
+    ).replace(".", ",")
     if perfil["freelance_entre_pegas"]:
         return [f"Ya volviste una vez de trabajar por tu cuenta a un empleo: vuelven a buscar empleo {cada}."]
-    return [f"Llevas {perfil['anos_independiente']} años por tu cuenta: es tu forma de trabajar, y solo vuelven a "
-            f"buscar empleo {cada}."]
+    return [
+        f"Llevas {perfil['anos_independiente']} años por tu cuenta: es tu forma de trabajar, y solo vuelven a "
+        f"buscar empleo {cada}."
+    ]
 
 
 def _practica(leido: PerfilLeido, perfil: dict) -> list[str]:
@@ -668,8 +853,10 @@ def _practica(leido: PerfilLeido, perfil: dict) -> list[str]:
     opcion = PRIMERA_PEGA_POR_PRACTICA[leido.practica][0]
     suyo = pesos_personales({"practica": leido.practica})["primera_pega"][opcion]
     donde = "una empresa grande" if leido.practica == "grande" else "el Estado"
-    return [f"Hiciste tu práctica en {donde}: al buscar su primer trabajo, tus copias postulan ahí {round(suyo * 100)}% "
-            f"de las veces (la gente, {round(PESOS_FORZADAS['primera_pega'][opcion] * 100)}%; supuesto del equipo)."]
+    return [
+        f"Hiciste tu práctica en {donde}: al buscar su primer trabajo, tus copias postulan ahí {round(suyo * 100)}% "
+        f"de las veces (la gente, {round(PESOS_FORZADAS['primera_pega'][opcion] * 100)}%; supuesto del equipo)."
+    ]
 
 
 def _toda_su_carrera(leido: PerfilLeido, perfil: dict, pq: Paquete) -> list[str]:
@@ -681,13 +868,17 @@ def _toda_su_carrera(leido: PerfilLeido, perfil: dict, pq: Paquete) -> list[str]
     perfil["toda_su_carrera_en"] = leido.toda_su_carrera_en
     propios = parametros_propios(Perfil(toda_su_carrera_en=leido.toda_su_carrera_en), pq)
     if leido.toda_su_carrera_en == "publico":
-        return [f"Toda tu carrera ha sido en el Estado: cuando tus copias cambian de trabajo, vuelven al Estado "
-                f"al menos {round(propios['PISO_REEMPLEO_PUBLICO'] * 100)}% de las veces (la gente, "
-                f"{round(pq.k('P_REEMPLEO_PUBLICO') * 100)}%; supuesto del equipo)."]
+        return [
+            f"Toda tu carrera ha sido en el Estado: cuando tus copias cambian de trabajo, vuelven al Estado "
+            f"al menos {round(propios['PISO_REEMPLEO_PUBLICO'] * 100)}% de las veces (la gente, "
+            f"{round(pq.k('P_REEMPLEO_PUBLICO') * 100)}%; supuesto del equipo)."
+        ]
     privado = 1 - pq.k("P_REEMPLEO_PUBLICO")
-    return [f"Toda tu carrera ha sido en startups: cuando tus copias cambian de trabajo en el sector privado, "
-            f"al menos {round(propios['PISO_STARTUP'] / privado * 100)}% de las veces es otra startup (la gente, "
-            f"{round(pq.k('MIX_EMPLEADOR', 'startup') * 100)}%; supuesto del equipo)."]
+    return [
+        f"Toda tu carrera ha sido en startups: cuando tus copias cambian de trabajo en el sector privado, "
+        f"al menos {round(propios['PISO_STARTUP'] / privado * 100)}% de las veces es otra startup (la gente, "
+        f"{round(pq.k('MIX_EMPLEADOR', 'startup') * 100)}%; supuesto del equipo)."
+    ]
 
 
 def _empresas_cerradas(leido: PerfilLeido, perfil: dict) -> list[str]:
@@ -699,9 +890,11 @@ def _empresas_cerradas(leido: PerfilLeido, perfil: dict) -> list[str]:
     perfil["empresas_cerradas"] = min(10, leido.empresas_cerradas)
     cerrar = pesos_personales({"empresas_cerradas": perfil["empresas_cerradas"]})["seguir_con_tu_empresa"]["cerrar"]
     cuantas = "una empresa" if perfil["empresas_cerradas"] == 1 else f"{perfil['empresas_cerradas']} empresas"
-    return [f"Ya cerraste {cuantas}: cuando tus copias tienen empresa y deciden si seguir, la cierran "
-            f"{round(cerrar * 100)}% de las veces (la gente, {round(PESOS_FORZADAS['seguir_con_tu_empresa']['cerrar'] * 100)}%; "
-            "supuesto del equipo)."]
+    return [
+        f"Ya cerraste {cuantas}: cuando tus copias tienen empresa y deciden si seguir, la cierran "
+        f"{round(cerrar * 100)}% de las veces (la gente, {round(PESOS_FORZADAS['seguir_con_tu_empresa']['cerrar'] * 100)}%; "
+        "supuesto del equipo)."
+    ]
 
 
 ANOS_PARA_RITMO = 2  # con menos años de experiencia, el ritmo de ascensos no dice nada (supuesto)
@@ -717,9 +910,11 @@ def _ritmo_de_ascensos(leido: PerfilLeido, perfil: dict, pq: Paquete) -> list[st
     extra = ascenso_extra(perfil["ascensos_por_ano"], perfil["nivel"], pq)
     if not extra:
         return []
-    return [f"Te han ascendido {leido.ascensos_internos} veces en {leido.anios_experiencia} años, más rápido que lo "
-            f"típico para tu cargo: tus copias tienen {round(extra * 100)} puntos más de chance de ascenso cada año "
-            "(supuesto del equipo)."]
+    return [
+        f"Te han ascendido {leido.ascensos_internos} veces en {leido.anios_experiencia} años, más rápido que lo "
+        f"típico para tu cargo: tus copias tienen {round(extra * 100)} puntos más de chance de ascenso cada año "
+        "(supuesto del equipo)."
+    ]
 
 
 def _avance_en_carrera(leido: PerfilLeido, perfil: dict, pq: Paquete, hoy: str | None) -> list[str]:
@@ -739,11 +934,17 @@ def _avance_en_carrera(leido: PerfilLeido, perfil: dict, pq: Paquete, hoy: str |
     anios_que_faltan = (restantes + 1) // 2
     plazo = "un año más" if anios_que_faltan == 1 else f"{anios_que_faltan} años más"
     if leido.anio_egreso_esperado is not None:
-        return [f"Esperas titularte en {leido.anio_egreso_esperado}: tus copias estudian {plazo} antes de buscar su primer trabajo."]
+        return [
+            f"Esperas titularte en {leido.anio_egreso_esperado}: tus copias estudian {plazo} antes de buscar su primer trabajo."
+        ]
     if leido.anio_que_cursa is not None:
-        return [f"Vas en {leido.anio_que_cursa}° año: según la duración real de tu carrera, tus copias estudian {plazo}."]
-    return [f"No sabemos cuánto te falta para titularte: suponemos que entraste a los 18 y vas al día, así que "
-            f"tus copias estudian {plazo} (supuesto del equipo)."]
+        return [
+            f"Vas en {leido.anio_que_cursa}° año: según la duración real de tu carrera, tus copias estudian {plazo}."
+        ]
+    return [
+        f"No sabemos cuánto te falta para titularte: suponemos que entraste a los 18 y vas al día, así que "
+        f"tus copias estudian {plazo} (supuesto del equipo)."
+    ]
 
 
 RUBRO_ESTADO = "Administración pública"
@@ -762,9 +963,14 @@ def _empresa_sii(nombre: str | None) -> dict | None:
             # una municipalidad o un servicio público es el Estado, no una empresa "grande": en el motor
             # cambian el despido, el reempleo y los sueldos
             publico = f["rubro"] == RUBRO_ESTADO
-            return {"nombre": f["nombre"], "tamano": f["tamano"], "rubro": f["rubro"],
-                    "tipo_empleador": "publico" if publico else f["tamano"],
-                    "trabajadores": int(f["trabajadores"]), "fuente": "SII, nómina de empresas 2024"}
+            return {
+                "nombre": f["nombre"],
+                "tamano": f["tamano"],
+                "rubro": f["rubro"],
+                "tipo_empleador": "publico" if publico else f["tamano"],
+                "trabajadores": int(f["trabajadores"]),
+                "fuente": "SII, nómina de empresas 2024",
+            }
     return None
 
 
@@ -780,7 +986,9 @@ def _sugeridas_posibles(sugeridas: list[DudaSugerida], perfil: dict, pq: Paquete
     for s in sugeridas:
         if s.decision in posibles and s.decision not in vistas:
             vistas.add(s.decision)
-            salida.append({"decision": s.decision, "nombre": posibles[s.decision]["nombre"], "por_que": s.por_que.strip()})
+            salida.append(
+                {"decision": s.decision, "nombre": posibles[s.decision]["nombre"], "por_que": s.por_que.strip()}
+            )
     return salida[:3]
 
 

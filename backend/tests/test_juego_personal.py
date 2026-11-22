@@ -27,7 +27,9 @@ def _capturar_narrador(monkeypatch) -> list:
 
 def test_el_relato_llega_al_narrador_sin_el_bloque_de_datos(monkeypatch):
     pedidos = _capturar_narrador(monkeypatch)
-    relato = "```gemelo-laboral\nsueldo_liquido: 2500000\n```\n\n## Sobre mí\nSoy diseñadora y odio las reuniones largas."
+    relato = (
+        "```gemelo-laboral\nsueldo_liquido: 2500000\n```\n\n## Sobre mí\nSoy diseñadora y odio las reuniones largas."
+    )
     r = TestClient(app).post("/api/juego/narrar", json={"perfil": {"relato": relato}, "semilla": 1, "que": "pendiente"})
     assert r.status_code == 200
     assert "odio las reuniones" in pedidos[0].relato and "2500000" not in pedidos[0].relato

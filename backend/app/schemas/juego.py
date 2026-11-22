@@ -188,8 +188,10 @@ class MundoIn(PartidaIn):
     @model_validator(mode="after")
     def _mundo_entre_los_gemelos(self):
         if self.mundo >= self.gemelos:
-            raise ValueError(f"el mundo {self.mundo} no existe: con {self.gemelos} gemelos, "
-                             f"los mundos van del 0 al {self.gemelos - 1}")
+            raise ValueError(
+                f"el mundo {self.mundo} no existe: con {self.gemelos} gemelos, "
+                f"los mundos van del 0 al {self.gemelos - 1}"
+            )
         return self
 
 

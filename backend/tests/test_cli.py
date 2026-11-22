@@ -81,7 +81,9 @@ def test_simular_muestra_una_fila_por_anio(capsys):
 
 
 def test_simular_sin_decisiones_usa_seguir(capsys):
-    code, out, _ = _run(capsys, "simular", "--ocupacion", "2", "--edad", "30", "--anios", "4", "--runs", "200", "--json")
+    code, out, _ = _run(
+        capsys, "simular", "--ocupacion", "2", "--edad", "30", "--anios", "4", "--runs", "200", "--json"
+    )
     assert code == 0
     data = json.loads(out)
     assert [a["decision"] for a in data["trayectoria"]] == ["seguir"] * 4

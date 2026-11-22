@@ -35,7 +35,13 @@ ErrorExpresion = ref.ErrorExpresion
 
 _BIN = {ast.Add: "+", ast.Sub: "-", ast.Mult: "*", ast.Div: "/", ast.Mod: "%"}
 _CMP = {ast.Lt: "<", ast.LtE: "<=", ast.Gt: ">", ast.GtE: ">=", ast.Eq: "==", ast.NotEq: "!="}
-_AZAR = {"azar": "u", "azar_uniforme": "uniforme", "azar_normal": "normal", "azar_entero": "entero", "azar_lognormal": "lognormal"}
+_AZAR = {
+    "azar": "u",
+    "azar_uniforme": "uniforme",
+    "azar_normal": "normal",
+    "azar_entero": "entero",
+    "azar_lognormal": "lognormal",
+}
 
 
 def _fuente(n, propios: bool = False) -> str:

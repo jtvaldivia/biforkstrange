@@ -39,8 +39,13 @@ def test_mismo_sorteo_mismo_numero():
             assert a.u(anio, sitio) == a.u(anio, sitio)  # pedirlo dos veces no lo gasta
             assert a.elegir(anio, sitio, [1, 2, 3]) == b.elegir(anio, sitio, [1, 2, 3])
             fa, fb = a.flujo(anio, sitio), b.flujo(anio, sitio)
-            assert [fa.u(), fa.normal(), fa.uniforme(2, 5), fa.entero(1, 9), fa.lognormal(1, 2, 8)] == \
-                   [fb.u(), fb.normal(), fb.uniforme(2, 5), fb.entero(1, 9), fb.lognormal(1, 2, 8)]
+            assert [fa.u(), fa.normal(), fa.uniforme(2, 5), fa.entero(1, 9), fa.lognormal(1, 2, 8)] == [
+                fb.u(),
+                fb.normal(),
+                fb.uniforme(2, 5),
+                fb.entero(1, 9),
+                fb.lognormal(1, 2, 8),
+            ]
 
 
 def test_el_orden_en_que_se_piden_no_cambia_los_numeros():
@@ -53,10 +58,17 @@ def test_el_orden_en_que_se_piden_no_cambia_los_numeros():
 
 def test_cada_parte_de_la_clave_cambia_el_numero():
     base = Dados(1, 2).u(3, "evento:ascenso")
-    otros = [Dados(9, 2).u(3, "evento:ascenso"), Dados(1, 8).u(3, "evento:ascenso"), Dados(1, 2).u(4, "evento:ascenso"),
-             Dados(1, 2).u(3, "evento:ascenso:res"), Dados(1, "2").u(3, "evento:ascens"),
-             Dados(12, 3).u(3, "evento:ascenso"), Dados(1, 23).u(3, "evento:ascenso"), Dados(1, 2).u(33, "evento:ascenso"),
-             Dados(1, "tu").u(3, "evento:ascenso")]
+    otros = [
+        Dados(9, 2).u(3, "evento:ascenso"),
+        Dados(1, 8).u(3, "evento:ascenso"),
+        Dados(1, 2).u(4, "evento:ascenso"),
+        Dados(1, 2).u(3, "evento:ascenso:res"),
+        Dados(1, "2").u(3, "evento:ascens"),
+        Dados(12, 3).u(3, "evento:ascenso"),
+        Dados(1, 23).u(3, "evento:ascenso"),
+        Dados(1, 2).u(33, "evento:ascenso"),
+        Dados(1, "tu").u(3, "evento:ascenso"),
+    ]
     assert len({base, *otros}) == len(otros) + 1
     # las claves no se pegan: (1, 23, 4) no es (12, 3, 4) ni (1, 2, 34)
     assert len({Dados(1, 23).u(4, "x"), Dados(12, 3).u(4, "x"), Dados(1, 2).u(34, "x"), Dados(123, 4).u(0, "x")}) == 4

@@ -42,7 +42,9 @@ def _perfil(args: argparse.Namespace):
         raise EntradaInvalida(f"--riesgo va de 0 (nada de riesgo) a 10 (todo el riesgo); recibí {args.riesgo}.")
     rubros = [r for r in pq.variables["rubro"]["dominio"] if r]
     buscado = _sin_tildes(args.rubro.strip())
-    calzan = [r for r in rubros if _sin_tildes(r) == buscado] or [r for r in rubros if buscado and buscado in _sin_tildes(r)]
+    calzan = [r for r in rubros if _sin_tildes(r) == buscado] or [
+        r for r in rubros if buscado and buscado in _sin_tildes(r)
+    ]
     if len(calzan) != 1:
         raise EntradaInvalida(f"No conozco el rubro '{args.rubro}'. Opciones: {'; '.join(rubros)}.")
     if args.carrera_id is not None and not 0 <= args.carrera_id <= 251:
@@ -51,17 +53,44 @@ def _perfil(args: argparse.Namespace):
         raise EntradaInvalida("--ocupacion va de 0 a 9 (míralas con: python -m app.cli ocupaciones).")
     if args.region not in (None, "rm", "otra"):
         raise EntradaInvalida("--region debe ser rm (Región Metropolitana) u otra.")
-    opcionales = {campo: valor for campo, valor in (("carrera_id", args.carrera_id), ("ocupacion", args.ocupacion),
-                                                     ("antiguedad", args.antiguedad), ("region", args.region))
-                  if valor is not None}
-    return Perfil(edad=args.edad, sexo=args.sexo, edu=args.edu, rubro=calzan[0], tipo_empleador=args.tipo_empleador,
-                  nivel=args.nivel, sueldo=args.sueldo, riesgo=args.riesgo, **opcionales)
+    opcionales = {
+        campo: valor
+        for campo, valor in (
+            ("carrera_id", args.carrera_id),
+            ("ocupacion", args.ocupacion),
+            ("antiguedad", args.antiguedad),
+            ("region", args.region),
+        )
+        if valor is not None
+    }
+    return Perfil(
+        edad=args.edad,
+        sexo=args.sexo,
+        edu=args.edu,
+        rubro=calzan[0],
+        tipo_empleador=args.tipo_empleador,
+        nivel=args.nivel,
+        sueldo=args.sueldo,
+        riesgo=args.riesgo,
+        **opcionales,
+    )
 
 
 # Valores por defecto de los flags del perfil: un flag distinto de esto lo escribió la persona
-PERFIL_POR_DEFECTO = {"edad": 30, "sexo": "m", "edu": "universitaria", "rubro": "Servicios profesionales",
-                      "tipo_empleador": "pyme", "nivel": 1, "sueldo": 1_400_000, "riesgo": 5,
-                      "carrera_id": None, "ocupacion": None, "antiguedad": None, "region": None}
+PERFIL_POR_DEFECTO = {
+    "edad": 30,
+    "sexo": "m",
+    "edu": "universitaria",
+    "rubro": "Servicios profesionales",
+    "tipo_empleador": "pyme",
+    "nivel": 1,
+    "sueldo": 1_400_000,
+    "riesgo": 5,
+    "carrera_id": None,
+    "ocupacion": None,
+    "antiguedad": None,
+    "region": None,
+}
 
 
 def _leer_archivo_de_perfil(args: argparse.Namespace) -> None:
@@ -98,10 +127,19 @@ def _leer_archivo_de_perfil(args: argparse.Namespace) -> None:
         lineas.append(f"  · Tu duda: {leido['duda']}.")
     faltan = [s_["nombre"] for s_ in leido["supuestos"] if s_["campo"] not in a_mano]
     if faltan:
-        lineas += ["", *_envolver("Tu archivo no dice: " + ", ".join(faltan) + ". Usé un valor por defecto; "
-                                  "dilo en el archivo o con su opción para que la simulación sea la tuya.", "  ")]
+        lineas += [
+            "",
+            *_envolver(
+                "Tu archivo no dice: " + ", ".join(faltan) + ". Usé un valor por defecto; "
+                "dilo en el archivo o con su opción para que la simulación sea la tuya.",
+                "  ",
+            ),
+        ]
     if a_mano:
-        lineas += ["", "  Lo que pusiste a mano se respetó: " + ", ".join("--" + c.replace("_", "-") for c in a_mano) + "."]
+        lineas += [
+            "",
+            "  Lo que pusiste a mano se respetó: " + ", ".join("--" + c.replace("_", "-") for c in a_mano) + ".",
+        ]
     print("\n".join(lineas) + "\n", file=sys.stderr, flush=True)
 
 
@@ -111,10 +149,20 @@ def _flags_perfil(perfil) -> list[str]:
 
     base = Perfil()
     flags = []
-    for campo, flag in (("edad", "--edad"), ("sexo", "--sexo"), ("edu", "--edu"), ("rubro", "--rubro"),
-                        ("tipo_empleador", "--tipo-empleador"), ("nivel", "--nivel"), ("sueldo", "--sueldo"),
-                        ("riesgo", "--riesgo"), ("carrera_id", "--carrera-id"), ("ocupacion", "--ocupacion"),
-                        ("antiguedad", "--antiguedad"), ("region", "--region")):
+    for campo, flag in (
+        ("edad", "--edad"),
+        ("sexo", "--sexo"),
+        ("edu", "--edu"),
+        ("rubro", "--rubro"),
+        ("tipo_empleador", "--tipo-empleador"),
+        ("nivel", "--nivel"),
+        ("sueldo", "--sueldo"),
+        ("riesgo", "--riesgo"),
+        ("carrera_id", "--carrera-id"),
+        ("ocupacion", "--ocupacion"),
+        ("antiguedad", "--antiguedad"),
+        ("region", "--region"),
+    ):
         valor = getattr(perfil, campo)
         if valor != getattr(base, campo):
             if campo == "sueldo":
@@ -214,8 +262,9 @@ def _base(pendiente: dict) -> str:
     from app.sim.motor.paquete import paquete
     from app.sim.motor.politicas import opcion_base
 
-    return opcion_base(paquete().decisiones[pendiente["decision"]],
-                       [SimpleNamespace(id=o["opcion"]) for o in pendiente["opciones"]])
+    return opcion_base(
+        paquete().decisiones[pendiente["decision"]], [SimpleNamespace(id=o["opcion"]) for o in pendiente["opciones"]]
+    )
 
 
 def _elegir(pendiente: dict, guion: list[list[int]], auto: bool) -> tuple[dict, str]:
@@ -257,11 +306,16 @@ def _elegir(pendiente: dict, guion: list[list[int]], auto: bool) -> tuple[dict, 
             j = _por_defecto(interna)
         else:
             print("\n".join(_texto_interna(interna)))
-            j = _preguntar(f"  ¿Cuál? (1 a {len(alternativas)}, Enter para la de las copias): ", len(alternativas),
-                           _por_defecto(interna))
+            j = _preguntar(
+                f"  ¿Cuál? (1 a {len(alternativas)}, Enter para la de las copias): ",
+                len(alternativas),
+                _por_defecto(interna),
+            )
         parametros[interna["variable"]] = alternativas[j]["valor"]
         escrito.append(j + 1)
         if pieza or auto:
             print(f"  {interna['pregunta']} {alternativas[j]['nombre']}.")
-    return ({"decision": pendiente["decision"], "opcion": opcion["opcion"], "parametros": parametros},
-            ":".join(map(str, escrito)))
+    return (
+        {"decision": pendiente["decision"], "opcion": opcion["opcion"], "parametros": parametros},
+        ":".join(map(str, escrito)),
+    )

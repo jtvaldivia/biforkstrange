@@ -21,21 +21,40 @@ from app.sim.motor.perfil import Perfil, estado_inicial
 from app.sim.motor.politicas import Poblacion
 
 N, SEMILLA = 600, 0
-MINIMO_CUADRAN = 22        # con 600 personas cuadran 26; con 5.000, 25 o 26
-MARGEN = 0.015             # puntos extra por ruido de una cohorte chica
+MINIMO_CUADRAN = 22  # con 600 personas cuadran 26; con 5.000, 25 o 26
+MARGEN = 0.015  # puntos extra por ruido de una cohorte chica
 MARGEN_RELATIVO = 0.05
 
 CUADRAN = [
-    "desocupacion_18-24", "desocupacion_25-29", "desocupacion_30-34",
-    "desocupacion_35-39", "desocupacion_40-44", "desocupacion_45-49",
-    "edu_media_30_34", "edu_universitaria_30_34", "edu_tecnica_30_34", "edu_postgrado_30_34",
-    "independientes_25-29", "independientes_35-39", "independientes_45-49",
-    "publico_25-29", "empresa_grande", "startup_anos",
-    "separacion_18_29", "separacion_30_44", "separacion_45_59",
-    "cambio_18_29", "cambio_30_44", "sigue_cesante_12m",
+    "desocupacion_18-24",
+    "desocupacion_25-29",
+    "desocupacion_30-34",
+    "desocupacion_35-39",
+    "desocupacion_40-44",
+    "desocupacion_45-49",
+    "edu_media_30_34",
+    "edu_universitaria_30_34",
+    "edu_tecnica_30_34",
+    "edu_postgrado_30_34",
+    "independientes_25-29",
+    "independientes_35-39",
+    "independientes_45-49",
+    "publico_25-29",
+    "empresa_grande",
+    "startup_anos",
+    "separacion_18_29",
+    "separacion_30_44",
+    "separacion_45_59",
+    "cambio_18_29",
+    "cambio_30_44",
+    "sigue_cesante_12m",
     "ingreso_p75_25-29",
     # desde que el alza anual no baja el sueldo de quien sigue en su pega, los sueldos medianos cuadran
-    "ingreso_p50_30-34", "ingreso_p50_35-39", "ingreso_p50_40-44", "ingreso_p50_45-49", "ingreso_p75_45-49",
+    "ingreso_p50_30-34",
+    "ingreso_p50_35-39",
+    "ingreso_p50_40-44",
+    "ingreso_p50_45-49",
+    "ingreso_p75_45-49",
 ]
 
 

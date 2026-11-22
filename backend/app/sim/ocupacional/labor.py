@@ -28,9 +28,9 @@ DESGASTE_PESO = 0.3
 class LaborYear:
     """Qué le pasó a cada universo este año (máscaras de n_runs)."""
 
-    perdio_empleo: np.ndarray    # tenía empleo y quedó sin él
-    nuevo_empleo: np.ndarray     # empezó un empleo (cambio directo o reempleo)
-    cambio_grupo: np.ndarray     # el empleo nuevo es de otro grupo ocupacional
+    perdio_empleo: np.ndarray  # tenía empleo y quedó sin él
+    nuevo_empleo: np.ndarray  # empezó un empleo (cambio directo o reempleo)
+    cambio_grupo: np.ndarray  # el empleo nuevo es de otro grupo ocupacional
     cambio_ocupacion: np.ndarray  # el empleo nuevo es de otra ocupación específica
 
 

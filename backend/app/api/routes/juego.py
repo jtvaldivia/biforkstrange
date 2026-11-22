@@ -43,14 +43,21 @@ def catalogo():
         "educacion": pq.variables["edu"]["dominio"],
         "ocupaciones": [{"grupo": g, "nombre": n} for g, n in sorted(ocupaciones.items())],
         "carreras": [
-            {"carrera_id": int(f["carrera_id"]), "carrera": f["carrera"], "tipo_institucion": f["tipo_institucion"],
-             "area": f["area"]}
+            {
+                "carrera_id": int(f["carrera_id"]),
+                "carrera": f["carrera"],
+                "tipo_institucion": f["tipo_institucion"],
+                "area": f["area"],
+            }
             for f in pq.filas("mifuturo_carreras")
         ],
         # sueldo líquido de gente con la misma edad y estudios (ESI 2025): la referencia del slider de sueldo
         "sueldos_ref": [
-            {"educacion": f["educacion"], "banda": f["banda"],
-             **{p: int(round(float(f[p]), -4)) for p in ("p25", "p50", "p75")}}  # redondeado a $10.000
+            {
+                "educacion": f["educacion"],
+                "banda": f["banda"],
+                **{p: int(round(float(f[p]), -4)) for p in ("p25", "p50", "p75")},
+            }  # redondeado a $10.000
             for f in pq.filas("esi_perfil_edad_edu")
         ],
         # dónde estudió: chilenas (U, IP, CFT) y extranjeras; el logo está en /logos/universidades/<id>.png
@@ -105,8 +112,13 @@ def jugar(body: PartidaIn):
     """Estado de la partida: historia, decisión pendiente con lo que vivieron los gemelos, o el cierre."""
     with partida_invalida():
         return partida.vista(
-            body.perfil.a_perfil(), body.semilla, body.duda,
-            [e.model_dump() for e in body.elecciones], body.gemelos, body.parametros, anios=_anios(body),
+            body.perfil.a_perfil(),
+            body.semilla,
+            body.duda,
+            [e.model_dump() for e in body.elecciones],
+            body.gemelos,
+            body.parametros,
+            anios=_anios(body),
         )
 
 
@@ -115,8 +127,13 @@ def ver_mundo(body: MundoIn):
     """Un mundo de la comparación de la decisión pendiente: lo que te pasa en él con cada opción, año por año."""
     with partida_invalida():
         return partida.mundo_pendiente(
-            body.perfil.a_perfil(), body.semilla, body.duda,
-            [e.model_dump() for e in body.elecciones], body.mundo, body.parametros, anios=_anios(body),
+            body.perfil.a_perfil(),
+            body.semilla,
+            body.duda,
+            [e.model_dump() for e in body.elecciones],
+            body.mundo,
+            body.parametros,
+            anios=_anios(body),
         )
 
 
@@ -129,8 +146,16 @@ def narrar(body: NarrarIn):
     """
     p, relato = _personal(body.perfil)
     with partida_invalida():
-        return narracion.narrar(p, body.semilla, body.duda, [e.model_dump() for e in body.elecciones],
-                                body.que, body.mundo, body.parametros, relato=relato)
+        return narracion.narrar(
+            p,
+            body.semilla,
+            body.duda,
+            [e.model_dump() for e in body.elecciones],
+            body.que,
+            body.mundo,
+            body.parametros,
+            relato=relato,
+        )
 
 
 @router.get("/prompt", response_model=PromptOut)

@@ -9,9 +9,20 @@ from app.services.ia import perfil as perfil_ia
 from app.services.ia import perfil_doc
 from app.services.ia.perfil import ModeloNoDisponible, PerfilLeido
 
-LEIDO = PerfilLeido(edad=33, sexo="m", edu="universitaria", carrera_id=166, rubro="Finanzas y seguros",
-                    tipo_empleador="startup", nivel=2, sueldo=2_624_000, ocupacion=2, antiguedad=3, region="rm",
-                    inferido=["sueldo: 82% de 3,2 millones brutos"])
+LEIDO = PerfilLeido(
+    edad=33,
+    sexo="m",
+    edu="universitaria",
+    carrera_id=166,
+    rubro="Finanzas y seguros",
+    tipo_empleador="startup",
+    nivel=2,
+    sueldo=2_624_000,
+    ocupacion=2,
+    antiguedad=3,
+    region="rm",
+    inferido=["sueldo: 82% de 3,2 millones brutos"],
+)
 
 
 def test_completar_usa_lo_leido_y_marca_lo_que_falta():
@@ -35,13 +46,26 @@ def test_con_un_cv_vacio_todo_lo_que_puso_la_app_es_supuesto():
 
 
 def test_la_via_de_claude_devuelve_dados(monkeypatch):
-    leido = PerfilLeido(edad=28, situacion="buscando", meses_sin_trabajo=4, empresa_actual="I. Municipalidad de Curicó",
-                        emprendio_antes=False)
+    leido = PerfilLeido(
+        edad=28,
+        situacion="buscando",
+        meses_sin_trabajo=4,
+        empresa_actual="I. Municipalidad de Curicó",
+        emprendio_antes=False,
+    )
     monkeypatch.setattr(perfil_ia, "leer", lambda *a, **k: (leido, "api"))
     r = perfil_ia.perfil_desde_texto("Tengo 28 años y estoy buscando pega.", "2026-11-21")
     assert r["via"] == "api"
     # lo del texto, más lo que el SII sabe de la empresa
-    assert r["dados"] == ["edad", "emprendio_antes", "empresa_nombre", "estado", "meses_cesante", "rubro", "tipo_empleador"]
+    assert r["dados"] == [
+        "edad",
+        "emprendio_antes",
+        "empresa_nombre",
+        "estado",
+        "meses_cesante",
+        "rubro",
+        "tipo_empleador",
+    ]
     supuestos = {s["campo"] for s in r["supuestos"]}
     assert {"sueldo", "region", "antiguedad", "carrera_id", "nivel"} <= supuestos
     assert not supuestos & set(r["dados"])
@@ -83,7 +107,12 @@ def test_api_perfil(client, monkeypatch):
     cuerpo = r.json()
     assert cuerpo["perfil"]["tipo_empleador"] == "startup" and cuerpo["via"] == "api"
     # el perfil devuelto sirve tal cual para empezar una partida
-    assert client.post("/api/juego/partida", json={"perfil": cuerpo["perfil"], "duda": "emprender", "gemelos": 0}).status_code == 200
+    assert (
+        client.post(
+            "/api/juego/partida", json={"perfil": cuerpo["perfil"], "duda": "emprender", "gemelos": 0}
+        ).status_code
+        == 200
+    )
 
 
 def test_api_perfil_sin_modelo_da_503(client, monkeypatch):
@@ -93,7 +122,6 @@ def test_api_perfil_sin_modelo_da_503(client, monkeypatch):
     monkeypatch.setattr(perfil_ia, "leer", falla)
     assert client.post("/api/juego/perfil", json={"texto": "hola"}).status_code == 503
     assert client.post("/api/juego/perfil", json={"texto": ""}).status_code == 422
-
 
 
 def test_api_perfil_desde_pdf(client, monkeypatch):
@@ -130,6 +158,7 @@ def test_el_pdf_va_como_documento_a_la_api(monkeypatch):
     assert bloques[0]["type"] == "document" and bloques[0]["source"]["media_type"] == "application/pdf"
     assert llamada["model"] == "claude-haiku-5-5" and llamada["thinking"] == {"type": "disabled"}
 
+
 # ── documento armado por el Claude de la persona ──────────────────────────────
 
 EJEMPLO = (Path(__file__).parents[2] / "docs" / "motor" / "perfil-ejemplo.md").read_text(encoding="utf-8")
@@ -142,7 +171,9 @@ def test_el_prompt_trae_el_formato_y_las_listas_validas():
 
 
 def test_el_documento_de_ejemplo_se_lee_exacto_y_sin_modelo(monkeypatch):
-    monkeypatch.setattr(perfil_ia, "leer", lambda *a, **k: (_ for _ in ()).throw(AssertionError("no debe llamar al modelo")))
+    monkeypatch.setattr(
+        perfil_ia, "leer", lambda *a, **k: (_ for _ in ()).throw(AssertionError("no debe llamar al modelo"))
+    )
     r = perfil_ia.perfil_desde_texto(EJEMPLO, "2026-11-21")
     assert r["via"] == "documento" and r["duda"] == "emprender" and r["avisos"] == []
     assert r["supuestos"] == [{"campo": "estado", "nombre": "situación"}]  # el documento no dice su situación
@@ -150,21 +181,51 @@ def test_el_documento_de_ejemplo_se_lee_exacto_y_sin_modelo(monkeypatch):
 
     # lo que el documento no trae (su historia del CV, cuánto le falta si estudia) queda en el valor por defecto
     assert r["perfil"] | {"ahorro": None} == PerfilIn().model_dump() | {
-        "edad": 33, "sexo": "m", "edu": "universitaria", "carrera_id": 166, "rubro": "Finanzas y seguros",
-        "tipo_empleador": "startup", "nivel": 2, "sueldo": 2_624_000, "riesgo": 4, "ocupacion": 2,
-        "antiguedad": 3, "region": "rm", "ahorro": None, "ingles": 1, "skill": 57, "red": 35,
-        "estado": "empleado", "meses_cesante": 0, "parcial": 0, "remoto": 0, "usa_ia": 0, "empresa_anos": 0,
-        "empresa_fondos": 0, "anos_por_empleo": 3.0, "universidad_id": "", "empresa_nombre": "Fintual"}
+        "edad": 33,
+        "sexo": "m",
+        "edu": "universitaria",
+        "carrera_id": 166,
+        "rubro": "Finanzas y seguros",
+        "tipo_empleador": "startup",
+        "nivel": 2,
+        "sueldo": 2_624_000,
+        "riesgo": 4,
+        "ocupacion": 2,
+        "antiguedad": 3,
+        "region": "rm",
+        "ahorro": None,
+        "ingles": 1,
+        "skill": 57,
+        "red": 35,
+        "estado": "empleado",
+        "meses_cesante": 0,
+        "parcial": 0,
+        "remoto": 0,
+        "usa_ia": 0,
+        "empresa_anos": 0,
+        "empresa_fondos": 0,
+        "anos_por_empleo": 3.0,
+        "universidad_id": "",
+        "empresa_nombre": "Fintual",
+    }
     assert any("82%" in frase for frase in r["inferido"])
 
 
 def test_documento_con_valores_libres_o_malos():
-    doc = "```gemelo-laboral\nsexo: hombre\nestudios: técnica\ntipo_empresa: Estado\ncargo: jefatura\n" \
-          "rubro: construccion\nsueldo_liquido: $1.250.000\nriesgo: 15\nedad: ?\nduda: volar\n```"
+    doc = (
+        "```gemelo-laboral\nsexo: hombre\nestudios: técnica\ntipo_empresa: Estado\ncargo: jefatura\n"
+        "rubro: construccion\nsueldo_liquido: $1.250.000\nriesgo: 15\nedad: ?\nduda: volar\n```"
+    )
     r = perfil_doc.leer_documento(doc)
     p = r["perfil"]
-    assert (p["sexo"], p["edu"], p["tipo_empleador"], p["nivel"], p["rubro"], p["sueldo"]) == \
-           ("h", "tecnica", "publico", 3, "Construcción", 1_250_000)
+    assert (p["sexo"], p["edu"], p["tipo_empleador"], p["nivel"], p["rubro"], p["sueldo"]) == (
+        "h",
+        "tecnica",
+        "publico",
+        3,
+        "Construcción",
+        1_250_000,
+    )
     assert {"edad", "riesgo"} <= {s["campo"] for s in r["supuestos"]}
     assert any("riesgo" in a for a in r["avisos"]) and any("volar" in a for a in r["avisos"])
     assert r["duda"] is None
@@ -200,14 +261,16 @@ def test_api_prompt(client):
 
 
 def test_las_dudas_sugeridas_se_filtran_por_el_perfil():
-    leido = LEIDO.model_copy(update={
-        "dudas_sugeridas": [
-            perfil_ia.DudaSugerida(decision="volar_a_marte", por_que="no existe"),
-            perfil_ia.DudaSugerida(decision="emprender", por_que="Llevas años pensando en tu idea."),
-            perfil_ia.DudaSugerida(decision="emprender", por_que="repetida"),
-        ],
-        "retrato": "  Eres contadora en una startup.  ",
-    })
+    leido = LEIDO.model_copy(
+        update={
+            "dudas_sugeridas": [
+                perfil_ia.DudaSugerida(decision="volar_a_marte", por_que="no existe"),
+                perfil_ia.DudaSugerida(decision="emprender", por_que="Llevas años pensando en tu idea."),
+                perfil_ia.DudaSugerida(decision="emprender", por_que="repetida"),
+            ],
+            "retrato": "  Eres contadora en una startup.  ",
+        }
+    )
     r = perfil_ia.completar(leido)
     assert [d["decision"] for d in r["dudas_sugeridas"]] == ["emprender"]
     assert r["dudas_sugeridas"][0]["por_que"] == "Llevas años pensando en tu idea."
@@ -215,9 +278,16 @@ def test_las_dudas_sugeridas_se_filtran_por_el_perfil():
 
 
 def test_ingles_experiencia_y_empresa_del_sii():
-    leido = LEIDO.model_copy(update={"ingles": True, "anios_experiencia": 8, "empleadores": 3,
-                                     "tipo_empleador": None, "rubro": None,
-                                     "empresa_actual": "I. Municipalidad de Curicó"})
+    leido = LEIDO.model_copy(
+        update={
+            "ingles": True,
+            "anios_experiencia": 8,
+            "empleadores": 3,
+            "tipo_empleador": None,
+            "rubro": None,
+            "empresa_actual": "I. Municipalidad de Curicó",
+        }
+    )
     r = perfil_ia.completar(leido)
     p = r["perfil"]
     assert (p["ingles"], p["skill"], p["red"]) == (1, 55, 35)
@@ -262,10 +332,24 @@ def test_sin_cv_la_habilidad_se_estima_por_los_anios_desde_el_titulo():
 
 
 def test_situacion_y_trayectoria_del_cv():
-    leido = LEIDO.model_copy(update={"situacion": "buscando", "meses_sin_trabajo": 10, "remoto": True, "usa_ia": True,
-                                     "anios_experiencia": 6, "empleadores": 5})
+    leido = LEIDO.model_copy(
+        update={
+            "situacion": "buscando",
+            "meses_sin_trabajo": 10,
+            "remoto": True,
+            "usa_ia": True,
+            "anios_experiencia": 6,
+            "empleadores": 5,
+        }
+    )
     p = perfil_ia.completar(leido)["perfil"]
-    assert (p["estado"], p["meses_cesante"], p["remoto"], p["usa_ia"], p["anos_por_empleo"]) == ("buscando", 10, 1, 1, 1.2)
+    assert (p["estado"], p["meses_cesante"], p["remoto"], p["usa_ia"], p["anos_por_empleo"]) == (
+        "buscando",
+        10,
+        1,
+        1,
+        1.2,
+    )
 
 
 def test_la_situacion_llega_al_motor():
@@ -295,8 +379,10 @@ def test_cuanto_le_falta_a_quien_estudia():
     assert r["perfil"]["semestres_restantes"] is None and not any("titular" in f for f in r["inferido"])
 
 
-@pytest.mark.parametrize(("rasgo", "opcion"), [("volvio_a_su_nivel", "nivel"), ("freelance_entre_pegas", "informal"),
-                                              ("emprendio_antes", "emprender")])
+@pytest.mark.parametrize(
+    ("rasgo", "opcion"),
+    [("volvio_a_su_nivel", "nivel"), ("freelance_entre_pegas", "informal"), ("emprendio_antes", "emprender")],
+)
 def test_en_la_cesantia_tus_gemelos_salen_como_saliste_tu(rasgo, opcion):
     from app.sim.motor.paquete import paquete
     from app.sim.motor.perfil import Perfil, estado_inicial
@@ -368,8 +454,11 @@ def test_quien_busca_su_primera_pega_parte_en_primera_pega_y_con_su_practica():
     from app.sim.motor.perfil import Perfil
 
     nuevo = PerfilLeido(situacion="buscando", edad=24, edu="universitaria", anios_experiencia=0)
-    for leido in (nuevo, nuevo.model_copy(update={"anios_experiencia": None, "empleadores": 0}),
-                  nuevo.model_copy(update={"anios_experiencia": None, "practica": "publico"})):
+    for leido in (
+        nuevo,
+        nuevo.model_copy(update={"anios_experiencia": None, "empleadores": 0}),
+        nuevo.model_copy(update={"anios_experiencia": None, "practica": "publico"}),
+    ):
         r = perfil_ia.completar(leido)
         assert r["perfil"]["primer_empleo"] == 1 and r["perfil"]["sueldo"] > 0
         v = partida.vista(Perfil(**r["perfil"]), 1, None, [], 0)
@@ -402,7 +491,9 @@ def test_toda_su_carrera_en_el_estado_o_en_startups_sesga_el_reempleo():
     assert estado["publico"] == pytest.approx(0.40)  # piso sobre la fila
     assert estado["grande"] / estado["pyme"] == pytest.approx(fila["grande"] / fila["pyme"])  # el resto, como su fila
     startup = probs(estado_inicial(Perfil(toda_su_carrera_en="startup"), pq))
-    assert startup["publico"] == pytest.approx(fila["publico"]) and 1 - sum(startup.values()) == pytest.approx(0.88 * 0.20)
+    assert startup["publico"] == pytest.approx(fila["publico"]) and 1 - sum(startup.values()) == pytest.approx(
+        0.88 * 0.20
+    )
     assert startup["grande"] / startup["pyme"] == pytest.approx(fila["grande"] / fila["pyme"])
     assert pq.k("P_REEMPLEO_PUBLICO") == 0.12  # el paquete no se toca: el parámetro es solo de esa vida
 
@@ -440,12 +531,17 @@ def test_quien_ya_cerro_empresas_cierra_antes():
 
     fundador = dict(estado="fundador", empresa_anos=1)
     assert pesos_personales(estado_inicial(Perfil(**fundador), paquete())) == {}  # sin dato, como siempre
-    cerrar = [pesos_personales(estado_inicial(Perfil(**fundador, empresas_cerradas=n), paquete()))
-              ["seguir_con_tu_empresa"]["cerrar"] for n in (1, 3, 9)]
+    cerrar = [
+        pesos_personales(estado_inicial(Perfil(**fundador, empresas_cerradas=n), paquete()))["seguir_con_tu_empresa"][
+            "cerrar"
+        ]
+        for n in (1, 3, 9)
+    ]
     assert cerrar == [0.10, 0.20, 0.20]  # 0,05 por empresa, hasta +0,15
     r = perfil_ia.completar(LEIDO.model_copy(update={"situacion": "fundador", "empresas_cerradas": 2}))
-    assert r["perfil"]["empresas_cerradas"] == 2 and any("Ya cerraste 2 empresas" in f and "15%" in f
-                                                         for f in r["inferido"])
+    assert r["perfil"]["empresas_cerradas"] == 2 and any(
+        "Ya cerraste 2 empresas" in f and "15%" in f for f in r["inferido"]
+    )
 
 
 def test_los_gemelos_se_cambian_como_tu():
@@ -486,15 +582,20 @@ def test_el_prompt_pide_tu_cargo_y_tus_pegas_anteriores_sin_suponerlas():
 
 
 def test_tu_cargo_y_tus_pegas_anteriores_entran_al_perfil():
-    unica = perfil_doc.leer_documento("```gemelo-laboral\nempresa: BancoEstado\ncargo: Analista de riesgo\n"
-                                      "nivel: Semi senior\npegas_anteriores: ninguna\n```")
+    unica = perfil_doc.leer_documento(
+        "```gemelo-laboral\nempresa: BancoEstado\ncargo: Analista de riesgo\n"
+        "nivel: Semi senior\npegas_anteriores: ninguna\n```"
+    )
     p = unica["perfil"]
     assert (p["empresa_nombre"], p["cargo_nombre"], p["nivel"]) == ("BancoEstado", "Analista de riesgo", 1)
     assert {"empresa_nombre", "cargo_nombre", "nivel", "red"} <= set(unica["dados"]) and unica["avisos"] == []
     dos = perfil_doc.leer_documento("```gemelo-laboral\npegas_anteriores: Falabella, analista; Entel, practicante\n```")
     assert dos["perfil"]["red"] > p["red"]  # tres empleadores contra uno
     # sin saber si hubo otras, no se supone nada
-    assert "red" not in perfil_doc.leer_documento("```gemelo-laboral\npegas_anteriores: ?\nedad: 30\nriesgo: 4\n```")["dados"]
+    assert (
+        "red"
+        not in perfil_doc.leer_documento("```gemelo-laboral\npegas_anteriores: ?\nedad: 30\nriesgo: 4\n```")["dados"]
+    )
 
 
 def test_lo_que_cuenta_tu_claude_sugiere_dudas_y_entra_al_perfil():
@@ -525,7 +626,6 @@ def test_el_rubro_sonado_es_la_opcion_por_defecto_al_cambiarse():
     assert parametros_por_defecto(sin, opcion)["rubro_destino"] != "Artes y entretención"  # sin dato, como antes
 
 
-
 def test_el_esquema_de_la_api_cabe_en_los_limites_de_structured_outputs():
     # la API acepta hasta 24 campos opcionales y 16 con tipo unión; con más responde 400
     import json
@@ -537,17 +637,38 @@ def test_el_esquema_de_la_api_cabe_en_los_limites_de_structured_outputs():
 
 
 def test_desde_api_vuelve_los_no_se_a_none():
-    crudo = {k: -1 for k, v in perfil_ia.esquema_api().model_json_schema()["properties"].items() if v.get("type") == "integer"}
-    crudo |= {"sexo": "?", "edu": "universitaria", "ingles": "no", "remoto": "si", "rubro": "", "inferido": [],
-              "dudas_sugeridas": [], "edad": 33}
+    crudo = {
+        k: -1
+        for k, v in perfil_ia.esquema_api().model_json_schema()["properties"].items()
+        if v.get("type") == "integer"
+    }
+    crudo |= {
+        "sexo": "?",
+        "edu": "universitaria",
+        "ingles": "no",
+        "remoto": "si",
+        "rubro": "",
+        "inferido": [],
+        "dudas_sugeridas": [],
+        "edad": 33,
+    }
     leido = perfil_ia.desde_api(crudo)
-    assert (leido.edad, leido.edu, leido.sexo, leido.ingles, leido.remoto, leido.rubro, leido.sueldo) == \
-           (33, "universitaria", None, False, True, None, None)
+    assert (leido.edad, leido.edu, leido.sexo, leido.ingles, leido.remoto, leido.rubro, leido.sueldo) == (
+        33,
+        "universitaria",
+        None,
+        False,
+        True,
+        None,
+        None,
+    )
 
 
 def test_el_bloque_sin_cercas_se_lee_igual():
-    texto = "sueldo_liquido: 1800000\nduda: ?\nsituacion: empleado\nedad: 25\nestudios: universitaria\n" \
-            "rubro: Finanzas y seguros\ntipo_empresa: startup\nrubro_sonado: ?\nproyecto: Virgilio, un second brain"
+    texto = (
+        "sueldo_liquido: 1800000\nduda: ?\nsituacion: empleado\nedad: 25\nestudios: universitaria\n"
+        "rubro: Finanzas y seguros\ntipo_empresa: startup\nrubro_sonado: ?\nproyecto: Virgilio, un second brain"
+    )
     r = perfil_doc.leer_documento(texto)
     assert r is not None and r["perfil"]["edad"] == 25 and r["perfil"]["tipo_empleador"] == "startup"
     assert "rubro_sonado" not in r["dados"] and r["dudas_sugeridas"][0]["decision"] == "emprender"
@@ -578,8 +699,13 @@ def test_ritmo_de_cambio_absurdo_no_rompe():
 def test_claude_copia_el_sueldo_literal_y_la_app_lo_convierte_a_la_vista():
     # Claude no calcula: no hay un campo de sueldo ya convertido en lo que llena, solo lo literal
     props = perfil_ia.esquema_api().model_json_schema()["properties"]
-    assert "sueldo" not in props and {"sueldo_monto", "sueldo_moneda", "sueldo_periodo", "sueldo_tipo",
-                                      "anio_nacimiento"} <= set(props)
+    assert "sueldo" not in props and {
+        "sueldo_monto",
+        "sueldo_moneda",
+        "sueldo_periodo",
+        "sueldo_tipo",
+        "anio_nacimiento",
+    } <= set(props)
     assert "82%" not in perfil_ia.INSTRUCCIONES and "calcúlala" not in perfil_ia.INSTRUCCIONES
     sin_sueldo = LEIDO.model_copy(update={"sueldo": None, "inferido": []})
 
@@ -622,11 +748,22 @@ def test_la_edad_desde_el_anio_de_nacimiento_la_calcula_la_app():
 
 
 def test_desde_api_trae_el_sueldo_literal():
-    crudo = _respuesta_vacia_del_esquema() | {"sueldo_monto": 3_200_000, "sueldo_moneda": "CLP",
-                                              "sueldo_periodo": "?", "sueldo_tipo": "bruto", "anio_nacimiento": 1990}
+    crudo = _respuesta_vacia_del_esquema() | {
+        "sueldo_monto": 3_200_000,
+        "sueldo_moneda": "CLP",
+        "sueldo_periodo": "?",
+        "sueldo_tipo": "bruto",
+        "anio_nacimiento": 1990,
+    }
     leido = perfil_ia.desde_api(crudo)
-    assert (leido.sueldo, leido.sueldo_monto, leido.sueldo_moneda, leido.sueldo_periodo, leido.sueldo_tipo,
-            leido.anio_nacimiento) == (None, 3_200_000, "CLP", None, "bruto", 1990)
+    assert (
+        leido.sueldo,
+        leido.sueldo_monto,
+        leido.sueldo_moneda,
+        leido.sueldo_periodo,
+        leido.sueldo_tipo,
+        leido.anio_nacimiento,
+    ) == (None, 3_200_000, "CLP", None, "bruto", 1990)
 
 
 def _pdf_sin_texto() -> bytes:
@@ -644,7 +781,9 @@ def _pdf_sin_texto() -> bytes:
 def test_un_pdf_escaneado_en_el_comando_local_da_un_error_claro(client, monkeypatch):
     monkeypatch.setattr(perfil_ia, "_hay_credenciales", lambda: False)
     monkeypatch.setattr(perfil_ia.shutil, "which", lambda _: "/usr/local/bin/claude")
-    monkeypatch.setattr(perfil_ia, "_por_comando", lambda *a: (_ for _ in ()).throw(AssertionError("no debe llamar a Claude")))
+    monkeypatch.setattr(
+        perfil_ia, "_por_comando", lambda *a: (_ for _ in ()).throw(AssertionError("no debe llamar a Claude"))
+    )
     pdf = _pdf_sin_texto()
     with pytest.raises(ValueError, match="Ese PDF es una imagen"):
         perfil_ia.leer("", "2026-11-21", pdf=pdf)
@@ -659,8 +798,15 @@ def _respuesta_vacia_del_esquema() -> dict:
     """Lo que devolvería Claude con un texto que no dice nada: "no se sabe" en cada campo."""
     datos = {}
     for nombre, v in perfil_ia.esquema_api().model_json_schema()["properties"].items():
-        datos[nombre] = -1 if v.get("type") == "integer" else [] if v.get("type") == "array" else \
-            "" if v.get("type") == "string" and "enum" not in v else "?"
+        datos[nombre] = (
+            -1
+            if v.get("type") == "integer"
+            else []
+            if v.get("type") == "array"
+            else ""
+            if v.get("type") == "string" and "enum" not in v
+            else "?"
+        )
     return datos
 
 
@@ -690,8 +836,9 @@ def test_el_comando_local_corre_aislado_y_sin_guardar_el_cv(monkeypatch):
 
 
 def test_el_rubro_de_tu_proyecto_entra_al_perfil_solo_con_proyecto():
-    con = perfil_doc.leer_documento("```gemelo-laboral\nproyecto: una app de reservas para restoranes\n"
-                                    "rubro_proyecto: Hoteles y restaurantes\n```")
+    con = perfil_doc.leer_documento(
+        "```gemelo-laboral\nproyecto: una app de reservas para restoranes\nrubro_proyecto: Hoteles y restaurantes\n```"
+    )
     assert con["perfil"]["rubro_proyecto"] == "Hoteles y restaurantes" and "rubro_proyecto" in con["dados"]
     sin = perfil_doc.leer_documento("```gemelo-laboral\nproyecto: ?\nrubro_proyecto: Hoteles y restaurantes\n```")
     assert sin["perfil"].get("rubro_proyecto") is None

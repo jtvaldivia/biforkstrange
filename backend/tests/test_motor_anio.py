@@ -33,6 +33,7 @@ Z = 3.5
 QUIETA = {"oferta_externa": "quedarse"}  # responde sin cambiar nada si llega una oferta
 A_LOS_35 = Perfil(edad=35)  # empleada en pyme de Servicios profesionales, nivel 1, 2 años de antigüedad
 
+
 # ------------------------------------------------------------------ cartas
 def test_cartas_posibles_y_sus_pesos_son_los_del_paquete():
     v = vida(Perfil())
@@ -183,8 +184,9 @@ def test_la_duda_inicial_no_se_salta_las_forzadas_del_anio():
     assert [d["decision"] for d in reg["decisiones"] if d["origen"] == "carta"] == ["invertir_en_red", "cesantia"]
     assert v.e["estado"] == "empleado"
     fundador = Perfil(edad=35, estado="fundador", sueldo=2_000_000, empresa_anos=2)
-    reg = vida(fundador, DadosGuion()).vivir_anio(Guion({"invertir_en_red": "si", "seguir_con_tu_empresa": "seguir"}),
-                                                   carta="invertir_en_red")
+    reg = vida(fundador, DadosGuion()).vivir_anio(
+        Guion({"invertir_en_red": "si", "seguir_con_tu_empresa": "seguir"}), carta="invertir_en_red"
+    )
     assert [d["decision"] for d in reg["decisiones"]][:2] == ["invertir_en_red", "seguir_con_tu_empresa"]
 
 
@@ -206,7 +208,9 @@ def test_luego_decision_a_decision_en_el_mismo_anio():
     carreras_u = [f["carrera_id"] for f in pq().filas("mifuturo_carreras") if f["tipo_institucion"] == "U"]
     reg = v.vivir_anio(Guion({"salir_del_colegio": "universidad", "elegir_carrera": carreras_u[3]}))
     assert [(d["decision"], d["origen"]) for d in reg["decisiones"]] == [
-        ("salir_del_colegio", "carta"), ("elegir_carrera", "luego")]
+        ("salir_del_colegio", "carta"),
+        ("elegir_carrera", "luego"),
+    ]
     assert reg["edad"] == 18 and v.e["carrera_id"] == int(carreras_u[3]) and v.e["tipo_institucion"] == "U"
     fila = next(f for f in pq().filas("mifuturo_carreras") if f["carrera_id"] == carreras_u[3])
     assert v.e["area"] == fila["area"]
@@ -226,12 +230,16 @@ def test_luego_evento_a_decision_en_el_mismo_anio():
     """`oferta_llega` encadena `oferta_externa` el mismo año, después de la carta del año."""
     d = DadosGuion({"evento:oferta_llega": 0.0})
     v = vida(A_LOS_35, d)
-    guion = Guion({"pedir_aumento": "esperar", "oferta_externa": "cambiar", "tipo_de_empleador": "no se pregunta"},
-                  con_cartas=True)
+    guion = Guion(
+        {"pedir_aumento": "esperar", "oferta_externa": "cambiar", "tipo_de_empleador": "no se pregunta"},
+        con_cartas=True,
+    )
     reg = v.vivir_anio(guion, carta="pedir_aumento")
     # el sorteo interno del tipo de empleador corre, pero no queda como noticia: la oferta ya dijo a qué empresa entras
     assert [(x["decision"], x["origen"]) for x in reg["decisiones"]] == [
-        ("pedir_aumento", "carta"), ("oferta_externa", "luego")]
+        ("pedir_aumento", "carta"),
+        ("oferta_externa", "luego"),
+    ]
     assert v.e["empresa_id"] == reg["decisiones"][1]["contexto"]["oferta"]["empresa_id"]
     assert "tipo_de_empleador" not in guion.vistas  # la interna no pasa por quien decide
     assert v.e["antiguedad"] == 1  # cambió de empleador este año
@@ -267,8 +275,13 @@ def test_poblacion_en_alcance_laboral_nunca_toca_lo_personal():
 def test_la_recesion_se_sortea_antes_que_todo_y_el_anio_ya_la_ve():
     """Con recesión, la separación del mismo año usa x 1,4 y el reempleo x 0,85."""
     p_normal = 0.066 * 1.12 * 1.04
-    d = DadosGuion({"evento:recesion": 0.0, "evento:separacion_empleo": p_normal * 1.4 - 1e-6,
-                    "evento:separacion_empleo:res": (1 - math.exp(-9 / 10.5)) * 0.85 + 1e-6})
+    d = DadosGuion(
+        {
+            "evento:recesion": 0.0,
+            "evento:separacion_empleo": p_normal * 1.4 - 1e-6,
+            "evento:separacion_empleo:res": (1 - math.exp(-9 / 10.5)) * 0.85 + 1e-6,
+        }
+    )
     v = vida(A_LOS_35, d)
     reg = v.vivir_anio(Guion(QUIETA))
     assert reg["recesion"] is True
@@ -290,7 +303,13 @@ def test_los_eventos_van_despues_de_la_decision_y_ven_su_efecto():
     # y los eventos van en el orden del paquete
     v = vida(A_LOS_35, DadosGuion({"evento:separacion_empleo": NADA}, defecto=0.0))
     reg = v.vivir_anio(Guion({"oferta_externa": "quedarse"}))
-    assert [x["evento"] for x in reg["eventos"]] == ["recesion", "alza_anual", "ascenso", "oferta_llega", "animo_vuelve"]
+    assert [x["evento"] for x in reg["eventos"]] == [
+        "recesion",
+        "alza_anual",
+        "ascenso",
+        "oferta_llega",
+        "animo_vuelve",
+    ]
     assert [x["rutina"] for x in reg["eventos"]] == [False, True, False, False, True]
 
 
@@ -304,7 +323,13 @@ def test_el_registro_del_anio_trae_edad_de_inicio_y_resumen_de_cierre():
     fin = r2["fin"]
     assert fin == v.resumen()
     assert (fin["estado"], fin["sueldo"], fin["nivel"], fin["cargo"], fin["tipo_empleador"], fin["rubro"]) == (
-        "empleado", round(v.e["sueldo"]), 1, "Semi senior", "pyme", "Servicios profesionales")
+        "empleado",
+        round(v.e["sueldo"]),
+        1,
+        "Semi senior",
+        "pyme",
+        "Servicios profesionales",
+    )
     assert (fin["antiguedad"], fin["edu"], fin["ahorro"]) == (4, "universitaria", round(v.e["ahorro"]))
 
 
@@ -336,10 +361,10 @@ def test_cierre_edad_ahorro_y_oficio():
     assert v.e["edad"] == 51 and v.anio == 1
     # ahorro: lo que había + 8% de 12 sueldos, y sobre eso el retorno real de 4%
     assert v.e["ahorro"] == pytest.approx((1_000_000 + 12 * 1_000_000 * 0.08) * 1.04)
-    assert v.e["skill"] == pytest.approx(51.5)       # +1,5 de oficio por año trabajado
+    assert v.e["skill"] == pytest.approx(51.5)  # +1,5 de oficio por año trabajado
     assert v.ingreso_total == pytest.approx(12_000_000)
-    assert v.e["antiguedad"] == 0                     # la antigüedad es del empleo dependiente
-    assert v.e["anos_titulado"] == 27                 # 50 - 24, más el año
+    assert v.e["antiguedad"] == 0  # la antigüedad es del empleo dependiente
+    assert v.e["anos_titulado"] == 27  # 50 - 24, más el año
     v.vivir_anio(Guion())
     assert v.e["ahorro"] == pytest.approx(((1_000_000 + 960_000) * 1.04 + 960_000) * 1.04)
     assert v.ingreso_total == pytest.approx(24_000_000) and v.e["skill"] == pytest.approx(53)
@@ -373,8 +398,15 @@ def test_cierre_el_credito_se_paga_con_el_10_por_ciento_del_sueldo(deuda, pago):
 
 def test_cierre_el_credito_no_se_paga_estudiando_ni_sin_sueldo():
     estudiante = Perfil(estado="estudiando", edad=20, edu="media", carrera_id=11, sueldo=0)
-    v = vida(estudiante, DadosGuion(), deuda_estudios=5_000_000.0, semestres_restantes=6, anos_en_carrera=2,
-             financia="cae", tipo_institucion="U")
+    v = vida(
+        estudiante,
+        DadosGuion(),
+        deuda_estudios=5_000_000.0,
+        semestres_restantes=6,
+        anos_en_carrera=2,
+        financia="cae",
+        tipo_institucion="U",
+    )
     v.vivir_anio(Guion())
     assert v.e["deuda_estudios"] == 5_000_000
     v = vida(Perfil(estado="inactivo", edad=40), DadosGuion(), deuda_estudios=5_000_000.0)
@@ -396,14 +428,19 @@ def test_cierre_antiguedad_sube_empleada_y_vuelve_a_cero_sin_empleo():
 
 @pytest.mark.parametrize(("tipo_institucion", "edu"), [("U", "universitaria"), ("IP", "tecnica"), ("CFT", "tecnica")])
 def test_cierre_titulacion_al_terminar_los_semestres(tipo_institucion, edu):
-    carrera = next(int(f["carrera_id"]) for f in pq().filas("mifuturo_carreras")
-                   if f["tipo_institucion"] == tipo_institucion)
+    carrera = next(
+        int(f["carrera_id"]) for f in pq().filas("mifuturo_carreras") if f["tipo_institucion"] == tipo_institucion
+    )
     estudiante = Perfil(estado="estudiando", edad=21, edu="media", carrera_id=carrera, sueldo=0)
     v = vida(estudiante, DadosGuion(), semestres_restantes=4, anos_en_carrera=3, financia="familia")
     assert v.e["tipo_institucion"] == tipo_institucion
     v.vivir_anio(Guion())
     assert (v.e["estado"], v.e["edu"], v.e["semestres_restantes"], v.e["anos_en_carrera"]) == (
-        "estudiando", "media", 2, 4)
+        "estudiando",
+        "media",
+        2,
+        4,
+    )
     assert v.e["anos_titulado"] == 3  # no corre mientras estudia (21 - 18 al partir)
     v.vivir_anio(Guion())
     assert (v.e["estado"], v.e["edu"], v.e["primer_empleo"], v.e["anos_titulado"]) == ("buscando", edu, 1, 0)
@@ -421,14 +458,18 @@ def test_al_titularse_la_primera_pega_parte_en_junior_y_el_postgrado_conserva_el
     primera pega como semi senior. Quien termina un postgrado (ya tenía título) conserva su cargo."""
     carrera = next(int(f["carrera_id"]) for f in pq().filas("mifuturo_carreras") if f["tipo_institucion"] == "U")
     for nivel in (1, 3):
-        v = vida(Perfil(estado="estudiando", edad=23, edu="media", carrera_id=carrera, nivel=nivel,
-                        semestres_restantes=2), DadosGuion(), financia="familia")
+        v = vida(
+            Perfil(estado="estudiando", edad=23, edu="media", carrera_id=carrera, nivel=nivel, semestres_restantes=2),
+            DadosGuion(),
+            financia="familia",
+        )
         v.vivir_anio(Guion())
         assert (v.e["estado"], v.e["nivel"]) == ("buscando", 0)
         v.vivir_anio(Guion({"primera_pega": "pyme", **QUIETA}, resto=Inercia()))
         assert v.e["nivel"] == 0
-    magister = vida(Perfil(estado="estudiando", edad=30, edu="universitaria", nivel=2, semestres_restantes=2),
-                    DadosGuion())
+    magister = vida(
+        Perfil(estado="estudiando", edad=30, edu="universitaria", nivel=2, semestres_restantes=2), DadosGuion()
+    )
     magister.vivir_anio(Guion())
     assert (magister.e["estado"], magister.e["edu"], magister.e["nivel"]) == ("buscando", "postgrado", 2)
 
@@ -480,7 +521,7 @@ def test_cierre_alza_extra_anual_se_suma_al_alza_de_la_empleada():
     for _ in range(3):
         con.vivir_anio(Guion(QUIETA))
         sin.vivir_anio(Guion(QUIETA))
-    assert con.e["sueldo"] / sin.e["sueldo"] == pytest.approx(1.009 ** 3)
+    assert con.e["sueldo"] / sin.e["sueldo"] == pytest.approx(1.009**3)
     # el evento: solo en recesión y recién titulada; dura 10 cierres
     recien = Perfil(edad=24, sueldo=1_000_000, antiguedad=0)
     assert vida(recien).e["anos_titulado"] == 0
@@ -501,7 +542,9 @@ def test_cierre_alza_extra_anual_se_suma_al_alza_de_la_empleada():
 
 
 def test_cierre_cuenta_los_anios_buscando():
-    v = vida(Perfil(edad=35, estado="buscando", sueldo=1_000_000), DadosGuion(), tipo_empleador="pyme", rubro="Comercio")
+    v = vida(
+        Perfil(edad=35, estado="buscando", sueldo=1_000_000), DadosGuion(), tipo_empleador="pyme", rubro="Comercio"
+    )
     for esperado in (1, 2, 3):
         v.vivir_anio(Guion({"cesantia": "nivel"}))  # con este dado no encuentra
         assert v.anios_buscando == esperado and v.e["meses_cesante"] == 12 * esperado
@@ -523,15 +566,15 @@ def _ocurre(evento: str, u: float, perfil: Perfil, guion: dict | None = None, **
 RECESION = {"evento:recesion": 0.0}
 SEPARACION = [
     # (perfil, dados extra, probabilidad literal del paquete)
-    (dict(edad=35), {}, 0.066 * 1.12 * 1.04),                     # 30-44, pyme, Servicios profesionales
-    (dict(edad=35), RECESION, 0.066 * 1.12 * 1.04 * 1.4),         # lo mismo en recesión
+    (dict(edad=35), {}, 0.066 * 1.12 * 1.04),  # 30-44, pyme, Servicios profesionales
+    (dict(edad=35), RECESION, 0.066 * 1.12 * 1.04 * 1.4),  # lo mismo en recesión
     (dict(edad=44), {}, 0.066 * 1.12 * 1.04),
-    (dict(edad=45), {}, 0.05 * 1.12 * 1.04),                      # cambia de tramo a los 45
+    (dict(edad=45), {}, 0.05 * 1.12 * 1.04),  # cambia de tramo a los 45
     (dict(edad=29), {}, 0.143 * 1.12 * 1.04),
     (dict(edad=30), {}, 0.066 * 1.12 * 1.04),
     (dict(edad=25, tipo_empleador="grande", rubro="Minería"), {}, 0.143 * 0.89 * 0.57),
     (dict(edad=35, tipo_empleador="startup", rubro="Construcción"), {}, 0.066 * 1.5 * 1.67),
-    (dict(edad=35, rubro="Otros servicios"), {}, 0.066 * 1.12),   # rubro sin multiplicador: 1
+    (dict(edad=35, rubro="Otros servicios"), {}, 0.066 * 1.12),  # rubro sin multiplicador: 1
     (dict(edad=50, tipo_empleador="publico", rubro="Administración pública"), {}, 0.05 * 0.5),
     (dict(edad=50, tipo_empleador="publico", rubro="Construcción"), RECESION, 0.05 * 0.5 * 1.4),  # Estado: sin rubro
 ]
@@ -549,16 +592,19 @@ def test_separacion_no_aplica_al_empleo_extranjero_ni_a_quien_no_es_empleada():
     assert _ocurre("separacion_empleo", 0.0, Perfil(estado="inactivo")) == []
 
 
-@pytest.mark.parametrize(("evento", "perfil", "estado", "extra", "p"), [
-    ("ascenso", dict(nivel=1), {}, {}, 0.07),
-    ("ascenso", dict(nivel=0), {}, {}, 0.10),
-    ("ascenso", dict(nivel=2), dict(skill=80), {}, 0.04 + 30 * 0.0006),
-    ("ascenso", dict(nivel=1), dict(prob_ascenso_extra=0.0064), {}, 0.07 + 0.0064),  # ASCENSO_HORAS: panel ESI
-    ("oferta_llega", dict(edad=35), {}, {}, 0.1377 * 1.5 * 1.3),
-    ("oferta_llega", dict(edad=25), dict(red=80), {}, 0.2178 * 1.5 * 1.8),
-    ("startup_cierra", dict(tipo_empleador="startup"), {}, {}, 1 - (1 - 0.299) ** (1 / 8)),
-    ("titularse_en_recesion", dict(edad=24, antiguedad=0), {}, RECESION, 1.0),
-])
+@pytest.mark.parametrize(
+    ("evento", "perfil", "estado", "extra", "p"),
+    [
+        ("ascenso", dict(nivel=1), {}, {}, 0.07),
+        ("ascenso", dict(nivel=0), {}, {}, 0.10),
+        ("ascenso", dict(nivel=2), dict(skill=80), {}, 0.04 + 30 * 0.0006),
+        ("ascenso", dict(nivel=1), dict(prob_ascenso_extra=0.0064), {}, 0.07 + 0.0064),  # ASCENSO_HORAS: panel ESI
+        ("oferta_llega", dict(edad=35), {}, {}, 0.1377 * 1.5 * 1.3),
+        ("oferta_llega", dict(edad=25), dict(red=80), {}, 0.2178 * 1.5 * 1.8),
+        ("startup_cierra", dict(tipo_empleador="startup"), {}, {}, 1 - (1 - 0.299) ** (1 / 8)),
+        ("titularse_en_recesion", dict(edad=24, antiguedad=0), {}, RECESION, 1.0),
+    ],
+)
 def test_eventos_laborales_ocurren_bajo_su_probabilidad_literal(evento, perfil, estado, extra, p):
     guion = {"evento:separacion_empleo": NADA, **extra}
     if p < 1:
@@ -572,8 +618,9 @@ def test_la_recesion_ocurre_bajo_0_08_y_el_reempleo_bajo_su_corte():
         assert v.vivir_anio(Guion(QUIETA))["recesion"] is hay
     corte = 1 - math.exp(-9 / 10.5)  # MESES_CESANTIA 30-44 = 10,5
     for u, resultado in ((corte - 1e-7, "reemplea"), (corte + 1e-7, "cesante")):
-        d = DadosGuion({"evento:separacion_empleo": 0.0, "evento:separacion_empleo:res": u,
-                        "dec:tipo_de_empleador:sorteo": 0.5})
+        d = DadosGuion(
+            {"evento:separacion_empleo": 0.0, "evento:separacion_empleo:res": u, "dec:tipo_de_empleador:sorteo": 0.5}
+        )
         reg = vida(A_LOS_35, d).vivir_anio(Guion(QUIETA))
         assert [x["resultado"] for x in reg["eventos"] if x["evento"] == "separacion_empleo"] == [resultado]
 
@@ -625,8 +672,9 @@ def test_frecuencia_de_resultados_de_una_decision_con_dados_reales():
 
 
 # ------------------------------------------------------------------ suerte compartida
-def _vidas_del_mismo_gemelo(g, opcion_a, opcion_b, decision, alcance="laboral", anios=10, perfil=A_LOS_35,
-                            despues=None):
+def _vidas_del_mismo_gemelo(
+    g, opcion_a, opcion_b, decision, alcance="laboral", anios=10, perfil=A_LOS_35, despues=None
+):
     vidas = []
     for opcion in (opcion_a, opcion_b):
         v = vida(perfil, Dados(4, g), alcance=alcance)
@@ -643,18 +691,21 @@ def test_suerte_compartida_una_decision_que_no_toca_el_trabajo_deja_la_carrera_i
     es la oferta que llega (su probabilidad sube con la red): las dos vidas la rechazan."""
     distintos = set()
     sin_oferta = lambda r, clave, quitar: [  # noqa: E731
-        tuple(x[c] for c in clave) for x in r if x[clave[0]] != quitar]
+        tuple(x[c] for c in clave) for x in r if x[clave[0]] != quitar
+    ]
     for g in range(n(120)):
-        a, b = _vidas_del_mismo_gemelo(g, "si", "no", "invertir_en_red",
-                                       despues=lambda: Guion(QUIETA, resto=Inercia()))
+        a, b = _vidas_del_mismo_gemelo(g, "si", "no", "invertir_en_red", despues=lambda: Guion(QUIETA, resto=Inercia()))
         assert a.historia[0]["decisiones"][0]["opcion"] == "si" and b.historia[0]["decisiones"][0]["opcion"] == "no"
         for ra, rb in zip(a.historia, b.historia, strict=True):
             assert ra["recesion"] == rb["recesion"]
             evento = ("evento", "resultado", "prob")
-            assert sin_oferta(ra["eventos"], evento, "oferta_llega") == sin_oferta(rb["eventos"], evento, "oferta_llega")
+            assert sin_oferta(ra["eventos"], evento, "oferta_llega") == sin_oferta(
+                rb["eventos"], evento, "oferta_llega"
+            )
             decision = ("decision", "opcion", "resultado")
-            assert sin_oferta(ra["decisiones"][1:], decision, "oferta_externa") == \
-                   sin_oferta(rb["decisiones"][1:], decision, "oferta_externa")
+            assert sin_oferta(ra["decisiones"][1:], decision, "oferta_externa") == sin_oferta(
+                rb["decisiones"][1:], decision, "oferta_externa"
+            )
             for k in ("estado", "sueldo", "sueldo_ref", "nivel", "tipo_empleador", "rubro", "antiguedad"):
                 assert ra["fin"][k] == rb["fin"][k]
         assert a.e["red"] > b.e["red"]
@@ -669,8 +720,9 @@ def test_suerte_compartida_lo_que_no_depende_de_la_decision_es_igual_en_las_dos_
     vistos = Counter()
     difieren_en_el_trabajo = 0
     for g in range(n(150)):
-        a, b = _vidas_del_mismo_gemelo(g, "ir", "quedarse", "unirse_a_startup", alcance="completo",
-                                       perfil=Perfil(edad=38))
+        a, b = _vidas_del_mismo_gemelo(
+            g, "ir", "quedarse", "unirse_a_startup", alcance="completo", perfil=Perfil(edad=38)
+        )
         for ra, rb in zip(a.historia, b.historia, strict=True):
             ea = [(x["evento"], x["resultado"]) for x in ra["eventos"] if x["evento"] in ajenos]
             eb = [(x["evento"], x["resultado"]) for x in rb["eventos"] if x["evento"] in ajenos]
@@ -688,6 +740,7 @@ def test_suerte_compartida_la_misma_vida_dos_veces_es_identica_y_otra_semilla_no
         v = vida(Perfil(edad=26), Dados(semilla, g))
         v.vivir(Poblacion(), 8)
         return v
+
     a, b = una(1, 7), una(1, 7)
     assert a.historia == b.historia and a.e == b.e and a.ingreso_total == b.ingreso_total
     assert una(2, 7).historia != a.historia and una(1, 8).historia != a.historia

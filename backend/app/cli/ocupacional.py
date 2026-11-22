@@ -73,10 +73,7 @@ def texto_perfil(p: dict) -> str:
     )
     total = directo + cesantia + inactividad
     dur = p["duracion_anios"]
-    destinos = [
-        (s["nombre"] + (" (el mismo)" if s["grupo"] == p["grupo"] else ""), s["prob"])
-        for s in p["siguiente"]
-    ]
+    destinos = [(s["nombre"] + (" (el mismo)" if s["grupo"] == p["grupo"] else ""), s["prob"]) for s in p["siguiente"]]
     return "\n".join(
         [
             f"Tu último trabajo: {p['nombre']} (tipo {p['grupo']})",

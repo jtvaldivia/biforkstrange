@@ -16,8 +16,15 @@ from app.sim.motor.perfil import Perfil, estado_inicial
 from app.sim.motor.politicas import Inercia
 
 # Literales de parametros.json (no se importan del código bajo prueba)
-ASCENSO_POBLACION = {"18-24": 0.065, "25-29": 0.069, "30-34": 0.066, "35-39": 0.06, "40-44": 0.055,
-                     "45-49": 0.052, "50-54": 0.052}
+ASCENSO_POBLACION = {
+    "18-24": 0.065,
+    "25-29": 0.069,
+    "30-34": 0.066,
+    "35-39": 0.06,
+    "40-44": 0.055,
+    "45-49": 0.052,
+    "50-54": 0.052,
+}
 ALZA_ASCENSO_MEDIA = (0.05 + 0.1) / 2
 MICRO_MEDIANA = 400_000
 
@@ -117,12 +124,15 @@ CUENTA_PROPIA_FORMAL = {"30-34": 667416, "35-39": 629303, "40-44": 798872}
 CUENTA_PROPIA_INFORMAL = {"18-24": 199496, "25-29": 300127}
 
 
-@pytest.mark.parametrize("edad, formal, esperado", [
-    (32, 1, (CUENTA_PROPIA_FORMAL["35-39"] / CUENTA_PROPIA_FORMAL["30-34"]) ** (1 / 5) - 1),  # cae: −1,2%
-    (37, 1, (CUENTA_PROPIA_FORMAL["40-44"] / CUENTA_PROPIA_FORMAL["35-39"]) ** (1 / 5) - 1),  # sube: +4,9%
-    (20, 0, 0.06),  # informal de 18-24 a 25-29 sube 8,5% al año: queda en el tope
-    (52, 1, 0.0),   # 50-54 es la última banda de la tabla
-])
+@pytest.mark.parametrize(
+    "edad, formal, esperado",
+    [
+        (32, 1, (CUENTA_PROPIA_FORMAL["35-39"] / CUENTA_PROPIA_FORMAL["30-34"]) ** (1 / 5) - 1),  # cae: −1,2%
+        (37, 1, (CUENTA_PROPIA_FORMAL["40-44"] / CUENTA_PROPIA_FORMAL["35-39"]) ** (1 / 5) - 1),  # sube: +4,9%
+        (20, 0, 0.06),  # informal de 18-24 a 25-29 sube 8,5% al año: queda en el tope
+        (52, 1, 0.0),  # 50-54 es la última banda de la tabla
+    ],
+)
 def test_el_crecimiento_por_cuenta_propia_sale_de_la_esi_por_edad(edad, formal, esperado):
     e = vida(Perfil(edad=edad, estado="independiente", sueldo=700_000, tipo_empleador=""), formal=formal).e
     assert e["crecimiento_cuenta_propia"] == pytest.approx(esperado)

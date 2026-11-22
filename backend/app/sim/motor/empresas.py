@@ -85,9 +85,14 @@ def _catalogo(pq: Paquete) -> dict:
             familias[(f["tipo"], f["clave"])] = [x.strip() for x in f["familias"].split("|") if x.strip()]
     except (KeyError, OSError):
         pass
-    cat = {"empresas": empresas, "por_id": {x["empresa_id"]: x for x in empresas},
-           "cargos": cargos, "cargo_por_id": {x["cargo_id"]: x for x in cargos}, "pools": {},
-           "familias": familias}
+    cat = {
+        "empresas": empresas,
+        "por_id": {x["empresa_id"]: x for x in empresas},
+        "cargos": cargos,
+        "cargo_por_id": {x["cargo_id"]: x for x in cargos},
+        "pools": {},
+        "familias": familias,
+    }
     pq._catalogo_empresas = cat
     return cat
 
@@ -105,13 +110,15 @@ def pool(pq: Paquete, tipo: str, rubro: str | None) -> list[dict]:
     cat = _catalogo(pq)
     clave = (tipo, rubro)
     if clave not in cat["pools"]:
-        cat["pools"][clave] = [x for x in cat["empresas"] if x["tipo"] == tipo and (rubro is None or x["rubro"] == rubro)
-                               and x["peso"] > 0]
+        cat["pools"][clave] = [
+            x for x in cat["empresas"] if x["tipo"] == tipo and (rubro is None or x["rubro"] == rubro) and x["peso"] > 0
+        ]
     return cat["pools"][clave]
 
 
-def sortear_empresa(pq: Paquete, dados: Dados, anio: int, sitio: str, tipo: str, rubro: str | None,
-                    e: dict | None = None) -> dict | None:
+def sortear_empresa(
+    pq: Paquete, dados: Dados, anio: int, sitio: str, tipo: str, rubro: str | None, e: dict | None = None
+) -> dict | None:
     """Una empresa del tipo y rubro, en proporción a `peso`. None si el catálogo no tiene ninguna.
 
     Con la persona (`e`), solo entre las empresas que tienen algún cargo de su línea de trabajo: así la
@@ -136,17 +143,70 @@ def sortear_empresa(pq: Paquete, dados: Dados, anio: int, sitio: str, tipo: str,
 # Palabras que, en el cargo que escribió la persona, dicen su línea de trabajo aunque el catálogo no tenga
 # ese nombre exacto ("Ingeniero de software" -> tecnología). Las genéricas (analista, jefe...) no deciden solas.
 _PISTAS = {
-    "software": "tecnologia", "programador": "tecnologia", "developer": "tecnologia", "desarrollador": "tecnologia",
-    "informatico": "tecnologia", "sistemas": "tecnologia", "devops": "tecnologia", "frontend": "tecnologia",
-    "backend": "tecnologia", "fullstack": "tecnologia", "datos": "datos", "data": "datos", "marketing": "marketing_comunicaciones",
-    "ventas": "comercial_ventas", "comercial": "comercial_ventas", "contador": "finanzas", "finanzas": "finanzas",
-    "financiero": "finanzas", "abogado": "legal", "abogada": "legal", "rrhh": "personas_rrhh", "personas": "personas_rrhh",
-    "profesor": "educacion", "profesora": "educacion", "docente": "educacion", "enfermero": "salud", "enfermera": "salud",
-    "medico": "salud", "medica": "salud", "disenador": "diseno_arte", "disenadora": "diseno_arte", "ux": "diseno_arte",
+    "software": "tecnologia",
+    "programador": "tecnologia",
+    "developer": "tecnologia",
+    "desarrollador": "tecnologia",
+    "informatico": "tecnologia",
+    "sistemas": "tecnologia",
+    "devops": "tecnologia",
+    "frontend": "tecnologia",
+    "backend": "tecnologia",
+    "fullstack": "tecnologia",
+    "datos": "datos",
+    "data": "datos",
+    "marketing": "marketing_comunicaciones",
+    "ventas": "comercial_ventas",
+    "comercial": "comercial_ventas",
+    "contador": "finanzas",
+    "finanzas": "finanzas",
+    "financiero": "finanzas",
+    "abogado": "legal",
+    "abogada": "legal",
+    "rrhh": "personas_rrhh",
+    "personas": "personas_rrhh",
+    "profesor": "educacion",
+    "profesora": "educacion",
+    "docente": "educacion",
+    "enfermero": "salud",
+    "enfermera": "salud",
+    "medico": "salud",
+    "medica": "salud",
+    "disenador": "diseno_arte",
+    "disenadora": "diseno_arte",
+    "ux": "diseno_arte",
 }
-_GENERICAS = {"analista", "jefe", "jefa", "gerente", "ingeniero", "ingeniera", "supervisor", "asistente", "ejecutivo",
-              "ejecutiva", "tecnico", "tecnica", "encargado", "encargada", "administrador", "senior", "junior", "semi",
-              "lider", "lead", "coordinador", "coordinadora", "especialista", "de", "del", "la", "el", "en", "y"}
+_GENERICAS = {
+    "analista",
+    "jefe",
+    "jefa",
+    "gerente",
+    "ingeniero",
+    "ingeniera",
+    "supervisor",
+    "asistente",
+    "ejecutivo",
+    "ejecutiva",
+    "tecnico",
+    "tecnica",
+    "encargado",
+    "encargada",
+    "administrador",
+    "senior",
+    "junior",
+    "semi",
+    "lider",
+    "lead",
+    "coordinador",
+    "coordinadora",
+    "especialista",
+    "de",
+    "del",
+    "la",
+    "el",
+    "en",
+    "y",
+}
 
 
 def _palabras(texto: str) -> set[str]:
@@ -195,11 +255,15 @@ def familias_de(pq: Paquete, e: dict) -> list[str]:
 def _duros(pq: Paquete, emp: dict, e: dict) -> list[dict]:
     """Cargos que la empresa podría ofrecerle: tipo y rubro de la empresa, nivel actual y educación mínima."""
     nivel, edu = int(e.get("nivel", 0)), EDU_ORDEN.get(e.get("edu", "media"), 0)
-    return [c for c in _catalogo(pq)["cargos"]
-            if (c["_tipos"] is None or emp["tipo"] in c["_tipos"])
-            and (c["_rubros"] is None or emp["rubro"] in c["_rubros"])
-            and c["nivel_min"] <= nivel <= c["nivel_max"]
-            and (EDU_ORDEN.get(c["edu_min"], 0) <= edu or _por_bootcamp(c, e)) and c["peso"] > 0]
+    return [
+        c
+        for c in _catalogo(pq)["cargos"]
+        if (c["_tipos"] is None or emp["tipo"] in c["_tipos"])
+        and (c["_rubros"] is None or emp["rubro"] in c["_rubros"])
+        and c["nivel_min"] <= nivel <= c["nivel_max"]
+        and (EDU_ORDEN.get(c["edu_min"], 0) <= edu or _por_bootcamp(c, e))
+        and c["peso"] > 0
+    ]
 
 
 FAMILIAS_BOOTCAMP = ("tecnologia", "datos")
@@ -223,11 +287,16 @@ def ocupacion_tipica(pq: Paquete, rubro: str, edu: str, nivel: int, area: str = 
     nivel_edu = EDU_ORDEN.get(edu, 0)
     respaldo = None  # la primera línea con algo, si ninguna pide una educación cercana a la suya
     for familia in familias:
-        posibles = [c for c in cat["cargos"]
-                    if c.get("familia") == familia and c["peso"] > 0
-                    and (c["_rubros"] is None or rubro in c["_rubros"])
-                    and EDU_ORDEN.get(c["edu_min"], 0) <= nivel_edu and c["nivel_min"] <= nivel <= c["nivel_max"]
-                    and not (c["_areas"] is not None and len(c["_areas"]) == 1 and area not in c["_areas"])]
+        posibles = [
+            c
+            for c in cat["cargos"]
+            if c.get("familia") == familia
+            and c["peso"] > 0
+            and (c["_rubros"] is None or rubro in c["_rubros"])
+            and EDU_ORDEN.get(c["edu_min"], 0) <= nivel_edu
+            and c["nivel_min"] <= nivel <= c["nivel_max"]
+            and not (c["_areas"] is not None and len(c["_areas"]) == 1 and area not in c["_areas"])
+        ]
         if posibles:
             # los cargos que piden la educación más cercana a la suya (un universitario no queda de peoneta), y de
             # ellos el oficio que suma más peso (albañil, electricista y soldador son todos operarios, CIUO 7)
@@ -255,8 +324,7 @@ def compatibles(pq: Paquete, emp: dict, e: dict) -> list[dict]:
     area, ocup = e.get("area") or "", int(e.get("ocupacion", -1))
 
     def profesion_ajena(c):  # el cargo pide una sola carrera y no es la tuya (un bootcamp abre los de tecnología)
-        return (c["_areas"] is not None and len(c["_areas"]) == 1 and area not in c["_areas"]
-                and not _por_bootcamp(c, e))
+        return c["_areas"] is not None and len(c["_areas"]) == 1 and area not in c["_areas"] and not _por_bootcamp(c, e)
 
     duros = [c for c in _duros(pq, emp, e) if (ocup < 0 or c["ciuo08_1d"] == ocup) and not profesion_ajena(c)]
     familias = set(familias_de(pq, e))
@@ -264,8 +332,12 @@ def compatibles(pq: Paquete, emp: dict, e: dict) -> list[dict]:
     def del_area(c):
         return c["_areas"] is None or (area and area in c["_areas"])
 
-    for filtro in (lambda c: c.get("familia") in familias and del_area(c), lambda c: c.get("familia") in familias,
-                   del_area, lambda c: True):
+    for filtro in (
+        lambda c: c.get("familia") in familias and del_area(c),
+        lambda c: c.get("familia") in familias,
+        del_area,
+        lambda c: True,
+    ):
         quedan = [c for c in duros if filtro(c)]
         if quedan:
             return quedan
@@ -399,13 +471,23 @@ def ficha(pq: Paquete, emp: dict | None, car: dict | None) -> dict | None:
     if emp is None:
         return None
     return {
-        "empresa_id": emp["empresa_id"], "nombre": emp["nombre"], "rubro": emp["rubro"], "tipo": emp["tipo"],
-        "pais": emp.get("pais", ""), "dominio": emp.get("dominio", ""), "logo": emp["logo"], "origen": emp.get("origen", ""),
-        "cargo_id": car["cargo_id"] if car else -1, "cargo": car["nombre"] if car else None,
+        "empresa_id": emp["empresa_id"],
+        "nombre": emp["nombre"],
+        "rubro": emp["rubro"],
+        "tipo": emp["tipo"],
+        "pais": emp.get("pais", ""),
+        "dominio": emp.get("dominio", ""),
+        "logo": emp["logo"],
+        "origen": emp.get("origen", ""),
+        "cargo_id": car["cargo_id"] if car else -1,
+        "cargo": car["nombre"] if car else None,
         "cifras": {
-            "sueldo": round(factor_sueldo(emp, car), 3), "despido": round(emp["mult_despido"], 3),
-            "ascenso": round(emp["mult_ascenso"], 3), "cierre": round(emp["mult_cierre"], 3),
-            "exposicion_ia": round(car["exposicion_ia"] if car else emp["exposicion_ia"], 3), "horas": int(emp["horas"]),
+            "sueldo": round(factor_sueldo(emp, car), 3),
+            "despido": round(emp["mult_despido"], 3),
+            "ascenso": round(emp["mult_ascenso"], 3),
+            "cierre": round(emp["mult_cierre"], 3),
+            "exposicion_ia": round(car["exposicion_ia"] if car else emp["exposicion_ia"], 3),
+            "horas": int(emp["horas"]),
         },
         "calidad": "sintetico",
     }
@@ -451,6 +533,15 @@ def universidades(pq: Paquete) -> list[dict]:
         filas = pq.filas("universidades")
     except (KeyError, OSError):
         return []
-    return [{"universidad_id": f["universidad_id"], "nombre": f["nombre"], "sigla": f.get("sigla", ""),
-             "pais": f["pais"], "tipo_institucion": f["tipo_institucion"], "logo": f.get("logo") == "1",
-             "selectiva": f.get("selectiva") == "1"} for f in filas]
+    return [
+        {
+            "universidad_id": f["universidad_id"],
+            "nombre": f["nombre"],
+            "sigla": f.get("sigla", ""),
+            "pais": f["pais"],
+            "tipo_institucion": f["tipo_institucion"],
+            "logo": f.get("logo") == "1",
+            "selectiva": f.get("selectiva") == "1",
+        }
+        for f in filas
+    ]

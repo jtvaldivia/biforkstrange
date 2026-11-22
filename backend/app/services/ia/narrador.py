@@ -49,8 +49,18 @@ TAMANO_CACHE = 2000
 LARGO_MAX = {"oferta": 280, "evento": 220, "mundo": 600}
 
 # Datos que no deben salir hacia el modelo aunque alguien los meta en el contexto.
-_CLAVES_PRIVADAS = {"sueldo", "sueldo_liquido", "sueldo_bruto", "nombre", "apellido", "rut", "email",
-                    "correo", "telefono", "direccion"}
+_CLAVES_PRIVADAS = {
+    "sueldo",
+    "sueldo_liquido",
+    "sueldo_bruto",
+    "nombre",
+    "apellido",
+    "rut",
+    "email",
+    "correo",
+    "telefono",
+    "direccion",
+}
 _CIFRAS = re.compile(r"\d|\$|%|\bUSD\b|\bUF\b|\bmill[oó]n(es)?\b|\bpesos\b", re.IGNORECASE)
 # La marca de simulación: "en este mundo simulado", "en esta simulación", "en tu historia simulada"...
 _MARCA = re.compile(r"\bsimulad[oa]s?\b|\bsimulacion(es)?\b")
@@ -60,9 +70,13 @@ class Item(BaseModel):
     id: str = Field(description="Único dentro de la llamada.")
     tipo: Literal["oferta", "evento", "mundo"]
     plantilla: str = Field(description="El texto de narrativa.py: es el respaldo.")
-    contexto: dict = Field(default_factory=dict, description=(
-        "empresa, rubro, cargo, tipo_empleador, decision, opcion, evento, tono ('bueno'|'malo'|'neutro'), "
-        "anio, edad, escenario_ia ('lento'|'medio'|'rapido'). Sin sueldo ni datos personales."))
+    contexto: dict = Field(
+        default_factory=dict,
+        description=(
+            "empresa, rubro, cargo, tipo_empleador, decision, opcion, evento, tono ('bueno'|'malo'|'neutro'), "
+            "anio, edad, escenario_ia ('lento'|'medio'|'rapido'). Sin sueldo ni datos personales."
+        ),
+    )
     # empresas reales que este texto no puede nombrar (un cierre o un despido no se le atribuye a una empresa
     # real); no se manda al modelo: se revisa en código
     sin_nombrar: list[str] = Field(default_factory=list, exclude=True)
@@ -183,6 +197,7 @@ def limpiar_cache() -> None:
 
 # --- validación ----------------------------------------------------------------------------
 
+
 def _sin_tildes(texto: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFD", texto.lower()) if unicodedata.category(c) != "Mn")
 
@@ -229,8 +244,9 @@ _hilos = ThreadPoolExecutor(max_workers=4 * LLAMADAS_SIMULTANEAS, thread_name_pr
 
 def _por_api(lote: list[Item], relato: str = "") -> dict[str, str]:
     """Una llamada a Claude con hasta MAX_POR_LLAMADA items. Devuelve {id: texto} sin validar."""
-    entrada = [{"id": i.id, "tipo": i.tipo, "contexto": _contexto_limpio(i.contexto), "plantilla": i.plantilla}
-               for i in lote]
+    entrada = [
+        {"id": i.id, "tipo": i.tipo, "contexto": _contexto_limpio(i.contexto), "plantilla": i.plantilla} for i in lote
+    ]
     cuerpo = {"relato": relato, "items": entrada} if relato else {"items": entrada}
     extra = {"thinking": {"type": "disabled"}} if SIN_RAZONAR else {}  # textos cortos: más rápido sin razonar
     try:
@@ -281,6 +297,7 @@ def _activo() -> bool:
 
 # --- API pública ---------------------------------------------------------------------------
 
+
 def narrar(items: list[Item], relato: str = "") -> list[Narrado]:
     """Los textos narrados, en el mismo orden y con los mismos ids. Nunca lanza.
 
@@ -305,7 +322,7 @@ def _narrar(items: list[Item], relato: str = "") -> list[Narrado]:
             if llave not in pendientes and _de_cache(llave) is None:
                 pendientes[llave] = item
         unicos = list(pendientes.values())
-        lotes = [unicos[k:k + MAX_POR_LLAMADA] for k in range(0, len(unicos), MAX_POR_LLAMADA)]
+        lotes = [unicos[k : k + MAX_POR_LLAMADA] for k in range(0, len(unicos), MAX_POR_LLAMADA)]
         futuros = {_hilos.submit(_llamar_lote, lote, relato): lote for lote in lotes}
         if futuros:
             listos, demorados = esperar(futuros, timeout=ESPERA_MAX)
@@ -314,13 +331,20 @@ def _narrar(items: list[Item], relato: str = "") -> list[Narrado]:
             for futuro in listos:
                 error = futuro.exception()
                 if error is not None:
-                    log.warning("narrador: lote de %d items falló (%s: %s)", len(futuros[futuro]),
-                                type(error).__name__, str(error)[:120])
+                    log.warning(
+                        "narrador: lote de %d items falló (%s: %s)",
+                        len(futuros[futuro]),
+                        type(error).__name__,
+                        str(error)[:120],
+                    )
         # todo lo que se validó quedó en la caché, incluidos los repetidos dentro de esta llamada
         for pos, llave in enumerate(llaves):
             texto = _de_cache(llave)
             if texto is not None:
                 textos[pos] = texto
-    return [Narrado(id=i.id, texto=textos[pos], via="claude") if pos in textos
-            else Narrado(id=i.id, texto=i.plantilla, via="plantilla")
-            for pos, i in enumerate(items)]
+    return [
+        Narrado(id=i.id, texto=textos[pos], via="claude")
+        if pos in textos
+        else Narrado(id=i.id, texto=i.plantilla, via="plantilla")
+        for pos, i in enumerate(items)
+    ]

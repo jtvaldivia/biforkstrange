@@ -15,14 +15,57 @@ from app.sim.motor.partida import dudas_posibles, vista
 from app.sim.motor.perfil import Perfil
 
 N = "20"  # gemelos por opción: pocos, para que los tests sean rápidos
-JERGA = ("p10", "p50", "p90", "percentil", "Monte Carlo", "montecarlo", "cuantil", "mediana de los gemelos",
-         "mediana de las copias")
+JERGA = (
+    "p10",
+    "p50",
+    "p90",
+    "percentil",
+    "Monte Carlo",
+    "montecarlo",
+    "cuantil",
+    "mediana de los gemelos",
+    "mediana de las copias",
+)
 PERFILES = [
     ["--duda", "unirse_a_startup", "--semilla", "7"],
-    ["--duda", "emprender", "--semilla", "11", "--edad", "45", "--sexo", "h", "--edu", "postgrado", "--rubro",
-     "finanzas", "--tipo-empleador", "grande", "--nivel", "3", "--sueldo", "4500000"],
-    ["--duda", "renunciar", "--semilla", "3", "--edad", "22", "--edu", "media", "--rubro", "Comercio", "--nivel", "0",
-     "--sueldo", "550000", "--riesgo", "9"],
+    [
+        "--duda",
+        "emprender",
+        "--semilla",
+        "11",
+        "--edad",
+        "45",
+        "--sexo",
+        "h",
+        "--edu",
+        "postgrado",
+        "--rubro",
+        "finanzas",
+        "--tipo-empleador",
+        "grande",
+        "--nivel",
+        "3",
+        "--sueldo",
+        "4500000",
+    ],
+    [
+        "--duda",
+        "renunciar",
+        "--semilla",
+        "3",
+        "--edad",
+        "22",
+        "--edu",
+        "media",
+        "--rubro",
+        "Comercio",
+        "--nivel",
+        "0",
+        "--sueldo",
+        "550000",
+        "--riesgo",
+        "9",
+    ],
     ["--duda", "magister", "--semilla", "8", "--tipo-empleador", "publico", "--rubro", "Administración pública"],
 ]
 
@@ -93,7 +136,9 @@ def test_misma_semilla_misma_salida(capsys):
 def test_elecciones_repiten_la_partida_de_auto(capsys):
     """La línea "para repetir esta partida" de verdad la repite, ahora sin --auto."""
     _, auto, _ = _jugar(capsys, "--duda", "cambiar_de_rubro", "--semilla", "4", "--auto")
-    code, repetida, err = _jugar(capsys, "--duda", "cambiar_de_rubro", "--semilla", "4", "--elecciones", _elecciones_de(auto))
+    code, repetida, err = _jugar(
+        capsys, "--duda", "cambiar_de_rubro", "--semilla", "4", "--elecciones", _elecciones_de(auto)
+    )
     assert code == 0 and err == ""
     assert repetida == auto
 
@@ -115,7 +160,9 @@ def test_eleccion_interna_va_al_motor(capsys):
     assert code == 0
     assert f"¿A qué rubro? {destino}." in out
     assert _elecciones_de(out).split(",")[0] == "1:2"
-    historia = vista(Perfil(), 0, "cambiar_de_rubro", [{"opcion": "cambiar", "parametros": {"rubro_destino": destino}}], 0)
+    historia = vista(
+        Perfil(), 0, "cambiar_de_rubro", [{"opcion": "cambiar", "parametros": {"rubro_destino": destino}}], 0
+    )
     registro = (historia["historia"] or [historia["anio_en_curso"]])[0]
     assert registro["decisiones"][0]["texto"] in out
 
@@ -131,7 +178,7 @@ def test_partida_legible(capsys, perfil):
         assert jerga not in out
     # los montos se escriben de una sola forma: pesos con puntos, redondeados a miles
     # (los textos del paquete traen sus propias cifras, como "$9 millones" o "$667 mil": esas no son nuestras)
-    montos = [m.group() for m in re.finditer(r"\$[\d.,]*\d", out) if not out[m.end():].startswith(" mil")]
+    montos = [m.group() for m in re.finditer(r"\$[\d.,]*\d", out) if not out[m.end() :].startswith(" mil")]
     assert montos
     for monto in montos:
         assert re.fullmatch(r"\$(0|\d{1,3}(\.\d{3})+)", monto), monto
@@ -190,8 +237,13 @@ def test_un_doctorado_ocupa_varios_anios_y_el_juego_dura_diez(capsys):
 
 
 def _opcion(mas: float, igual: float, menos: float, diferencia: int) -> dict:
-    return {"nombre": "Sí", "gana_mas_que_base": mas, "igual_que_base": igual, "gana_menos_que_base": menos,
-            "diferencia_tipica": diferencia}
+    return {
+        "nombre": "Sí",
+        "gana_mas_que_base": mas,
+        "igual_que_base": igual,
+        "gana_menos_que_base": menos,
+        "diferencia_tipica": diferencia,
+    }
 
 
 @pytest.mark.parametrize(
@@ -199,19 +251,29 @@ def _opcion(mas: float, igual: float, menos: float, diferencia: int) -> dict:
     [
         (_opcion(0, 1, 0, 0), "«Sí» frente a «No»: no cambia tu sueldo en ningún mundo."),
         (_opcion(0.03, 0.96, 0.01, 0), "«Sí» frente a «No»: no cambia tu sueldo en casi ningún mundo."),
-        (_opcion(0.09, 0.89, 0.02, 0),
-         "«Sí» frente a «No»: en 1 de cada 10 mundos ganas más y en 9 de cada 10 da lo mismo. "
-         "Diferencia típica: $0 al mes."),
-        (_opcion(0.02, 0.26, 0.72, -12_300),
-         "«Sí» frente a «No»: en 3 de cada 10 mundos da lo mismo y en 7 de cada 10 ganas menos. "
-         "Diferencia típica: −$12.000 al mes."),
-        (_opcion(0.55, 0.14, 0.31, 169_363),
-         "«Sí» frente a «No»: en 6 de cada 10 mundos ganas más, en 1 de cada 10 da lo mismo y en 3 de cada 10 "
-         "ganas menos. Diferencia típica: +$169.000 al mes."),
-        (_opcion(1, 0, 0, 250_000),
-         "«Sí» frente a «No»: en todos los mundos ganas más. Diferencia típica: +$250.000 al mes."),
-        (_opcion(0.02, 0.0, 0.98, -400_000),
-         "«Sí» frente a «No»: en casi todos los mundos ganas menos. Diferencia típica: −$400.000 al mes."),
+        (
+            _opcion(0.09, 0.89, 0.02, 0),
+            "«Sí» frente a «No»: en 1 de cada 10 mundos ganas más y en 9 de cada 10 da lo mismo. "
+            "Diferencia típica: $0 al mes.",
+        ),
+        (
+            _opcion(0.02, 0.26, 0.72, -12_300),
+            "«Sí» frente a «No»: en 3 de cada 10 mundos da lo mismo y en 7 de cada 10 ganas menos. "
+            "Diferencia típica: −$12.000 al mes.",
+        ),
+        (
+            _opcion(0.55, 0.14, 0.31, 169_363),
+            "«Sí» frente a «No»: en 6 de cada 10 mundos ganas más, en 1 de cada 10 da lo mismo y en 3 de cada 10 "
+            "ganas menos. Diferencia típica: +$169.000 al mes.",
+        ),
+        (
+            _opcion(1, 0, 0, 250_000),
+            "«Sí» frente a «No»: en todos los mundos ganas más. Diferencia típica: +$250.000 al mes.",
+        ),
+        (
+            _opcion(0.02, 0.0, 0.98, -400_000),
+            "«Sí» frente a «No»: en casi todos los mundos ganas menos. Diferencia típica: −$400.000 al mes.",
+        ),
     ],
 )
 def test_frase_de_mundos(opcion, frase):
@@ -340,7 +402,9 @@ def test_entrada_invalida(capsys, argv, pista):
 
 def test_sobran_elecciones(capsys):
     _, auto, _ = _jugar(capsys, "--duda", "unirse_a_startup", "--semilla", "7", "--auto")
-    code, _, err = _jugar(capsys, "--duda", "unirse_a_startup", "--semilla", "7", "--elecciones", _elecciones_de(auto) + ",1")
+    code, _, err = _jugar(
+        capsys, "--duda", "unirse_a_startup", "--semilla", "7", "--elecciones", _elecciones_de(auto) + ",1"
+    )
     assert code != 0
     assert "Sobran elecciones" in err and "Traceback" not in err
 

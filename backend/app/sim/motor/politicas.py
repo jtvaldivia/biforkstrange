@@ -20,7 +20,14 @@ PESOS_FORZADAS: dict[str, dict[str, float]] = {
     "salir_del_colegio": {"universidad": 0.36, "instituto": 0.10, "cft": 0.07, "trabajar": 0.43, "pausa": 0.04},
     "financiar_estudios": {"gratuidad": 0.55, "cae": 0.25, "familia": 0.20},
     "seguir_o_desertar": {"seguir": 0.90, "cambiarse": 0.04, "dejar": 0.06},
-    "primera_pega": {"grande": 0.32, "pyme": 0.47, "startup": 0.02, "estado": 0.12, "independiente": 0.05, "emprender": 0.02},
+    "primera_pega": {
+        "grande": 0.32,
+        "pyme": 0.47,
+        "startup": 0.02,
+        "estado": 0.12,
+        "independiente": 0.05,
+        "emprender": 0.02,
+    },
     "cesantia": {"rapido": 0.48, "nivel": 0.40, "informal": 0.09, "bootcamp": 0.01, "emprender": 0.02},
     "oferta_externa": {"cambiar": 0.34, "contraoferta": 0.09, "quedarse": 0.57},
     "seguir_con_tu_empresa": {"seguir": 0.86, "levantar": 0.04, "vender": 0.05, "cerrar": 0.05},
@@ -63,9 +70,9 @@ ANOS_POR_EMPLEO_TIPICO = 3.0
 # Cuánto peso suma cada rasgo de tu historia a la opción que se le parece cuando quedas cesante
 # (supuestos del equipo, sin dato detrás: la dirección sale del CV, el tamaño es nuestro).
 CESANTIA_POR_HISTORIA = {
-    "volvio_a_su_nivel": ("nivel", 0.15),      # ya esperó más de 6 meses y volvió a un cargo igual o mayor
+    "volvio_a_su_nivel": ("nivel", 0.15),  # ya esperó más de 6 meses y volvió a un cargo igual o mayor
     "freelance_entre_pegas": ("informal", 0.12),  # ya hizo boletas entre una pega y otra
-    "emprendio_antes": ("emprender", 0.06),    # ya tuvo una empresa propia
+    "emprendio_antes": ("emprender", 0.06),  # ya tuvo una empresa propia
 }
 # Dónde hizo la práctica, y cuánto peso suma a buscar la primera pega en ese tipo de empleador (supuesto)
 PRIMERA_PEGA_POR_PRACTICA = {"grande": ("grande", 0.13), "publico": ("estado", 0.10)}
@@ -97,8 +104,11 @@ def pesos_personales(e: dict) -> dict[str, dict[str, float]]:
     if anos:
         base = PESOS_FORZADAS["oferta_externa"]
         cambiar = min(0.65, max(0.15, base["cambiar"] * min(1.8, max(0.5, ANOS_POR_EMPLEO_TIPICO / anos))))
-        salida["oferta_externa"] = {"cambiar": round(cambiar, 3), "contraoferta": base["contraoferta"],
-                                    "quedarse": round(1 - cambiar - base["contraoferta"], 3)}
+        salida["oferta_externa"] = {
+            "cambiar": round(cambiar, 3),
+            "contraoferta": base["contraoferta"],
+            "quedarse": round(1 - cambiar - base["contraoferta"], 3),
+        }
     cesantia = PESOS_FORZADAS["cesantia"]
     for rasgo, (opcion, cuanto) in CESANTIA_POR_HISTORIA.items():
         if e.get(rasgo):
@@ -144,75 +154,154 @@ def _pesos(decision: dict, opciones: list[Opcion], tabla: dict[str, dict[str, fl
     dados = tabla.get(decision["id"], {})
     quieto = STATU_QUO.get(decision["id"], opciones[-1].id)
     activos = sum(p for o, p in dados.items() if o != quieto and any(x.id == o for x in opciones))
-    return [dados[o.id] if o.id in dados and o.id != quieto else (max(0.0, 1 - activos) if o.id == quieto else 0.0)
-            for o in opciones]
+    return [
+        dados[o.id] if o.id in dados and o.id != quieto else (max(0.0, 1 - activos) if o.id == quieto else 0.0)
+        for o in opciones
+    ]
 
 
 def elecciones_internas(vida: Vida, opcion: Opcion) -> list[dict]:
     """Lo que hay que elegir dentro de una opción (a qué rubro, a qué ocupación), con sus alternativas."""
     pq, e = vida.pq, vida.e
     usadas = _variables_usadas(opcion)
-    if not usadas & {"rubro_destino", "rubro_emprendimiento", "ocupacion_destino", "region_destino", "universidad_destino", "institucion_destino"}:
+    if not usadas & {
+        "rubro_destino",
+        "rubro_emprendimiento",
+        "ocupacion_destino",
+        "region_destino",
+        "universidad_destino",
+        "institucion_destino",
+    }:
         return []
     salida = []
     if "rubro_destino" in usadas:
         # peso: cuánta gente ocupada hay en cada rubro (ESI)
         filas = {f["rubro"]: f for f in pq.filas("esi_ingreso_rubro_edad") if f["banda_edad"] == "18-54"}
-        salida.append({"variable": "rubro_destino", "pregunta": "¿A qué rubro?", "alternativas": [
-            {"valor": r, "nombre": r, "prob": float(filas[r]["share_ocupados_banda"] or 0) if r in filas else 0.0,
-             # la carta pregunta por "un rubro que paga más": por defecto, el de mayor sueldo mediano,
-             # salvo que la persona haya contado a qué rubro se cambiaría
-             "preferencia": (1e12 if r == e.get("rubro_sonado") else
-                             float(filas[r]["p50"] or 0) if r in filas else 0.0)}
-            for r in pq.variables["rubro"]["dominio"] if r and r != e["rubro"]]})
+        salida.append(
+            {
+                "variable": "rubro_destino",
+                "pregunta": "¿A qué rubro?",
+                "alternativas": [
+                    {
+                        "valor": r,
+                        "nombre": r,
+                        "prob": float(filas[r]["share_ocupados_banda"] or 0) if r in filas else 0.0,
+                        # la carta pregunta por "un rubro que paga más": por defecto, el de mayor sueldo mediano,
+                        # salvo que la persona haya contado a qué rubro se cambiaría
+                        "preferencia": (
+                            1e12 if r == e.get("rubro_sonado") else float(filas[r]["p50"] or 0) if r in filas else 0.0
+                        ),
+                    }
+                    for r in pq.variables["rubro"]["dominio"]
+                    if r and r != e["rubro"]
+                ],
+            }
+        )
     if "rubro_emprendimiento" in usadas:
         # peso: cuánta gente ocupada hay en cada rubro (ESI). Por defecto, el rubro de su proyecto según su
         # Claude; si no, el que soñó; si no, el suyo de hoy
         filas = {f["rubro"]: f for f in pq.filas("esi_ingreso_rubro_edad") if f["banda_edad"] == "18-54"}
         orden = [r for r in (e.get("rubro_proyecto"), e.get("rubro_sonado"), e["rubro"]) if r]
-        salida.append({"variable": "rubro_emprendimiento", "pregunta": "¿De qué rubro es tu empresa?", "alternativas": [
-            {"valor": r, "nombre": r, "prob": float(filas[r]["share_ocupados_banda"] or 0) if r in filas else 0.0,
-             "preferencia": 1e12 * (len(orden) - orden.index(r)) if r in orden else 0.0}
-            for r in pq.variables["rubro"]["dominio"] if r]})
+        salida.append(
+            {
+                "variable": "rubro_emprendimiento",
+                "pregunta": "¿De qué rubro es tu empresa?",
+                "alternativas": [
+                    {
+                        "valor": r,
+                        "nombre": r,
+                        "prob": float(filas[r]["share_ocupados_banda"] or 0) if r in filas else 0.0,
+                        "preferencia": 1e12 * (len(orden) - orden.index(r)) if r in orden else 0.0,
+                    }
+                    for r in pq.variables["rubro"]["dominio"]
+                    if r
+                ],
+            }
+        )
     if "ocupacion_destino" in usadas:
         nombres = {int(f["origen"]): f["origen_nombre"] for f in pq.filas("jobhop_transiciones")}
-        salida.append({"variable": "ocupacion_destino", "pregunta": "¿A qué tipo de trabajo?", "alternativas": [
-            {"valor": d, "nombre": nombres[d],
-             "prob": pq.tabla("jobhop_transiciones", "prob", "origen", e["ocupacion"], "destino", d)}
-            for d in range(1, 10) if d != e["ocupacion"]]})
+        salida.append(
+            {
+                "variable": "ocupacion_destino",
+                "pregunta": "¿A qué tipo de trabajo?",
+                "alternativas": [
+                    {
+                        "valor": d,
+                        "nombre": nombres[d],
+                        "prob": pq.tabla("jobhop_transiciones", "prob", "origen", e["ocupacion"], "destino", d),
+                    }
+                    for d in range(1, 10)
+                    if d != e["ocupacion"]
+                ],
+            }
+        )
     if "region_destino" in usadas:
         # peso: parte de los ocupados del país que trabaja en cada región (ESI)
-        gente = {f["region"]: float(f["share_nacional"] or 0) for f in pq.filas("esi_ingreso_region")
-                 if f["educacion"] == "todas" and f["region"] not in ("Metropolitana", "Nacional")}
-        salida.append({"variable": "region_destino", "pregunta": "¿A qué región?", "alternativas": [
-            {"valor": r, "nombre": r, "prob": p} for r, p in sorted(gente.items())]})
+        gente = {
+            f["region"]: float(f["share_nacional"] or 0)
+            for f in pq.filas("esi_ingreso_region")
+            if f["educacion"] == "todas" and f["region"] not in ("Metropolitana", "Nacional")
+        }
+        salida.append(
+            {
+                "variable": "region_destino",
+                "pregunta": "¿A qué región?",
+                "alternativas": [{"valor": r, "nombre": r, "prob": p} for r, p in sorted(gente.items())],
+            }
+        )
     if "universidad_destino" in usadas:
         # peso: cuántos magísteres vigentes tiene cada universidad (SIES 2026); las extranjeras, el peso
         # chico y sintético de universidades.peso_magister (en la misma escala de programas)
         alternativas = [
-            {"valor": f["universidad_id"], "nombre": _universidad(f), "prob": float(f["programas"]),
-             "selectiva": f["selectiva"] == "1", "arancel_anual": float(f["arancel_anual"]), "anios": float(f["anios"]),
-             "pais": "Chile"}
-            for f in pq.filas("sies_magister_2026")]
+            {
+                "valor": f["universidad_id"],
+                "nombre": _universidad(f),
+                "prob": float(f["programas"]),
+                "selectiva": f["selectiva"] == "1",
+                "arancel_anual": float(f["arancel_anual"]),
+                "anios": float(f["anios"]),
+                "pais": "Chile",
+            }
+            for f in pq.filas("sies_magister_2026")
+        ]
         usd = pq.k("USD")
         alternativas += [
-            {"valor": f["universidad_id"], "nombre": f"{f['sigla'] or f['nombre']} ({f['pais']})",
-             "prob": float(f.get("peso_magister") or 0), "selectiva": True,
-             "arancel_anual": round(float(f.get("arancel_magister_usd") or 0) * usd), "anios": float(f.get("anios_magister") or 1),
-             "pais": f["pais"], "calidad": "sintetico"}
-            for f in _universidades(pq) if f["tipo_institucion"] == "EXT"]
-        salida.append({"variable": "universidad_destino", "pregunta": "¿En qué universidad?", "alternativas": alternativas})
+            {
+                "valor": f["universidad_id"],
+                "nombre": f"{f['sigla'] or f['nombre']} ({f['pais']})",
+                "prob": float(f.get("peso_magister") or 0),
+                "selectiva": True,
+                "arancel_anual": round(float(f.get("arancel_magister_usd") or 0) * usd),
+                "anios": float(f.get("anios_magister") or 1),
+                "pais": f["pais"],
+                "calidad": "sintetico",
+            }
+            for f in _universidades(pq)
+            if f["tipo_institucion"] == "EXT"
+        ]
+        salida.append(
+            {"variable": "universidad_destino", "pregunta": "¿En qué universidad?", "alternativas": alternativas}
+        )
     if "institucion_destino" in usadas:
         # peso: matrícula de pregrado de cada institución (SIES); solo chilenas y del tipo de la opción
         tipo = _tipo_institucion(opcion)
         alternativas = [
-            {"valor": f["universidad_id"], "nombre": f["sigla"] or f["nombre"], "prob": float(f.get("matricula") or 0),
-             "selectiva": f.get("selectiva") == "1", "arancel_anual": float(f.get("arancel_anual_pregrado") or 0)}
+            {
+                "valor": f["universidad_id"],
+                "nombre": f["sigla"] or f["nombre"],
+                "prob": float(f.get("matricula") or 0),
+                "selectiva": f.get("selectiva") == "1",
+                "arancel_anual": float(f.get("arancel_anual_pregrado") or 0),
+            }
             for f in _universidades(pq)
-            if f["tipo_institucion"] != "EXT" and (tipo is None or f["tipo_institucion"] == tipo)
-            and float(f.get("matricula") or 0) > 0]
+            if f["tipo_institucion"] != "EXT"
+            and (tipo is None or f["tipo_institucion"] == tipo)
+            and float(f.get("matricula") or 0) > 0
+        ]
         if alternativas:
-            salida.append({"variable": "institucion_destino", "pregunta": "¿Dónde estudias?", "alternativas": alternativas})
+            salida.append(
+                {"variable": "institucion_destino", "pregunta": "¿Dónde estudias?", "alternativas": alternativas}
+            )
     return salida
 
 
@@ -358,8 +447,10 @@ class Jugador:
             raise FaltaEleccion(decision, opciones)
         eleccion = self.elecciones[self.usadas]
         if eleccion.get("decision") not in (None, decision["id"]):
-            raise ValueError(f"la elección {self.usadas + 1} es para {eleccion['decision']!r}, "
-                             f"pero la partida está en {decision['id']!r}")
+            raise ValueError(
+                f"la elección {self.usadas + 1} es para {eleccion['decision']!r}, "
+                f"pero la partida está en {decision['id']!r}"
+            )
         self.usadas += 1
         opcion = next((o for o in opciones if o.id == str(eleccion["opcion"])), None)
         defecto = parametros_por_defecto(vida, opcion) if opcion else {}

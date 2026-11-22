@@ -21,17 +21,55 @@ from pathlib import Path
 SALIDA = Path(__file__).resolve().parents[1] / "data" / "empresas"
 
 RUBRO_SII = {
-    "COMERCIO": "Comercio", "CONSTRUCCION": "Construcción", "ACTIVIDADES PROFESIONALES": "Servicios profesionales",
-    "INDUSTRIA MANUFACTURERA": "Industria manufacturera", "TRANSPORTE": "Transporte", "ACTIVIDADES FINANCIERAS": "Finanzas y seguros",
-    "ACTIVIDADES DE SERVICIOS ADMINISTRATIVOS": "Servicios administrativos", "ACTIVIDADES INMOBILIARIAS": "Otros servicios",
-    "ACTIVIDADES DE ATENCION DE LA SALUD": "Salud", "ACTIVIDADES DE ALOJAMIENTO": "Hoteles y restaurantes",
-    "AGRICULTURA": "Agricultura y pesca", "OTRAS ACTIVIDADES DE SERVICIOS": "Otros servicios", "INFORMACION Y COMUNICACIONES": "Información y comunicaciones",
-    "ENSEÑANZA": "Enseñanza", "ACTIVIDADES ARTISTICAS": "Artes y entretención", "SUMINISTRO DE AGUA": "Otros servicios",
-    "EXPLOTACION DE MINAS": "Minería", "SUMINISTRO DE ELECTRICIDAD": "Otros servicios", "ADMINISTRACION PUBLICA": "Administración pública",
+    "COMERCIO": "Comercio",
+    "CONSTRUCCION": "Construcción",
+    "ACTIVIDADES PROFESIONALES": "Servicios profesionales",
+    "INDUSTRIA MANUFACTURERA": "Industria manufacturera",
+    "TRANSPORTE": "Transporte",
+    "ACTIVIDADES FINANCIERAS": "Finanzas y seguros",
+    "ACTIVIDADES DE SERVICIOS ADMINISTRATIVOS": "Servicios administrativos",
+    "ACTIVIDADES INMOBILIARIAS": "Otros servicios",
+    "ACTIVIDADES DE ATENCION DE LA SALUD": "Salud",
+    "ACTIVIDADES DE ALOJAMIENTO": "Hoteles y restaurantes",
+    "AGRICULTURA": "Agricultura y pesca",
+    "OTRAS ACTIVIDADES DE SERVICIOS": "Otros servicios",
+    "INFORMACION Y COMUNICACIONES": "Información y comunicaciones",
+    "ENSEÑANZA": "Enseñanza",
+    "ACTIVIDADES ARTISTICAS": "Artes y entretención",
+    "SUMINISTRO DE AGUA": "Otros servicios",
+    "EXPLOTACION DE MINAS": "Minería",
+    "SUMINISTRO DE ELECTRICIDAD": "Otros servicios",
+    "ADMINISTRACION PUBLICA": "Administración pública",
 }
-SUBTIPOS_EXCLUIDOS = {"COMUNIDADES DE EDIFICIOS", "JUNTA DE VECINOS, ORG. COMUNITARIA", "SUCESIONES O COMUNIDADES HERED", "SOCIEDADES DE HECHO", "OTRA OSFL"}
-SUFIJOS = re.compile(r"[\s,]+(S\.?\s?P\.?\s?A\.?|SPA|S\.?\s?A\.?|LIMITADA|LTDA\.?|E\.?\s?I\.?\s?R\.?\s?L\.?|Y\s+C(OMPA[NÑ]IA|IA\.?)\s+(LIMITADA|LTDA\.?)?)\.?$", re.I)
-MAYUSCULAS = {"S.A.", "SPA", "AFP", "TI", "IT", "BCI", "CCU", "CMPC", "SQM", "LATAM", "ISS", "WOM", "SMU", "UC", "II", "III"}
+SUBTIPOS_EXCLUIDOS = {
+    "COMUNIDADES DE EDIFICIOS",
+    "JUNTA DE VECINOS, ORG. COMUNITARIA",
+    "SUCESIONES O COMUNIDADES HERED",
+    "SOCIEDADES DE HECHO",
+    "OTRA OSFL",
+}
+SUFIJOS = re.compile(
+    r"[\s,]+(S\.?\s?P\.?\s?A\.?|SPA|S\.?\s?A\.?|LIMITADA|LTDA\.?|E\.?\s?I\.?\s?R\.?\s?L\.?|Y\s+C(OMPA[NÑ]IA|IA\.?)\s+(LIMITADA|LTDA\.?)?)\.?$",
+    re.I,
+)
+MAYUSCULAS = {
+    "S.A.",
+    "SPA",
+    "AFP",
+    "TI",
+    "IT",
+    "BCI",
+    "CCU",
+    "CMPC",
+    "SQM",
+    "LATAM",
+    "ISS",
+    "WOM",
+    "SMU",
+    "UC",
+    "II",
+    "III",
+}
 CHICAS = {"de", "del", "la", "las", "los", "y", "e", "en", "el"}
 GRANDES_POR_RUBRO = 40
 PYMES_POR_RUBRO = 100
@@ -74,14 +112,23 @@ def sii(crudos: Path) -> None:
                 continue
             tramo, trabajadores = int(f[4]), int(f[5])
             region = "rm" if "METROPOLITANA" in f[17] else "otra"
-            fila = {"rubro": rubro, "nombre": nombre_corto(f[3]), "razon_social": f[3].strip(), "tramo_ventas": tramo, "trabajadores": trabajadores,
-                    "region": region, "comuna": f[19].strip().title()}
+            fila = {
+                "rubro": rubro,
+                "nombre": nombre_corto(f[3]),
+                "razon_social": f[3].strip(),
+                "tramo_ventas": tramo,
+                "trabajadores": trabajadores,
+                "region": region,
+                "comuna": f[19].strip().title(),
+            }
             if tramo >= 10 and trabajadores >= 200:
                 grandes[rubro].append(fila)
             elif 5 <= tramo <= 9 and 10 <= trabajadores < 200:
                 pymes[rubro].append(fila)
     with open(SALIDA / "sii_empleadores.csv", "w", newline="", encoding="utf-8") as fh:
-        w = csv.DictWriter(fh, ["tamano", "rubro", "nombre", "razon_social", "tramo_ventas", "trabajadores", "region", "comuna"])
+        w = csv.DictWriter(
+            fh, ["tamano", "rubro", "nombre", "razon_social", "tramo_ventas", "trabajadores", "region", "comuna"]
+        )
         w.writeheader()
         total = 0
         for tamano, grupo, cuantas in (("grande", grandes, GRANDES_POR_RUBRO), ("pyme", pymes, PYMES_POR_RUBRO)):
@@ -113,12 +160,21 @@ def getonbrd(crudos: Path) -> None:
         if "Chile" not in paises and not (a.get("remote") and a.get("remote_modality") == "fully_remote"):
             continue
         seniority = catalogos["seniorities"].get(str(((a.get("seniority") or {}).get("data") or {}).get("id")), "")
-        filas.append({
-            "empresa": empresa["name"].strip(), "empresa_pais": empresa.get("country") or "", "cargo": a["title"].strip()[:90],
-            "categoria": j["attributes"].get("category_name") or "", "seniority": seniority, "min_usd": a["min_salary"], "max_usd": a["max_salary"],
-            "chile": int("Chile" in paises), "remoto": int(bool(a.get("remote"))), "postulantes": a.get("applications_count") or 0,
-            "url": f"https://www.getonbrd.com/jobs/{j['id']}",
-        })
+        filas.append(
+            {
+                "empresa": empresa["name"].strip(),
+                "empresa_pais": empresa.get("country") or "",
+                "cargo": a["title"].strip()[:90],
+                "categoria": j["attributes"].get("category_name") or "",
+                "seniority": seniority,
+                "min_usd": a["min_salary"],
+                "max_usd": a["max_salary"],
+                "chile": int("Chile" in paises),
+                "remoto": int(bool(a.get("remote"))),
+                "postulantes": a.get("applications_count") or 0,
+                "url": f"https://www.getonbrd.com/jobs/{j['id']}",
+            }
+        )
     with open(SALIDA / "getonbrd_ofertas.csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, list(filas[0]))
         w.writeheader()

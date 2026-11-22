@@ -21,13 +21,21 @@ def entorno(monkeypatch):
 
 
 def _oferta(i: int = 0, **contexto) -> Item:
-    return Item(id=f"o{i}", tipo="oferta", plantilla=f"Plantilla de oferta {i}.",
-                contexto={"empresa": "Falabella", "cargo": "analista", "rubro": "Comercio", "n": i, **contexto})
+    return Item(
+        id=f"o{i}",
+        tipo="oferta",
+        plantilla=f"Plantilla de oferta {i}.",
+        contexto={"empresa": "Falabella", "cargo": "analista", "rubro": "Comercio", "n": i, **contexto},
+    )
 
 
 def _despido() -> Item:
-    return Item(id="d", tipo="evento", plantilla="Te despiden.",
-                contexto={"empresa": "Falabella", "evento": "despido", "tono": "malo"})
+    return Item(
+        id="d",
+        tipo="evento",
+        plantilla="Te despiden.",
+        contexto={"empresa": "Falabella", "evento": "despido", "tono": "malo"},
+    )
 
 
 def _letras(id_: str) -> str:
@@ -72,14 +80,17 @@ def test_texto_valido_sale_por_claude(monkeypatch):
     assert r[0].via == "claude" and r[0].texto.startswith("Te ofrecen ser analista")
 
 
-@pytest.mark.parametrize("texto", [
-    "Te ofrecen ser analista en Falabella por 2 años.",
-    "Te ofrecen ser analista en Falabella con un sueldo de $ alto.",
-    "Te ofrecen ser analista en Falabella y un bono del diez %.",
-    "Te ofrecen ser analista en Falabella, pagan en USD.",
-    "Te ofrecen ser analista en Falabella, ganarías varios millones.",
-    "Te ofrecen ser analista en Falabella, con más pesos al mes.",
-])
+@pytest.mark.parametrize(
+    "texto",
+    [
+        "Te ofrecen ser analista en Falabella por 2 años.",
+        "Te ofrecen ser analista en Falabella con un sueldo de $ alto.",
+        "Te ofrecen ser analista en Falabella y un bono del diez %.",
+        "Te ofrecen ser analista en Falabella, pagan en USD.",
+        "Te ofrecen ser analista en Falabella, ganarías varios millones.",
+        "Te ofrecen ser analista en Falabella, con más pesos al mes.",
+    ],
+)
 def test_texto_con_cifras_cae_a_plantilla(monkeypatch, texto):
     monkeypatch.setattr(narrador_ia, "_por_api", _Api(lambda item: texto))
     assert narrar([_oferta()])[0].via == "plantilla"
@@ -168,6 +179,7 @@ def test_un_error_del_sdk_no_se_propaga(monkeypatch):
 
 def test_el_error_del_sdk_se_traduce_en_por_api(monkeypatch):
     """`_por_api` convierte los errores del SDK en la excepción común."""
+
     class Mensajes:
         def parse(self, **kwargs):
             raise anthropic.APIConnectionError(request=httpx.Request("POST", "https://api.anthropic.com"))
@@ -201,8 +213,9 @@ def test_con_haiku_el_pedido_va_sin_razonar(monkeypatch):
 
     def parse(**kw):
         pedidos.append(kw)
-        return SimpleNamespace(stop_reason="end_turn",
-                               parsed_output=narrador_ia._Lote(items=[narrador_ia._Texto(id="o0", texto="Hola.")]))
+        return SimpleNamespace(
+            stop_reason="end_turn", parsed_output=narrador_ia._Lote(items=[narrador_ia._Texto(id="o0", texto="Hola.")])
+        )
 
     cliente = SimpleNamespace(messages=SimpleNamespace(parse=parse))
     monkeypatch.setattr(narrador_ia.ia_cliente, "cliente", lambda *a, **k: cliente)
@@ -215,8 +228,13 @@ def test_con_haiku_el_pedido_va_sin_razonar(monkeypatch):
 
 def _cierre_sin_empresa() -> Item:
     """Como lo arma narracion.items_historia: el contexto va sin la empresa y su nombre queda en sin_nombrar."""
-    return Item(id="c", tipo="evento", plantilla="La startup donde trabajas cierra.",
-                contexto={"evento": "cierre", "tono": "malo"}, sin_nombrar=["Jumpseller"])
+    return Item(
+        id="c",
+        tipo="evento",
+        plantilla="La startup donde trabajas cierra.",
+        contexto={"evento": "cierre", "tono": "malo"},
+        sin_nombrar=["Jumpseller"],
+    )
 
 
 def test_evento_malo_que_nombra_la_empresa_cae_a_plantilla(monkeypatch):
@@ -236,20 +254,44 @@ def test_sin_nombrar_no_se_le_manda_al_modelo():
 def test_la_historia_no_le_pasa_la_empresa_a_un_evento_malo():
     from app.services.narracion import items_historia
 
-    fin = {"empresa": "Jumpseller", "rol": "Analista", "rubro": "Información y comunicaciones", "tipo_empleador": "startup"}
-    vista = {"historia": [{"anio": 1, "edad": 30, "fin": fin, "decisiones": [], "eventos": [
-        {"nombre": "Cierre de la startup", "texto": "La startup donde trabajas cierra.", "tono": "malo"},
-        {"nombre": "Ascenso", "texto": "Te ascienden.", "tono": "bueno"}]}]}
+    fin = {
+        "empresa": "Jumpseller",
+        "rol": "Analista",
+        "rubro": "Información y comunicaciones",
+        "tipo_empleador": "startup",
+    }
+    vista = {
+        "historia": [
+            {
+                "anio": 1,
+                "edad": 30,
+                "fin": fin,
+                "decisiones": [],
+                "eventos": [
+                    {"nombre": "Cierre de la startup", "texto": "La startup donde trabajas cierra.", "tono": "malo"},
+                    {"nombre": "Ascenso", "texto": "Te ascienden.", "tono": "bueno"},
+                ],
+            }
+        ]
+    }
     malo, bueno = items_historia(vista)
     assert "empresa" not in malo.contexto and malo.sin_nombrar == ["Jumpseller"]
     assert bueno.contexto["empresa"] == "Jumpseller" and bueno.sin_nombrar == []
 
 
 def test_una_empresa_real_no_va_en_la_misma_frase_que_un_cierre(monkeypatch):
-    item = Item(id="m", tipo="mundo", plantilla="Te cambias y terminas en Jumpseller.",
-                contexto={"empresa": "Jumpseller", "tono": "neutro"})
-    monkeypatch.setattr(narrador_ia, "_por_api", _Api(lambda i: "Entras a Jumpseller, pero Jumpseller cierra al tercer año."))
+    item = Item(
+        id="m",
+        tipo="mundo",
+        plantilla="Te cambias y terminas en Jumpseller.",
+        contexto={"empresa": "Jumpseller", "tono": "neutro"},
+    )
+    monkeypatch.setattr(
+        narrador_ia, "_por_api", _Api(lambda i: "Entras a Jumpseller, pero Jumpseller cierra al tercer año.")
+    )
     assert narrar([item])[0].via == "plantilla"
     narrador_ia.limpiar_cache()
-    monkeypatch.setattr(narrador_ia, "_por_api", _Api(lambda i: "Entras a Jumpseller. Años después, la startup cierra."))
+    monkeypatch.setattr(
+        narrador_ia, "_por_api", _Api(lambda i: "Entras a Jumpseller. Años después, la startup cierra.")
+    )
     assert narrar([item])[0].via == "claude"

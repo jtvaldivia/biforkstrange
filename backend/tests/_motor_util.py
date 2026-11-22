@@ -27,12 +27,27 @@ NADA = 0.999999  # un dado que no gatilla ningún sorteo con probabilidad menor 
 # Pesos literales de las cartas del perfil por omisión (30 años, universitaria, pyme de Servicios
 # profesionales, nivel 1, antigüedad 2, red 30, oficio 50, riesgo 50, sin carrera: exposición 0,143).
 CARTAS_PERFIL_BASE = {
-    "magister": 0.4, "doctorado": 0.15, "bootcamp": 0.4, "oferta_externa": 8 * 0.1377 * 1.3,
-    "buscar_estando_empleado": 0.4, "renunciar": 0.5 * 0.0478, "pedir_aumento": 0.6, "trabajar_mas_horas": 0.8,
-    "remoto_para_afuera": 0.4, "pedir_hibrido": 0.4, "media_jornada": 0.2, "cambiar_de_rubro": 0.3,
-    "cambiar_de_ocupacion": 0.25, "aprender_ia": 0.3 + 0.143, "invertir_en_red": 0.4,
-    "unirse_a_startup": 0.04 + 50 / 1500, "independizarse": 0.3, "emprender": 0.08 + 50 / 500, "emigrar": 0.25,
-    "mudarse_de_region": 0.3, "sabatico": 0.1,
+    "magister": 0.4,
+    "doctorado": 0.15,
+    "bootcamp": 0.4,
+    "oferta_externa": 8 * 0.1377 * 1.3,
+    "buscar_estando_empleado": 0.4,
+    "renunciar": 0.5 * 0.0478,
+    "pedir_aumento": 0.6,
+    "trabajar_mas_horas": 0.8,
+    "remoto_para_afuera": 0.4,
+    "pedir_hibrido": 0.4,
+    "media_jornada": 0.2,
+    "cambiar_de_rubro": 0.3,
+    "cambiar_de_ocupacion": 0.25,
+    "aprender_ia": 0.3 + 0.143,
+    "invertir_en_red": 0.4,
+    "unirse_a_startup": 0.04 + 50 / 1500,
+    "independizarse": 0.3,
+    "emprender": 0.08 + 50 / 500,
+    "emigrar": 0.25,
+    "mudarse_de_region": 0.3,
+    "sabatico": 0.1,
 }
 
 
@@ -101,8 +116,9 @@ class Guion:
     (otro decisor al que delegar). No depende de los pesos de `politicas.py`.
     """
 
-    def __init__(self, respuestas: dict | None = None, con_cartas: bool = False, parametros: dict | None = None,
-                 resto=None):
+    def __init__(
+        self, respuestas: dict | None = None, con_cartas: bool = False, parametros: dict | None = None, resto=None
+    ):
         self.respuestas = {k: list(v) if isinstance(v, list) else v for k, v in (respuestas or {}).items()}
         self.con_cartas = con_cartas
         self.parametros = parametros or {}
@@ -143,18 +159,41 @@ def foto(v: Vida) -> dict:
     """Todo lo que define a una vida, copiado en profundidad, para comparar antes y después."""
     import copy
 
-    return copy.deepcopy({
-        "e": v.e, "cola": v.cola, "temporales": v.temporales, "historia": v.historia, "registro": v.registro,
-        "anio": v.anio, "anios_buscando": v.anios_buscando, "ingreso_total": v.ingreso_total,
-        "hueco": v._anios_con_hueco, "dados": (v.dados.semilla, v.dados.gemelo) if isinstance(v.dados, Dados) else None,
-    })
+    return copy.deepcopy(
+        {
+            "e": v.e,
+            "cola": v.cola,
+            "temporales": v.temporales,
+            "historia": v.historia,
+            "registro": v.registro,
+            "anio": v.anio,
+            "anios_buscando": v.anios_buscando,
+            "ingreso_total": v.ingreso_total,
+            "hueco": v._anios_con_hueco,
+            "dados": (v.dados.semilla, v.dados.gemelo) if isinstance(v.dados, Dados) else None,
+        }
+    )
 
 
 # ---------------------------------------------------------------------------- estados al azar
-RUBROS = ["Minería", "Finanzas y seguros", "Información y comunicaciones", "Comercio", "Salud", "Enseñanza",
-          "Servicios profesionales", "Construcción", "Industria manufacturera", "Transporte", "Agricultura y pesca",
-          "Hoteles y restaurantes", "Artes y entretención", "Servicios administrativos", "Administración pública",
-          "Otros servicios"]
+RUBROS = [
+    "Minería",
+    "Finanzas y seguros",
+    "Información y comunicaciones",
+    "Comercio",
+    "Salud",
+    "Enseñanza",
+    "Servicios profesionales",
+    "Construcción",
+    "Industria manufacturera",
+    "Transporte",
+    "Agricultura y pesca",
+    "Hoteles y restaurantes",
+    "Artes y entretención",
+    "Servicios administrativos",
+    "Administración pública",
+    "Otros servicios",
+]
 REGIONES = ["Valparaíso", "Biobío", "Antofagasta", "Maule", "La Araucanía", "Los Lagos"]
 
 
@@ -168,45 +207,84 @@ def estado_al_azar(R: random.Random) -> dict:
     carreras = p.ref.filas("mifuturo_carreras")
     edad = R.randint(18, 59)
     edu = R.choice(["media", "media", "tecnica", "universitaria", "postgrado"]) if edad >= 22 else "media"
-    est = "estudiando" if (edad <= 24 and R.random() < 0.4) else R.choice(
-        ["empleado", "empleado", "empleado", "buscando", "independiente", "fundador", "inactivo"])
+    est = (
+        "estudiando"
+        if (edad <= 24 and R.random() < 0.4)
+        else R.choice(["empleado", "empleado", "empleado", "buscando", "independiente", "fundador", "inactivo"])
+    )
     c = R.choice(carreras) if (edu != "media" or est == "estudiando") and R.random() < 0.9 else None
     tipo = R.choice(["grande", "pyme", "startup", "publico", "extranjero"]) if est == "empleado" else ""
     if R.random() < 0.03:
         tipo = ""  # estado incoherente a propósito: ambos evaluadores deben fallar igual
     sueldo = round(R.lognormvariate(math.log(800000), 0.6)) if est in ("empleado", "independiente", "fundador") else 0
     e = {
-        "edad": edad, "sexo": R.choice(["h", "m"]), "edu": edu, "estado": est,
+        "edad": edad,
+        "sexo": R.choice(["h", "m"]),
+        "edu": edu,
+        "estado": est,
         "primer_empleo": 1 if (est == "buscando" and R.random() < 0.3) else 0,
-        "carrera_id": int(c["carrera_id"]) if c else -1, "area": c["area"] if c else "",
+        "carrera_id": int(c["carrera_id"]) if c else -1,
+        "area": c["area"] if c else "",
         "tipo_institucion": c["tipo_institucion"] if c else R.choice(["", "U", "IP", "CFT"]),
-        "semestres_restantes": R.randint(0, 10) if est == "estudiando" else 0, "anos_titulado": R.randint(0, 20),
-        "tipo_empleador": tipo, "rubro": "Administración pública" if tipo == "publico" else R.choice(RUBROS + [""]),
-        "nivel": R.randint(0, 4), "sueldo": sueldo,
+        "semestres_restantes": R.randint(0, 10) if est == "estudiando" else 0,
+        "anos_titulado": R.randint(0, 20),
+        "tipo_empleador": tipo,
+        "rubro": "Administración pública" if tipo == "publico" else R.choice(RUBROS + [""]),
+        "nivel": R.randint(0, 4),
+        "sueldo": sueldo,
         "sueldo_ref": sueldo or round(R.lognormvariate(math.log(800000), 0.5)),
-        "antiguedad": R.randint(0, 14), "meses_cesante": R.choice([0, 6, 12, 24, 48]) if est == "buscando" else 0,
-        "hueco": R.randint(0, 1), "horas": R.choice([22, 44, 55]), "parcial": R.randint(0, 1),
-        "remoto": R.randint(0, 1), "formal": R.randint(0, 1), "pais": R.choice(["chile", "chile", "afuera"]),
-        "region": R.choice(["rm", "otra"]), "region_perfil": R.choice(REGIONES), "ahorro": round(R.uniform(-5e6, 6e7)),
-        "deuda_estudios": R.choice([0, 0, 8e6]), "animo": R.uniform(20, 90), "energia": R.uniform(10, 95),
-        "salud": R.choice(["bien", "bien", "licencia", "cancer", "cronica"]), "red": R.uniform(0, 100),
-        "skill": R.uniform(0, 100), "riesgo": R.uniform(0, 100), "ambicion": R.uniform(0, 100),
-        "usa_ia": R.randint(0, 1), "empresa_anos": R.randint(0, 8),
-        "base_empresa": R.choice([0, 0, round(R.lognormvariate(math.log(600000), 0.6))]), "empresa_fondos": R.randint(0, 1),
+        "antiguedad": R.randint(0, 14),
+        "meses_cesante": R.choice([0, 6, 12, 24, 48]) if est == "buscando" else 0,
+        "hueco": R.randint(0, 1),
+        "horas": R.choice([22, 44, 55]),
+        "parcial": R.randint(0, 1),
+        "remoto": R.randint(0, 1),
+        "formal": R.randint(0, 1),
+        "pais": R.choice(["chile", "chile", "afuera"]),
+        "region": R.choice(["rm", "otra"]),
+        "region_perfil": R.choice(REGIONES),
+        "ahorro": round(R.uniform(-5e6, 6e7)),
+        "deuda_estudios": R.choice([0, 0, 8e6]),
+        "animo": R.uniform(20, 90),
+        "energia": R.uniform(10, 95),
+        "salud": R.choice(["bien", "bien", "licencia", "cancer", "cronica"]),
+        "red": R.uniform(0, 100),
+        "skill": R.uniform(0, 100),
+        "riesgo": R.uniform(0, 100),
+        "ambicion": R.uniform(0, 100),
+        "usa_ia": R.randint(0, 1),
+        "empresa_anos": R.randint(0, 8),
+        "base_empresa": R.choice([0, 0, round(R.lognormvariate(math.log(600000), 0.6))]),
+        "empresa_fondos": R.randint(0, 1),
         "recesion": 1 if R.random() < 0.2 else 0,
-        "anos_en_carrera": R.randint(0, 5), "anos_en_startup": R.randint(0, 6),
-        "financia": R.choice(["", "cae", "gratuidad", "familia"]), "ingles": R.randint(0, 1),
-        "isapre": R.randint(0, 1), "marcado": R.randint(0, 1), "validado": R.randint(0, 1),
-        "primer_grande": R.randint(0, 1), "bootcamp": R.randint(0, 1), "oferta_al_titularse": R.randint(0, 1),
-        "ocupacion": R.randint(0, 9), "edad_decide_estudios": R.choice([18, 19]), "cierra_en": R.choice([0, 0, 1, 3]),
-        "rubro_destino": R.choice(RUBROS), "rubro_emprendimiento": R.choice(RUBROS), "region_destino": R.choice(REGIONES), "ocupacion_destino": R.randint(0, 9),
-        "universidad_destino": R.choice([f["universidad_id"] for f in p.filas("universidades")
-                                         if f["tipo_institucion"] in ("U", "EXT")]),
+        "anos_en_carrera": R.randint(0, 5),
+        "anos_en_startup": R.randint(0, 6),
+        "financia": R.choice(["", "cae", "gratuidad", "familia"]),
+        "ingles": R.randint(0, 1),
+        "isapre": R.randint(0, 1),
+        "marcado": R.randint(0, 1),
+        "validado": R.randint(0, 1),
+        "primer_grande": R.randint(0, 1),
+        "bootcamp": R.randint(0, 1),
+        "oferta_al_titularse": R.randint(0, 1),
+        "ocupacion": R.randint(0, 9),
+        "edad_decide_estudios": R.choice([18, 19]),
+        "cierra_en": R.choice([0, 0, 1, 3]),
+        "rubro_destino": R.choice(RUBROS),
+        "rubro_emprendimiento": R.choice(RUBROS),
+        "region_destino": R.choice(REGIONES),
+        "ocupacion_destino": R.randint(0, 9),
+        "universidad_destino": R.choice(
+            [f["universidad_id"] for f in p.filas("universidades") if f["tipo_institucion"] in ("U", "EXT")]
+        ),
         "universidad_id": R.choice([""] + [f["universidad_id"] for f in p.filas("universidades")]),
-        "institucion_destino": R.choice([f["universidad_id"] for f in p.filas("universidades") if f["tipo_institucion"] != "EXT"]),
+        "institucion_destino": R.choice(
+            [f["universidad_id"] for f in p.filas("universidades") if f["tipo_institucion"] != "EXT"]
+        ),
         "empresa_id": R.choice([-1, R.randint(0, len(p.filas("empresas_catalogo")) - 1)]),
         "cargo_id": R.choice([-1, R.randint(0, len(p.filas("cargos_catalogo")) - 1)]),
-        "ia_adopcion": R.random(), "ia_castigo_joven": R.uniform(0.75, 0.9),
+        "ia_adopcion": R.random(),
+        "ia_castigo_joven": R.uniform(0.75, 0.9),
     }
     for v in p.variables.values():
         if v["tipo"] == "modificador":

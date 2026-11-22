@@ -50,24 +50,56 @@ ELSOC_CSV = Path(__file__).resolve().parents[1] / "data" / "elsoc_transiciones_a
 
 # Resultados de decisiones que cambian de empleador sin pasar por cesantía
 # (la definición de la EPS: "pasar a otro empleador sin cesantía entremedio").
-CAMBIOS_DIRECTOS = frozenset({
-    ("oferta_externa", "mejora"), ("oferta_externa", "igual_o_peor"), ("oferta_externa", "te_vas"),
-    ("unirse_a_startup", "crece"), ("unirse_a_startup", "cierra"), ("unirse_a_startup", "sigue"),
-    ("cambiar_de_rubro", "entra"), ("remoto_para_afuera", "queda"), ("emigrar", "consigue"),
-})
+CAMBIOS_DIRECTOS = frozenset(
+    {
+        ("oferta_externa", "mejora"),
+        ("oferta_externa", "igual_o_peor"),
+        ("oferta_externa", "te_vas"),
+        ("unirse_a_startup", "crece"),
+        ("unirse_a_startup", "cierra"),
+        ("unirse_a_startup", "sigue"),
+        ("cambiar_de_rubro", "entra"),
+        ("remoto_para_afuera", "queda"),
+        ("emigrar", "consigue"),
+    }
+)
 
 # Qué tan independiente del motor es cada meta: (prefijo del id, calidad, por qué)
 CALIDAD_META = (
     ("separacion_", "insumo", "Es el parámetro P_SEPARACION (EPS 2024), el mismo número."),
-    ("cambio_", "insumo", "Sale de P_CAMBIO_EMPLEADOR (EPS 2024) y el peso de aceptar la oferta se calibró contra ella."),
-    ("sigue_cesante_12m", "insumo", "MESES_CESANTIA se construyó para reproducir esta sobrevida a 12 meses (EPS 2024)."),
+    (
+        "cambio_",
+        "insumo",
+        "Sale de P_CAMBIO_EMPLEADOR (EPS 2024) y el peso de aceptar la oferta se calibró contra ella.",
+    ),
+    (
+        "sigue_cesante_12m",
+        "insumo",
+        "MESES_CESANTIA se construyó para reproducir esta sobrevida a 12 meses (EPS 2024).",
+    ),
     ("empresa_grande", "insumo", "Es MIX_EMPLEADOR['grande'] = 0,40 (ESI 2025), el mismo número."),
     ("startup_anos", "insumo", "Meta puesta por el equipo, no medida; MIX_EMPLEADOR['startup'] = 0,01 es insumo."),
-    ("publico_", "calibrada", "El peso de postular al Estado en la primera pega se calibró contra ella; P_REEMPLEO_PUBLICO = 0,12 es insumo."),
-    ("independientes_", "calibrada", "Los pesos de trabajar por cuenta propia y su tasa de salida se calibraron contra ella."),
+    (
+        "publico_",
+        "calibrada",
+        "El peso de postular al Estado en la primera pega se calibró contra ella; P_REEMPLEO_PUBLICO = 0,12 es insumo.",
+    ),
+    (
+        "independientes_",
+        "calibrada",
+        "Los pesos de trabajar por cuenta propia y su tasa de salida se calibraron contra ella.",
+    ),
     ("edu_", "calibrada", "Los pesos de qué hacer al salir del colegio se calibraron contra ella."),
-    ("ingreso_", "parcial", "El primer sueldo y su alza anual salen del perfil ESI por edad y educación; la mezcla de gente y de empleos no."),
-    ("desocupacion_", "validacion", "El motor no usa la tasa de desocupación de la ESI: sale de las entradas y salidas de la EPS."),
+    (
+        "ingreso_",
+        "parcial",
+        "El primer sueldo y su alza anual salen del perfil ESI por edad y educación; la mezcla de gente y de empleos no.",
+    ),
+    (
+        "desocupacion_",
+        "validacion",
+        "El motor no usa la tasa de desocupación de la ESI: sale de las entradas y salidas de la EPS.",
+    ),
 )
 
 # ELSOC: tolerancia en puntos. Las filas D tienen 135 a 190 casos, por eso la suya es más ancha.
@@ -91,13 +123,23 @@ def _filas(vida: Vida, estado0: str) -> list[tuple]:
         fin = r["fin"]
         eventos = {ev["evento"]: ev["resultado"] for ev in r["eventos"]}
         decisiones = [(d["decision"], d["opcion"], d["resultado"]) for d in r["decisiones"]]
-        filas.append((
-            r["edad"], previo, fin["estado"], fin["sueldo"], fin["tipo_empleador"], fin["edu"],
-            fin.get("primer_empleo", 0), fin["edad"] - r["edad"], "alza_anual" in eventos,
-            eventos.get("separacion_empleo"),
-            any((d, res) in CAMBIOS_DIRECTOS for d, _, res in decisiones),
-            decisiones, tuple(eventos),
-        ))
+        filas.append(
+            (
+                r["edad"],
+                previo,
+                fin["estado"],
+                fin["sueldo"],
+                fin["tipo_empleador"],
+                fin["edu"],
+                fin.get("primer_empleo", 0),
+                fin["edad"] - r["edad"],
+                "alza_anual" in eventos,
+                eventos.get("separacion_empleo"),
+                any((d, res) in CAMBIOS_DIRECTOS for d, _, res in decisiones),
+                decisiones,
+                tuple(eventos),
+            )
+        )
         previo = fin["estado"]
     return filas
 
@@ -117,13 +159,34 @@ def _lote(args: tuple[int, int, int]) -> tuple[list[list[tuple]], list[dict]]:
             vidas.append(_filas(vida, "estudiando"))
         except Exception as exc:
             e = vida.e if vida is not None else {}
-            fallas.append({
-                "gemelo": g, "semilla": semilla, "error": f"{type(exc).__name__}: {exc}",
-                "anio_en_curso": (vida.registro or {}) if vida is not None else {},
-                "estado": {k: e.get(k) for k in ("edad", "sexo", "estado", "edu", "carrera_id", "tipo_institucion",
-                                                 "tipo_empleador", "rubro", "nivel", "sueldo", "sueldo_ref",
-                                                 "ocupacion", "primer_empleo", "pais", "semestres_restantes")},
-            })
+            fallas.append(
+                {
+                    "gemelo": g,
+                    "semilla": semilla,
+                    "error": f"{type(exc).__name__}: {exc}",
+                    "anio_en_curso": (vida.registro or {}) if vida is not None else {},
+                    "estado": {
+                        k: e.get(k)
+                        for k in (
+                            "edad",
+                            "sexo",
+                            "estado",
+                            "edu",
+                            "carrera_id",
+                            "tipo_institucion",
+                            "tipo_empleador",
+                            "rubro",
+                            "nivel",
+                            "sueldo",
+                            "sueldo_ref",
+                            "ocupacion",
+                            "primer_empleo",
+                            "pais",
+                            "semestres_restantes",
+                        )
+                    },
+                }
+            )
     return vidas, fallas
 
 
@@ -172,7 +235,9 @@ class Cohorte:
     """Los años-persona de la cohorte, con las mediciones que piden las metas."""
 
     # columnas de cada fila (ver _filas)
-    EDAD, PREVIO, ESTADO, SUELDO, TIPO, EDU, PRIMER, SALTO, EN_RIESGO, SEPARACION, CAMBIO, DECISIONES, EVENTOS = range(13)
+    EDAD, PREVIO, ESTADO, SUELDO, TIPO, EDU, PRIMER, SALTO, EN_RIESGO, SEPARACION, CAMBIO, DECISIONES, EVENTOS = range(
+        13
+    )
 
     def __init__(self, vidas: list[list[tuple]]):
         self.vidas = vidas
@@ -256,8 +321,10 @@ def _medir(obj: dict, c: Cohorte) -> tuple[float | None, str]:
         return medir(lo, hi), nota
     if id_ == "sigue_cesante_12m":
         valor, episodios = c.sigue_cesante()
-        return valor, (f"{episodios} episodios. En pasos anuales 'un año después' es el cierre del año siguiente: "
-                       "entre 12 y 24 meses desde que quedó cesante, no 12 justos.")
+        return valor, (
+            f"{episodios} episodios. En pasos anuales 'un año después' es el cierre del año siguiente: "
+            "entre 12 y 24 meses desde que quedó cesante, no 12 justos."
+        )
     return None, f"No hay medición para esta meta: {obj['medir']}"
 
 
@@ -281,12 +348,25 @@ def medir_metas(c: Cohorte, objetivos: list[dict]) -> list[dict]:
             error = simulado / obj["valor"] - 1 if relativa else simulado - obj["valor"]
             cumple = abs(error) <= tolerancia
         calidad, motivo = _calidad(obj["id"])
-        salida.append({
-            "id": obj["id"], "grupo": obj["grupo"], "indicador": obj["indicador"], "fuente": obj["fuente"],
-            "meta": obj["valor"], "simulado": simulado, "tolerancia": tolerancia, "tolerancia_relativa": relativa,
-            "error": error, "cumple": cumple, "medible": simulado is not None,
-            "calidad": calidad, "es_insumo": calidad == "insumo", "motivo_calidad": motivo, "nota": nota,
-        })
+        salida.append(
+            {
+                "id": obj["id"],
+                "grupo": obj["grupo"],
+                "indicador": obj["indicador"],
+                "fuente": obj["fuente"],
+                "meta": obj["valor"],
+                "simulado": simulado,
+                "tolerancia": tolerancia,
+                "tolerancia_relativa": relativa,
+                "error": error,
+                "cumple": cumple,
+                "medible": simulado is not None,
+                "calidad": calidad,
+                "es_insumo": calidad == "insumo",
+                "motivo_calidad": motivo,
+                "nota": nota,
+            }
+        )
     return salida
 
 
@@ -321,28 +401,66 @@ def medir_elsoc(c: Cohorte) -> list[dict]:
         cuenta[banda, _odi(f[c.PREVIO]), _odi(f[c.ESTADO])] += 1
     salida: list[dict] = []
 
-    def fila(banda: str, nombre: str, origen: str, destinos: str, lo: float, hi: float, n_ref: int,
-             comparable: bool, nota: str) -> None:
+    def fila(
+        banda: str,
+        nombre: str,
+        origen: str,
+        destinos: str,
+        lo: float,
+        hi: float,
+        n_ref: int,
+        comparable: bool,
+        nota: str,
+    ) -> None:
         total = sum(cuenta[banda, origen, d] for d in "ODI")
         simulado = _razon(sum(cuenta[banda, origen, d] for d in destinos), total)
         error = None if simulado is None else simulado - lo if simulado < lo else max(0.0, simulado - hi)
         cumple = None if (error is None or not comparable) else abs(error) <= TOL_ELSOC[origen]
         if banda == "45-59":
             nota += f" La cohorte llega a los {EDAD_FIN}: se mide con 45-{EDAD_FIN - 1}."
-        salida.append({"id": f"elsoc_{nombre}_{banda}", "banda": banda, "indicador": nombre,
-                       "meta": lo if lo == hi else (lo, hi), "simulado": simulado, "tolerancia": TOL_ELSOC[origen],
-                       "error": error, "cumple": cumple, "comparable": comparable,
-                       "n_simulado": total, "n_elsoc": n_ref, "nota": nota.strip()})
+        salida.append(
+            {
+                "id": f"elsoc_{nombre}_{banda}",
+                "banda": banda,
+                "indicador": nombre,
+                "meta": lo if lo == hi else (lo, hi),
+                "simulado": simulado,
+                "tolerancia": TOL_ELSOC[origen],
+                "error": error,
+                "cumple": cumple,
+                "comparable": comparable,
+                "n_simulado": total,
+                "n_elsoc": n_ref,
+                "nota": nota.strip(),
+            }
+        )
 
     for banda in bandas:
         od, oi, do, dd = (ref[banda, a, b] for a, b in (("O", "D"), ("O", "I"), ("D", "O"), ("D", "D")))
         n_o = sum(ref[banda, "O", d][1] for d in "ODI")
         fila(banda, "ocupado_a_cesante", "O", "D", od[0], od[0], n_o, True, "")
-        fila(banda, "ocupado_a_no_ocupado", "O", "DI", od[0] + oi[0], od[0] + oi[0], n_o, False,
-             "No cuenta: el motor no modela la salida a la inactividad.")
-        fila(banda, "cesante_a_ocupado", "D", "O", do[0], do[0] / (do[0] + dd[0]),
-             sum(ref[banda, "D", d][1] for d in "ODI"), True,
-             "Rango ELSOC: todos los cesantes (piso) a solo quienes siguen activos (techo).")
+        fila(
+            banda,
+            "ocupado_a_no_ocupado",
+            "O",
+            "DI",
+            od[0] + oi[0],
+            od[0] + oi[0],
+            n_o,
+            False,
+            "No cuenta: el motor no modela la salida a la inactividad.",
+        )
+        fila(
+            banda,
+            "cesante_a_ocupado",
+            "D",
+            "O",
+            do[0],
+            do[0] / (do[0] + dd[0]),
+            sum(ref[banda, "D", d][1] for d in "ODI"),
+            True,
+            "Rango ELSOC: todos los cesantes (piso) a solo quienes siguen activos (techo).",
+        )
     return salida
 
 
@@ -358,18 +476,31 @@ def validar(n: int = N_COHORTE, semilla: int = 0, procesos: int | None = None) -
     de_verdad = [m for m in metas if m["calidad"] in ("validacion", "parcial")]
     comparables = [x for x in elsoc if x["comparable"]]
     return {
-        "n": n, "semilla": semilla, "personas": len(vidas), "anios_persona": len(cohorte.anios),
-        "cumplen": sum(1 for m in metas if m["cumple"]), "total": len(metas),
+        "n": n,
+        "semilla": semilla,
+        "personas": len(vidas),
+        "anios_persona": len(cohorte.anios),
+        "cumplen": sum(1 for m in metas if m["cumple"]),
+        "total": len(metas),
         "no_medibles": [m["id"] for m in metas if not m["medible"]],
-        "cumplen_sin_insumos": sum(1 for m in de_verdad if m["cumple"]), "total_sin_insumos": len(de_verdad),
-        "por_calidad": {c: {"cumplen": sum(1 for m in metas if m["calidad"] == c and m["cumple"]),
-                            "total": sum(1 for m in metas if m["calidad"] == c)}
-                        for c in ("validacion", "parcial", "calibrada", "insumo")},
+        "cumplen_sin_insumos": sum(1 for m in de_verdad if m["cumple"]),
+        "total_sin_insumos": len(de_verdad),
+        "por_calidad": {
+            c: {
+                "cumplen": sum(1 for m in metas if m["calidad"] == c and m["cumple"]),
+                "total": sum(1 for m in metas if m["calidad"] == c),
+            }
+            for c in ("validacion", "parcial", "calibrada", "insumo")
+        },
         "metas": metas,
-        "elsoc": elsoc, "elsoc_cumplen": sum(1 for x in comparables if x["cumple"]), "elsoc_total": len(comparables),
-        "fallas": fallas, "vidas_con_error": len(fallas),
+        "elsoc": elsoc,
+        "elsoc_cumplen": sum(1 for x in comparables if x["cumple"]),
+        "elsoc_total": len(comparables),
+        "fallas": fallas,
+        "vidas_con_error": len(fallas),
         "decisiones": {f"{d}:{o}": k for (d, o), k in sorted(cohorte.decisiones().items())},
-        "segundos_simular": round(t1 - t0, 1), "segundos_medir": round(time.perf_counter() - t1, 1),
+        "segundos_simular": round(t1 - t0, 1),
+        "segundos_medir": round(time.perf_counter() - t1, 1),
     }
 
 
@@ -380,10 +511,14 @@ def _fmt(v: float | None, plata: bool) -> str:
 
 
 def tabla(r: dict) -> str:
-    lineas = [f"Cohorte de {r['n']} personas, semilla {r['semilla']}, {r['anios_persona']} años-persona "
-              f"({r['segundos_simular']} s simulando, {r['segundos_medir']} s midiendo)",
-              "", f"{r['cumplen']} de {r['total']} metas cuadran. "
-              f"Sin contar insumos ni metas calibradas: {r['cumplen_sin_insumos']} de {r['total_sin_insumos']}.", ""]
+    lineas = [
+        f"Cohorte de {r['n']} personas, semilla {r['semilla']}, {r['anios_persona']} años-persona "
+        f"({r['segundos_simular']} s simulando, {r['segundos_medir']} s midiendo)",
+        "",
+        f"{r['cumplen']} de {r['total']} metas cuadran. "
+        f"Sin contar insumos ni metas calibradas: {r['cumplen_sin_insumos']} de {r['total_sin_insumos']}.",
+        "",
+    ]
     ancho = max(len(m["indicador"]) for m in r["metas"])
     lineas.append(f"{'':2} {'Meta':<{ancho}}  {'Chile':>10} {'Simulado':>10} {'Error':>8} {'Tol.':>6}  Calidad")
     grupo = None
@@ -401,16 +536,23 @@ def tabla(r: dict) -> str:
             error = f"{100 * m['error']:+.1f}pp"
         marca = "ok" if m["cumple"] else "NO" if m["medible"] else "??"
         tol = f"{100 * m['tolerancia']:.0f}{'%' if plata else 'pp'}"
-        lineas.append(f"{marca:2} {m['indicador']:<{ancho}}  {_fmt(m['meta'], plata):>10} {_fmt(m['simulado'], plata):>10} "
-                      f"{error:>8} {tol:>6}  {m['calidad']}")
-    lineas += ["", f"ELSOC (no es insumo del motor): {r['elsoc_cumplen']} de {r['elsoc_total']} filas comparables cuadran."]
+        lineas.append(
+            f"{marca:2} {m['indicador']:<{ancho}}  {_fmt(m['meta'], plata):>10} {_fmt(m['simulado'], plata):>10} "
+            f"{error:>8} {tol:>6}  {m['calidad']}"
+        )
+    lineas += [
+        "",
+        f"ELSOC (no es insumo del motor): {r['elsoc_cumplen']} de {r['elsoc_total']} filas comparables cuadran.",
+    ]
     for x in r["elsoc"]:
         marca = "ok" if x["cumple"] else "--" if not x["comparable"] else "NO"
         error = "s/d" if x["error"] is None else f"{100 * x['error']:+.1f}pp"
         meta = x["meta"]
         meta = f"{100 * meta[0]:.1f}-{100 * meta[1]:.1f}%" if isinstance(meta, tuple) else _fmt(meta, False)
-        lineas.append(f"{marca:2} {x['indicador']:<22} {x['banda']:>6}  {meta:>11} {_fmt(x['simulado'], False):>8} "
-                      f"{error:>8} {100 * x['tolerancia']:.0f}pp  n={x['n_simulado']}")
+        lineas.append(
+            f"{marca:2} {x['indicador']:<22} {x['banda']:>6}  {meta:>11} {_fmt(x['simulado'], False):>8} "
+            f"{error:>8} {100 * x['tolerancia']:.0f}pp  n={x['n_simulado']}"
+        )
     if r["fallas"]:
         lineas += ["", f"{r['vidas_con_error']} vidas terminaron con error:"]
         for f in r["fallas"][:10]:

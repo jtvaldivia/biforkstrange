@@ -19,8 +19,16 @@ EDAD_INGRESO_CARRERA = 18  # supuesto: sin dato del CV, entró a la carrera al s
 # `politicas.pesos_personales` (cómo deciden sus gemelos), `motor.p_independiente_busca_empleo` y
 # `politicas.elecciones_internas` (rubro_sonado: a qué rubro iría si se cambia; rubro_proyecto: de qué rubro es
 # su proyecto, si emprende).
-HISTORIA = ("anos_por_empleo", "volvio_a_su_nivel", "freelance_entre_pegas", "emprendio_antes", "anos_independiente",
-            "empresas_cerradas", "rubro_sonado", "rubro_proyecto")
+HISTORIA = (
+    "anos_por_empleo",
+    "volvio_a_su_nivel",
+    "freelance_entre_pegas",
+    "emprendio_antes",
+    "anos_independiente",
+    "empresas_cerradas",
+    "rubro_sonado",
+    "rubro_proyecto",
+)
 
 
 def skill_por_experiencia(anios: int) -> int:
@@ -31,14 +39,14 @@ def skill_por_experiencia(anios: int) -> int:
 @dataclass(frozen=True)
 class Perfil:
     edad: int = 30
-    sexo: str = "m"                       # h | m
-    edu: str = "universitaria"            # media | tecnica | universitaria | postgrado
-    carrera_id: int = -1                  # fila de mifuturo_carreras; -1 sin carrera
+    sexo: str = "m"  # h | m
+    edu: str = "universitaria"  # media | tecnica | universitaria | postgrado
+    carrera_id: int = -1  # fila de mifuturo_carreras; -1 sin carrera
     rubro: str = "Servicios profesionales"
-    tipo_empleador: str = "pyme"          # grande | pyme | startup | publico | extranjero
-    nivel: int = 1                        # 0 junior ... 4 gerencia
-    sueldo: float = 1_400_000             # líquido mensual
-    riesgo: int = 5                       # tolerancia al riesgo, 0 a 10
+    tipo_empleador: str = "pyme"  # grande | pyme | startup | publico | extranjero
+    nivel: int = 1  # 0 junior ... 4 gerencia
+    sueldo: float = 1_400_000  # líquido mensual
+    riesgo: int = 5  # tolerancia al riesgo, 0 a 10
     # Opcionales: si no vienen, se suponen
     estado: str = "empleado"
     ocupacion: int | None = None
@@ -46,16 +54,16 @@ class Perfil:
     region: str = "rm"
     ahorro: float | None = None
     # Del CV, si se sabe (ver perfil_ia.completar); si no, los supuestos neutros de siempre
-    ingles: int = 0                       # 1 si trabaja en inglés (intermedio o más)
-    skill: int | None = None              # 0 a 100; sin dato, 50
-    red: int | None = None                # 0 a 100; sin dato, 30
+    ingles: int = 0  # 1 si trabaja en inglés (intermedio o más)
+    skill: int | None = None  # 0 a 100; sin dato, 50
+    red: int | None = None  # 0 a 100; sin dato, 30
     # Su situación de hoy, del CV: decide qué cartas le aparecen
-    meses_cesante: int = 0                # si está buscando; 8 o más es un "hueco" en el CV
-    parcial: int = 0                      # 1 si trabaja media jornada
-    remoto: int = 0                       # 1 si ya trabaja remoto
-    usa_ia: int = 0                       # 1 si ya trabaja con herramientas de IA
-    empresa_anos: int = 0                 # si es fundador: años de su empresa
-    empresa_fondos: int = 0               # si es fundador: 1 si levantó inversión
+    meses_cesante: int = 0  # si está buscando; 8 o más es un "hueco" en el CV
+    parcial: int = 0  # 1 si trabaja media jornada
+    remoto: int = 0  # 1 si ya trabaja remoto
+    usa_ia: int = 0  # 1 si ya trabaja con herramientas de IA
+    empresa_anos: int = 0  # si es fundador: años de su empresa
+    empresa_fondos: int = 0  # si es fundador: 1 si levantó inversión
     # Su historia: cada cuántos años se ha cambiado de pega (calibra cómo deciden sus gemelos)
     anos_por_empleo: float | None = None
     # Lo que contó su Claude: el rubro al que se cambiaría ("¿a qué rubro?" parte ahí)
@@ -67,15 +75,15 @@ class Perfil:
     semestres_restantes: int | None = None
     anos_en_carrera: int | None = None
     # Cómo salió de sus cesantías, según el CV (1 = sí): sus gemelos responden igual (politicas.pesos_personales)
-    volvio_a_su_nivel: int = 0            # tras un hueco de más de 6 meses, volvió a un cargo igual o mayor
-    freelance_entre_pegas: int = 0        # trabajó por su cuenta entre una pega y otra
-    emprendio_antes: int = 0              # ya tuvo una empresa propia antes de la de hoy
+    volvio_a_su_nivel: int = 0  # tras un hueco de más de 6 meses, volvió a un cargo igual o mayor
+    freelance_entre_pegas: int = 0  # trabajó por su cuenta entre una pega y otra
+    emprendio_antes: int = 0  # ya tuvo una empresa propia antes de la de hoy
     anos_independiente: int | None = None  # si hoy trabaja por su cuenta: hace cuántos años
-    practica: str = ""                    # tipo de empleador de su práctica (grande | pyme | startup | publico)
-    primer_empleo: int = 0                # 1 si busca su primer empleo: nunca ha trabajado después de titularse
-    toda_su_carrera_en: str = ""          # publico | startup, si todos sus empleos (dos o más) fueron ahí
+    practica: str = ""  # tipo de empleador de su práctica (grande | pyme | startup | publico)
+    primer_empleo: int = 0  # 1 si busca su primer empleo: nunca ha trabajado después de titularse
+    toda_su_carrera_en: str = ""  # publico | startup, si todos sus empleos (dos o más) fueron ahí
     ascensos_por_ano: float | None = None  # ascensos dentro de una misma empresa por año de experiencia
-    empresas_cerradas: int = 0            # empresas propias que ya cerró
+    empresas_cerradas: int = 0  # empresas propias que ya cerró
     # Dónde estudió (universidades.universidad_id); vacío si no lo dice
     universidad_id: str = ""
     # Su empresa y su cargo de hoy, con el nombre que dio. Solo para contar la historia: no mueven ningún
@@ -86,8 +94,18 @@ class Perfil:
     @classmethod
     def a_los_18(cls, sexo: str = "m", riesgo: int = 5) -> "Perfil":
         """Alguien que sale del colegio: punto de partida de la cohorte de validación."""
-        return cls(edad=18, sexo=sexo, edu="media", rubro="", tipo_empleador="", nivel=0, sueldo=0,
-                   riesgo=riesgo, estado="estudiando", antiguedad=0)
+        return cls(
+            edad=18,
+            sexo=sexo,
+            edu="media",
+            rubro="",
+            tipo_empleador="",
+            nivel=0,
+            sueldo=0,
+            riesgo=riesgo,
+            estado="estudiando",
+            antiguedad=0,
+        )
 
 
 # Al volver a trabajar, de qué tipo de empleador viene la pega (decisión interna tipo_de_empleador).
@@ -243,16 +261,25 @@ def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
             e[nombre] = valor
     trabaja = perfil.estado in TRABAJA
     e.update(
-        edad=perfil.edad, sexo=perfil.sexo, edu=perfil.edu, estado=perfil.estado,
-        carrera_id=perfil.carrera_id, rubro=perfil.rubro if trabaja else "",
+        edad=perfil.edad,
+        sexo=perfil.sexo,
+        edu=perfil.edu,
+        estado=perfil.estado,
+        carrera_id=perfil.carrera_id,
+        rubro=perfil.rubro if trabaja else "",
         tipo_empleador=perfil.tipo_empleador if perfil.estado == "empleado" else "",
-        nivel=perfil.nivel, sueldo=float(perfil.sueldo) if trabaja else 0.0,
-        sueldo_ref=float(perfil.sueldo), antiguedad=perfil.antiguedad if trabaja else 0,
-        region=perfil.region, riesgo=perfil.riesgo * 10,
+        nivel=perfil.nivel,
+        sueldo=float(perfil.sueldo) if trabaja else 0.0,
+        sueldo_ref=float(perfil.sueldo),
+        antiguedad=perfil.antiguedad if trabaja else 0,
+        region=perfil.region,
+        riesgo=perfil.riesgo * 10,
         meses_cesante=perfil.meses_cesante if perfil.estado == "buscando" else 0,
         hueco=1 if perfil.estado == "buscando" and perfil.meses_cesante >= 8 else 0,  # PENAL_HUECO: 8 meses
-        parcial=perfil.parcial if trabaja else 0, horas=22 if trabaja and perfil.parcial else 44,
-        remoto=perfil.remoto if trabaja else 0, usa_ia=perfil.usa_ia,
+        parcial=perfil.parcial if trabaja else 0,
+        horas=22 if trabaja and perfil.parcial else 44,
+        remoto=perfil.remoto if trabaja else 0,
+        usa_ia=perfil.usa_ia,
         empresa_anos=perfil.empresa_anos if perfil.estado == "fundador" else 0,
         empresa_fondos=perfil.empresa_fondos if perfil.estado == "fundador" else 0,
         primer_empleo=1 if busca_primer_empleo(perfil) else 0,
@@ -261,16 +288,25 @@ def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
         # supuestos neutros: las fórmulas del paquete están centradas en estos valores
         red=30 if perfil.red is None else perfil.red,
         # sin dato del CV: la experiencia se estima como los años desde que se tituló (supuesto)
-        skill=perfil.skill if perfil.skill is not None
-        else skill_por_experiencia(max(0, perfil.edad - EDAD_TITULO[perfil.edu])) if trabaja else 50,
-        ambicion=50, ingles=perfil.ingles,
+        skill=perfil.skill
+        if perfil.skill is not None
+        else skill_por_experiencia(max(0, perfil.edad - EDAD_TITULO[perfil.edu]))
+        if trabaja
+        else 50,
+        ambicion=50,
+        ingles=perfil.ingles,
         isapre=0,
-        area="", tipo_institucion="", semestres_restantes=0,
+        area="",
+        tipo_institucion="",
+        semestres_restantes=0,
         # variables que elige el jugador dentro de una opción
-        rubro_destino=perfil.rubro or RUBROS_DESTINO, rubro_emprendimiento=perfil.rubro or RUBROS_DESTINO, region_destino="Valparaíso",
+        rubro_destino=perfil.rubro or RUBROS_DESTINO,
+        rubro_emprendimiento=perfil.rubro or RUBROS_DESTINO,
+        region_destino="Valparaíso",
         ocupacion_destino=2,
         universidad_destino=pq.filas("sies_magister_2026")[0]["universidad_id"],  # la con más programas
-        institucion_destino=_institucion_por_defecto(pq), universidad_id=perfil.universidad_id or "",
+        institucion_destino=_institucion_por_defecto(pq),
+        universidad_id=perfil.universidad_id or "",
         # nombres de su empleo de hoy (no son variables del paquete: el motor los borra al dejar ese empleo)
         empresa_inicial=perfil.empresa_nombre.strip() if perfil.estado == "empleado" else "",
         cargo_inicial=perfil.cargo_nombre.strip() if perfil.estado == "empleado" else "",

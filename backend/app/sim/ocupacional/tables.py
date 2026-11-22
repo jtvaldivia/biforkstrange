@@ -49,14 +49,14 @@ class Tablas:
     p_sigue_cesante_12m: np.ndarray
     # JobHop, por grupo ISCO (10,) o (10, 10)
     nombres: tuple[str, ...]
-    transicion: np.ndarray           # [origen, destino], filas suman 1
+    transicion: np.ndarray  # [origen, destino], filas suman 1
     p_cambia_grupo: np.ndarray
-    p_cambia_ocupacion: np.ndarray   # ocupación a 4 dígitos
+    p_cambia_ocupacion: np.ndarray  # ocupación a 4 dígitos
     dur_p25: np.ndarray
     dur_p50: np.ndarray
     dur_p75: np.ndarray
     dur_media: np.ndarray
-    mult_rotacion: np.ndarray        # duración media total / duración media del grupo
+    mult_rotacion: np.ndarray  # duración media total / duración media del grupo
 
 
 @lru_cache(maxsize=1)

@@ -34,10 +34,30 @@ LOGOS = BACKEND.parent / "frontend" / "public" / "logos" / "universidades"
 PARAMETROS = BACKEND / "simulador" / "parametros.json"
 FUENTES = BACKEND / "simulador" / "fuentes.json"
 
-TIPO = {"Universidades": "U", "Insitutos Profesionales": "IP", "Institutos Profesionales": "IP", "Centros de Formación Técnica": "CFT"}
-COLS = ["universidad_id", "nombre", "sigla", "pais", "tipo_institucion", "selectiva", "matricula", "peso_magister",
-        "arancel_anual_pregrado", "prima_pregrado", "calidad_prima", "arancel_anual_magister", "arancel_magister_usd",
-        "anios_magister", "dominio", "logo"]
+TIPO = {
+    "Universidades": "U",
+    "Insitutos Profesionales": "IP",
+    "Institutos Profesionales": "IP",
+    "Centros de Formación Técnica": "CFT",
+}
+COLS = [
+    "universidad_id",
+    "nombre",
+    "sigla",
+    "pais",
+    "tipo_institucion",
+    "selectiva",
+    "matricula",
+    "peso_magister",
+    "arancel_anual_pregrado",
+    "prima_pregrado",
+    "calidad_prima",
+    "arancel_anual_magister",
+    "arancel_magister_usd",
+    "anios_magister",
+    "dominio",
+    "logo",
+]
 NUM = {"mil": 1_000, "millón": 1_000_000, "millones": 1_000_000}
 
 
@@ -80,6 +100,7 @@ def pesos(texto) -> float | None:
 
 def leer_xlsx(ruta: Path, fila_cabecera: int) -> list[tuple]:
     import openpyxl  # solo se usa aquí; se corre con `uv run --with openpyxl`
+
     wb = openpyxl.load_workbook(ruta, read_only=True)
     return [r for r in wb.worksheets[0].iter_rows(min_row=fila_cabecera + 1, values_only=True) if r[0] is not None]
 
@@ -107,8 +128,11 @@ def main(crudos: Path) -> None:
             arancel_x_mat[cod] += m * a
 
     # ingreso al 4° año por institución y carrera, relativo al genérico de la carrera
-    generico = {(f["tipo_institucion"], f["carrera"].strip()): float(f["ingreso_bruto_ano4"])
-                for f in csv.DictReader(open(TABLAS / "mifuturo_carreras.csv", encoding="utf-8")) if f["ingreso_bruto_ano4"]}
+    generico = {
+        (f["tipo_institucion"], f["carrera"].strip()): float(f["ingreso_bruto_ano4"])
+        for f in csv.DictReader(open(TABLAS / "mifuturo_carreras.csv", encoding="utf-8"))
+        if f["ingreso_bruto_ano4"]
+    }
     ratios, sin_par = defaultdict(list), 0
     for r in leer_xlsx(mf / "Buscador_Empleabilidad_ingresos_2025_2026_SIES.xlsx", 1):
         if r[1] not in TIPO:
@@ -132,29 +156,38 @@ def main(crudos: Path) -> None:
     for cod, m in matricula.items():
         total_tipo[tipo_de[cod]] += m
     elegidas = set(mag) | {c for c, t in tipo_de.items() if t == "U" and matricula.get(c)}
-    elegidas |= {c for c, m in matricula.items() if tipo_de[c] in ("IP", "CFT") and m >= cfg["umbral_ip_cft"] * total_tipo[tipo_de[c]]}
+    elegidas |= {
+        c
+        for c, m in matricula.items()
+        if tipo_de[c] in ("IP", "CFT") and m >= cfg["umbral_ip_cft"] * total_tipo[tipo_de[c]]
+    }
 
     filas = []
     for cod in elegidas:
         cur = cfg["chilenas"].get(cod, {})
         tipo = tipo_de.get(cod, "U")
         m = mag.get(cod)
-        filas.append({
-            "universidad_id": cod,
-            "nombre": cur.get("nombre") or (m["universidad"] if m else titulo(nombre_sies[cod])),
-            "sigla": cur.get("sigla", m["sigla"] if m else ""),
-            "pais": "Chile", "tipo_institucion": tipo,
-            "selectiva": int(m["selectiva"]) if m else 0,
-            "matricula": matricula.get(cod, 0),
-            "programas": int(m["programas"]) if m else 0,
-            "arancel_anual_pregrado": round(arancel_x_mat[cod] / matricula[cod]) if matricula.get(cod) else "",
-            "prima_cruda": sum(ratios[cod]) / len(ratios[cod]) if ratios.get(cod) else None,
-            "arancel_anual_magister": m["arancel_anual"] if m else "",
-            "arancel_magister_usd": "",
-            "anios_magister": m["anios"] if m else "",
-            "dominio": cur.get("dominio", ""),
-        })
-        assert cod in cfg["chilenas"] or tipo == "U", f"falta {cod} {nombre_sies.get(cod)} en universidades_curadas.json"
+        filas.append(
+            {
+                "universidad_id": cod,
+                "nombre": cur.get("nombre") or (m["universidad"] if m else titulo(nombre_sies[cod])),
+                "sigla": cur.get("sigla", m["sigla"] if m else ""),
+                "pais": "Chile",
+                "tipo_institucion": tipo,
+                "selectiva": int(m["selectiva"]) if m else 0,
+                "matricula": matricula.get(cod, 0),
+                "programas": int(m["programas"]) if m else 0,
+                "arancel_anual_pregrado": round(arancel_x_mat[cod] / matricula[cod]) if matricula.get(cod) else "",
+                "prima_cruda": sum(ratios[cod]) / len(ratios[cod]) if ratios.get(cod) else None,
+                "arancel_anual_magister": m["arancel_anual"] if m else "",
+                "arancel_magister_usd": "",
+                "anios_magister": m["anios"] if m else "",
+                "dominio": cur.get("dominio", ""),
+            }
+        )
+        assert cod in cfg["chilenas"] or tipo == "U", (
+            f"falta {cod} {nombre_sies.get(cod)} en universidades_curadas.json"
+        )
 
     # normalización de la prima: media 1 ponderada por matrícula dentro de cada tipo
     for tipo in ("U", "IP", "CFT"):
@@ -162,7 +195,9 @@ def main(crudos: Path) -> None:
         media = sum(f["prima_cruda"] * f["matricula"] for f in grupo) / sum(f["matricula"] for f in grupo)
         for f in filas:
             if f["tipo_institucion"] == tipo:
-                f["prima_pregrado"] = f"{f['prima_cruda'] / media:.4f}" if f["prima_cruda"] is not None and f["matricula"] else ""
+                f["prima_pregrado"] = (
+                    f"{f['prima_cruda'] / media:.4f}" if f["prima_cruda"] is not None and f["matricula"] else ""
+                )
                 f["calidad_prima"] = "derivado" if f["prima_pregrado"] else ""
 
     # peso de magíster: programas vigentes (SIES 2026) para las chilenas; las extranjeras suman un 3% fijo
@@ -172,13 +207,25 @@ def main(crudos: Path) -> None:
     for f in filas:
         f["peso_magister"] = f"{f['programas'] / tot_prog * (1 - peso_ext):.6f}" if f["programas"] else "0"
     for x in ext:
-        filas.append({
-            "universidad_id": f"ext_{x['slug']}", "nombre": x["nombre"], "sigla": x.get("sigla", ""), "pais": x["pais"],
-            "tipo_institucion": "EXT", "selectiva": 1, "matricula": 0, "peso_magister": f"{peso_ext / len(ext):.6f}",
-            "arancel_anual_pregrado": "", "prima_pregrado": "", "calidad_prima": "", "arancel_anual_magister": "",
-            "arancel_magister_usd": round(x["arancel_anual_usd"]) if x.get("arancel_anual_usd") is not None else "",
-            "anios_magister": x.get("anios") or "", "dominio": x.get("dominio", ""),
-        })
+        filas.append(
+            {
+                "universidad_id": f"ext_{x['slug']}",
+                "nombre": x["nombre"],
+                "sigla": x.get("sigla", ""),
+                "pais": x["pais"],
+                "tipo_institucion": "EXT",
+                "selectiva": 1,
+                "matricula": 0,
+                "peso_magister": f"{peso_ext / len(ext):.6f}",
+                "arancel_anual_pregrado": "",
+                "prima_pregrado": "",
+                "calidad_prima": "",
+                "arancel_anual_magister": "",
+                "arancel_magister_usd": round(x["arancel_anual_usd"]) if x.get("arancel_anual_usd") is not None else "",
+                "anios_magister": x.get("anios") or "",
+                "dominio": x.get("dominio", ""),
+            }
+        )
 
     orden = {"U": 0, "IP": 1, "CFT": 2, "EXT": 3}
     filas.sort(key=lambda f: (orden[f["tipo_institucion"]], -f["matricula"], f["universidad_id"]))
@@ -194,8 +241,10 @@ def main(crudos: Path) -> None:
     por_tipo = defaultdict(int)
     for f in filas:
         por_tipo[f["tipo_institucion"]] += 1
-    print(f"instituciones: {len(filas)} {dict(por_tipo)}; sin prima: {sum(1 for f in filas if f['tipo_institucion'] != 'EXT' and not f['prima_pregrado'])}; "
-          f"filas de ingreso sin carrera genérica en mifuturo_carreras: {sin_par}; con logo: {sum(f['logo'] for f in filas)}")
+    print(
+        f"instituciones: {len(filas)} {dict(por_tipo)}; sin prima: {sum(1 for f in filas if f['tipo_institucion'] != 'EXT' and not f['prima_pregrado'])}; "
+        f"filas de ingreso sin carrera genérica en mifuturo_carreras: {sin_par}; con logo: {sum(f['logo'] for f in filas)}"
+    )
     actualizar_parametros()
     registrar(len(filas), len(ext))
 
@@ -203,9 +252,15 @@ def main(crudos: Path) -> None:
 def actualizar_parametros() -> None:
     d = json.loads(PARAMETROS.read_text(encoding="utf-8"))
     premio = next(p for p in d["parametros"] if p["id"] == "PREMIO_MAGISTER")
-    nuevo = {"id": "PRIMA_EXTRANJERA", "valor": premio["valor"]["1"], "unidad": "fracción del sueldo",
-             "descripcion": "Prima de una universidad extranjera = la de una selectiva chilena (DIPRES); no hay dato de retorno para chilenos.",
-             "fuente": premio["fuente"], "calidad": "sintetico", "rango": [0.0, 0.12]}
+    nuevo = {
+        "id": "PRIMA_EXTRANJERA",
+        "valor": premio["valor"]["1"],
+        "unidad": "fracción del sueldo",
+        "descripcion": "Prima de una universidad extranjera = la de una selectiva chilena (DIPRES); no hay dato de retorno para chilenos.",
+        "fuente": premio["fuente"],
+        "calidad": "sintetico",
+        "rango": [0.0, 0.12],
+    }
     i = next((k for k, p in enumerate(d["parametros"]) if p["id"] == "PRIMA_EXTRANJERA"), None)
     if i is None:
         d["parametros"].append(nuevo)

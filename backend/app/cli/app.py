@@ -20,9 +20,7 @@ from app.sim.ocupacional.state import Twin
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        prog="python -m app.cli", description="Trayectoria laboral desde el terminal."
-    )
+    parser = argparse.ArgumentParser(prog="python -m app.cli", description="Trayectoria laboral desde el terminal.")
     sub = parser.add_subparsers(dest="comando", required=True)
 
     oc = sub.add_parser("ocupaciones", help="lista los tipos de trabajo con su número")
@@ -60,12 +58,20 @@ def _parser() -> argparse.ArgumentParser:
         p.add_argument("--ocupacion", type=int, help="tu tipo de trabajo, 0 a 9 (míralos con: ocupaciones)")
         p.add_argument("--antiguedad", type=int, help="años en tu trabajo actual")
         p.add_argument("--region", help="rm u otra")
-        p.add_argument("--desde", metavar="ARCHIVO", help="archivo (markdown o texto) con tu información: Claude lo "
-                       "lee y llena tu perfil; las demás opciones corrigen lo que leyó")
+        p.add_argument(
+            "--desde",
+            metavar="ARCHIVO",
+            help="archivo (markdown o texto) con tu información: Claude lo "
+            "lee y llena tu perfil; las demás opciones corrigen lo que leyó",
+        )
 
     def gemelos(p: argparse.ArgumentParser) -> None:
-        p.add_argument("--gemelos", type=int, default=GEMELOS_POR_DEFECTO,
-                       help=f"cuántas copias simular por opción (por defecto {GEMELOS_POR_DEFECTO})")
+        p.add_argument(
+            "--gemelos",
+            type=int,
+            default=GEMELOS_POR_DEFECTO,
+            help=f"cuántas copias simular por opción (por defecto {GEMELOS_POR_DEFECTO})",
+        )
 
     du = sub.add_parser("dudas", help="las dudas con las que tu perfil puede empezar una partida")
     perfil_juego(du)
@@ -85,8 +91,14 @@ def _parser() -> argparse.ArgumentParser:
     gemelos(ju)
     ju.add_argument("--duda", help="la duda con la que empiezas; si falta, se elige de una lista")
     ju.add_argument("--semilla", type=int, help="semilla de los dados, para repetir la partida (si falta, al azar)")
-    ju.add_argument("--elecciones", help="opciones en orden, sin teclado: 1,2,1 (2:3 elige también dentro de la opción)")
-    ju.add_argument("--auto", action="store_true", help="sin teclado: nunca busca cambios (y si la vida obliga a elegir, lo más común)")
+    ju.add_argument(
+        "--elecciones", help="opciones en orden, sin teclado: 1,2,1 (2:3 elige también dentro de la opción)"
+    )
+    ju.add_argument(
+        "--auto",
+        action="store_true",
+        help="sin teclado: nunca busca cambios (y si la vida obliga a elegir, lo más común)",
+    )
     ju.set_defaults(func=cmd_jugar)
 
     pr = sub.add_parser("prompt", help="el prompt para que tu Claude arme tu perfil (pégalo en tu Claude)")
@@ -121,4 +133,3 @@ def main(argv: list[str] | None = None) -> int:
         print("\nPartida interrumpida.", file=sys.stderr)
         return 130
     return 0
-

@@ -33,8 +33,11 @@ def test_la_misma_partida_da_exactamente_lo_mismo():
         otra = partida.jugar(Perfil(), semilla, elecciones)
         assert otra.terminada and otra.vida.historia == p.vida.historia and otra.vida.e == p.vida.e
         assert otra.vida.ingreso_total == p.vida.ingreso_total
-    assert partida.jugar(Perfil(), 4, []).vida.registro != partida.jugar(Perfil(), 3, []).vida.registro or \
-        partida.jugar(Perfil(), 4, []).pendiente.decision["id"] != partida.jugar(Perfil(), 3, []).pendiente.decision["id"]
+    assert (
+        partida.jugar(Perfil(), 4, []).vida.registro != partida.jugar(Perfil(), 3, []).vida.registro
+        or partida.jugar(Perfil(), 4, []).pendiente.decision["id"]
+        != partida.jugar(Perfil(), 3, []).pendiente.decision["id"]
+    )
 
 
 def test_la_partida_dura_los_anios_pedidos_y_cierra():
@@ -54,12 +57,12 @@ def test_cada_eleccion_continua_la_misma_historia():
     for k in range(len(elecciones)):
         p = partida.jugar(Perfil(), 5, elecciones[:k])
         assert not p.terminada and p.pendiente.decision["id"] == elecciones[k]["decision"]
-        assert p.vida.historia == completa.vida.historia[:len(p.vida.historia)]
+        assert p.vida.historia == completa.vida.historia[: len(p.vida.historia)]
         assert len(p.vida.historia) >= anios_cerrados
         anios_cerrados = len(p.vida.historia)
         # lo ya decidido en el año en curso también coincide
         ya = [d["decision"] for d in p.vida.registro["decisiones"]]
-        assert ya == [d["decision"] for d in completa.vida.historia[p.vida.anio]["decisiones"]][:len(ya)]
+        assert ya == [d["decision"] for d in completa.vida.historia[p.vida.anio]["decisiones"]][: len(ya)]
 
 
 def test_elecciones_de_mas_dan_un_error_claro():
@@ -116,14 +119,58 @@ def test_el_jugador_responde_en_orden_y_se_detiene_cuando_no_le_quedan_respuesta
 
 
 # ------------------------------------------------------------------ vista
-CLAVES_VISTA = {"terminada", "anio", "anios", "edad_final", "semilla", "duda", "elecciones", "estado", "historia",
-                "anio_en_curso", "pendiente", "cierre"}
-CLAVES_ESTADO = {"edad", "estado", "sueldo", "sueldo_ref", "nivel", "cargo", "tipo_empleador", "rubro", "edu",
-                 "ocupacion", "antiguedad", "ahorro", "percentil", "exposicion_ia"}
-CLAVES_OPCION_COMPARADA = {"opcion", "nombre", "detalle", "calidad", "es_base", "sueldo", "ingreso_total",
-                           "paso_por_cesantia", "meses_sin_trabajo", "sin_trabajo_al_final", "cargo_mas_probable", "sube_de_cargo",
-                           "cargos", "gana_mas_que_base", "igual_que_base", "gana_menos_que_base",
-                           "diferencia_tipica", "parametros", "por_resultado", "trayectoria"}
+CLAVES_VISTA = {
+    "terminada",
+    "anio",
+    "anios",
+    "edad_final",
+    "semilla",
+    "duda",
+    "elecciones",
+    "estado",
+    "historia",
+    "anio_en_curso",
+    "pendiente",
+    "cierre",
+}
+CLAVES_ESTADO = {
+    "edad",
+    "estado",
+    "sueldo",
+    "sueldo_ref",
+    "nivel",
+    "cargo",
+    "tipo_empleador",
+    "rubro",
+    "edu",
+    "ocupacion",
+    "antiguedad",
+    "ahorro",
+    "percentil",
+    "exposicion_ia",
+}
+CLAVES_OPCION_COMPARADA = {
+    "opcion",
+    "nombre",
+    "detalle",
+    "calidad",
+    "es_base",
+    "sueldo",
+    "ingreso_total",
+    "paso_por_cesantia",
+    "meses_sin_trabajo",
+    "sin_trabajo_al_final",
+    "cargo_mas_probable",
+    "sube_de_cargo",
+    "cargos",
+    "gana_mas_que_base",
+    "igual_que_base",
+    "gana_menos_que_base",
+    "diferencia_tipica",
+    "parametros",
+    "por_resultado",
+    "trayectoria",
+}
 
 
 def test_vista_con_decision_pendiente():
@@ -135,14 +182,35 @@ def test_vista_con_decision_pendiente():
     assert set(v["anio_en_curso"]) == {"anio", "edad", "recesion", "decisiones", "eventos"}
     assert (v["anio_en_curso"]["anio"], v["anio_en_curso"]["edad"]) == (1, 30)
     assert (v["estado"]["edad"], v["estado"]["estado"], v["estado"]["sueldo"], v["estado"]["cargo"]) == (
-        30, "empleado", 1_400_000, "Semi senior")
+        30,
+        "empleado",
+        1_400_000,
+        "Semi senior",
+    )
     p = v["pendiente"]
-    assert set(p) == {"decision", "nombre", "pregunta", "categoria", "calidad", "creencia_vs_dato", "evidencia", "narrativa",
-                      "opciones", "comparacion", "por_que", "oferta_sueldo"}
+    assert set(p) == {
+        "decision",
+        "nombre",
+        "pregunta",
+        "categoria",
+        "calidad",
+        "creencia_vs_dato",
+        "evidencia",
+        "narrativa",
+        "opciones",
+        "comparacion",
+        "por_que",
+        "oferta_sueldo",
+    }
     assert p["decision"] == "unirse_a_startup" and [o["opcion"] for o in p["opciones"]] == ["ir", "quedarse"]
-    assert all(set(o) == {"opcion", "nombre", "detalle", "calidad", "respaldo", "elecciones_internas", "empresa"} for o in p["opciones"])
+    assert all(
+        set(o) == {"opcion", "nombre", "detalle", "calidad", "respaldo", "elecciones_internas", "empresa"}
+        for o in p["opciones"]
+    )
     c = p["comparacion"]
-    assert c["decision"] == "unirse_a_startup" and c["gemelos"] == n(40) and c["anios"] == 10 and c["base"] == "quedarse"
+    assert (
+        c["decision"] == "unirse_a_startup" and c["gemelos"] == n(40) and c["anios"] == 10 and c["base"] == "quedarse"
+    )
     assert [o["opcion"] for o in c["opciones"]] == ["ir", "quedarse"]
     assert all(set(o) >= CLAVES_OPCION_COMPARADA and "sueldos" not in o for o in c["opciones"])  # sin los crudos
 
@@ -163,8 +231,9 @@ def test_vista_muestra_lo_que_se_elige_dentro_de_una_opcion():
     valores = [a["valor"] for a in rubro["alternativas"]]
     assert "Servicios profesionales" not in valores and "" not in valores and "Minería" in valores  # no el propio
     # y la elección de la persona se usa
-    p = partida.jugar(Perfil(), 3, [{"opcion": "cambiar", "parametros": {"rubro_destino": "Salud"}}],
-                      duda="cambiar_de_rubro")
+    p = partida.jugar(
+        Perfil(), 3, [{"opcion": "cambiar", "parametros": {"rubro_destino": "Salud"}}], duda="cambiar_de_rubro"
+    )
     registro = p.vida.historia[0] if p.vida.historia else p.vida.registro
     resultado = registro["decisiones"][0]["resultado"]
     assert p.vida.e["rubro_destino"] == "Salud"
@@ -172,13 +241,16 @@ def test_vista_muestra_lo_que_se_elige_dentro_de_una_opcion():
 
 
 def test_vista_al_cierre():
-    elecciones, p = _jugar_entera(duda="unirse_a_startup", elegir=lambda opciones: opciones[0].id if
-                                  opciones[0].id == "ir" else opciones[-1].id)
+    elecciones, p = _jugar_entera(
+        duda="unirse_a_startup", elegir=lambda opciones: opciones[0].id if opciones[0].id == "ir" else opciones[-1].id
+    )
     v = partida.vista(Perfil(), semilla=3, duda="unirse_a_startup", elecciones=elecciones, n_gemelos=n(60))
     assert set(v) >= CLAVES_VISTA
     assert v["terminada"] is True and v["pendiente"] is None and v["anio"] == 10 and v["anio_en_curso"] is None
-    sin_historia = [{**a, "decisiones": [{k: x for k, x in d.items() if k != "narrativa"} for d in a["decisiones"]]}
-                    for a in v["historia"]]
+    sin_historia = [
+        {**a, "decisiones": [{k: x for k, x in d.items() if k != "narrativa"} for d in a["decisiones"]]}
+        for a in v["historia"]
+    ]
     assert len(v["historia"]) == 10 and sin_historia == p.vida.historia and v["estado"] == p.vida.resumen()
     c = v["cierre"]
     assert set(c) == {"sueldo_final", "estado", "anios_sin_trabajo", "primera_decision", "mejor_que_gemelos"}
@@ -271,7 +343,8 @@ def test_comparar_forma_y_coherencia_interna():
     assert ir["gana_mas_que_base"] + ir["igual_que_base"] + ir["gana_menos_que_base"] == pytest.approx(1)
     # los que ganan en cada resultado, ponderados por cuántos son, dan el total de la opción
     assert sum(r["gana_mas_que_base"] * r["gemelos"] for r in ir["por_resultado"]) == pytest.approx(
-        ir["gana_mas_que_base"] * m)
+        ir["gana_mas_que_base"] * m
+    )
 
 
 def test_comparar_reparte_los_resultados_segun_las_probabilidades_del_paquete():
@@ -348,20 +421,32 @@ def test_el_cierre_compara_con_los_gemelos_del_momento_de_la_primera_decision():
     for semilla in range(6):
         primera = partida.jugar(Perfil(), semilla, [], duda="pedir_aumento")
         elecciones, _ = _jugar_entera(semilla=semilla, duda="pedir_aumento")
-        cierre = partida.vista(Perfil(), semilla=semilla, duda="pedir_aumento", elecciones=elecciones,
-                               n_gemelos=n(12))["cierre"]
+        cierre = partida.vista(Perfil(), semilla=semilla, duda="pedir_aumento", elecciones=elecciones, n_gemelos=n(12))[
+            "cierre"
+        ]
         esperada = gemelos.comparar(primera.vida, "pedir_aumento", n=n(12), semilla=semilla)
         assert cierre["primera_decision"]["comparacion"] == esperada
 
 
 def test_comparar_usa_los_parametros_de_cada_opcion():
     """Cambiarse a Minería paga más que cambiarse a Hoteles y restaurantes (ESI, mediana por rubro)."""
+
     def mediana(rubro):
-        c = gemelos.comparar(_al_inicio(), "cambiar_de_rubro", n=n(80), anios=1, semilla=2,
-                             parametros={"cambiar": {"rubro_destino": rubro}})
+        c = gemelos.comparar(
+            _al_inicio(),
+            "cambiar_de_rubro",
+            n=n(80),
+            anios=1,
+            semilla=2,
+            parametros={"cambiar": {"rubro_destino": rubro}},
+        )
         cambiar = c["opciones"][0]
-        assert cambiar["opcion"] == "cambiar" and {r["resultado"] for r in cambiar["por_resultado"]} == {"entra", "nada"}
+        assert cambiar["opcion"] == "cambiar" and {r["resultado"] for r in cambiar["por_resultado"]} == {
+            "entra",
+            "nada",
+        }
         return cambiar["sueldo"]["p90"]
+
     assert mediana("Minería") > mediana("Hoteles y restaurantes")
 
 
@@ -386,6 +471,7 @@ def test_comparar_pendiente_solo_compara_cuando_tiene_sentido():
 
 
 # ── historia de las cartas ────────────────────────────────────────────────────
+
 
 def test_cada_carta_trae_su_historia_y_tu_empresa_no_cambia():
     from app.sim.motor.partida import vista
@@ -420,6 +506,7 @@ def test_la_historia_no_mueve_los_numeros():
         for d in a["decisiones"]:
             d.pop("narrativa", None)
     import app.sim.motor.partida as partida
+
     original = partida.narrar
     partida.narrar = lambda *a, **k: None
     try:

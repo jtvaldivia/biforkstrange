@@ -19,7 +19,7 @@ class Decision(ABC):
     label: ClassVar[str]
     description: ClassVar[str] = ""
     # Cómo mueve la decisión el paso laboral del año (ver sim/ocupacional/labor.py)
-    riesgo_rel: ClassVar[float] = 1.0       # multiplica la prob. de caer en cesantía
+    riesgo_rel: ClassVar[float] = 1.0  # multiplica la prob. de caer en cesantía
     cambio_forzado: ClassVar[bool] = False  # te cambias de empleador este año
 
     def __init_subclass__(cls, **kw):

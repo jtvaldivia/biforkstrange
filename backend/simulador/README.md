@@ -85,10 +85,25 @@ En Python:
 
 ```python
 import random, sys
-sys.path.insert(0, 'simulador/referencia')
+
+sys.path.insert(0, "simulador/referencia")
 from expresiones import Paquete
-pq = Paquete('simulador')
-gemelo = pq.derivar({'edad': 31, 'sexo': 'm', 'edu': 'universitaria', 'estado': 'empleado', 'tipo_empleador': 'pyme', 'rubro': 'Comercio', 'nivel': 1, 'sueldo': 1100000, 'carrera_id': 11, 'region': 'rm'})
+
+pq = Paquete("simulador")
+gemelo = pq.derivar(
+    {
+        "edad": 31,
+        "sexo": "m",
+        "edu": "universitaria",
+        "estado": "empleado",
+        "tipo_empleador": "pyme",
+        "rubro": "Comercio",
+        "nivel": 1,
+        "sueldo": 1100000,
+        "carrera_id": 11,
+        "region": "rm",
+    }
+)
 pq.evaluar("k('P_SEPARACION', banda3) * k('MULT_DESPIDO_TIPO', tipo_empleador)", gemelo, random.Random(7))
 ```
 

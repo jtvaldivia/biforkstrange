@@ -78,7 +78,9 @@ def test_el_repositorio_es_uno_por_proceso():
 
 def test_python_m_app_cli_arranca():
     """`python -m app.cli` (lo que usa el Makefile) sigue funcionando con el CLI dividido en módulos."""
-    salida = subprocess.run([sys.executable, "-m", "app.cli", "ocupaciones"], capture_output=True, text=True, check=False)
+    salida = subprocess.run(
+        [sys.executable, "-m", "app.cli", "ocupaciones"], capture_output=True, text=True, check=False
+    )
     assert salida.returncode == 0, salida.stderr
     assert salida.stdout.strip()
 
@@ -106,7 +108,11 @@ def test_el_response_model_no_borra_campos_del_motor(client):
 
 def test_openapi_documenta_las_respuestas_del_juego(client):
     esquema = client.get("/openapi.json").json()
-    for ruta, metodo, modelo in [("/api/juego/partida", "post", "PartidaOut"), ("/api/juego/catalogo", "get", "CatalogoOut"),
-                                 ("/api/juego/mundo", "post", "MundoOut"), ("/api/juego/narrar", "post", "NarrarOut")]:
+    for ruta, metodo, modelo in [
+        ("/api/juego/partida", "post", "PartidaOut"),
+        ("/api/juego/catalogo", "get", "CatalogoOut"),
+        ("/api/juego/mundo", "post", "MundoOut"),
+        ("/api/juego/narrar", "post", "NarrarOut"),
+    ]:
         ok = esquema["paths"][ruta][metodo]["responses"]["200"]["content"]["application/json"]["schema"]
         assert ok["$ref"].endswith(f"/{modelo}")

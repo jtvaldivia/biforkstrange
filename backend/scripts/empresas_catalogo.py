@@ -32,22 +32,84 @@ LOGOS = BACKEND.parent / "frontend" / "public" / "logos" / "empresas"
 PARAMETROS = BACKEND / "simulador" / "parametros.json"
 
 SEMILLA = 20261121
-RUBROS = ["Minería", "Finanzas y seguros", "Información y comunicaciones", "Comercio", "Salud", "Enseñanza",
-          "Servicios profesionales", "Construcción", "Industria manufacturera", "Transporte", "Agricultura y pesca",
-          "Hoteles y restaurantes", "Artes y entretención", "Servicios administrativos", "Administración pública", "Otros servicios"]
+RUBROS = [
+    "Minería",
+    "Finanzas y seguros",
+    "Información y comunicaciones",
+    "Comercio",
+    "Salud",
+    "Enseñanza",
+    "Servicios profesionales",
+    "Construcción",
+    "Industria manufacturera",
+    "Transporte",
+    "Agricultura y pesca",
+    "Hoteles y restaurantes",
+    "Artes y entretención",
+    "Servicios administrativos",
+    "Administración pública",
+    "Otros servicios",
+]
 TIPOS = ["grande", "pyme", "startup", "publico", "extranjero"]
 TIPOS_SORTEADOS = ("grande", "pyme", "startup")
-AREAS = ["Administración y Comercio", "Agropecuaria", "Arte y Arquitectura", "Ciencias Básicas", "Ciencias Sociales",
-         "Derecho", "Educación", "Humanidades", "Salud", "Tecnología"]
+AREAS = [
+    "Administración y Comercio",
+    "Agropecuaria",
+    "Arte y Arquitectura",
+    "Ciencias Básicas",
+    "Ciencias Sociales",
+    "Derecho",
+    "Educación",
+    "Humanidades",
+    "Salud",
+    "Tecnología",
+]
 EDUS = ["media", "tecnica", "universitaria", "postgrado"]
 NIVELES = range(5)
 GRILLA_SIGMA = [i / 200 for i in range(0, 201)]  # 0.000 .. 1.000
 
-COLS_EMPRESAS = ["empresa_id", "nombre", "rubro", "tipo", "tamano_esi", "dominio", "logo", "origen", "pais", "peso",
-                 "mult_sueldo", "mult_despido", "mult_cierre", "mult_ascenso", "exposicion_ia", "horas",
-                 "calidad_sueldo", "calidad_despido", "calidad_ascenso", "calidad_ia", "calidad_horas"]
-COLS_CARGOS = ["cargo_id", "nombre", "ciuo08_1d", "ocupacion_ia", "exposicion_ia", "area_getonbrd", "prima_getonbrd",
-               "nivel_min", "nivel_max", "edu_min", "areas", "rubros", "tipos", "peso", "calidad_ia", "calidad_prima", "familia"]
+COLS_EMPRESAS = [
+    "empresa_id",
+    "nombre",
+    "rubro",
+    "tipo",
+    "tamano_esi",
+    "dominio",
+    "logo",
+    "origen",
+    "pais",
+    "peso",
+    "mult_sueldo",
+    "mult_despido",
+    "mult_cierre",
+    "mult_ascenso",
+    "exposicion_ia",
+    "horas",
+    "calidad_sueldo",
+    "calidad_despido",
+    "calidad_ascenso",
+    "calidad_ia",
+    "calidad_horas",
+]
+COLS_CARGOS = [
+    "cargo_id",
+    "nombre",
+    "ciuo08_1d",
+    "ocupacion_ia",
+    "exposicion_ia",
+    "area_getonbrd",
+    "prima_getonbrd",
+    "nivel_min",
+    "nivel_max",
+    "edu_min",
+    "areas",
+    "rubros",
+    "tipos",
+    "peso",
+    "calidad_ia",
+    "calidad_prima",
+    "familia",
+]
 COLS_FAMILIAS = ["tipo", "clave", "familias"]
 
 
@@ -132,6 +194,7 @@ GEOMETRICAS = {"mult_sueldo"}
 
 # ---------------------------------------------------------------- empresas
 
+
 def resolver(curadas: list[dict]) -> list[dict]:
     sii = defaultdict(list)
     for f in leer(DATOS / "sii_empleadores.csv"):
@@ -146,9 +209,19 @@ def resolver(curadas: list[dict]) -> list[dict]:
 
     vistos, salida = set(), []
     for c in curadas:
-        e = {"nombre": c["nombre"], "rubro": c["rubro"], "tipo": c["tipo"], "dominio": c.get("dominio", ""),
-             "origen": c["origen"], "pais": c.get("pais", "Chile"), "trabajadores": None, "tramo": None,
-             "yc_industria": "", "avisos": [], "concursos": []}
+        e = {
+            "nombre": c["nombre"],
+            "rubro": c["rubro"],
+            "tipo": c["tipo"],
+            "dominio": c.get("dominio", ""),
+            "origen": c["origen"],
+            "pais": c.get("pais", "Chile"),
+            "trabajadores": None,
+            "tramo": None,
+            "yc_industria": "",
+            "avisos": [],
+            "concursos": [],
+        }
         clave = c.get("clave", c["nombre"])
         assert c["rubro"] in RUBROS and c["tipo"] in TIPOS, c
         assert e["nombre"] not in vistos, f"empresa repetida: {e['nombre']}"
@@ -182,7 +255,9 @@ def base_sueldo(empresas: list[dict]) -> None:
     seniority = {f["seniority"]: float(f["mediana_usd"]) for f in tabla("getonbrd_sueldos_seniority")}
     estamento = {f["estamento"]: float(f["renta_bruta_p50"]) for f in tabla("estado_estamentos")}
     for e in empresas:
-        e["tamano_esi"] = tamano_esi(e["trabajadores"]) if e["trabajadores"] is not None and e["tipo"] in TIPOS_SORTEADOS else ""
+        e["tamano_esi"] = (
+            tamano_esi(e["trabajadores"]) if e["trabajadores"] is not None and e["tipo"] in TIPOS_SORTEADOS else ""
+        )
     for tipo in TIPOS_SORTEADOS:
         clases = sorted({e["tamano_esi"] for e in empresas if e["tipo"] == tipo and e["tamano_esi"]})
         w = sum(float(esi[k]["share"]) for k in clases)
@@ -242,7 +317,9 @@ def calibrar_sigma_sueldo(empresas: list[dict]) -> tuple[float, dict]:
 
 
 def mult_despido(empresas: list[dict]) -> None:
-    salida = {f["grupo"]: float(f["salida_anual"]) for f in tabla("ine_flujos_laborales_2025") if f["dimension"] == "tamano"}
+    salida = {
+        f["grupo"]: float(f["salida_anual"]) for f in tabla("ine_flujos_laborales_2025") if f["dimension"] == "tamano"
+    }
     for e in empresas:
         if e["tipo"] in TIPOS_SORTEADOS and e["tramo"] is not None:
             e["tamano_ine"] = tamano_ine_por_tramo(e["tramo"])
@@ -286,7 +363,9 @@ def exposicion_rubro(ocupaciones: dict) -> dict[str, float]:
 
 
 def horas(empresas: list[dict]) -> float:
-    share = next(float(f["share_50_mas"]) for f in tabla("esi_jornada") if f["sexo"] == "todos" and f["banda_edad"] == "18-54")
+    share = next(
+        float(f["share_50_mas"]) for f in tabla("esi_jornada") if f["sexo"] == "todos" and f["banda_edad"] == "18-54"
+    )
     k = round(share * len(empresas))
     elegidas = set(random.Random(SEMILLA + 3).sample([e["empresa_id"] for e in empresas], k))
     for e in empresas:
@@ -297,7 +376,11 @@ def horas(empresas: list[dict]) -> float:
 def catalogo_empresas() -> tuple[list[dict], float, dict]:
     cfg = json.loads((CURADAS / "empresas_curadas.json").read_text(encoding="utf-8"))
     empresas = resolver(cfg["empresas"])
-    share = {f["rubro"]: float(f["share_ocupados_banda"]) for f in tabla("esi_ingreso_rubro_edad") if f["banda_edad"] == "18-54" and f["share_ocupados_banda"]}
+    share = {
+        f["rubro"]: float(f["share_ocupados_banda"])
+        for f in tabla("esi_ingreso_rubro_edad")
+        if f["banda_edad"] == "18-54" and f["share_ocupados_banda"]
+    }
     n_celda = defaultdict(int)
     for e in empresas:
         n_celda[(e["tipo"], e["rubro"])] += 1
@@ -324,7 +407,9 @@ def catalogo_empresas() -> tuple[list[dict], float, dict]:
     for e in empresas:
         e["exposicion_ia"] = expo[e["rubro"]]
         e["logo"] = int((LOGOS / f"{e['empresa_id']}.png").exists())
-        e["calidad_sueldo"] = "sintetico" if (e["tipo"] in TIPOS_SORTEADOS and sigma > 0) or e["acotado"] else "derivado"
+        e["calidad_sueldo"] = (
+            "sintetico" if (e["tipo"] in TIPOS_SORTEADOS and sigma > 0) or e["acotado"] else "derivado"
+        )
         e["calidad_despido"] = "derivado"
         e["calidad_ascenso"] = "sintetico"
         e["calidad_ia"] = "sintetico"
@@ -366,6 +451,7 @@ def escribir_empresas(empresas: list[dict]) -> None:
 
 # ---------------------------------------------------------------- cargos
 
+
 def lista(valor: str, dominio: list[str]) -> set[str]:
     if valor == "*":
         return set(dominio)
@@ -379,9 +465,16 @@ def catalogo_cargos(empresas: list[dict]) -> list[dict]:
     cfg = json.loads((CURADAS / "cargos_curados.json").read_text(encoding="utf-8"))
     familias = cfg["familias"]["familias"]
     ia = {f["ocupacion_eeuu"]: float(f["aplicabilidad_ia"]) for f in tabla("ia_aplicabilidad_ocupaciones")}
-    share = {int(f["ciuo08_1d"]): float(f["share_ocupados_banda"]) for f in tabla("esi_ingreso_ocupacion") if f["banda_edad"] == "18-54"}
-    gob = {f["area"]: (float(f["sueldo_min_mediano_usd"]) + float(f["sueldo_max_mediano_usd"])) / 2
-           for f in tabla("getonbrd_sueldos") if f["seniority"] == "todas" and f["remoto"] == "todos"}
+    share = {
+        int(f["ciuo08_1d"]): float(f["share_ocupados_banda"])
+        for f in tabla("esi_ingreso_ocupacion")
+        if f["banda_edad"] == "18-54"
+    }
+    gob = {
+        f["area"]: (float(f["sueldo_min_mediano_usd"]) + float(f["sueldo_max_mediano_usd"])) / 2
+        for f in tabla("getonbrd_sueldos")
+        if f["seniority"] == "todas" and f["remoto"] == "todos"
+    }
     por_grupo = defaultdict(int)
     for c in cfg["cargos"]:
         por_grupo[c["ciuo"]] += 1
@@ -397,26 +490,40 @@ def catalogo_cargos(empresas: list[dict]) -> list[dict]:
         area = c["area_getonbrd"]
         assert area == "" or area in gob, area
         assert c["familia"] in familias, f"{c['nombre']}: familia {c['familia']!r} fuera de la lista"
-        cargos.append({
-            "cargo_id": i, "nombre": c["nombre"], "ciuo08_1d": c["ciuo"], "ocupacion_ia": c["ocupacion_ia"],
-            "exposicion_ia": f"{ia[c['ocupacion_ia']]:.3f}", "area_getonbrd": area,
-            "prima_getonbrd": f"{gob[area] / gob['todas']:.4f}" if area else "1",
-            "nivel_min": c["nivel"][0], "nivel_max": c["nivel"][1], "edu_min": c["edu_min"],
-            "areas": c["areas"], "rubros": c["rubros"], "tipos": c["tipos"],
-            "peso": f"{share[c['ciuo']] / por_grupo[c['ciuo']]:.12f}",
-            "calidad_ia": "derivado" if c["equivalencia"] == "directa" else "sintetico",
-            "calidad_prima": "dato" if area else "derivado",
-            "familia": c["familia"],
-        })
+        cargos.append(
+            {
+                "cargo_id": i,
+                "nombre": c["nombre"],
+                "ciuo08_1d": c["ciuo"],
+                "ocupacion_ia": c["ocupacion_ia"],
+                "exposicion_ia": f"{ia[c['ocupacion_ia']]:.3f}",
+                "area_getonbrd": area,
+                "prima_getonbrd": f"{gob[area] / gob['todas']:.4f}" if area else "1",
+                "nivel_min": c["nivel"][0],
+                "nivel_max": c["nivel"][1],
+                "edu_min": c["edu_min"],
+                "areas": c["areas"],
+                "rubros": c["rubros"],
+                "tipos": c["tipos"],
+                "peso": f"{share[c['ciuo']] / por_grupo[c['ciuo']]:.12f}",
+                "calidad_ia": "derivado" if c["equivalencia"] == "directa" else "sintetico",
+                "calidad_prima": "dato" if area else "derivado",
+                "familia": c["familia"],
+            }
+        )
 
     # Garantía: cada empresa tiene al menos un cargo para cada (educación, nivel), ignorando el área.
     huecos = []
     for e in empresas:
         for edu in EDUS:
             for nivel in NIVELES:
-                if not any(EDUS.index(edu) >= EDUS.index(c["edu_min"]) and c["nivel_min"] <= nivel <= c["nivel_max"]
-                           and e["rubro"] in lista(c["rubros"], RUBROS) and e["tipo"] in lista(c["tipos"], TIPOS)
-                           for c in cargos):
+                if not any(
+                    EDUS.index(edu) >= EDUS.index(c["edu_min"])
+                    and c["nivel_min"] <= nivel <= c["nivel_max"]
+                    and e["rubro"] in lista(c["rubros"], RUBROS)
+                    and e["tipo"] in lista(c["tipos"], TIPOS)
+                    for c in cargos
+                ):
                     huecos.append((e["nombre"], edu, nivel))
     assert not huecos, f"empresas sin cargo compatible: {huecos[:10]}"
     with open(TABLAS / "cargos_catalogo.csv", "w", newline="", encoding="utf-8") as fh:
@@ -459,6 +566,7 @@ def escribir_familias(cfg: dict, cargos: list[dict]) -> None:
 
 # ---------------------------------------------------------------- parámetros
 
+
 def actualizar_parametros(sigma: float) -> None:
     d = json.loads(PARAMETROS.read_text(encoding="utf-8"))
     nuevos = {
@@ -467,16 +575,25 @@ def actualizar_parametros(sigma: float) -> None:
             "z normal sorteada con semilla fija. σ es el mayor valor de una grilla de 0 a 1 (paso 0,005) con el que, "
             "en todos los rubros, el p25 y el p75 de mult_sueldo × p50 del rubro (grandes, pymes y startups del "
             "catálogo, tras normalizar a media geométrica 1 por tipo y rubro) quedan dentro del p25-p75 ESI 2025 del rubro "
-            "(esi_ingreso_rubro, educación todas). Lo calcula scripts/empresas_catalogo.py."),
+            "(esi_ingreso_rubro, educación todas). Lo calcula scripts/empresas_catalogo.py."
+        ),
         "EMPRESA_SIGMA_ASCENSO": (
             "Dispersión entre empresas de la probabilidad de ascenso: mult_ascenso = exp(σ·z − σ²/2), z normal con "
             "semilla fija. No hay en el paquete una medición de ascensos por empresa para calibrarlo, así que usa el "
-            "mismo σ que EMPRESA_SIGMA_SUELDO."),
+            "mismo σ que EMPRESA_SIGMA_SUELDO."
+        ),
     }
     params = d["parametros"]
     for pid, desc in nuevos.items():
-        p = {"id": pid, "valor": sigma, "unidad": "desviación log", "descripcion": desc, "fuente": "equipo_sintetico",
-             "calidad": "sintetico", "rango": [0.0, round(sigma * 1.5, 4)]}
+        p = {
+            "id": pid,
+            "valor": sigma,
+            "unidad": "desviación log",
+            "descripcion": desc,
+            "fuente": "equipo_sintetico",
+            "calidad": "sintetico",
+            "rango": [0.0, round(sigma * 1.5, 4)],
+        }
         i = next((k for k, x in enumerate(params) if x["id"] == pid), None)
         if i is None:
             params.append(p)
@@ -502,85 +619,91 @@ def registrar_indice(entradas: list[dict]) -> None:
 
 
 def entradas_indice(n_empresas: int, n_cargos: int, sigma: float) -> list[dict]:
-    calidad = "'derivado' (sale de tablas sin sorteo) o 'sintetico' (lleva sorteo con semilla fija o un cruce hecho a mano)"
-    return [{
-        "tabla": "empresas_catalogo",
-        "archivo": "tablas/empresas_catalogo.csv",
-        "descripcion": "Empresas reales que el juego ofrece como empleador, con multiplicadores de sueldo, despido, cierre y ascenso relativos a su tipo y rubro.",
-        "columnas": {
-            "empresa_id": "índice estable (0..n-1), ordenado por rubro, tipo y nombre",
-            "nombre": "nombre corto de la empresa o servicio",
-            "rubro": "rubro del juego (dominio rubro de estado.json)",
-            "tipo": "tipo de empleador: grande, pyme, startup, publico o extranjero",
-            "tamano_esi": "clase de tamaño de esi_ingreso_tamano según trabajadores (SII o YC); vacío si no hay dato o no aplica",
-            "dominio": "sitio web oficial, para el ícono; vacío si no hay uno seguro",
-            "logo": "1 si existe frontend/public/logos/empresas/<empresa_id>.png",
-            "origen": "sii, yc, getonbrd, concursos o curada (no está en las tablas del repo; ver la nota en scripts/datos/empresas_curadas.json)",
-            "pais": "país de la empresa (Chile salvo las extranjeras)",
-            "peso": "share_ocupados_banda del rubro (esi_ingreso_rubro_edad, 18-54) repartido en partes iguales entre las empresas del mismo tipo y rubro; probabilidad relativa de sorteo",
-            "mult_sueldo": "multiplicador del sueldo del rubro; media geométrica ponderada por peso = 1 en cada (tipo, rubro), para no mover las medianas. Grandes, pymes y startups: p50 ESI de su tamaño / media de su tipo × exp(σ·z − σ²/2) con σ = EMPRESA_SIGMA_SUELDO. Públicas: renta de sus concursos / mediana del estamento. Extranjeras: punto medio de sus avisos / mediana de su seniority. Públicas sin concursos y extranjeras sin avisos: 1 (la mediana). Públicas y extranjeras acotadas a [p25/p50, p75/p50] ESI del rubro",
-            "mult_despido": "salida anual INE de su tamaño de empresa / promedio de su tipo, normalizado a media 1 por (tipo, rubro); 1 si no hay tamaño",
-            "mult_cierre": "solo startups: share_inactiva de su industria YC / promedio YC, normalizado a media 1 por (tipo, rubro); 1 para el resto",
-            "mult_ascenso": "exp(σ·z − σ²/2) con σ = EMPRESA_SIGMA_ASCENSO, normalizado a media 1 por (tipo, rubro)",
-            "exposicion_ia": "aplicabilidad de IA promedio de 7 ocupaciones típicas del rubro (0-1, valor absoluto)",
-            "horas": "jornada semanal habitual: 44 o 50; la fracción con 50 replica share_50_mas de esi_jornada",
-            "calidad_sueldo": calidad,
-            "calidad_despido": calidad,
-            "calidad_ascenso": calidad,
-            "calidad_ia": calidad,
-            "calidad_horas": calidad,
+    calidad = (
+        "'derivado' (sale de tablas sin sorteo) o 'sintetico' (lleva sorteo con semilla fija o un cruce hecho a mano)"
+    )
+    return [
+        {
+            "tabla": "empresas_catalogo",
+            "archivo": "tablas/empresas_catalogo.csv",
+            "descripcion": "Empresas reales que el juego ofrece como empleador, con multiplicadores de sueldo, despido, cierre y ascenso relativos a su tipo y rubro.",
+            "columnas": {
+                "empresa_id": "índice estable (0..n-1), ordenado por rubro, tipo y nombre",
+                "nombre": "nombre corto de la empresa o servicio",
+                "rubro": "rubro del juego (dominio rubro de estado.json)",
+                "tipo": "tipo de empleador: grande, pyme, startup, publico o extranjero",
+                "tamano_esi": "clase de tamaño de esi_ingreso_tamano según trabajadores (SII o YC); vacío si no hay dato o no aplica",
+                "dominio": "sitio web oficial, para el ícono; vacío si no hay uno seguro",
+                "logo": "1 si existe frontend/public/logos/empresas/<empresa_id>.png",
+                "origen": "sii, yc, getonbrd, concursos o curada (no está en las tablas del repo; ver la nota en scripts/datos/empresas_curadas.json)",
+                "pais": "país de la empresa (Chile salvo las extranjeras)",
+                "peso": "share_ocupados_banda del rubro (esi_ingreso_rubro_edad, 18-54) repartido en partes iguales entre las empresas del mismo tipo y rubro; probabilidad relativa de sorteo",
+                "mult_sueldo": "multiplicador del sueldo del rubro; media geométrica ponderada por peso = 1 en cada (tipo, rubro), para no mover las medianas. Grandes, pymes y startups: p50 ESI de su tamaño / media de su tipo × exp(σ·z − σ²/2) con σ = EMPRESA_SIGMA_SUELDO. Públicas: renta de sus concursos / mediana del estamento. Extranjeras: punto medio de sus avisos / mediana de su seniority. Públicas sin concursos y extranjeras sin avisos: 1 (la mediana). Públicas y extranjeras acotadas a [p25/p50, p75/p50] ESI del rubro",
+                "mult_despido": "salida anual INE de su tamaño de empresa / promedio de su tipo, normalizado a media 1 por (tipo, rubro); 1 si no hay tamaño",
+                "mult_cierre": "solo startups: share_inactiva de su industria YC / promedio YC, normalizado a media 1 por (tipo, rubro); 1 para el resto",
+                "mult_ascenso": "exp(σ·z − σ²/2) con σ = EMPRESA_SIGMA_ASCENSO, normalizado a media 1 por (tipo, rubro)",
+                "exposicion_ia": "aplicabilidad de IA promedio de 7 ocupaciones típicas del rubro (0-1, valor absoluto)",
+                "horas": "jornada semanal habitual: 44 o 50; la fracción con 50 replica share_50_mas de esi_jornada",
+                "calidad_sueldo": calidad,
+                "calidad_despido": calidad,
+                "calidad_ascenso": calidad,
+                "calidad_ia": calidad,
+                "calidad_horas": calidad,
+            },
+            "poblacion": f"{n_empresas} empresas reales y conocidas, elegidas a mano (unas 10 por rubro), todas con logo. pyme = scaleups y empresas medianas conocidas; startup = startups chilenas en crecimiento; extranjero = empleadores que contratan remoto desde Latinoamérica",
+            "ponderador": "peso",
+            "fuente_id": "sii_nomina_2024",
+            "script": "scripts/empresas_catalogo.py",
+            "advertencia": f"Los multiplicadores mueven a la empresa dentro de su tipo y rubro, no el promedio. σ de sueldo calibrado = {sigma}. Fuentes: nómina SII 2024, Y Combinator, Get on Board, empleospublicos.cl, ESI 2025, INE flujos laborales, Microsoft (IA).",
+            "filas": n_empresas,
         },
-        "poblacion": f"{n_empresas} empresas reales y conocidas, elegidas a mano (unas 10 por rubro), todas con logo. pyme = scaleups y empresas medianas conocidas; startup = startups chilenas en crecimiento; extranjero = empleadores que contratan remoto desde Latinoamérica",
-        "ponderador": "peso",
-        "fuente_id": "sii_nomina_2024",
-        "script": "scripts/empresas_catalogo.py",
-        "advertencia": f"Los multiplicadores mueven a la empresa dentro de su tipo y rubro, no el promedio. σ de sueldo calibrado = {sigma}. Fuentes: nómina SII 2024, Y Combinator, Get on Board, empleospublicos.cl, ESI 2025, INE flujos laborales, Microsoft (IA).",
-        "filas": n_empresas,
-    }, {
-        "tabla": "cargos_catalogo",
-        "archivo": "tablas/cargos_catalogo.csv",
-        "descripcion": "Cargos con nombre real que el juego ofrece en cada empresa, con su gran grupo CIUO, exposición a IA y prima de Get on Board.",
-        "columnas": {
-            "cargo_id": "índice estable (0..n-1)",
-            "nombre": "nombre del cargo",
-            "ciuo08_1d": "gran grupo CIUO-08 (1-9); el sueldo base sale de esi_ingreso_ocupacion",
-            "ocupacion_ia": "ocupación equivalente en ia_aplicabilidad_ocupaciones.ocupacion_eeuu",
-            "exposicion_ia": "aplicabilidad_ia de esa ocupación (0-1)",
-            "area_getonbrd": "área de getonbrd_sueldos para cargos tech o digitales; vacío para el resto",
-            "prima_getonbrd": "punto medio de las medianas min y max del área / el de todas las áreas (getonbrd_sueldos); 1 sin área",
-            "nivel_min": "nivel mínimo (0 junior .. 4 gerencia)",
-            "nivel_max": "nivel máximo (0..4)",
-            "edu_min": "educación mínima: media, tecnica, universitaria o postgrado",
-            "areas": "áreas de carrera compatibles separadas por | o * (cualquiera)",
-            "rubros": "rubros donde existe el cargo separados por | o *",
-            "tipos": "tipos de empleador separados por | o *",
-            "peso": "share_ocupados_banda del gran grupo (esi_ingreso_ocupacion, 18-54) repartido entre los cargos del grupo",
-            "calidad_ia": "'derivado' si la ocupación de EE.UU. calza directo, 'sintetico' si es la más cercana",
-            "calidad_prima": "'dato' si viene de getonbrd_sueldos, 'derivado' si es 1 por no tener área",
-            "familia": "familia de cargo (función): una de las de familias.csv; la elige el equipo a mano",
+        {
+            "tabla": "cargos_catalogo",
+            "archivo": "tablas/cargos_catalogo.csv",
+            "descripcion": "Cargos con nombre real que el juego ofrece en cada empresa, con su gran grupo CIUO, exposición a IA y prima de Get on Board.",
+            "columnas": {
+                "cargo_id": "índice estable (0..n-1)",
+                "nombre": "nombre del cargo",
+                "ciuo08_1d": "gran grupo CIUO-08 (1-9); el sueldo base sale de esi_ingreso_ocupacion",
+                "ocupacion_ia": "ocupación equivalente en ia_aplicabilidad_ocupaciones.ocupacion_eeuu",
+                "exposicion_ia": "aplicabilidad_ia de esa ocupación (0-1)",
+                "area_getonbrd": "área de getonbrd_sueldos para cargos tech o digitales; vacío para el resto",
+                "prima_getonbrd": "punto medio de las medianas min y max del área / el de todas las áreas (getonbrd_sueldos); 1 sin área",
+                "nivel_min": "nivel mínimo (0 junior .. 4 gerencia)",
+                "nivel_max": "nivel máximo (0..4)",
+                "edu_min": "educación mínima: media, tecnica, universitaria o postgrado",
+                "areas": "áreas de carrera compatibles separadas por | o * (cualquiera)",
+                "rubros": "rubros donde existe el cargo separados por | o *",
+                "tipos": "tipos de empleador separados por | o *",
+                "peso": "share_ocupados_banda del gran grupo (esi_ingreso_ocupacion, 18-54) repartido entre los cargos del grupo",
+                "calidad_ia": "'derivado' si la ocupación de EE.UU. calza directo, 'sintetico' si es la más cercana",
+                "calidad_prima": "'dato' si viene de getonbrd_sueldos, 'derivado' si es 1 por no tener área",
+                "familia": "familia de cargo (función): una de las de familias.csv; la elige el equipo a mano",
+            },
+            "poblacion": f"{n_cargos} cargos de avisos de Get on Board, concursos del Estado y nombres comunes en Chile",
+            "ponderador": "peso",
+            "fuente_id": "microsoft_ia",
+            "script": "scripts/empresas_catalogo.py",
+            "advertencia": "Para cada empresa y cada (educación, nivel) hay al menos un cargo compatible si se ignora el área y la familia; el script lo verifica. La prima de Get on Board compara áreas de un portal tech, no el mercado completo.",
+            "filas": n_cargos,
         },
-        "poblacion": f"{n_cargos} cargos de avisos de Get on Board, concursos del Estado y nombres comunes en Chile",
-        "ponderador": "peso",
-        "fuente_id": "microsoft_ia",
-        "script": "scripts/empresas_catalogo.py",
-        "advertencia": "Para cada empresa y cada (educación, nivel) hay al menos un cargo compatible si se ignora el área y la familia; el script lo verifica. La prima de Get on Board compara áreas de un portal tech, no el mercado completo.",
-        "filas": n_cargos,
-    }, {
-        "tabla": "familias",
-        "archivo": "tablas/familias.csv",
-        "descripcion": "Familias de cargo afines a cada área de carrera y a cada rubro, para que la oferta calce con el perfil.",
-        "columnas": {
-            "tipo": "area (área de carrera de estado.json) o rubro (rubro del juego)",
-            "clave": "nombre del área o del rubro",
-            "familias": "familias de cargo afines separadas por |, la primera la más típica (columna familia de cargos_catalogo)",
+        {
+            "tabla": "familias",
+            "archivo": "tablas/familias.csv",
+            "descripcion": "Familias de cargo afines a cada área de carrera y a cada rubro, para que la oferta calce con el perfil.",
+            "columnas": {
+                "tipo": "area (área de carrera de estado.json) o rubro (rubro del juego)",
+                "clave": "nombre del área o del rubro",
+                "familias": "familias de cargo afines separadas por |, la primera la más típica (columna familia de cargos_catalogo)",
+            },
+            "poblacion": f"{len(AREAS)} áreas de carrera y {len(RUBROS)} rubros",
+            "ponderador": "",
+            "fuente_id": "equipo_sintetico",
+            "script": "scripts/empresas_catalogo.py",
+            "advertencia": "Calidad sintetico: es un cruce curado a mano (scripts/datos/cargos_curados.json, clave familias), no sale de una tabla. El script verifica que cada familia tenga cargos en al menos 3 rubros y que cada familia listada para un rubro tenga cargos en ese rubro.",
+            "filas": len(AREAS) + len(RUBROS),
         },
-        "poblacion": f"{len(AREAS)} áreas de carrera y {len(RUBROS)} rubros",
-        "ponderador": "",
-        "fuente_id": "equipo_sintetico",
-        "script": "scripts/empresas_catalogo.py",
-        "advertencia": "Calidad sintetico: es un cruce curado a mano (scripts/datos/cargos_curados.json, clave familias), no sale de una tabla. El script verifica que cada familia tenga cargos en al menos 3 rubros y que cada familia listada para un rubro tenga cargos en ese rubro.",
-        "filas": len(AREAS) + len(RUBROS),
-    }]
+    ]
 
 
 if __name__ == "__main__":

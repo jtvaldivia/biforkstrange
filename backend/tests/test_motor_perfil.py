@@ -14,12 +14,33 @@ def _e(**perfil):
 
 
 def test_lo_declarado_pasa_tal_cual():
-    e = _e(edad=41, sexo="h", edu="tecnica", rubro="Salud", tipo_empleador="grande", nivel=2, sueldo=1_234_567,
-           riesgo=7, antiguedad=6, region="otra")
+    e = _e(
+        edad=41,
+        sexo="h",
+        edu="tecnica",
+        rubro="Salud",
+        tipo_empleador="grande",
+        nivel=2,
+        sueldo=1_234_567,
+        riesgo=7,
+        antiguedad=6,
+        region="otra",
+    )
     assert (e["edad"], e["sexo"], e["edu"], e["rubro"], e["tipo_empleador"], e["nivel"]) == (
-        41, "h", "tecnica", "Salud", "grande", 2)
+        41,
+        "h",
+        "tecnica",
+        "Salud",
+        "grande",
+        2,
+    )
     assert (e["sueldo"], e["sueldo_ref"], e["antiguedad"], e["region"], e["estado"]) == (
-        1_234_567, 1_234_567, 6, "otra", "empleado")
+        1_234_567,
+        1_234_567,
+        6,
+        "otra",
+        "empleado",
+    )
     assert e["riesgo"] == 70  # de 0-10 a la escala 0-100 del paquete
     assert e["primer_empleo"] == 0 and e["anos_titulado"] == 41 - 21
 
@@ -30,8 +51,21 @@ def test_supuestos_de_lo_que_la_persona_no_declara():
     assert (e["red"], e["skill"]) == (30, 50)
     assert e["ahorro"] == 2 * 1_400_000
     assert _e(ahorro=123.0)["ahorro"] == 123.0
-    assert (e["animo"], e["energia"], e["horas"], e["formal"], e["pais"], e["salud"]) == (64, 70, 44, 1, "chile", "bien")
-    assert (e["p_encontrar"], e["p_renuncia"], e["aprendizaje"], e["deja_de_trabajar"], e["recesion"]) == (1, 1, 1, 0, 0)
+    assert (e["animo"], e["energia"], e["horas"], e["formal"], e["pais"], e["salud"]) == (
+        64,
+        70,
+        44,
+        1,
+        "chile",
+        "bien",
+    )
+    assert (e["p_encontrar"], e["p_renuncia"], e["aprendizaje"], e["deja_de_trabajar"], e["recesion"]) == (
+        1,
+        1,
+        1,
+        0,
+        0,
+    )
     assert set(pq().variables) - set(e) == {v for v, d in pq().variables.items() if d["inicio"] == "deriva"}
 
 
@@ -44,19 +78,31 @@ def test_la_tasa_de_ahorro_inicial_sale_del_percentil(sueldo, tasa):
 def test_quien_no_trabaja_parte_sin_sueldo_pero_recuerda_el_ultimo():
     e = _e(estado="buscando", sueldo=1_000_000)
     assert (e["sueldo"], e["sueldo_ref"], e["primer_empleo"], e["tipo_empleador"], e["antiguedad"]) == (
-        0, 1_000_000, 0, "", 0)
+        0,
+        1_000_000,
+        0,
+        "",
+        0,
+    )
     assert _e(estado="buscando", sueldo=0)["primer_empleo"] == 1
     joven = estado_inicial(Perfil.a_los_18(), pq())
     assert (joven["edad"], joven["estado"], joven["edu"], joven["carrera_id"], joven["sueldo"]) == (
-        18, "estudiando", "media", -1, 0)
+        18,
+        "estudiando",
+        "media",
+        -1,
+        0,
+    )
     assert joven["anos_titulado"] == 0 and joven["primer_empleo"] == 1
 
 
 def test_quien_busca_su_primer_empleo_no_parte_cesante():
     """El criterio era sueldo == 0, pero la API exige sueldo > 0 y completar siempre lo llena: quien buscaba
     su primera pega caía en cesantia (y su práctica no llegaba). Ahora lo dice el flag o la práctica."""
-    for perfil in (Perfil(estado="buscando", primer_empleo=1, sueldo=700_000),
-                   Perfil(estado="buscando", practica="publico", sueldo=700_000)):
+    for perfil in (
+        Perfil(estado="buscando", primer_empleo=1, sueldo=700_000),
+        Perfil(estado="buscando", practica="publico", sueldo=700_000),
+    ):
         e = estado_inicial(perfil, pq())
         assert e["primer_empleo"] == 1
         v = Vida(e, Dados(0, "t"), pq())
@@ -81,14 +127,30 @@ ICI = 166  # Ingeniería Civil Industrial: dura 14 semestres en la práctica (mi
 
 
 def _estudiante(**extra):
-    return dict(edad=20, estado="estudiando", edu="media", carrera_id=ICI, sueldo=0, rubro="", tipo_empleador="",
-                nivel=0, antiguedad=0) | extra
+    return (
+        dict(
+            edad=20,
+            estado="estudiando",
+            edu="media",
+            carrera_id=ICI,
+            sueldo=0,
+            rubro="",
+            tipo_empleador="",
+            nivel=0,
+            antiguedad=0,
+        )
+        | extra
+    )
 
 
 def test_sin_estudiar_una_carrera_no_cambia_nada():
     """Regla dura: quien no estudia (o sale del colegio) parte como siempre, con 0 semestres."""
-    for e in (_e(), _e(carrera_id=ICI), estado_inicial(Perfil.a_los_18(), pq()),
-              _e(semestres_restantes=4, anos_en_carrera=2)):  # el dato solo cuenta si estudia
+    for e in (
+        _e(),
+        _e(carrera_id=ICI),
+        estado_inicial(Perfil.a_los_18(), pq()),
+        _e(semestres_restantes=4, anos_en_carrera=2),
+    ):  # el dato solo cuenta si estudia
         assert (e["semestres_restantes"], e["anos_en_carrera"]) == (0, 0)
 
 
@@ -104,9 +166,16 @@ def test_quien_estudia_parte_con_lo_que_le_falta():
     assert (e["semestres_restantes"], e["anos_en_carrera"]) == (2, 6)
 
 
-@pytest.mark.parametrize(("edu", "universidad", "titulo", "semestres"), [
-    ("media", "", "universitaria", 8), ("tecnica", "", "universitaria", 8),
-    ("universitaria", "", "postgrado", 4), ("media", "IP", "tecnica", 5), ("media", "CFT", "tecnica", 5)])
+@pytest.mark.parametrize(
+    ("edu", "universidad", "titulo", "semestres"),
+    [
+        ("media", "", "universitaria", 8),
+        ("tecnica", "", "universitaria", 8),
+        ("universitaria", "", "postgrado", 4),
+        ("media", "IP", "tecnica", 5),
+        ("media", "CFT", "tecnica", 5),
+    ],
+)
 def test_quien_estudia_sin_carrera_del_catalogo_se_titula(edu, universidad, titulo, semestres):
     """Antes estudiaba para siempre: el cierre solo descontaba semestres con carrera_id. Ahora se supone la
     duración (8 semestres universitaria, 5 técnica, 4 un postgrado) y al terminar se titula y busca pega."""
@@ -114,7 +183,11 @@ def test_quien_estudia_sin_carrera_del_catalogo_se_titula(edu, universidad, titu
     perfil = Perfil(**_estudiante(edad=20, edu=edu, carrera_id=-1, universidad_id=uid, anos_en_carrera=0))
     e = estado_inicial(perfil, pq())
     assert (e["semestres_restantes"], e["anos_en_carrera"], e["carrera_id"], e["tipo_institucion"]) == (
-        semestres, 0, -1, "")
+        semestres,
+        0,
+        -1,
+        "",
+    )
     v = Vida(e, Dados(0, "t"), pq())
     for _ in range((semestres + 1) // 2 - 1):
         v.vivir_anio(Inercia())

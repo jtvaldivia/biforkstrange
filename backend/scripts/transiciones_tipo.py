@@ -42,11 +42,11 @@ TABLAS = BACKEND / "simulador" / "tablas"
 PARAMETROS = BACKEND / "simulador" / "parametros.json"
 SALIDA = TABLAS / "transiciones_tipo.csv"
 
-UMBRAL_MESES = 12      # hueco máximo entre fin de un empleo e inicio del siguiente para contarlo como transición
-GRANDE_MIN = 200       # personas en la empresa desde las que es "grande" (corte del INE)
+UMBRAL_MESES = 12  # hueco máximo entre fin de un empleo e inicio del siguiente para contarlo como transición
+GRANDE_MIN = 200  # personas en la empresa desde las que es "grande" (corte del INE)
 TRAMO_GRANDE = {8, 9}  # b15t: 200-499 y 500 o más
 TRAMO_PYME = {1, 2, 3, 4, 5, 6, 7}
-NO_SABE = 88888        # b15 >= esto: no responde / no sabe
+NO_SABE = 88888  # b15 >= esto: no responde / no sabe
 ASAL = ["grande", "pyme", "publico"]
 DESTINOS = ["grande", "pyme", "startup", "publico"]
 ORIGENES = ["grande", "pyme", "startup", "publico", "extranjero", "ninguno"]
@@ -60,8 +60,9 @@ def leer_eps(datos: Path) -> pd.DataFrame:
         subprocess.run(["bsdtar", "-xf", str(datos / "eps" / "base-datos-eps-2009.rar")], cwd=carpeta, check=True)
     cols = ["folio_n20", "orden", "b1ia", "b1im", "b1ta", "b1tm", "b2", "b8", "b15", "b15t"]
     h = pyreadstat.read_dta(str(archivo), apply_value_formats=False, usecols=cols)[0]
-    f = pyreadstat.read_dta(str(archivo.parent / "factor_EPS09.dta"), apply_value_formats=False,
-                            usecols=["folio_n20", "factor_EPS09"])[0]
+    f = pyreadstat.read_dta(
+        str(archivo.parent / "factor_EPS09.dta"), apply_value_formats=False, usecols=["folio_n20", "factor_EPS09"]
+    )[0]
     h = h.merge(f, on="folio_n20", how="left")
     for c in cols[1:]:
         h[c] = pd.to_numeric(h[c], errors="coerce")
@@ -155,8 +156,11 @@ def main() -> None:
         if o == "startup" or d == "startup":
             src = "fila pyme de eps_2009" if d != "startup" else "MIX_EMPLEADOR (ine_esi_2025)"
             return "", "supuesto", f"{src}; startup no se observa con origen y destino (EPS, J2JOD)"
-        return (int(n.loc[o, d]) if d in n.columns else 0), "derivado", \
-            "eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"
+        return (
+            (int(n.loc[o, d]) if d in n.columns else 0),
+            "derivado",
+            "eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025",
+        )
 
     with open(SALIDA, "w", encoding="utf-8", newline="") as fh:
         wr = csv.writer(fh, lineterminator="\n")

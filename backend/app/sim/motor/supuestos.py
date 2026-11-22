@@ -17,12 +17,19 @@ def listar(pq: Paquete | None = None) -> dict:
     filas = []
     for p in pq.parametros.values():
         f = pq.fuentes.get(p["fuente"], {})
-        filas.append({
-            "id": p["id"], "valor": p["valor"], "unidad": p.get("unidad", ""), "descripcion": p.get("descripcion", ""),
-            "calidad": p.get("calidad", "supuesto"), "fuente": p["fuente"],
-            "cita": f.get("cita", "supuesto del equipo" if p["fuente"] == "equipo" else ""), "pais": f.get("pais", ""),
-            "rango": p.get("rango"),
-        })
+        filas.append(
+            {
+                "id": p["id"],
+                "valor": p["valor"],
+                "unidad": p.get("unidad", ""),
+                "descripcion": p.get("descripcion", ""),
+                "calidad": p.get("calidad", "supuesto"),
+                "fuente": p["fuente"],
+                "cita": f.get("cita", "supuesto del equipo" if p["fuente"] == "equipo" else ""),
+                "pais": f.get("pais", ""),
+                "rango": p.get("rango"),
+            }
+        )
     filas.sort(key=lambda x: (ORDEN.get(x["calidad"], 0), x["id"]))
     conteo = Counter(x["calidad"] for x in filas)
     paises = Counter(x["pais"] for x in filas if x["calidad"] != "supuesto" and x["pais"])
@@ -41,9 +48,12 @@ def _valor(v) -> str:
 
 def texto(r: dict, ancho: int = 100) -> str:
     c = r["por_calidad"]
-    lineas = [f"{r['total']} parámetros: {c.get('dato', 0)} dato, {c.get('mixto', 0)} mixtos y {c.get('supuesto', 0)} supuestos del equipo.",
-              "Países de las fuentes (dato y mixto): " + ", ".join(f"{p} {n}" for p, n in sorted(r["por_pais"].items(), key=lambda x: -x[1])),
-              ""]
+    lineas = [
+        f"{r['total']} parámetros: {c.get('dato', 0)} dato, {c.get('mixto', 0)} mixtos y {c.get('supuesto', 0)} supuestos del equipo.",
+        "Países de las fuentes (dato y mixto): "
+        + ", ".join(f"{p} {n}" for p, n in sorted(r["por_pais"].items(), key=lambda x: -x[1])),
+        "",
+    ]
     actual = None
     for p in r["parametros"]:
         if p["calidad"] != actual:

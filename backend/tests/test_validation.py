@@ -30,9 +30,13 @@ CUADRA = [
     "eps_sigue_cesante",
 ]
 
-SIN_RETORNO_EN_EL_ANIO = "quien cae en cesantía queda sin empleo todo el año; con la sobrevida de la EPS solo ~52% sigue al cierre"
+SIN_RETORNO_EN_EL_ANIO = (
+    "quien cae en cesantía queda sin empleo todo el año; con la sobrevida de la EPS solo ~52% sigue al cierre"
+)
 INACTIVIDAD_BAJA = "la EPS da ~1% anual de salida a inactividad desde los 30; ELSOC mide ~5%"
-RETORNO_RAPIDO = "1 − sigue_12m se aplica a todo el stock sin empleo, lleve lo que lleve; ELSOC mide un retorno mucho más lento"
+RETORNO_RAPIDO = (
+    "1 − sigue_12m se aplica a todo el stock sin empleo, lleve lo que lleve; ELSOC mide un retorno mucho más lento"
+)
 BRECHAS = {
     "elsoc_e_a_d_18-29": SIN_RETORNO_EN_EL_ANIO,
     "elsoc_e_a_i_30-44": INACTIVIDAD_BAJA,

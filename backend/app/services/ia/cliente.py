@@ -31,8 +31,12 @@ def _llave() -> str | None:
 
 def hay_credenciales() -> bool:
     """La llave de Settings, o las mismas fuentes que resuelve el SDK: entorno o un perfil de `ant auth login`."""
-    return bool(_llave() or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")
-                or (Path.home() / ".config" / "anthropic").is_dir())
+    return bool(
+        _llave()
+        or os.environ.get("ANTHROPIC_API_KEY")
+        or os.environ.get("ANTHROPIC_AUTH_TOKEN")
+        or (Path.home() / ".config" / "anthropic").is_dir()
+    )
 
 
 def cliente(timeout: float, max_retries: int) -> anthropic.Anthropic:

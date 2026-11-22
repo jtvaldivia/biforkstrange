@@ -1,7 +1,5 @@
 """Constantes y formato de texto que comparten todos los subcomandos."""
 
-
-
 ANCHO = 100
 ANCHO_BARRA = 30
 EDAD_MIN, EDAD_MAX = 18, 59  # el mismo rango que acepta la API

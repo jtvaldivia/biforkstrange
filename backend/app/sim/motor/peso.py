@@ -55,8 +55,11 @@ def _comparar(perfil: Perfil, duda: str, semilla: int, n: int) -> dict | None:
 def _por_opcion(c: dict) -> dict[str, dict]:
     ganadores = c["ganador_por_mundo"]
     return {
-        o["opcion"]: {"nombre": o["nombre"], "gana": ganadores.count(o["opcion"]) / len(ganadores),
-                      "sueldo": o["sueldo"]["p50"]}
+        o["opcion"]: {
+            "nombre": o["nombre"],
+            "gana": ganadores.count(o["opcion"]) / len(ganadores),
+            "sueldo": o["sueldo"]["p50"],
+        }
         for o in c["opciones"]
     }
 
@@ -82,9 +85,16 @@ def peso_cv(perfil: Perfil, duda: str, semilla: int = 0, n: int = gemelos.N_GEME
             continue
         sin_op = _por_opcion(sin)
         opciones = [
-            {"opcion": o, "nombre": a["nombre"], "gana_con": a["gana"], "gana_sin": sin_op[o]["gana"],
-             "sueldo_con": a["sueldo"], "sueldo_sin": sin_op[o]["sueldo"]}
-            for o, a in con_op.items() if o in sin_op
+            {
+                "opcion": o,
+                "nombre": a["nombre"],
+                "gana_con": a["gana"],
+                "gana_sin": sin_op[o]["gana"],
+                "sueldo_con": a["sueldo"],
+                "sueldo_sin": sin_op[o]["sueldo"],
+            }
+            for o, a in con_op.items()
+            if o in sin_op
         ]
         d_gana = {x["opcion"]: abs(x["gana_con"] - x["gana_sin"]) for x in opciones}
         d_sueldo = {x["opcion"]: abs(x["sueldo_con"] - x["sueldo_sin"]) / max(x["sueldo_con"], 1) for x in opciones}
@@ -98,12 +108,29 @@ def peso_cv(perfil: Perfil, duda: str, semilla: int = 0, n: int = gemelos.N_GEME
         otras = [x for x in opciones if x["opcion"] != con["base"] and medida[x["opcion"]] >= MIN_CAMBIO]
         clave = max(otras or opciones, key=lambda x: medida[x["opcion"]])["opcion"]
         tuyo = getattr(perfil, campo)
-        datos.append({"campo": campo, "tuyo": tuyo, "neutro": None if neutro == "sin_dato" else neutro,
-                      "mueve": mueve, "opcion": clave, "cambio": round(cambio, 4), "opciones": opciones})
+        datos.append(
+            {
+                "campo": campo,
+                "tuyo": tuyo,
+                "neutro": None if neutro == "sin_dato" else neutro,
+                "mueve": mueve,
+                "opcion": clave,
+                "cambio": round(cambio, 4),
+                "opciones": opciones,
+            }
+        )
     datos.sort(key=lambda d: d["cambio"], reverse=True)
-    return {"decision": duda, "nombre": con["nombre"], "pregunta": con["pregunta"], "gemelos": n, "semilla": semilla,
-            "base": con["base"], "datos": datos[:MAX_DATOS], "sin_efecto": sin_efecto,
-            "otros": [d["campo"] for d in datos[MAX_DATOS:]]}  # mueven algo, pero menos que los que se muestran
+    return {
+        "decision": duda,
+        "nombre": con["nombre"],
+        "pregunta": con["pregunta"],
+        "gemelos": n,
+        "semilla": semilla,
+        "base": con["base"],
+        "datos": datos[:MAX_DATOS],
+        "sin_efecto": sin_efecto,
+        "otros": [d["campo"] for d in datos[MAX_DATOS:]],
+    }  # mueven algo, pero menos que los que se muestran
 
 
 @lru_cache(maxsize=64)
@@ -125,11 +152,17 @@ def en_juego(perfil: Perfil, dudas: tuple[str, ...], semilla: int = 0, n: int = 
         mala = min(o["sueldo"]["p10"] for o in ops)
         buena = max(o["sueldo"]["p90"] for o in ops)
         tipicos = [o["sueldo"]["p50"] for o in ops]
-        salida.append({
-            "decision": duda, "nombre": c["nombre"], "pregunta": c["pregunta"],
-            "mala": mala, "buena": buena, "tipico": base["sueldo"]["p50"],
-            "dispersion": round((buena - mala) / max(base["sueldo"]["p50"], 1), 4),
-            "entre_opciones": round((max(tipicos) - min(tipicos)) / max(min(tipicos), 1), 4),
-        })
+        salida.append(
+            {
+                "decision": duda,
+                "nombre": c["nombre"],
+                "pregunta": c["pregunta"],
+                "mala": mala,
+                "buena": buena,
+                "tipico": base["sueldo"]["p50"],
+                "dispersion": round((buena - mala) / max(base["sueldo"]["p50"], 1), 4),
+                "entre_opciones": round((max(tipicos) - min(tipicos)) / max(min(tipicos), 1), 4),
+            }
+        )
     mas = max(salida, key=lambda d: d["dispersion"])["decision"] if len(salida) > 1 else None
     return {"gemelos": n, "semilla": semilla, "mas_en_juego": mas, "dudas": salida}

@@ -135,11 +135,22 @@ def test_expresiones_con_azar_tienen_la_misma_distribucion_con_los_dados_del_mot
     """Con los dados reales (`Flujo`) cada expresión con azar reparte igual que la referencia."""
     p = pq()
     e = estado_al_azar(random.Random(3))
-    e.update(estado="empleado", tipo_empleador="pyme", rubro="Comercio", sueldo=900000, sueldo_ref=900000,
-             empresa_anos=2, hueco=0, sexo="m", anos_en_startup=5, edad=33)
+    e.update(
+        estado="empleado",
+        tipo_empleador="pyme",
+        rubro="Comercio",
+        sueldo=900000,
+        sueldo_ref=900000,
+        empresa_anos=2,
+        hueco=0,
+        sexo="m",
+        anos_en_startup=5,
+        edad=33,
+    )
     e = p.ref.derivar(e)
-    con_azar = sorted({x for _, _, x, fila in expresiones_del_paquete()
-                       if isinstance(x, str) and not fila and p.compilar(x)[1]})
+    con_azar = sorted(
+        {x for _, _, x, fila in expresiones_del_paquete() if isinstance(x, str) and not fila and p.compilar(x)[1]}
+    )
     m = n(3000)
     critico = 1.95 * math.sqrt(2 / m)  # alfa = 0,001
     for expr in con_azar:
@@ -152,20 +163,62 @@ def test_expresiones_con_azar_tienen_la_misma_distribucion_con_los_dados_del_mot
 # ------------------------------------------------------------------ gramática, con valores a mano
 E0 = {"edad": 30, "sexo": "m", "edu": "universitaria", "vacio": "", "x": 2.5}
 A_MANO = [
-    ("2 - 3 - 4", -5), ("2 * 3 + 4 * 5", 26), ("(edad + 2) * 3", 96), ("10 / 4", 2.5), ("2 / 4 * 8", 4.0),
-    ("-edad % 7", 5), ("7 % -3", -2), ("edad - -2", 32), ("+edad", 30), ("-(edad - 40)", 10), ("1 - 1 - 1", -1),
-    ("pow(2, 10)", 1024), ("redondear(2.5)", 2), ("redondear(3.5)", 4), ("redondear(x)", 2), ("abs(-3.2)", 3.2),
-    ("exp(0)", 1.0), ("ln(1)", 0.0), ("clamp(5, 0, 3)", 3), ("clamp(-1, 0, 3)", 0), ("clamp(2, 0, 3)", 2),
-    ("min(4, 2, 9)", 2), ("max(4, 2, 9)", 9), ("min(3)", 3),
-    ("1 < 2", 1), ("2 <= 2", 1), ("3 > 4", 0), ("edad >= 30", 1), ("edad == 30", 1), ("sexo != 'm'", 0),
-    ("si(edad > 40, 'mayor', 'menor')", "menor"), ("si(vacio, 1, 2)", 2), ("si(sexo, 1, 2)", 1),
-    ("si(0, 1 / 0, 7)", 7), ("si(1, 7, 1 / 0)", 7),
-    ("y(1, 2, 3)", 1), ("y(1, 0, 1 / 0)", 0), ("y(1, vacio)", 0), ("o(0, vacio, 5)", 1), ("o(1, 1 / 0)", 1),
-    ("o(0, 0)", 0), ("no(vacio)", 1), ("no(sexo)", 0), ("no(0)", 1),
-    ("en(edu, 'media', 'universitaria')", 1), ("en(edu, 'media')", 0), ("en(edad, '30')", 0), ("en(edad, 30.0)", 1),
-    ("falso()", 0), ("si(falso(), 1, 2)", 2),
-    ("k('P_RECESION')", 0.08), ("k('P_SEPARACION', '30-44')", 0.066), ("k('ALZA_ASCENSO', 1)", 0.1),
-    ("k('ASCENSO', 2)", 0.04), ("k('ASCENSO', 2.0)", 0.04), ("k('MULT_DESPIDO_RUBRO', 'Pesca submarina', 1)", 1),
+    ("2 - 3 - 4", -5),
+    ("2 * 3 + 4 * 5", 26),
+    ("(edad + 2) * 3", 96),
+    ("10 / 4", 2.5),
+    ("2 / 4 * 8", 4.0),
+    ("-edad % 7", 5),
+    ("7 % -3", -2),
+    ("edad - -2", 32),
+    ("+edad", 30),
+    ("-(edad - 40)", 10),
+    ("1 - 1 - 1", -1),
+    ("pow(2, 10)", 1024),
+    ("redondear(2.5)", 2),
+    ("redondear(3.5)", 4),
+    ("redondear(x)", 2),
+    ("abs(-3.2)", 3.2),
+    ("exp(0)", 1.0),
+    ("ln(1)", 0.0),
+    ("clamp(5, 0, 3)", 3),
+    ("clamp(-1, 0, 3)", 0),
+    ("clamp(2, 0, 3)", 2),
+    ("min(4, 2, 9)", 2),
+    ("max(4, 2, 9)", 9),
+    ("min(3)", 3),
+    ("1 < 2", 1),
+    ("2 <= 2", 1),
+    ("3 > 4", 0),
+    ("edad >= 30", 1),
+    ("edad == 30", 1),
+    ("sexo != 'm'", 0),
+    ("si(edad > 40, 'mayor', 'menor')", "menor"),
+    ("si(vacio, 1, 2)", 2),
+    ("si(sexo, 1, 2)", 1),
+    ("si(0, 1 / 0, 7)", 7),
+    ("si(1, 7, 1 / 0)", 7),
+    ("y(1, 2, 3)", 1),
+    ("y(1, 0, 1 / 0)", 0),
+    ("y(1, vacio)", 0),
+    ("o(0, vacio, 5)", 1),
+    ("o(1, 1 / 0)", 1),
+    ("o(0, 0)", 0),
+    ("no(vacio)", 1),
+    ("no(sexo)", 0),
+    ("no(0)", 1),
+    ("en(edu, 'media', 'universitaria')", 1),
+    ("en(edu, 'media')", 0),
+    ("en(edad, '30')", 0),
+    ("en(edad, 30.0)", 1),
+    ("falso()", 0),
+    ("si(falso(), 1, 2)", 2),
+    ("k('P_RECESION')", 0.08),
+    ("k('P_SEPARACION', '30-44')", 0.066),
+    ("k('ALZA_ASCENSO', 1)", 0.1),
+    ("k('ASCENSO', 2)", 0.04),
+    ("k('ASCENSO', 2.0)", 0.04),
+    ("k('MULT_DESPIDO_RUBRO', 'Pesca submarina', 1)", 1),
     ("k('MULT_DESPIDO_RUBRO', 'Minería', 1)", 0.57),
     ("tabla('esi_perfil_edad_edu', 'p50', 'educacion', 'media', 'banda', '18-24')", 493073.0),
     ("tabla('esi_perfil_edad_edu', 'p90', 'banda', '50-54', 'educacion', edu)", 4101730.0),
@@ -173,7 +226,8 @@ A_MANO = [
     # celda vacía en el CSV (menos de 30 casos): tabla falla, tabla_o usa el respaldo
     ("tabla_o(0.5, 'sce_expectativas', 'p_empleado_4m', 'banda_edad', 'menor_62', 'estado', 'empleado')", 0.5),
     ("tabla_o(0.5, 'sce_expectativas', 'p_contraoferta', 'banda_edad', 'menor_62', 'estado', 'empleado')", 0.2626),
-    ("q_muerte(70, 'm')", math.exp(-11.4101 + 0.10043 * 70)), ("q_muerte(200, 'h')", 0.6),
+    ("q_muerte(70, 'm')", math.exp(-11.4101 + 0.10043 * 70)),
+    ("q_muerte(200, 'h')", 0.6),
     ("luto('mama', 9)", 0),
 ]
 
@@ -187,13 +241,18 @@ def test_gramatica_con_valores_calculados_a_mano(expr, esperado):
 
 
 FALLAN = [
-    ("1 / 0", ZeroDivisionError), ("edad % 0", ZeroDivisionError), ("ln(0)", ValueError),
-    ("k('NO_EXISTE')", ErrorExpresion), ("k('P_SEPARACION', '99-100')", ErrorExpresion),
+    ("1 / 0", ZeroDivisionError),
+    ("edad % 0", ZeroDivisionError),
+    ("ln(0)", ValueError),
+    ("k('NO_EXISTE')", ErrorExpresion),
+    ("k('P_SEPARACION', '99-100')", ErrorExpresion),
     ("k('MULT_DESPIDO_TIPO', vacio)", ErrorExpresion),
     ("tabla('esi_perfil_edad_edu', 'p50', 'educacion', 'no hay', 'banda', '18-24')", ErrorExpresion),
     ("tabla('sce_expectativas', 'p_empleado_4m', 'banda_edad', 'menor_62', 'estado', 'empleado')", ErrorExpresion),
     ("tabla_o(1, 'tabla_que_no_existe', 'p50')", KeyError),  # tabla_o solo perdona fila o celda faltante
-    ("edad < sexo", TypeError), ("-sexo", TypeError), ("y(1, 1 / 0)", ZeroDivisionError),
+    ("edad < sexo", TypeError),
+    ("-sexo", TypeError),
+    ("y(1, 1 / 0)", ZeroDivisionError),
     ("tabla_o(1 / 0, 'esi_perfil_edad_edu', 'p50', 'educacion', 'media', 'banda', '18-24')", ZeroDivisionError),
 ]
 
@@ -216,11 +275,27 @@ def test_variable_sin_valor_falla_en_los_dos():
         p.evaluar("no_declarada + 1", E0)
 
 
-@pytest.mark.parametrize("expr", [
-    "__import__('os')", "edad if 1 else 2", "1 < 2 < 3", 'k("P_RECESION")', "[1, 2]", "lambda: 1", "edad.real",
-    "k(nombre='P_RECESION')", "(1).__class__", "edad and 1", "not edad", "print(1)", "R.u()", "_k('P_RECESION')",
-    "edad ** 2", "edad // 2",
-])
+@pytest.mark.parametrize(
+    "expr",
+    [
+        "__import__('os')",
+        "edad if 1 else 2",
+        "1 < 2 < 3",
+        'k("P_RECESION")',
+        "[1, 2]",
+        "lambda: 1",
+        "edad.real",
+        "k(nombre='P_RECESION')",
+        "(1).__class__",
+        "edad and 1",
+        "not edad",
+        "print(1)",
+        "R.u()",
+        "_k('P_RECESION')",
+        "edad ** 2",
+        "edad // 2",
+    ],
+)
 def test_lo_que_esta_fuera_de_la_gramatica_no_compila(expr):
     with pytest.raises((ErrorExpresion, SyntaxError)):
         pq().compilar(expr)
@@ -240,5 +315,3 @@ def test_ninguna_condicion_ni_probabilidad_usa_azar():
     for clase, donde, expr, _ in expresiones_del_paquete():
         if clase in ("cuando", "peso", "requisito", "prob", "prob_anual", "filtro") and isinstance(expr, str):
             assert not p.compilar(expr)[1], f"{clase} de {donde} usa azar"
-
-

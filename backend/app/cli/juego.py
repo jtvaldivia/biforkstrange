@@ -43,13 +43,20 @@ def cmd_dudas(args: argparse.Namespace) -> str:
     dudas = dudas_posibles(perfil)
     if args.json:
         return json.dumps(dudas, ensure_ascii=False, indent=2)
-    return "\n".join([
-        *_texto_perfil_juego(perfil), "",
-        "Dudas con las que puedes empezar la partida (usa el nombre de la izquierda en --duda):", "",
-        *_texto_dudas(dudas), "",
-        *_envolver("Entre corchetes, la calidad de los números de cada decisión: dato (medido), mixto, o "
-                   "supuesto del equipo."),
-    ])
+    return "\n".join(
+        [
+            *_texto_perfil_juego(perfil),
+            "",
+            "Dudas con las que puedes empezar la partida (usa el nombre de la izquierda en --duda):",
+            "",
+            *_texto_dudas(dudas),
+            "",
+            *_envolver(
+                "Entre corchetes, la calidad de los números de cada decisión: dato (medido), mixto, o "
+                "supuesto del equipo."
+            ),
+        ]
+    )
 
 
 def cmd_comparar(args: argparse.Namespace) -> str:
@@ -72,8 +79,11 @@ def cmd_comparar(args: argparse.Namespace) -> str:
     for i, o in enumerate(pendiente["opciones"], 1):
         detalle = f": {o['detalle']}" if o["detalle"] else ""
         lineas += _envolver(f"{i}. {o['nombre']}{detalle}", "     ", "  ")
-    lineas += ["", *_texto_comparacion(comp, _supuestos_internos(pendiente)),
-               *_texto_pie(comp["creencia_vs_dato"], comp["calidad"])]
+    lineas += [
+        "",
+        *_texto_comparacion(comp, _supuestos_internos(pendiente)),
+        *_texto_pie(comp["creencia_vs_dato"], comp["calidad"]),
+    ]
     return "\n".join(lineas)
 
 
@@ -96,14 +106,15 @@ def cmd_jugar(args: argparse.Namespace) -> None:
     def decir(lineas: list[str]) -> None:
         print("\n".join(lineas), flush=True)
 
-    decir(["GEMELO LABORAL · 10 años de tu vida laboral, una decisión por año", "",
-           *_texto_perfil_juego(perfil)])
+    decir(["GEMELO LABORAL · 10 años de tu vida laboral, una decisión por año", "", *_texto_perfil_juego(perfil)])
     duda = args.duda
     if duda is None:
         dudas = dudas_posibles(perfil)
         if guion or args.auto:
-            raise EntradaInvalida("Con --auto o --elecciones hay que decir la duda inicial con --duda ID "
-                                  "(míralas con: python -m app.cli dudas).")
+            raise EntradaInvalida(
+                "Con --auto o --elecciones hay que decir la duda inicial con --duda ID "
+                "(míralas con: python -m app.cli dudas)."
+            )
         decir(["", "¿Qué duda te trae?", "", *_texto_dudas(dudas, numeradas=True), ""])
         duda = dudas[_preguntar(f"Tu duda (1 a {len(dudas)}): ", len(dudas))]["decision"]
     else:
@@ -112,7 +123,7 @@ def cmd_jugar(args: argparse.Namespace) -> None:
 
     elecciones: list[dict] = []
     escritas: list[str] = []
-    cabecera = 0                      # último año con cabecera impresa
+    cabecera = 0  # último año con cabecera impresa
     vistos: dict[int, list[int]] = {}  # año -> [decisiones impresas, eventos impresos, cierre impreso]
     while True:
         try:
@@ -122,9 +133,9 @@ def cmd_jugar(args: argparse.Namespace) -> None:
         for r in [*v["historia"], *([v["anio_en_curso"]] if v["anio_en_curso"] else [])]:
             visto = vistos.setdefault(r["anio"], [0, 0, 0])
             lineas = []
-            for d in r["decisiones"][visto[0]:]:
+            for d in r["decisiones"][visto[0] :]:
                 lineas += _texto_resultado_decision(d, d["decision"] not in internas)
-            for ev in r["eventos"][visto[1]:]:
+            for ev in r["eventos"][visto[1] :]:
                 if not ev["rutina"]:
                     lineas += _texto_evento(ev)
             visto[0], visto[1] = len(r["decisiones"]), len(r["eventos"])
@@ -134,8 +145,11 @@ def cmd_jugar(args: argparse.Namespace) -> None:
                     lineas.append("  Un año sin sobresaltos.")
                 pasaron = r["fin"]["edad"] - r["edad"]
                 cuando = "Cierras el año" if pasaron == 1 else f"Pasan {pasaron} años y quedas"
-                lineas += _envolver(f"{cuando} con {r['fin']['edad']} años: {_situacion(r['fin'])}. "
-                                    f"{_ahorros(r['fin']['ahorro'])}.", "    ", "  → ")
+                lineas += _envolver(
+                    f"{cuando} con {r['fin']['edad']} años: {_situacion(r['fin'])}. {_ahorros(r['fin']['ahorro'])}.",
+                    "    ",
+                    "  → ",
+                )
             if lineas or (r is v["anio_en_curso"] and cabecera < r["anio"]):
                 if cabecera < r["anio"]:
                     cabecera = r["anio"]
@@ -149,21 +163,41 @@ def cmd_jugar(args: argparse.Namespace) -> None:
         escritas.append(escrita)
         decir([""])
     if guion:
-        raise EntradaInvalida(f"Sobran elecciones: la partida terminó usando {len(elecciones)} y quedaron {len(guion)}.")
+        raise EntradaInvalida(
+            f"Sobran elecciones: la partida terminó usando {len(elecciones)} y quedaron {len(guion)}."
+        )
     decir(_texto_cierre(v, internas))
-    partes = ["python -m app.cli jugar", *_flags_perfil(perfil), f"--duda {duda}", f"--semilla {semilla}",
-              *([f"--gemelos {n}"] if n != GEMELOS_POR_DEFECTO else []), f"--elecciones {','.join(escritas)}"]
-    decir(["", "Para repetir esta partida:",
-           *textwrap.wrap(" ".join(partes), width=ANCHO - 2, initial_indent="  ", subsequent_indent="    ",
-                          break_long_words=False, break_on_hyphens=False)])
+    partes = [
+        "python -m app.cli jugar",
+        *_flags_perfil(perfil),
+        f"--duda {duda}",
+        f"--semilla {semilla}",
+        *([f"--gemelos {n}"] if n != GEMELOS_POR_DEFECTO else []),
+        f"--elecciones {','.join(escritas)}",
+    ]
+    decir(
+        [
+            "",
+            "Para repetir esta partida:",
+            *textwrap.wrap(
+                " ".join(partes),
+                width=ANCHO - 2,
+                initial_indent="  ",
+                subsequent_indent="    ",
+                break_long_words=False,
+                break_on_hyphens=False,
+            ),
+        ]
+    )
 
 
 def cmd_validar(args: argparse.Namespace) -> str | None:
     try:
         validacion = importlib.import_module("app.sim.motor.validacion")
     except ImportError as error:
-        raise EntradaInvalida(f"La validación contra Chile todavía no está en este código "
-                              f"(falta app.sim.motor.validacion: {error}).") from None
+        raise EntradaInvalida(
+            f"La validación contra Chile todavía no está en este código (falta app.sim.motor.validacion: {error})."
+        ) from None
     if args.n < 1:
         raise EntradaInvalida("--n debe ser 1 o más (personas de la cohorte).")
     if not callable(getattr(validacion, "validar", None)):

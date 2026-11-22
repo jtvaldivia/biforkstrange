@@ -139,7 +139,7 @@ def test_la_empresa_de_la_carta_es_la_que_vive_la_persona(semilla):
         antes = partida.vista(perfil, semilla, duda, [], 0)
         carta = next(o for o in antes["pendiente"]["opciones"] if o["opcion"] == opcion)["empresa"]
         despues = partida.jugar(perfil, semilla, [{"decision": duda, "opcion": opcion}], duda)
-        registro = (despues.vida.historia[0] if despues.vida.historia else despues.vida.registro)
+        registro = despues.vida.historia[0] if despues.vida.historia else despues.vida.registro
         tomada = next(d for d in registro["decisiones"] if d["decision"] == duda)
         if tomada["resultado"] in ("crece", "cierra", "sigue", "queda"):
             # puede haber pasado más de un año: se busca la empresa al cerrar el primero
@@ -165,8 +165,14 @@ def test_al_quedar_sin_trabajo_se_suelta_la_empresa_y_se_recuerda_el_cargo():
     assert vida.e["empresa_id"] == -1 and vida.e["cargo_id"] == 0 and vida.resumen()["rol"] is None
 
 
-PROPIA = Perfil(edad=32, rubro="Finanzas y seguros", tipo_empleador="grande", nivel=2,
-                empresa_nombre="Banco del Estado de Chile", cargo_nombre="Analista de riesgo")
+PROPIA = Perfil(
+    edad=32,
+    rubro="Finanzas y seguros",
+    tipo_empleador="grande",
+    nivel=2,
+    empresa_nombre="Banco del Estado de Chile",
+    cargo_nombre="Analista de riesgo",
+)
 
 
 def test_la_empresa_y_el_cargo_que_contaste_se_muestran_mientras_sigas_ahi():
@@ -291,12 +297,16 @@ def test_el_tipo_nuevo_depende_de_donde_vienes(origen):
 
 def test_la_oferta_sigue_tu_linea_de_trabajo():
     """Con carrera de tecnología, el cargo que te ofrecen es de una familia afín a tecnología casi siempre."""
-    carrera = next(int(f["carrera_id"]) for f in _csv("mifuturo_carreras.csv")
-                   if f["area"] == "Tecnología" and f["tipo_institucion"] == "U")
+    carrera = next(
+        int(f["carrera_id"])
+        for f in _csv("mifuturo_carreras.csv")
+        if f["area"] == "Tecnología" and f["tipo_institucion"] == "U"
+    )
     afines = set(empresas.familias_de(pq(), {"area": "Tecnología", "cargo_id": -1}))
     assert afines
-    perfil = Perfil(edad=29, carrera_id=carrera, rubro="Información y comunicaciones", tipo_empleador="grande",
-                    nivel=1, skill=60)
+    perfil = Perfil(
+        edad=29, carrera_id=carrera, rubro="Información y comunicaciones", tipo_empleador="grande", nivel=1, skill=60
+    )
     dentro = total = 0
     for semilla in range(40):
         v = partida.vista(perfil, semilla, "oferta_externa", [], 0)
@@ -309,8 +319,11 @@ def test_la_oferta_sigue_tu_linea_de_trabajo():
 
 def test_quien_trabaja_en_salud_publica_recibe_ofertas_del_estado_de_su_sector():
     """El rubro de un empleo público sigue siendo Administración pública, pero el empleador sale de su sector."""
-    carrera = next(int(f["carrera_id"]) for f in _csv("mifuturo_carreras.csv")
-                   if f["area"] == "Salud" and f["tipo_institucion"] == "U")
+    carrera = next(
+        int(f["carrera_id"])
+        for f in _csv("mifuturo_carreras.csv")
+        if f["area"] == "Salud" and f["tipo_institucion"] == "U"
+    )
     perfil = Perfil(edad=40, carrera_id=carrera, rubro="Salud", tipo_empleador="publico", nivel=2)
     publicas = []
     for semilla in range(30):
@@ -334,7 +347,9 @@ def _rubro_por_defecto(perfil: Perfil) -> tuple[str, list[str]]:
     vida = _vida(perfil, 5, "tu")
     opcion = next(o for o in vida.opciones("emprender") if o.id == "emprender")
     internas = {el["variable"]: el for el in elecciones_internas(vida, opcion)}
-    return parametros_por_defecto(vida, opcion)["rubro_emprendimiento"], [a["valor"] for a in internas["rubro_emprendimiento"]["alternativas"]]
+    return parametros_por_defecto(vida, opcion)["rubro_emprendimiento"], [
+        a["valor"] for a in internas["rubro_emprendimiento"]["alternativas"]
+    ]
 
 
 def test_emprender_parte_en_el_rubro_de_tu_proyecto_el_que_sonaste_o_el_tuyo():
@@ -342,14 +357,22 @@ def test_emprender_parte_en_el_rubro_de_tu_proyecto_el_que_sonaste_o_el_tuyo():
     defecto, alternativas = _rubro_por_defecto(Perfil(**base))
     assert defecto == "Comercio" and "Comercio" in alternativas  # tu rubro de hoy también se puede elegir
     assert _rubro_por_defecto(Perfil(**base, rubro_sonado="Salud"))[0] == "Salud"
-    assert _rubro_por_defecto(Perfil(**base, rubro_sonado="Salud", rubro_proyecto="Hoteles y restaurantes"))[0] == "Hoteles y restaurantes"
+    assert (
+        _rubro_por_defecto(Perfil(**base, rubro_sonado="Salud", rubro_proyecto="Hoteles y restaurantes"))[0]
+        == "Hoteles y restaurantes"
+    )
 
 
 def test_al_emprender_la_empresa_queda_en_el_rubro_elegido():
     vida = _vida(Perfil(edad=32, rubro="Comercio", tipo_empleador="pyme", nivel=2), 5, "tu")
     vida.e["rubro_emprendimiento"] = "Salud"
-    vida._aplicar([{"var": "estado", "op": "fija", "valor": "'fundador'"},
-                   {"var": "rubro", "op": "fija", "valor": "rubro_emprendimiento"}], "prueba")
+    vida._aplicar(
+        [
+            {"var": "estado", "op": "fija", "valor": "'fundador'"},
+            {"var": "rubro", "op": "fija", "valor": "rubro_emprendimiento"},
+        ],
+        "prueba",
+    )
     assert vida.e["estado"] == "fundador" and vida.e["rubro"] == "Salud"
 
 
@@ -365,7 +388,10 @@ def test_los_aranceles_de_pregrado_estan_en_pesos():
     chilenas = [f for f in UNIVERSIDADES if f["tipo_institucion"] != "EXT" and f["arancel_anual_pregrado"]]
     assert chilenas
     assert all(500_000 < float(f["arancel_anual_pregrado"]) < 20_000_000 for f in chilenas), [
-        (f["nombre"], f["arancel_anual_pregrado"]) for f in chilenas if not 500_000 < float(f["arancel_anual_pregrado"]) < 20_000_000]
+        (f["nombre"], f["arancel_anual_pregrado"])
+        for f in chilenas
+        if not 500_000 < float(f["arancel_anual_pregrado"]) < 20_000_000
+    ]
 
 
 def test_la_universidad_del_magister_dice_que_su_numero_es_el_arancel():
@@ -377,7 +403,7 @@ def test_la_universidad_del_magister_dice_que_su_numero_es_el_arancel():
 
 
 def test_en_la_cesantia_cada_opcion_trae_su_propia_empresa():
-    """"Esperar algo de tu nivel" no es la misma pega que "tomar lo primero que salga": antes las dos
+    """ "Esperar algo de tu nivel" no es la misma pega que "tomar lo primero que salga": antes las dos
     opciones mostraban la misma empresa, porque compartían el sorteo de la decisión."""
     cesante = Perfil(edad=30, estado="buscando", sueldo=1_500_000)
     distintas = 0

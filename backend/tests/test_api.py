@@ -28,4 +28,6 @@ def test_run_con_ocupacion(client):
     step = client.post("/api/simulations", json=body).json()["trayectoria"][0]
     assert step["prob_nuevo_empleo"] > 0.75
     assert step["ocupaciones"][0]["nombre"]
-    assert client.post("/api/simulations", json={"twin": {"ocupacion": 10}, "decisiones": ["seguir"]}).status_code == 422
+    assert (
+        client.post("/api/simulations", json={"twin": {"ocupacion": 10}, "decisiones": ["seguir"]}).status_code == 422
+    )

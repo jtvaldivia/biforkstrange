@@ -8,13 +8,25 @@ from app.cli.formato import ANCHO, _cortar, _pesos
 # ── el juego: formato ────────────────────────────────────────────────────────
 
 ANCHO_ETIQUETA = 30
-EMPLEADOR = {"grande": "una empresa grande", "pyme": "una pyme", "startup": "una startup",
-             "publico": "el Estado", "extranjero": "una empresa de afuera"}
-CALIDAD = {"dato": "dato (medido en encuestas o estudios)",
-           "mixto": "mixto (parte medido, parte supuesto del equipo)",
-           "supuesto": "supuesto (del equipo, sin medición detrás)"}
-EMPLEADOR_CORTO = {"grande": "empresa grande", "pyme": "pyme", "startup": "startup", "publico": "Estado",
-                   "extranjero": "empresa de afuera"}
+EMPLEADOR = {
+    "grande": "una empresa grande",
+    "pyme": "una pyme",
+    "startup": "una startup",
+    "publico": "el Estado",
+    "extranjero": "una empresa de afuera",
+}
+CALIDAD = {
+    "dato": "dato (medido en encuestas o estudios)",
+    "mixto": "mixto (parte medido, parte supuesto del equipo)",
+    "supuesto": "supuesto (del equipo, sin medición detrás)",
+}
+EMPLEADOR_CORTO = {
+    "grande": "empresa grande",
+    "pyme": "pyme",
+    "startup": "startup",
+    "publico": "Estado",
+    "extranjero": "empresa de afuera",
+}
 TONO = {"bueno": "▲", "malo": "▼"}
 EDUCACIONES = ("media", "tecnica", "universitaria", "postgrado")
 GEMELOS_MAX = 2000  # el mismo tope que la API
@@ -39,8 +51,13 @@ def _de_cada_cien(p: float) -> str:
 
 
 def _envolver(texto: str, sangria: str = "", primera: str | None = None) -> list[str]:
-    return textwrap.wrap(texto, width=ANCHO, initial_indent=sangria if primera is None else primera,
-                         subsequent_indent=sangria, break_long_words=False) or [""]
+    return textwrap.wrap(
+        texto,
+        width=ANCHO,
+        initial_indent=sangria if primera is None else primera,
+        subsequent_indent=sangria,
+        break_long_words=False,
+    ) or [""]
 
 
 def _sin_tildes(texto: str) -> str:
@@ -69,8 +86,12 @@ def _situacion_corta(estado: dict) -> str:
     tipo = estado["estado"]
     if tipo == "empleado":
         return f"{estado['cargo']}, {EMPLEADOR_CORTO.get(estado['tipo_empleador'], 'empleo')}"
-    return {"independiente": "Por tu cuenta", "fundador": "Tu empresa", "buscando": "Sin trabajo",
-            "estudiando": "Estudiando"}.get(tipo, "Sin trabajar")
+    return {
+        "independiente": "Por tu cuenta",
+        "fundador": "Tu empresa",
+        "buscando": "Sin trabajo",
+        "estudiando": "Estudiando",
+    }.get(tipo, "Sin trabajar")
 
 
 def _diferencia(x: float) -> str:
@@ -131,12 +152,14 @@ def _tabla_gemelos(comp: dict) -> list[str]:
 def _texto_comparacion(comp: dict, supuestos: list[str] | None = None) -> list[str]:
     n, anios = comp["gemelos"], comp["anios"]
     lineas = _envolver(
-        f"Así les fue {anios} años después a {n} copias tuyas (la misma persona y la misma decisión, "
-        "con otra suerte):"
+        f"Así les fue {anios} años después a {n} copias tuyas (la misma persona y la misma decisión, con otra suerte):"
     )
     lineas += ["", *_tabla_gemelos(comp), ""]
-    lineas += _envolver("Sueldos líquidos al mes, en pesos de hoy (sin inflación); la copia que termina sin trabajo o "
-                        "estudiando cuenta con $0.", "  ")
+    lineas += _envolver(
+        "Sueldos líquidos al mes, en pesos de hoy (sin inflación); la copia que termina sin trabajo o "
+        "estudiando cuenta con $0.",
+        "  ",
+    )
     for s in supuestos or []:
         lineas += _envolver(s, "  ")
     con_dado = [o for o in comp["opciones"] if len(o["por_resultado"]) > 1]
@@ -147,8 +170,11 @@ def _texto_comparacion(comp: dict, supuestos: list[str] | None = None) -> list[s
         for r in o["por_resultado"]:
             lineas += _envolver(f"{_de_cada_cien(r['prob'])}: {r['texto'] or 'sin novedad'}", "      ", "    ")
     base = next((o for o in comp["opciones"] if o["es_base"]), None)
-    frases = [_frase_mundos(o, base) for o in comp["opciones"]
-              if base and not o["es_base"] and o["gana_mas_que_base"] is not None]
+    frases = [
+        _frase_mundos(o, base)
+        for o in comp["opciones"]
+        if base and not o["es_base"] and o["gana_mas_que_base"] is not None
+    ]
     if frases:
         frases.insert(0, "Cada copia contra sí misma, según lo que elige (sueldo al final):")
     if frases:
@@ -180,8 +206,10 @@ def _supuestos_internos(pendiente: dict) -> list[str]:
     for o in pendiente["opciones"]:
         for interna in o["elecciones_internas"]:
             valor = usados.get(o["opcion"], {}).get(interna["variable"])
-            alt = next((a for a in interna["alternativas"] if a["valor"] == valor),
-                       interna["alternativas"][_por_defecto(interna)])
+            alt = next(
+                (a for a in interna["alternativas"] if a["valor"] == valor),
+                interna["alternativas"][_por_defecto(interna)],
+            )
             salida.append(f"Las copias de «{o['nombre']}» responden «{interna['pregunta']}» con «{alt['nombre']}».")
     return salida
 
@@ -247,8 +275,11 @@ def _texto_cierre(v: dict, internas: frozenset) -> list[str]:
     lineas = ["", "═" * ANCHO, f"EL CIERRE · {pasaron} años después, tienes {estado['edad']} años", ""]
     lineas += _envolver(f"Terminas así: {_situacion(estado)}.", "  ")
     lineas += _envolver(
-        "No cerraste ningún año sin trabajo." if sin == 0
-        else f"Cerraste {sin} {'año' if sin == 1 else 'años'} sin trabajo y buscando.", "  ")
+        "No cerraste ningún año sin trabajo."
+        if sin == 0
+        else f"Cerraste {sin} {'año' if sin == 1 else 'años'} sin trabajo y buscando.",
+        "  ",
+    )
     lineas += _envolver(f"{_ahorros(estado['ahorro'])}.", "  ")
     lineas += ["", "  Tu camino:", "", *_texto_camino(v["historia"], internas)]
     primera = cierre["primera_decision"]
@@ -259,8 +290,13 @@ def _texto_cierre(v: dict, internas: frozenset) -> list[str]:
         lineas += _texto_comparacion(comp)
         if "mejor_que_gemelos" in cierre:
             cual = "Tu sueldo final" if estado["sueldo"] > 0 else "El sueldo al que apuntas al volver"
-            lineas += ["", *_envolver(
-                f"{cual} ({_plata(cierre['sueldo_final'])}) es más alto que el de "
-                f"{_de_cada_cien(cierre['mejor_que_gemelos'])} copias que eligieron «{elegida}» como tú.", "  ")]
+            lineas += [
+                "",
+                *_envolver(
+                    f"{cual} ({_plata(cierre['sueldo_final'])}) es más alto que el de "
+                    f"{_de_cada_cien(cierre['mejor_que_gemelos'])} copias que eligieron «{elegida}» como tú.",
+                    "  ",
+                ),
+            ]
         lineas += _texto_pie(comp["creencia_vs_dato"], comp["calidad"])
     return lineas

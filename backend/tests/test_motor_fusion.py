@@ -43,10 +43,13 @@ def test_quedarse_hasta_tarde_casi_no_cambia_el_sueldo():
     assert abs(si["diferencia_tipica"]) < 0.01 * si["sueldo"]["p50"]
 
 
-@pytest.mark.parametrize(("duda", "opcion", "tipo"), [
-    ("unirse_a_startup", "ir", "startup"),
-    ("remoto_para_afuera", "postular", "extranjero"),
-])
+@pytest.mark.parametrize(
+    ("duda", "opcion", "tipo"),
+    [
+        ("unirse_a_startup", "ir", "startup"),
+        ("remoto_para_afuera", "postular", "extranjero"),
+    ],
+)
 def test_las_opciones_de_trabajo_traen_una_empresa_del_catalogo(duda, opcion, tipo):
     v = partida.vista(Perfil(), 4, duda, [], 0)
     emp = next(o for o in v["pendiente"]["opciones"] if o["opcion"] == opcion)["empresa"]
@@ -64,7 +67,9 @@ def test_las_opciones_que_no_llevan_a_un_empleador_no_traen_empresa():
 def test_supuestos_cuenta_cada_parametro_una_vez():
     r = supuestos.listar()
     assert r["total"] == len(pq().parametros) == sum(r["por_calidad"].values())
-    assert [p["calidad"] for p in r["parametros"]] == sorted((p["calidad"] for p in r["parametros"]), key=supuestos.ORDEN.get)
+    assert [p["calidad"] for p in r["parametros"]] == sorted(
+        (p["calidad"] for p in r["parametros"]), key=supuestos.ORDEN.get
+    )
 
 
 def test_api_supuestos_y_validacion(client):

@@ -22,11 +22,27 @@ _RE_BLOQUE = re.compile(r"```\s*" + BLOQUE + r"\s*\n(.*?)```", re.S | re.I)
 _RE_DEDUJE = re.compile(r"^#+\s*c[oó]mo lo deduje\s*$(.*?)(?=^#+\s|\Z)", re.S | re.I | re.M)
 _VACIO = {"", "?", "-", "no se", "no sé", "desconocido", "sin dato", "null", "ninguno", "ninguna"}
 
-ESTUDIOS = {"media": "media", "tecnica": "tecnica", "técnica": "tecnica", "universitaria": "universitaria",
-            "postgrado": "postgrado", "posgrado": "postgrado", "magister": "postgrado", "magíster": "postgrado",
-            "doctorado": "postgrado"}
-TIPOS = {"grande": "grande", "pyme": "pyme", "startup": "startup", "publico": "publico", "público": "publico",
-         "estado": "publico", "extranjero": "extranjero", "afuera": "extranjero"}
+ESTUDIOS = {
+    "media": "media",
+    "tecnica": "tecnica",
+    "técnica": "tecnica",
+    "universitaria": "universitaria",
+    "postgrado": "postgrado",
+    "posgrado": "postgrado",
+    "magister": "postgrado",
+    "magíster": "postgrado",
+    "doctorado": "postgrado",
+}
+TIPOS = {
+    "grande": "grande",
+    "pyme": "pyme",
+    "startup": "startup",
+    "publico": "publico",
+    "público": "publico",
+    "estado": "publico",
+    "extranjero": "extranjero",
+    "afuera": "extranjero",
+}
 SEXOS = {"h": "h", "hombre": "h", "m": "m", "mujer": "m"}
 REGIONES = {"rm": "rm", "metropolitana": "rm", "santiago": "rm", "otra": "otra", "region": "otra", "regiones": "otra"}
 
@@ -40,11 +56,30 @@ def _dudas_laborales(pq: Paquete) -> list[dict]:
     return [d for d in pq.decisiones.values() if d["aparicion"]["tipo"] == "carta"]
 
 
-SITUACIONES = {"empleado": "empleado", "empleada": "empleado", "independiente": "independiente", "freelance": "independiente",
-               "fundador": "fundador", "fundadora": "fundador", "emprendedor": "fundador", "buscando": "buscando",
-               "cesante": "buscando", "estudiando": "estudiando", "estudiante": "estudiando"}
-USO_IA = {"no": False, "no uso": False, "nunca": False, "a veces": True, "aveces": True, "seguido": True,
-          "todos los dias": True, "diario": True, "si": True}
+SITUACIONES = {
+    "empleado": "empleado",
+    "empleada": "empleado",
+    "independiente": "independiente",
+    "freelance": "independiente",
+    "fundador": "fundador",
+    "fundadora": "fundador",
+    "emprendedor": "fundador",
+    "buscando": "buscando",
+    "cesante": "buscando",
+    "estudiando": "estudiando",
+    "estudiante": "estudiando",
+}
+USO_IA = {
+    "no": False,
+    "no uso": False,
+    "nunca": False,
+    "a veces": True,
+    "aveces": True,
+    "seguido": True,
+    "todos los dias": True,
+    "diario": True,
+    "si": True,
+}
 
 
 @lru_cache(maxsize=1)
@@ -54,7 +89,7 @@ def prompt(pq: Paquete | None = None) -> str:
     rubros = [r for r in pq.variables["rubro"]["dominio"] if r]
     dudas = _dudas_laborales(pq)
     lineas = [
-        "Voy a jugar Bifurca, un simulador de carrera en Chile: 100 \"copias\" mías viven 10 años "
+        'Voy a jugar Bifurca, un simulador de carrera en Chile: 100 "copias" mías viven 10 años '
         "con cada decisión. Con lo que sabes de mí por nuestras conversaciones, llena este bloque.",
         "",
         "Reglas:",
@@ -112,10 +147,36 @@ def _campos(bloque: str) -> dict[str, str]:
 
 
 # Los campos que puede traer el bloque (los del prompt y los que acepta además)
-CAMPOS_DEL_BLOQUE = {"sueldo_liquido", "duda", "situacion", "riesgo", "ingles", "ia", "proyecto", "rubro_proyecto", "afuera", "rubro_sonado",
-                     "intereses", "retrato", "edad", "sexo", "estudios", "carrera", "institucion", "rubro", "tipo_empresa",
-                     "cargo", "nivel", "ocupacion", "antiguedad", "region", "experiencia", "empleadores", "empresa",
-                     "pegas_anteriores"}
+CAMPOS_DEL_BLOQUE = {
+    "sueldo_liquido",
+    "duda",
+    "situacion",
+    "riesgo",
+    "ingles",
+    "ia",
+    "proyecto",
+    "rubro_proyecto",
+    "afuera",
+    "rubro_sonado",
+    "intereses",
+    "retrato",
+    "edad",
+    "sexo",
+    "estudios",
+    "carrera",
+    "institucion",
+    "rubro",
+    "tipo_empresa",
+    "cargo",
+    "nivel",
+    "ocupacion",
+    "antiguedad",
+    "region",
+    "experiencia",
+    "empleadores",
+    "empresa",
+    "pegas_anteriores",
+}
 
 
 def _entero(valor: str) -> int | None:
@@ -159,7 +220,9 @@ def _carrera(nombre: str, institucion: str | None, pq: Paquete) -> tuple[int | N
         if p > puntaje:
             mejor, puntaje = f, p
     if mejor and puntaje >= 0.5:
-        return int(mejor["carrera_id"]), f"carrera: «{nombre}» se tomó como «{mejor['carrera']}» ({mejor['tipo_institucion']})."
+        return int(
+            mejor["carrera_id"]
+        ), f"carrera: «{nombre}» se tomó como «{mejor['carrera']}» ({mejor['tipo_institucion']})."
     return None, f"carrera: «{nombre}» no está en el catálogo de carreras; se simula sin carrera."
 
 
@@ -214,13 +277,20 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
     numero("empleadores", "empleadores", "empleadores")
     if "pegas_anteriores" in c and leido.get("empleadores") is None:
         # la de hoy más las anteriores que nombró; "ninguna" es que la de hoy es la única
-        anteriores = [] if _normal(c["pegas_anteriores"]) in _NINGUNA else \
-            [x for x in re.split(r"[;\n]", c["pegas_anteriores"]) if x.strip()]
+        anteriores = (
+            []
+            if _normal(c["pegas_anteriores"]) in _NINGUNA
+            else [x for x in re.split(r"[;\n]", c["pegas_anteriores"]) if x.strip()]
+        )
         leido["empleadores"] = len(anteriores) + 1
     if c.get("empresa") and _normal(c["empresa"]) not in _VACIO:
         leido["empresa_actual"] = c["empresa"]
-    for campo, destino, nombre in (("sueldo_liquido", "sueldo", "sueldo"), ("riesgo", "riesgo", "riesgo"),
-                                   ("ocupacion", "ocupacion", "tipo de trabajo"), ("antiguedad", "antiguedad", "antigüedad")):
+    for campo, destino, nombre in (
+        ("sueldo_liquido", "sueldo", "sueldo"),
+        ("riesgo", "riesgo", "riesgo"),
+        ("ocupacion", "ocupacion", "tipo de trabajo"),
+        ("antiguedad", "antiguedad", "antigüedad"),
+    ):
         numero(campo, destino, nombre)
     # nivel: el nombre de la escala o su número. Los documentos viejos lo traen en "cargo"; los nuevos traen ahí
     # el nombre de su cargo (Analista de riesgo), que no mueve números y sirve para contar su historia.
@@ -241,12 +311,15 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
     if "rubro" in c:
         rubros = {_normal(r): r for r in pq.variables["rubro"]["dominio"] if r}
         leido["rubro"] = rubros.get(_normal(c["rubro"])) or next(
-            (r for n, r in rubros.items() if _normal(c["rubro"]) in n), None)
+            (r for n, r in rubros.items() if _normal(c["rubro"]) in n), None
+        )
         if leido["rubro"] is None:
             avisos.append(f"rubro: «{c['rubro']}» no está en la lista de rubros.")
-    notas = [linea.strip()[1:].strip() for linea in
-             (_RE_DEDUJE.search(texto).group(1).splitlines() if _RE_DEDUJE.search(texto) else [])
-             if linea.strip().startswith(("-", "*"))]
+    notas = [
+        linea.strip()[1:].strip()
+        for linea in (_RE_DEDUJE.search(texto).group(1).splitlines() if _RE_DEDUJE.search(texto) else [])
+        if linea.strip().startswith(("-", "*"))
+    ]
     if "carrera" in c:
         leido["carrera_id"], nota = _carrera(c["carrera"], c.get("institucion"), pq)
         if nota:
@@ -260,11 +333,13 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
 
     rubros_validos = {_normal(r): r for r in pq.variables["rubro"]["dominio"] if r}
     sonado = rubros_validos.get(_normal(c.get("rubro_sonado", ""))) or next(
-        (r for k, r in rubros_validos.items() if c.get("rubro_sonado") and _normal(c["rubro_sonado"]) in k), None)
+        (r for k, r in rubros_validos.items() if c.get("rubro_sonado") and _normal(c["rubro_sonado"]) in k), None
+    )
     if sonado and sonado != resultado["perfil"]["rubro"]:
         resultado["perfil"]["rubro_sonado"] = sonado
     del_proyecto = rubros_validos.get(_normal(c.get("rubro_proyecto", ""))) or next(
-        (r for k, r in rubros_validos.items() if c.get("rubro_proyecto") and _normal(c["rubro_proyecto"]) in k), None)
+        (r for k, r in rubros_validos.items() if c.get("rubro_proyecto") and _normal(c["rubro_proyecto"]) in k), None
+    )
     if del_proyecto and c.get("proyecto"):
         resultado["perfil"]["rubro_proyecto"] = del_proyecto
 
@@ -281,11 +356,15 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
         else:
             avisos.append(f"duda: «{c['duda']}» no es una duda posible para este perfil; elígela en la lista.")
     if c.get("proyecto"):
-        candidatas += [("emprender", f"Tienes un proyecto: {c['proyecto'][:90]}."),
-                       ("independizarse", f"Tienes un proyecto: {c['proyecto'][:90]}.")]
+        candidatas += [
+            ("emprender", f"Tienes un proyecto: {c['proyecto'][:90]}."),
+            ("independizarse", f"Tienes un proyecto: {c['proyecto'][:90]}."),
+        ]
     if _normal(c.get("afuera", "")) in ("si", "s"):
-        candidatas += [("remoto_para_afuera", "Te gustaría trabajar para afuera."),
-                       ("emigrar", "Te gustaría vivir fuera de Chile.")]
+        candidatas += [
+            ("remoto_para_afuera", "Te gustaría trabajar para afuera."),
+            ("emigrar", "Te gustaría vivir fuera de Chile."),
+        ]
     if sonado and sonado != resultado["perfil"]["rubro"]:
         candidatas.append(("cambiar_de_rubro", f"Te atrae {sonado}."))
     if leido.get("usa_ia") is False:
@@ -298,9 +377,19 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
     intereses = [x.strip() for x in re.split(r"[,;]", c.get("intereses", "")) if x.strip()][:5]
     # Qué campos del perfil dijo de verdad (para sumarlos a lo del CV sin pisarlo con valores por defecto):
     # los que `completar` llenó desde el bloque, más el rubro soñado
-    dados = sorted(set(resultado["dados"]) | ({"rubro_sonado"} if resultado["perfil"].get("rubro_sonado") else set())
-                   | ({"anos_por_empleo"} if resultado["perfil"].get("anos_por_empleo") else set())
-                   | ({"rubro_proyecto"} if resultado["perfil"].get("rubro_proyecto") else set()))
-    return {**resultado, "duda": sugeridas[0]["decision"] if sugeridas else None, "dudas_sugeridas": sugeridas[:3],
-            "retrato": c.get("retrato") or resultado.get("retrato"), "intereses": intereses,
-            "proyecto": c.get("proyecto"), "dados": dados, "avisos": avisos}
+    dados = sorted(
+        set(resultado["dados"])
+        | ({"rubro_sonado"} if resultado["perfil"].get("rubro_sonado") else set())
+        | ({"anos_por_empleo"} if resultado["perfil"].get("anos_por_empleo") else set())
+        | ({"rubro_proyecto"} if resultado["perfil"].get("rubro_proyecto") else set())
+    )
+    return {
+        **resultado,
+        "duda": sugeridas[0]["decision"] if sugeridas else None,
+        "dudas_sugeridas": sugeridas[:3],
+        "retrato": c.get("retrato") or resultado.get("retrato"),
+        "intereses": intereses,
+        "proyecto": c.get("proyecto"),
+        "dados": dados,
+        "avisos": avisos,
+    }

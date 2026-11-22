@@ -37,8 +37,10 @@ def _jugar_entera(client, elegir, **body) -> tuple[dict, list[dict], list[dict]]
         pendiente = v["pendiente"]
         opcion = elegir(pendiente)
         parametros = {el["variable"]: el["alternativas"][0]["valor"] for el in opcion["elecciones_internas"]}
-        elecciones = [*elecciones, {"decision": pendiente["decision"], "opcion": opcion["opcion"],
-                                    "parametros": parametros}]
+        elecciones = [
+            *elecciones,
+            {"decision": pendiente["decision"], "opcion": opcion["opcion"], "parametros": parametros},
+        ]
     raise AssertionError("la partida no terminó")
 
 
@@ -144,7 +146,8 @@ def test_comparacion_de_la_pendiente(client):
         assert sum(c["prob"] for c in o["cargos"]) == pytest.approx(1)
         assert o["cargo_mas_probable"] in [c["cargo"] for c in o["cargos"]]
         assert max(c["prob"] for c in o["cargos"]) == next(
-            c["prob"] for c in o["cargos"] if c["cargo"] == o["cargo_mas_probable"])
+            c["prob"] for c in o["cargos"] if c["cargo"] == o["cargo_mas_probable"]
+        )
         # el dado: los resultados reparten a todos los gemelos
         assert sum(r["gemelos"] for r in o["por_resultado"]) == N
         assert sum(r["prob"] for r in o["por_resultado"]) == pytest.approx(1)
@@ -231,8 +234,13 @@ def test_la_decision_de_la_eleccion_es_opcional(client):
 def test_eleccion_interna_cambia_el_destino(client):
     """Elegir "a qué rubro" dentro de la opción lleva a ese rubro cuando el dado dice que entras."""
     for semilla in range(40):
-        v = _ok(client, duda="cambiar_de_rubro", semilla=semilla, gemelos=0,
-                elecciones=[{"opcion": "cambiar", "parametros": {"rubro_destino": "Salud"}}])
+        v = _ok(
+            client,
+            duda="cambiar_de_rubro",
+            semilla=semilla,
+            gemelos=0,
+            elecciones=[{"opcion": "cambiar", "parametros": {"rubro_destino": "Salud"}}],
+        )
         anio1 = v["historia"][0] if v["historia"] else v["anio_en_curso"]
         if anio1["decisiones"][0]["resultado"] == "entra" and len(anio1["decisiones"]) == 1 and v["historia"]:
             assert anio1["fin"]["rubro"] == "Salud"
@@ -251,8 +259,12 @@ def test_partida_completa_como_la_juega_un_cliente(client):
     edades = [r["fin"]["edad"] for r in final["historia"]]
     assert edades == sorted(edades) and len(set(edades)) == 10 and edades[0] > 30
     assert [r["anio"] for r in final["historia"]] == list(range(1, 11))
-    jugadas = [(d["decision"], d["opcion"]) for r in final["historia"] for d in r["decisiones"] if d["origen"] != "luego"
-               or d["decision"] in {e["decision"] for e in elecciones}]
+    jugadas = [
+        (d["decision"], d["opcion"])
+        for r in final["historia"]
+        for d in r["decisiones"]
+        if d["origen"] != "luego" or d["decision"] in {e["decision"] for e in elecciones}
+    ]
     assert [(e["decision"], e["opcion"]) for e in elecciones] == [j for j in jugadas if j[0] != "tipo_de_empleador"]
     for r in final["historia"]:
         assert isinstance(r["recesion"], bool)
@@ -295,8 +307,10 @@ def test_determinismo(client):
     final, elecciones, _ = _jugar_entera(client, _ultima, duda=DUDA, semilla=21)
     assert _ok(client, duda=DUDA, semilla=21, elecciones=elecciones) == final
     # otra semilla es otra suerte: en alguna de estas cambia el primer año
-    primeros = {str(_ok(client, duda=DUDA, semilla=s, gemelos=0, elecciones=[{"opcion": "ir"}])["historia"][:1])
-                for s in range(8)}
+    primeros = {
+        str(_ok(client, duda=DUDA, semilla=s, gemelos=0, elecciones=[{"opcion": "ir"}])["historia"][:1])
+        for s in range(8)
+    }
     assert len(primeros) > 1
 
 
@@ -323,10 +337,22 @@ def test_partida_sin_duda_reparte_una_carta(client):
     "perfil, duda",
     [
         ({"edad": 22, "edu": "media", "rubro": "Comercio", "nivel": 0, "sueldo": 550000}, "renunciar"),
-        ({"edad": 45, "sexo": "h", "edu": "postgrado", "rubro": "Finanzas y seguros", "tipo_empleador": "grande",
-          "nivel": 3, "sueldo": 4500000}, "emprender"),
-        ({"edad": 50, "tipo_empleador": "publico", "rubro": "Administración pública", "nivel": 4, "sueldo": 8000000},
-         "sabatico"),
+        (
+            {
+                "edad": 45,
+                "sexo": "h",
+                "edu": "postgrado",
+                "rubro": "Finanzas y seguros",
+                "tipo_empleador": "grande",
+                "nivel": 3,
+                "sueldo": 4500000,
+            },
+            "emprender",
+        ),
+        (
+            {"edad": 50, "tipo_empleador": "publico", "rubro": "Administración pública", "nivel": 4, "sueldo": 8000000},
+            "sabatico",
+        ),
     ],
 )
 @pytest.mark.parametrize("elegir", [_primera, _ultima], ids=["primera", "ultima"])
@@ -345,12 +371,12 @@ def test_otros_perfiles_llegan_al_cierre(client, perfil, duda, elegir):
     "body",
     [
         {"duda": "no_existe"},
-        {"duda": "cesantia"},                                              # está empleada: no aplica
-        {"duda": DUDA, "perfil": {"tipo_empleador": "startup"}},           # ya está en una startup
+        {"duda": "cesantia"},  # está empleada: no aplica
+        {"duda": DUDA, "perfil": {"tipo_empleador": "startup"}},  # ya está en una startup
         {"duda": DUDA, "elecciones": [{"opcion": "no_existe"}]},
         {"duda": DUDA, "elecciones": [{"decision": "renunciar", "opcion": "ir"}]},  # cliente desincronizado
         {"duda": DUDA, "elecciones": [{"opcion": "ir", "parametros": {"sueldo": 99000000}}]},
-        {"duda": DUDA, "elecciones": [{"decision": DUDA}]},                # falta la opción
+        {"duda": DUDA, "elecciones": [{"decision": DUDA}]},  # falta la opción
         {"duda": DUDA, "gemelos": 5000},
         {"duda": DUDA, "gemelos": -1},
         {"duda": DUDA, "perfil": {"edad": 10}},
@@ -450,8 +476,11 @@ def _detalle(r) -> str:
 
 @pytest.mark.parametrize("numero", ["Infinity", "-Infinity", "NaN", "1e300"])
 def test_ahorro_infinito_o_absurdo_da_422(client, numero):
-    r = client.post("/api/juego/partida", content=f'{{"perfil": {{"ahorro": {numero}}}, "gemelos": 0}}',
-                    headers={"content-type": "application/json"})
+    r = client.post(
+        "/api/juego/partida",
+        content=f'{{"perfil": {{"ahorro": {numero}}}, "gemelos": 0}}',
+        headers={"content-type": "application/json"},
+    )
     assert "ahorro" in _detalle(r)
     assert _partida(client, perfil={"ahorro": -2_000_000}, duda=DUDA).status_code == 200  # una deuda sí
 
@@ -469,7 +498,8 @@ def test_parametros_fuera_del_dominio_dan_422(client):
     assert "'zzz' no es una opción" in _detalle(_partida(client, duda=duda, parametros={"zzz": {}}))
     assert "'nope'" in _detalle(_partida(client, duda=duda, parametros={"cambiar": {"nope": "x"}}))
     assert "no es una alternativa de rubro_destino" in _detalle(
-        _partida(client, duda=duda, parametros={"cambiar": {"rubro_destino": "Criptomonedas"}}))
+        _partida(client, duda=duda, parametros={"cambiar": {"rubro_destino": "Criptomonedas"}})
+    )
     eleccion = {"decision": duda, "opcion": "cambiar", "parametros": {"rubro_destino": "Criptomonedas"}}
     assert "rubro_destino" in _detalle(_partida(client, duda=duda, elecciones=[eleccion]))
     # una alternativa que ofrece la carta sí sirve

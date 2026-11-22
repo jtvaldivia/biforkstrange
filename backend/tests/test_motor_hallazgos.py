@@ -23,11 +23,18 @@ def test_quien_vuelve_del_trabajo_por_cuenta_propia_no_queda_empleado_con_sueldo
     """Corregido durante la revisión (era el error más grave: 13% de la cohorte terminaba empleada con
     sueldo 0). Quien nunca fue empleado y deja el trabajo por cuenta propia no tiene sueldo de
     referencia: ahora busca como primera pega en vez de cobrar sueldo_ref (0) x azar para siempre."""
-    d = DadosGuion({"independiente:vuelve": 0.0, "dec:cesantia:rapido": 0.0, "dec:tipo_de_empleador:sorteo": 0.5,
-                    (1, "dec:primera_pega:pyme"): 0.0})
+    d = DadosGuion(
+        {
+            "independiente:vuelve": 0.0,
+            "dec:cesantia:rapido": 0.0,
+            "dec:tipo_de_empleador:sorteo": 0.5,
+            (1, "dec:primera_pega:pyme"): 0.0,
+        }
+    )
     v = vida(Perfil.a_los_18(), d)
-    guion = Guion({"salir_del_colegio": "trabajar", "primera_pega": ["independiente", "pyme"], "cesantia": "rapido",
-                   **QUIETA})
+    guion = Guion(
+        {"salir_del_colegio": "trabajar", "primera_pega": ["independiente", "pyme"], "cesantia": "rapido", **QUIETA}
+    )
     v.vivir_anio(guion)
     assert v.e["estado"] == "buscando" and v.registro is None  # trabajó por su cuenta y ese año lo dejó
     v.vivir_anio(guion)
@@ -72,17 +79,26 @@ def test_emigrar_es_para_quien_se_va_con_trabajo(estado):
     empleada = vida(Perfil(edad=30, ingles=1), DadosGuion({"dec:emigrar:irse": 0.0}))
     assert empleada.aplica("emigrar")
     empleada.vivir_anio(Guion({"emigrar": "irse", **QUIETA}), carta="emigrar")
-    assert (empleada.e["estado"], empleada.e["pais"], empleada.e["tipo_empleador"]) == ("empleado", "afuera", "extranjero")
+    assert (empleada.e["estado"], empleada.e["pais"], empleada.e["tipo_empleador"]) == (
+        "empleado",
+        "afuera",
+        "extranjero",
+    )
 
 
 def test_dos_ofertas_en_el_mismo_anio_se_sortean_por_separado():
     pares = []
     for g in range(400):
-        v = vida(Perfil(edad=24), DadosGuion({"evento:oferta_llega": 0.0, "evento:separacion_empleo": NADA},
-                                             defecto=0.5, semilla=6, gemelo=g))
+        v = vida(
+            Perfil(edad=24),
+            DadosGuion(
+                {"evento:oferta_llega": 0.0, "evento:separacion_empleo": NADA}, defecto=0.5, semilla=6, gemelo=g
+            ),
+        )
         # el guion nombra los eventos sin el número de pega: al aceptar la primera oferta, la oferta pasa a `@1`
-        v.dados.u = lambda anio, sitio, _d=v.dados: _d.guion.get(re.sub(r"@\d+", "", sitio),
-                                                                 Dados(6, _d._reales.gemelo).u(anio, sitio))
+        v.dados.u = lambda anio, sitio, _d=v.dados: _d.guion.get(
+            re.sub(r"@\d+", "", sitio), Dados(6, _d._reales.gemelo).u(anio, sitio)
+        )
         reg = v.vivir_anio(Guion({"oferta_externa": "cambiar"}, con_cartas=True), carta="oferta_externa")
         ofertas = [x["resultado"] for x in reg["decisiones"] if x["decision"] == "oferta_externa"]
         assert len(ofertas) == 2
@@ -138,5 +154,3 @@ def test_comparar_no_cuenta_dos_veces_al_gemelo_que_ya_no_tiene_historia():
     v = vida(Perfil(edad=50, nivel=2), Dados(0, "tu"))
     c = gemelos.comparar(v, "pedir_aumento", n=10, anios=10, semilla=1)
     assert all(len(o["trayectoria"]) == 10 for o in c["opciones"])
-
-

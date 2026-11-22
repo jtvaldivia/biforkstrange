@@ -53,14 +53,18 @@ MAX_BYTES = 15 * 1024
 MAX_TOTAL = 4 * 1024 * 1024
 MIN_PX = 64
 LADO = 128
-AGENTE = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
-                        "Chrome/124.0 Safari/537.36", "Accept-Language": "es-CL,es;q=0.9,en;q=0.8"}
+AGENTE = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/124.0 Safari/537.36",
+    "Accept-Language": "es-CL,es;q=0.9,en;q=0.8",
+}
 AGENTE_WIKI = {"User-Agent": "catalogo-logos/2.0 (proyecto educativo; python-urllib)"}
 FUENTES = ("sitio", "wikidata", "google")
 _WIKI = threading.Lock()  # Wikimedia limita la tasa: sus pedidos van de a uno, con pausa
 
 
 # ---------------------------------------------------------------- red con caché
+
 
 def bajar(url: str, cache: Path, wiki: bool = False) -> tuple[bytes, str]:
     """Cuerpo y URL final de una respuesta 200; b'' si falla. Cada URL se pide una sola vez (las respuestas
@@ -149,11 +153,18 @@ def archivos_wikidata(dominios: list[str], cache: Path) -> dict[str, str]:
     (con o sin www, http o https, con o sin / final). Una consulta SPARQL por cada 8 dominios (URL corta)."""
     salida: dict[str, str] = {}
     for k in range(0, len(dominios), 8):
-        lote = dominios[k:k + 8]
-        iris = " ".join(f"<{esq}://{w}{d}{fin}>" for d in lote for esq in ("http", "https")
-                        for w in ("", "www.") for fin in ("", "/"))
-        consulta = ("SELECT ?site ?logo WHERE { VALUES ?site { " + iris + " } ?item wdt:P856 ?site . "
-                    "?item wdt:P154 ?logo . } ORDER BY ?site ?logo")
+        lote = dominios[k : k + 8]
+        iris = " ".join(
+            f"<{esq}://{w}{d}{fin}>"
+            for d in lote
+            for esq in ("http", "https")
+            for w in ("", "www.")
+            for fin in ("", "/")
+        )
+        consulta = (
+            "SELECT ?site ?logo WHERE { VALUES ?site { " + iris + " } ?item wdt:P856 ?site . "
+            "?item wdt:P154 ?logo . } ORDER BY ?site ?logo"
+        )
         url = "https://query.wikidata.org/sparql?" + urllib.parse.urlencode({"query": consulta, "format": "json"})
         datos, _ = bajar(url, cache, wiki=True)
         try:
@@ -181,11 +192,15 @@ def candidatos_google(dominio: str, cache: Path) -> list[bytes]:
 
 
 def candidatos(dominio: str, archivo: str | None, cache: Path) -> dict[str, list[bytes]]:
-    return {"sitio": candidatos_sitio(dominio, cache), "wikidata": candidatos_wikidata(archivo, cache),
-            "google": candidatos_google(dominio, cache)}
+    return {
+        "sitio": candidatos_sitio(dominio, cache),
+        "wikidata": candidatos_wikidata(archivo, cache),
+        "google": candidatos_google(dominio, cache),
+    }
 
 
 # ---------------------------------------------------------------- imágenes
+
 
 def abrir(datos: bytes) -> Image.Image | None:
     try:
@@ -271,6 +286,7 @@ def _base(dominio: str) -> str:
 
 
 # ---------------------------------------------------------------- principal
+
 
 def buscar(pares: list[tuple[str, str]], crudos: Path) -> dict[str, tuple[str, Image.Image] | None]:
     cache = crudos / "crudos_catalogos" / "logos_v2"

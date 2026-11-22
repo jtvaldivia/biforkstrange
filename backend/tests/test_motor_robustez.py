@@ -19,7 +19,7 @@ from app.sim.motor.politicas import Poblacion
 ESTADOS = {"estudiando", "buscando", "empleado", "independiente", "fundador", "inactivo"}
 # Fallas ya reportadas (ver test_motor_hallazgos.py). Al corregirlas, borrar la línea.
 CONOCIDOS = (
-    "dominio ahorro",                           # el cierre no acota el ahorro (alcance completo)
+    "dominio ahorro",  # el cierre no acota el ahorro (alcance completo)
 )
 
 
@@ -50,7 +50,11 @@ def _violaciones(v, registro) -> list[str]:
         malas.append(f"sin trabajo con sueldo ({e['estado']})")
     if e["estado"] == "empleado" and e["tipo_empleador"] == "publico" and e["rubro"] != "Administración pública":
         malas.append("empleo público fuera de Administración pública")
-    if e["estado"] == "empleado" and e["tipo_empleador"] not in ("", "publico") and e["rubro"] in ("", "Administración pública"):
+    if (
+        e["estado"] == "empleado"
+        and e["tipo_empleador"] not in ("", "publico")
+        and e["rubro"] in ("", "Administración pública")
+    ):
         malas.append(f"empleo privado con rubro {e['rubro']!r}")
     if not math.isfinite(v.ingreso_total) or v.ingreso_total < 0:
         malas.append("ingreso total")
@@ -114,6 +118,7 @@ def _correr(v, anios: int, fallas: Counter, ejemplo: dict, quien: str, revisar_c
         if not any(c in mensaje for c in CONOCIDOS):
             fallas[mensaje] += 1
             ejemplo.setdefault(mensaje, f"{quien}, año {v.anio}")
+
     try:
         for _ in range(anios):
             if v.terminada():
@@ -157,10 +162,20 @@ def test_10_anios_desde_perfiles_variados(alcance):
     combos = list(itertools.product(EDUS, TIPOS, EDADES, [False, True]))
     paso = max(1, round(1 / min(1.0, n(100) / 100)))
     for i, (edu, tipo, edad, con_carrera) in enumerate(combos[::paso]):
-        perfil = Perfil(edad=edad, sexo="hm"[i % 2], edu=edu, carrera_id=carreras[1 + i % 3] if con_carrera else -1,
-                        rubro="Administración pública" if tipo == "publico" else rubros[i % len(rubros)],
-                        tipo_empleador=tipo, nivel=i % 5, sueldo=sueldos[i % 4], riesgo=i % 11, antiguedad=i % 7,
-                        region=("rm", "otra")[i % 2], ocupacion=(None, 1, 4, 9, 0)[i % 5])
+        perfil = Perfil(
+            edad=edad,
+            sexo="hm"[i % 2],
+            edu=edu,
+            carrera_id=carreras[1 + i % 3] if con_carrera else -1,
+            rubro="Administración pública" if tipo == "publico" else rubros[i % len(rubros)],
+            tipo_empleador=tipo,
+            nivel=i % 5,
+            sueldo=sueldos[i % 4],
+            riesgo=i % 11,
+            antiguedad=i % 7,
+            region=("rm", "otra")[i % 2],
+            ocupacion=(None, 1, 4, 9, 0)[i % 5],
+        )
         _correr(vida(perfil, Dados(7, i), alcance), 10, fallas, ejemplo, repr(perfil), revisar_catalogo=i % 4 == 0)
     assert not fallas, {k: (c, ejemplo[k]) for k, c in fallas.most_common(12)}
 
@@ -170,8 +185,16 @@ def test_10_anios_desde_quien_no_esta_empleado(alcance):
     fallas, ejemplo = Counter(), {}
     estados = ["buscando", "independiente", "fundador", "estudiando", "inactivo"]
     for i, (estado, edu, edad) in enumerate(itertools.product(estados, EDUS, [18, 24, 33, 47])):
-        perfil = Perfil(edad=edad, sexo="hm"[i % 2], edu=edu, carrera_id=(-1, 57)[i % 2], estado=estado,
-                        sueldo=(0, 700_000, 1_800_000)[i % 3], nivel=i % 4, riesgo=i % 11)
+        perfil = Perfil(
+            edad=edad,
+            sexo="hm"[i % 2],
+            edu=edu,
+            carrera_id=(-1, 57)[i % 2],
+            estado=estado,
+            sueldo=(0, 700_000, 1_800_000)[i % 3],
+            nivel=i % 4,
+            riesgo=i % 11,
+        )
         for semilla in range(n(3)):
             _correr(vida(perfil, Dados(semilla, i), alcance), 10, fallas, ejemplo, repr(perfil), revisar_catalogo=True)
     assert not fallas, {k: (c, ejemplo[k]) for k, c in fallas.most_common(12)}

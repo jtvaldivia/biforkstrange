@@ -134,11 +134,11 @@ def pesos_grupo() -> np.ndarray:
 class Anio:
     """Qué pasó en el año, con el detalle que el arnés necesita (máscaras de n)."""
 
-    cayo_cesantia: np.ndarray     # tenía empleo y cayó en cesantía (aunque vuelva en el año)
+    cayo_cesantia: np.ndarray  # tenía empleo y cayó en cesantía (aunque vuelva en el año)
     cayo_inactividad: np.ndarray  # tenía empleo y salió a inactividad
-    retorno: np.ndarray           # cayó en cesantía y encontró empleo antes del cierre
-    directo: np.ndarray           # cambió de empleador sin cesantía entremedio
-    reempleo: np.ndarray          # empezó el año sin empleo y lo terminó con empleo
+    retorno: np.ndarray  # cayó en cesantía y encontró empleo antes del cierre
+    directo: np.ndarray  # cambió de empleador sin cesantía entremedio
+    reempleo: np.ndarray  # empezó el año sin empleo y lo terminó con empleo
 
 
 Paso = Callable[[State, np.random.Generator], Anio]
@@ -269,8 +269,26 @@ def medir_regimen(
     state = _estado(edad, grupo, n, rng)
     grupos = state.ocupacion.copy()
     c: dict[str, float] = dict.fromkeys(
-        ("emp0", "sin0", "e_sin", "e_d", "e_i", "sin_e", "sin0_1", "sin_e_1", "sin0_2", "sin_e_2", "directo",
-         "nuevos", "ev_ces", "sigue2", "personas", "sin", "d"), 0.0
+        (
+            "emp0",
+            "sin0",
+            "e_sin",
+            "e_d",
+            "e_i",
+            "sin_e",
+            "sin0_1",
+            "sin_e_1",
+            "sin0_2",
+            "sin_e_2",
+            "directo",
+            "nuevos",
+            "ev_ces",
+            "sigue2",
+            "personas",
+            "sin",
+            "d",
+        ),
+        0.0,
     )
     ces_anterior = np.zeros(n, dtype=bool)
     for k in range(quema + anios):
@@ -419,27 +437,87 @@ def comparar(grupo: int | None = None, *, n: int = 40_000, seed: int = 0) -> dic
     for b in BANDAS:
         e = elsoc[b]
         filas += [
-            _fila(f"elsoc_e_a_sin_{b}", "Empleado → sin empleo (ELSOC O→D+I)", b, e["o_a_sin"], TOL, True, reg(b, "e_a_sin")),
+            _fila(
+                f"elsoc_e_a_sin_{b}",
+                "Empleado → sin empleo (ELSOC O→D+I)",
+                b,
+                e["o_a_sin"],
+                TOL,
+                True,
+                reg(b, "e_a_sin"),
+            ),
             _fila(f"elsoc_e_a_d_{b}", "Empleado → cesante (ELSOC O→D)", b, e["o_a_d"], TOL, True, reg(b, "e_a_d")),
             _fila(f"elsoc_e_a_i_{b}", "Empleado → inactivo (ELSOC O→I)", b, e["o_a_i"], TOL, True, reg(b, "e_a_i")),
-            _fila(f"elsoc_sin_a_e_{b}", "Sin empleo → empleado (ELSOC, ex ocupados)", b, e["sin_a_o_ex_ocupado"], TOL_RETORNO, True, reg(b, "sin_a_e")),
-            _fila(f"elsoc_sin_empleo_{b}", "Proporción sin empleo en régimen (ELSOC, ex ocupados)", b, e["sin_empleo_ex_ocupado"], TOL, True, reg(b, "sin_empleo")),
+            _fila(
+                f"elsoc_sin_a_e_{b}",
+                "Sin empleo → empleado (ELSOC, ex ocupados)",
+                b,
+                e["sin_a_o_ex_ocupado"],
+                TOL_RETORNO,
+                True,
+                reg(b, "sin_a_e"),
+            ),
+            _fila(
+                f"elsoc_sin_empleo_{b}",
+                "Proporción sin empleo en régimen (ELSOC, ex ocupados)",
+                b,
+                e["sin_empleo_ex_ocupado"],
+                TOL,
+                True,
+                reg(b, "sin_empleo"),
+            ),
         ]
     for b in BANDAS_ESI:
         m = metas[f"desocupacion_{b}"]
-        filas.append(_fila(f"esi_desocupacion_{b}", "Desocupación (ESI), cohorte, solo cesantes", b, m["valor"], m["tolerancia"], True,
-                           {v: cohorte[v]["desocupacion"][b] for v in VARIANTES}))
+        filas.append(
+            _fila(
+                f"esi_desocupacion_{b}",
+                "Desocupación (ESI), cohorte, solo cesantes",
+                b,
+                m["valor"],
+                m["tolerancia"],
+                True,
+                {v: cohorte[v]["desocupacion"][b] for v in VARIANTES},
+            )
+        )
     for b in BANDAS_ESI:
         m = metas[f"desocupacion_{b}"]
-        filas.append(_fila(f"esi_flag_{b}", "Desocupación (ESI) vs flag con inactivos", b, m["valor"], m["tolerancia"], False,
-                           {v: cohorte[v]["flag"][b] for v in VARIANTES}))
+        filas.append(
+            _fila(
+                f"esi_flag_{b}",
+                "Desocupación (ESI) vs flag con inactivos",
+                b,
+                m["valor"],
+                m["tolerancia"],
+                False,
+                {v: cohorte[v]["flag"][b] for v in VARIANTES},
+            )
+        )
     for b in BANDAS:
         m = metas["cambio_" + b.replace("-", "_")]
-        filas.append(_fila(f"eps_cambio_{b}", "Cambio directo de empleador (meta = insumo EPS)", b, m["valor"], m["tolerancia"], False,
-                           {v: cohorte[v]["cambio_directo"][b] for v in VARIANTES}))
+        filas.append(
+            _fila(
+                f"eps_cambio_{b}",
+                "Cambio directo de empleador (meta = insumo EPS)",
+                b,
+                m["valor"],
+                m["tolerancia"],
+                False,
+                {v: cohorte[v]["cambio_directo"][b] for v in VARIANTES},
+            )
+        )
     m = metas["sigue_cesante_12m"]
-    filas.append(_fila("eps_sigue_cesante", "Sigue cesante al cierre del año siguiente (meta = insumo EPS)", "todos", m["valor"], m["tolerancia"], False,
-                       {v: cohorte[v]["sigue_cesante"]["todos"] for v in VARIANTES}))
+    filas.append(
+        _fila(
+            "eps_sigue_cesante",
+            "Sigue cesante al cierre del año siguiente (meta = insumo EPS)",
+            "todos",
+            m["valor"],
+            m["tolerancia"],
+            False,
+            {v: cohorte[v]["sigue_cesante"]["todos"] for v in VARIANTES},
+        )
+    )
     return {"grupo": grupo, "n": n, "filas": filas, "regimen": regimen, "cohorte": cohorte}
 
 
@@ -458,7 +536,9 @@ def _pct(x: float) -> str:
 
 def _imprimir(resultado: dict) -> None:
     titulo = "promedio de grupos (pesos ESI)" if resultado["grupo"] is None else f"grupo {resultado['grupo']}"
-    print(f"\n== {titulo}, n={resultado['n']} ==  (valores en %, entre paréntesis el error en puntos; * = fuera de tolerancia)")
+    print(
+        f"\n== {titulo}, n={resultado['n']} ==  (valores en %, entre paréntesis el error en puntos; * = fuera de tolerancia)"
+    )
     print(f"{'métrica':<62}{'tramo':<7}{'ref':>6}{'tol':>5}   {'actual':<16}{'A':<16}{'B':<16}")
     for f in resultado["filas"]:
         celdas = ""
@@ -475,32 +555,51 @@ def _imprimir(resultado: dict) -> None:
 def main() -> None:
     sv, t, elsoc = sobrevida_cesantia(), tablas(), referencia_elsoc()
     print("Insumos derivados de eps_cesantia_duracion (por tramo 18-29, 30-44, 45-59):")
-    for k, nombre in (("m1", "m1 sigue cesante al cierre si cae en el año"), ("f1", "f1 retorno, cayó el año anterior"),
-                      ("f2", "f2 retorno, más de un año"), ("s12", "sigue_12m (el motor usa 1 − esto)")):
+    for k, nombre in (
+        ("m1", "m1 sigue cesante al cierre si cae en el año"),
+        ("f1", "f1 retorno, cayó el año anterior"),
+        ("f2", "f2 retorno, más de un año"),
+        ("s12", "sigue_12m (el motor usa 1 − esto)"),
+    ):
         print(f"  {nombre:<46}" + "  ".join(f"{x:.3f}" for x in sv[k]))
     print("Hipótesis del paso anual, sin simular: tasa EPS de caer en cesantía × m1 vs ELSOC O→D")
     for i, b in enumerate(BANDAS):
-        print(f"  {b}: EPS {t.p_cesantia[i]:.4f} × m1 {sv['m1'][i]:.3f} = {t.p_cesantia[i] * sv['m1'][i]:.4f}   ELSOC O→D {elsoc[b]['o_a_d']:.4f}"
-              f"   |   EPS a inactividad {t.p_inactividad[i]:.4f}   ELSOC O→I {elsoc[b]['o_a_i']:.4f}")
-    print(f"Factor de rotación: grupo 2 = {t.mult_rotacion[2]:.3f}; promedio con pesos ESI = {float(pesos_grupo() @ t.mult_rotacion):.3f}")
+        print(
+            f"  {b}: EPS {t.p_cesantia[i]:.4f} × m1 {sv['m1'][i]:.3f} = {t.p_cesantia[i] * sv['m1'][i]:.4f}   ELSOC O→D {elsoc[b]['o_a_d']:.4f}"
+            f"   |   EPS a inactividad {t.p_inactividad[i]:.4f}   ELSOC O→I {elsoc[b]['o_a_i']:.4f}"
+        )
+    print(
+        f"Factor de rotación: grupo 2 = {t.mult_rotacion[2]:.3f}; promedio con pesos ESI = {float(pesos_grupo() @ t.mult_rotacion):.3f}"
+    )
 
     for grupo in (None, 2):
         res = comparar(grupo)
         _imprimir(res)
-        print("retorno al empleo: rango ELSOC [ex ocupados (piso, la fila I incluye inactivos permanentes) , D→O (techo, solo cesantes)]")
+        print(
+            "retorno al empleo: rango ELSOC [ex ocupados (piso, la fila I incluye inactivos permanentes) , D→O (techo, solo cesantes)]"
+        )
         for b in BANDAS:
-            print(f"  {b}: [{_pct(elsoc[b]['sin_a_o_ex_ocupado'])} , {_pct(elsoc[b]['d_a_o'])}]   "
-                  + "   ".join(f"{v} {_pct(res['regimen'][v][b]['sin_a_e'])}" for v in VARIANTES))
+            print(
+                f"  {b}: [{_pct(elsoc[b]['sin_a_o_ex_ocupado'])} , {_pct(elsoc[b]['d_a_o'])}]   "
+                + "   ".join(f"{v} {_pct(res['regimen'][v][b]['sin_a_e'])}" for v in VARIANTES)
+            )
         print("retorno al empleo según cuánto lleva sin empleo (primer año / más de un año):")
         for v in VARIANTES:
-            print(f"  {v:<7}" + "   ".join(
-                f"{b}: {_pct(res['regimen'][v][b]['sin_a_e_primer_anio'])} / {_pct(res['regimen'][v][b]['sin_a_e_mas_de_un_anio'])}" for b in BANDAS))
+            print(
+                f"  {v:<7}"
+                + "   ".join(
+                    f"{b}: {_pct(res['regimen'][v][b]['sin_a_e_primer_anio'])} / {_pct(res['regimen'][v][b]['sin_a_e_mas_de_un_anio'])}"
+                    for b in BANDAS
+                )
+            )
 
     print("\n== motor completo (engine.simulate, 'seguir' de 18 a 49, grupo 2) vs el mismo paso sin desgaste ==")
     motor, sin_desgaste = medir_cohorte_motor(2), medir_cohorte(paso_actual, 2)
     for b in BANDAS_ESI:
-        print(f"  {b}: flag sin empleo motor {_pct(motor['flag'][b])}   sin desgaste {_pct(sin_desgaste['flag'][b])}"
-              f"   desgaste mediano {motor['desgaste_p50'][b]:.2f}")
+        print(
+            f"  {b}: flag sin empleo motor {_pct(motor['flag'][b])}   sin desgaste {_pct(sin_desgaste['flag'][b])}"
+            f"   desgaste mediano {motor['desgaste_p50'][b]:.2f}"
+        )
 
 
 if __name__ == "__main__":
