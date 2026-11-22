@@ -1,0 +1,137 @@
+cargo_id,nombre,ciuo08_4d,titulo_oit,mu_2025,tipo_ia,equivalencia
+0,Gerente general,1120,Managing Directors and Chief Executives,0.3800,no_afectado,directa
+1,Gerente de finanzas,1211,Finance Managers,0.3700,no_afectado,directa
+2,Gerente comercial,1221,Sales and Marketing Managers,0.4100,incognita,directa
+3,Gerente de tecnología (CTO),1330,Information and Communications Technology Service Managers,0.4400,incognita,directa
+4,Gerente de personas,1212,Human Resource Managers,0.3600,no_afectado,directa
+5,Gerente de marketing,1221,Sales and Marketing Managers,0.4100,incognita,directa
+6,Jefe de operaciones,1219,Business Services and Administration Managers Not Elsewhere Classified,0.4200,incognita,aproximada
+7,Administrador de obra,1323,Construction Managers,0.3400,incognita,directa
+8,Jefe de departamento,1219,Business Services and Administration Managers Not Elsewhere Classified,0.4200,incognita,aproximada
+9,Director de colegio,1345,Education Managers,0.3600,no_afectado,directa
+10,Administrador de tienda,1420,Retail and Wholesale Trade Managers,0.4400,incognita,directa
+11,Administrador de restaurante,1412,Restaurant Managers,0.3600,incognita,directa
+12,Jefe de establecimiento de salud,1342,Health Service Managers,0.3600,no_afectado,directa
+13,Jefe de producción,1321,Manufacturing Managers,0.3800,no_afectado,directa
+14,Jefe de logística,1324,"Supply, Distribution and Related Managers",0.3800,aumenta,directa
+15,Desarrollador backend,2512,Software Developers,0.5300,incognita,directa
+16,Desarrollador frontend,2513,Web and Multimedia Developers,0.6000,incognita,directa
+17,Desarrollador full stack,2512,Software Developers,0.5300,incognita,directa
+18,Tech lead,2512,Software Developers,0.5300,incognita,aproximada
+19,Ingeniero DevOps,2522,Systems Aministrators,0.5700,incognita,directa
+20,Analista QA,2519,Software and Applications Developers and Analysts Not Elsewhere Classified,0.5500,aumenta,directa
+21,Analista de ciberseguridad,2529,Database and Network Professionals Not Elsewhere Classified,0.4900,incognita,directa
+22,Ingeniero de datos,2521,Database Designers and Administrators,0.5700,incognita,directa
+23,Analista de datos,2120,"Mathematicians, Actuaries and Statisticians",0.5600,incognita,aproximada
+24,Científico de datos,2120,"Mathematicians, Actuaries and Statisticians",0.5600,incognita,aproximada
+25,Ingeniero de machine learning,2519,Software and Applications Developers and Analysts Not Elsewhere Classified,0.5500,aumenta,aproximada
+26,Product manager,2421,Management and Organization Analysts,0.4600,incognita,aproximada
+27,Diseñador UX/UI,2166,Graphic and Multimedia Designers,0.4900,incognita,directa
+28,Diseñador gráfico,2166,Graphic and Multimedia Designers,0.4900,incognita,directa
+29,Analista de marketing digital,2431,Advertising and Marketing Professionals,0.5500,incognita,directa
+30,Analista financiero,2413,Financial Analysts,0.6200,incognita,directa
+31,Contador auditor,2411,Accountants,0.5100,incognita,directa
+32,Abogado,2611,Lawyers,0.3600,no_afectado,directa
+33,Consultor de negocios,2421,Management and Organization Analysts,0.4600,incognita,directa
+34,Analista de políticas públicas,2422,Policy Administration Professionals,0.4200,incognita,directa
+35,Analista de recursos humanos,2423,Personnel and Careers Professionals,0.4500,incognita,directa
+36,Ingeniero civil en obras,2142,Civil Engineers,0.3000,no_afectado,directa
+37,Ingeniero de minas,2146,"Mining Engineers, Metallurgists and Related Professionals",0.2900,no_afectado,directa
+38,Geólogo,2114,Geologists and geophysicists,0.3600,no_afectado,directa
+39,Ingeniero de procesos,2141,Industrial and Production Engineers,0.3700,no_afectado,directa
+40,Arquitecto,2161,Building Architects,0.3700,aumenta,directa
+41,Médico general,2211,Generalist Medical Practitioners,0.2900,no_afectado,directa
+42,Enfermera,2221,Nursing Professionals,0.2500,no_afectado,directa
+43,Kinesiólogo,2264,Physiotherapists,0.2800,no_afectado,directa
+44,Psicólogo,2634,Psychologists,0.3900,incognita,directa
+45,Químico farmacéutico,2262,Pharmacists,0.3300,aumenta,directa
+46,Nutricionista,2265,Dieticians and Nutritionists,0.4100,aumenta,directa
+47,Terapeuta ocupacional,2269,Health Professionals Not Elsewhere Classified,0.2000,no_afectado,aproximada
+48,Profesor de educación básica,2341,Primary School Teachers,0.2600,aumenta,directa
+49,Profesor de educación media,2330,Secondary Education Teachers,0.3000,aumenta,directa
+50,Educadora de párvulos,2342,Early Childhood Educators,0.2100,no_afectado,directa
+51,Académico universitario,2310,University and Higher Education Teachers,0.3700,no_afectado,directa
+52,Investigador,2632,"Sociologists, Anthropologists and Related Professionals",0.4800,incognita,aproximada
+53,Trabajador social,2635,Social Work and Counselling Professionals,0.2800,no_afectado,directa
+54,Periodista,2642,Journalists,0.5400,incognita,directa
+55,Ingeniero agrónomo,2132,"Farming, Forestry and Fisheries Advisers",0.2900,no_afectado,directa
+56,Médico veterinario,2250,Veterinarians,0.1400,no_afectado,directa
+57,Técnico en enfermería (TENS),3221,Nursing Associate Professionals,0.2200,no_afectado,directa
+58,Tecnólogo médico de laboratorio,3212,Medical and Pathology Laboratory Technicians,0.3100,aumenta,directa
+59,Técnico en soporte informático,3512,Information and Communications Technology User Support Technicians,0.4700,incognita,directa
+60,Supervisor de obra,3123,Construction Supervisors,0.2800,no_afectado,directa
+61,Prevencionista de riesgos,3257,Environmental and Occupational Health Inspectors and Associates,0.2400,no_afectado,directa
+62,Técnico agrícola,3142,Agricultural Technicians,0.2600,no_afectado,directa
+63,Ejecutivo comercial,3322,Commercial Sales Representatives,0.4900,incognita,directa
+64,Ejecutivo de cuentas bancario,3312,Credit and Loans Officers,0.6000,incognita,directa
+65,Técnico en contabilidad,3313,Accounting Associate Professionals,0.4900,incognita,directa
+66,Asistente de gerencia,3343,Administrative and Executive Secretaries,0.5400,incognita,directa
+67,Community manager,2432,Public Relations Professionals,0.4300,incognita,directa
+68,Asistente de la educación,5312,Teachers' Aides,0.2400,aumenta,directa
+69,Técnico en logística,4323,Transport Clerks,0.5000,incognita,aproximada
+70,Fiscalizador,3359,Government Regulatory AssociatePprofessionals Not Elsewhere Classified,0.3600,incognita,aproximada
+71,Productor audiovisual,3521,Broadcasting and Audio-visual Technicians,0.3500,aumenta,directa
+72,Instructor deportivo,3423,Fitness and Recreation Instructors and Programme Leaders,0.2500,aumenta,directa
+73,Chef,3434,Chefs,0.2500,no_afectado,directa
+74,Asistente administrativo,4120,Secretaries (general),0.5800,automatiza,directa
+75,Administrativo,4110,General Office Clerks,0.6000,incognita,directa
+76,Cajero bancario,4211,Bank Tellers and Related Clerks,0.5800,automatiza,directa
+77,Ejecutivo de atención al cliente,4222,Contact Centre Information Clerks,0.5800,automatiza,directa
+78,Recepcionista,4226,Receptionists (general),0.5700,incognita,directa
+79,Analista de remuneraciones,4313,Payroll Clerks,0.6100,incognita,directa
+80,Encargado de bodega,4321,Stock Clerks,0.3700,aumenta,directa
+81,Supervisor administrativo,3341,Office Supervisors,0.4300,incognita,directa
+82,Vendedor,5223,Shop Sales Assistants,0.3800,incognita,directa
+83,Cajero,5230,Cashiers and Ticket Clerks,0.3900,incognita,directa
+84,Supervisor de tienda,5222,Shop Supervisors,0.3600,incognita,directa
+85,Garzón,5131,Waiters,0.2800,aumenta,directa
+86,Cocinero,5120,Cooks,0.1800,no_afectado,directa
+87,Guardia de seguridad,5414,Security Guards,0.2000,no_afectado,directa
+88,Auxiliar de enfermería,5321,Health Care Assistants,0.1400,no_afectado,directa
+89,Asistente de párvulos,5311,Child Care Workers,0.1900,no_afectado,directa
+90,Peluquero,5141,Hairdressers,0.1700,aumenta,directa
+91,Gendarme,5413,Prison Guards,0.1400,no_afectado,directa
+92,Ejecutivo de televentas,5244,Contact Centre Salespersons,0.6100,automatiza,directa
+93,Tripulante de cabina,5111,Travel Attendants and Travel Stewards,0.2200,aumenta,directa
+94,Trabajador agrícola calificado,6111,Field Crop and Vegetable Growers,0.1800,no_afectado,directa
+95,Operario de centro de cultivo,6221,Aquaculture Workers,0.2200,no_afectado,directa
+96,Capataz agrícola,6111,Field Crop and Vegetable Growers,0.1800,no_afectado,aproximada
+97,Brigadista forestal,6210,Forestry and Related Workers,0.1200,no_afectado,directa
+98,Maestro albañil,7112,Bricklayers and Related Workers,0.0900,no_afectado,directa
+99,Electricista,7411,Building and Related Electricians,0.1900,no_afectado,directa
+100,Soldador,7212,Welders and Flame Cutters,0.1300,no_afectado,directa
+101,Mecánico de mantención industrial,7233,Agricultural and Industrial Machinery Mechanics and Repairers,0.1700,no_afectado,directa
+102,Mecánico automotriz,7231,Motor Vehicle Mechanics and Repairers,0.1800,no_afectado,directa
+103,Mecánico de equipo pesado,7233,Agricultural and Industrial Machinery Mechanics and Repairers,0.1700,no_afectado,directa
+104,Instalador de telecomunicaciones,7422,Information and Communications Technology Installers and Servicers,0.2400,no_afectado,directa
+105,Conductor de camión,8332,Heavy Truck and Lorry Drivers,0.2400,no_afectado,directa
+106,Conductor de bus,8331,Bus and Tram Drivers,0.1800,no_afectado,directa
+107,Operador de equipos mineros,8111,Miners and Quarriers,0.1700,no_afectado,aproximada
+108,Operador de planta,3133,Chemical Processing Plant Controllers,0.2900,aumenta,aproximada
+109,Operador de máquinas de producción,8183,"Packing, Bottling and Labelling Machine Operators",0.2200,no_afectado,directa
+110,Conductor repartidor,8322,"Car, Taxi and Van Drivers",0.2800,incognita,aproximada
+111,Operador de maquinaria de construcción,8342,Earthmoving and Related Plant Operators,0.1300,no_afectado,directa
+112,Auxiliar de aseo,9112,"Cleaners and Helpers in Offices, Hotels and Other Establishments",0.1200,no_afectado,directa
+113,Reponedor,9334,Shelf Fillers,0.2000,no_afectado,directa
+114,Peoneta,9333,Freight Handlers,0.1400,no_afectado,directa
+115,Temporero agrícola,9211,Crop Farm Labourers,0.0900,no_afectado,directa
+116,Ayudante de cocina,9412,Kitchen Helpers,0.1300,no_afectado,directa
+117,Jornal de construcción,9313,Building Construction Labourers,0.0900,no_afectado,directa
+118,Camarera de hotel,9112,"Cleaners and Helpers in Offices, Hotels and Other Establishments",0.1200,no_afectado,directa
+119,Recolector de residuos,9611,Garbage and Recycling Collectors,0.0900,no_afectado,directa
+120,Analista de presupuesto,2413,Financial Analysts,0.6200,incognita,aproximada
+121,Economista,2631,Economists,0.5500,incognita,directa
+122,Analista de riesgo de crédito,2413,Financial Analysts,0.6200,incognita,aproximada
+123,Fiscalizador tributario,3352,Government Tax and Excise Officials,0.4900,incognita,directa
+124,Estadístico,2120,"Mathematicians, Actuaries and Statisticians",0.5600,incognita,directa
+125,Analista de compras y abastecimiento,3323,Buyers,0.3900,incognita,directa
+126,Ingeniero de proyectos,2141,Industrial and Production Engineers,0.3700,no_afectado,aproximada
+127,Ingeniero eléctrico,2151,Electrical Engineers,0.3100,no_afectado,directa
+128,Ingeniero ambiental,2143,Environmental Engineers,0.3800,no_afectado,directa
+129,Encargado de cumplimiento normativo,2619,Legal Professionals Not Elsewhere Classified,0.3700,no_afectado,aproximada
+130,Procurador judicial,3411,Legal and Related Associate Professionals,0.3900,aumenta,directa
+131,Matrona,2222,Midwifery Professionals,0.3000,no_afectado,directa
+132,Epidemiólogo,2131,"Biologists, Botanists, Zoologists and Related Professionals",0.4000,aumenta,aproximada
+133,Educador diferencial,2352,Special Needs Teachers,0.2800,no_afectado,directa
+134,Planificador urbano,2164,Town and Traffic Planners,0.4100,incognita,directa
+135,Analista de procesos,2421,Management and Organization Analysts,0.4600,incognita,directa

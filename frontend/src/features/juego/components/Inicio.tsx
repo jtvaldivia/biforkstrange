@@ -1,4 +1,4 @@
-import { Button, Heading, LifePathHero, Meta, Pill, Row, Screen, ScreenFooter, ScreenHeader, Stack, Tag, Text, cssVars } from "@/shared/ui";
+import { BifurcaLogo, Button, Heading, LifePathHero, Meta, Row, Screen, ScreenFooter, ScreenHeader, Stack, Tag, Text, cssVars } from "@/shared/ui";
 import { GEMELOS } from "../api";
 import { Cargando, ErrorCaja } from "./piezas";
 
@@ -23,7 +23,7 @@ export function Inicio({
 }) {
   return (
     <Screen>
-      <ScreenHeader left={<Pill>Bifurca</Pill>} right={<Meta>10 años</Meta>} />
+      <ScreenHeader left={<BifurcaLogo size={20} />} right={<Meta>10 años</Meta>} />
       <LifePathHero past={["Estudios", "Tu trabajo"]} today="Tú, hoy" chosen="Lo que eliges" alternatives={["Otra opción", "Seguir igual"]} />
       <Stack gap={12}>
         <Heading level={1}>Vive tu decisión antes de tomarla.</Heading>
@@ -58,14 +58,6 @@ export function Inicio({
         <Button variant="quiet" onClick={onComoFunciona} disabled={cargando}>
           ¿Cómo funciona?
         </Button>
-        <div className="jg-enlaces">
-          <a href="/simulacion" className="vd-meta">
-            Simulación anterior
-          </a>
-          <a href="/ui" className="vd-meta">
-            Kit de UI
-          </a>
-        </div>
       </ScreenFooter>
     </Screen>
   );

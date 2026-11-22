@@ -32,7 +32,7 @@ for d in V.DEC:
         junta(o['resultados'])
         if o.get('requisito'): exprs.add(o['requisito'])
 for e in V.EVE:
-    exprs.update([e['cuando'], e['prob_anual']]); junta(e['resultados'])
+    exprs.update([e['cuando'], e['prob_anual'] if 'prob_anual' in e else e['prob_mensual']]); junta(e['resultados'])
 exprs = sorted(x for x in exprs if isinstance(x, str) and 'azar' not in x)
 estados, casos = [], []
 for i in range(300):

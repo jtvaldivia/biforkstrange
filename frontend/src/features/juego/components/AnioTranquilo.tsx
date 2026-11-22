@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, DecisionArt, Heading, Meta, Pill, Screen, ScreenFooter, ScreenHeader, Stack, Text } from "@/shared/ui";
 import { arteDuda, deCien } from "../textos";
 import type { Eleccion, SinNovedad, Vista } from "../types";
-import { FranjaSinNovedad, Noticia, Salir } from "./piezas";
+import { Cargando, FranjaSinNovedad, Noticia, Salir } from "./piezas";
 
 /**
  * Un año en que no te llegó nada. No te obliga a decidir ni te pone una lista: te hace una propuesta,
@@ -22,7 +22,18 @@ export function AnioTranquilo({ vista, cargando, error, onElegir, onSalir, sinNo
   const s = p.sugerencia;
   const anio = Math.min(vista.anio + 1, vista.anios);
   const otras = p.opciones.filter((o) => o.opcion !== "seguir" && o.opcion !== s?.decision);
-  const elegir = (opcion: string) => onElegir({ decision: p.decision, opcion });
+  // lo último que se apretó, para decir qué se está calculando: en prod la siguiente carta tarda varios segundos
+  const [elegida, setElegida] = useState<string | null>(null);
+  const elegir = (opcion: string) => {
+    setElegida(opcion);
+    onElegir({ decision: p.decision, opcion });
+  };
+  const esperando = cargando && elegida !== null;
+  const ultimo = anio >= vista.anios;
+  // con "seguir", el botón ya dice a qué año pasas: aquí va lo que se está calculando
+  const frases = elegida === "seguir"
+    ? ["Viviendo tu año…", "Simulando tus 100 mundos…", "Ya casi…"]
+    : [`Simulando «${p.opciones.find((o) => o.opcion === elegida)?.nombre ?? s?.nombre ?? "eso"}»…`, "Simulando tus 100 mundos…", "Ya casi…"];
   // lo que ya pasó este año sin que lo eligieras (una recesión, un ascenso): no es un año "sin sobresaltos"
   const eventos = (vista.anio_en_curso?.eventos ?? []).filter((e) => !e.rutina);
 
@@ -89,10 +100,11 @@ export function AnioTranquilo({ vista, cargando, error, onElegir, onSalir, sinNo
 
       {error && <Text size="sm">{error}</Text>}
       <ScreenFooter>
+        {esperando && <Cargando frases={frases} cada={3000} />}
         <Button onClick={() => elegir("seguir")} disabled={cargando}>
-          Seguir igual este año
+          {esperando && elegida === "seguir" ? (ultimo ? "Cerrando tu último año…" : `Pasando al año ${anio + 1}…`) : "Seguir igual este año"}
         </Button>
-        {!verTodo && otras.length > 0 && (
+        {!verTodo && otras.length > 0 && !esperando && (
           <button type="button" className="ob-link" onClick={() => setVerTodo(true)}>
             Ver más cosas que podrías hacer
           </button>

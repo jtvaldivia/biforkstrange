@@ -41,10 +41,13 @@ def _sin(perfil: Perfil, campo: str, neutro) -> Perfil:
 
 
 @lru_cache(maxsize=256)
-def _comparar(perfil: Perfil, duda: str, semilla: int, n: int) -> dict | None:
-    """La comparación de la duda al empezar la partida; None si con este perfil la duda no queda pendiente."""
+def _comparar(perfil: Perfil, duda: str, semilla: int, n: int, anios: int = partida.ANIOS) -> dict | None:
+    """La comparación de la duda al empezar la partida; None si con este perfil la duda no queda pendiente.
+
+    Con la semilla y los años de la partida, es la misma comparación que su primera carta (y queda en el
+    caché de `partida.comparar_pendiente`: la carta sale al tiro)."""
     try:
-        p = partida.jugar(perfil, semilla, [], duda)
+        p = partida.jugar(perfil, semilla, [], duda, anios)
     except ValueError:
         return None
     if p.pendiente is None or p.pendiente.decision["id"] != duda:
@@ -62,13 +65,13 @@ def _por_opcion(c: dict) -> dict[str, dict]:
 
 
 @lru_cache(maxsize=64)
-def peso_cv(perfil: Perfil, duda: str, semilla: int = 0, n: int = gemelos.N_GEMELOS) -> dict:
+def peso_cv(perfil: Perfil, duda: str, semilla: int = 0, n: int = gemelos.N_GEMELOS, anios: int = partida.ANIOS) -> dict:
     """Para cada dato del CV distinto del neutro: la duda con ese dato y sin él, con los mismos dados.
 
     `gana` es la fracción de mundos donde esa opción termina ganando más; `sueldo`, el sueldo típico (p50).
     `mueve` dice qué cambia más: en cuántos mundos gana la opción clave o su sueldo típico.
     """
-    con = _comparar(perfil, duda, semilla, n)
+    con = _comparar(perfil, duda, semilla, n, anios)
     if con is None:
         raise ValueError(f"la decisión {duda!r} no queda pendiente al empezar con este perfil")
     con_op = _por_opcion(con)
@@ -77,7 +80,7 @@ def peso_cv(perfil: Perfil, duda: str, semilla: int = 0, n: int = gemelos.N_GEME
         neutro = _neutro(campo, perfil)
         if neutro is None:
             continue
-        sin = _comparar(_sin(perfil, campo, neutro), duda, semilla, n)
+        sin = _comparar(_sin(perfil, campo, neutro), duda, semilla, n, anios)
         if sin is None:  # sin ese dato la duda ni aparece: no se puede comparar mundo a mundo
             continue
         sin_op = _por_opcion(sin)
@@ -107,7 +110,8 @@ def peso_cv(perfil: Perfil, duda: str, semilla: int = 0, n: int = gemelos.N_GEME
 
 
 @lru_cache(maxsize=64)
-def en_juego(perfil: Perfil, dudas: tuple[str, ...], semilla: int = 0, n: int = gemelos.N_GEMELOS) -> dict:
+def en_juego(perfil: Perfil, dudas: tuple[str, ...], semilla: int = 0, n: int = gemelos.N_GEMELOS,
+             anios: int = partida.ANIOS) -> dict:
     """De varias dudas, cuánto se juega la persona en cada una y cuál es la que más.
 
     `mala` es el peor sueldo de mala suerte (p10) entre todas las opciones y `buena` el mejor de buena suerte
@@ -117,7 +121,7 @@ def en_juego(perfil: Perfil, dudas: tuple[str, ...], semilla: int = 0, n: int = 
     """
     salida = []
     for duda in dict.fromkeys(dudas):
-        c = _comparar(perfil, duda, semilla, n)
+        c = _comparar(perfil, duda, semilla, n, anios)
         if c is None:
             continue
         ops = c["opciones"]

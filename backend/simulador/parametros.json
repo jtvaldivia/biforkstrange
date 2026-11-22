@@ -803,6 +803,399 @@
     1.5,
     3
    ]
+  },
+  {
+   "id": "K_OFERTA_CESANTE",
+   "valor": 1.8,
+   "unidad": "ofertas por mes esperado de búsqueda",
+   "descripcion": "Ofertas al mes = K / MESES_CESANTIA. Calibrado para que, con la regla del gemelo, la búsqueda dure en promedio MESES_CESANTIA (9,4 contra 9,1 en una prueba de 4.000 cesantías).",
+   "fuente": "eps_2024",
+   "calidad": "mixto",
+   "rango": [
+    1.5,
+    2.2
+   ]
+  },
+  {
+   "id": "GEMELO_UMBRAL_OFERTA",
+   "valor": 0.9,
+   "unidad": "fracción de sueldo_ref",
+   "descripcion": "El gemelo acepta una oferta si paga al menos esta fracción de su sueldo de referencia.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": [
+    0.8,
+    1.0
+   ]
+  },
+  {
+   "id": "GEMELO_MES_ACEPTA_TODO",
+   "valor": 7,
+   "unidad": "meses",
+   "descripcion": "Desde este mes de búsqueda el gemelo acepta cualquier oferta.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": [
+    4,
+    12
+   ]
+  },
+  {
+   "id": "COSTO_VOLVER_A_ESTUDIAR",
+   "valor": 7185000,
+   "unidad": "CLP",
+   "descripcion": "Lo que cuesta sacar un título técnico estudiando de noche: arancel anual mediano de un CFT ($2.395.000) por su duración real mediana (6 semestres, 3 años). Quien lo deja en segundo año paga la mitad.",
+   "fuente": "mineduc_mifuturo",
+   "calidad": "mixto",
+   "rango": [
+    4800000,
+    9600000
+   ]
+  },
+  {
+   "id": "COSTO_INTERCAMBIO",
+   "valor": 6000000,
+   "unidad": "CLP",
+   "descripcion": "Lo que cuesta vivir un semestre afuera (pasajes, arriendo y gastos), además del arancel que ya pagas en Chile.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": [
+    3000000,
+    10000000
+   ]
+  },
+  {
+   "id": "P_RITMO_IA",
+   "valor": {
+    "lento": 0.42,
+    "medio": 0.45,
+    "rapido": 0.13
+   },
+   "unidad": "probabilidad",
+   "descripcion": "Qué tan rápido avanza la IA en un mundo, al 2030. Promedio redondeado de lo que dieron economistas (38,6 / 47,4 / 14,0%) y superforecasters (45,0 / 42,4 / 12,6%) a tres escenarios de capacidad: lento (la IA es un asistente capaz), moderado (colabora en todo y automatiza casi todo el software freelance de 5 días) y rápido (supera al humano en la mayoría de las tareas cognitivas y físicas). Es pronóstico de expertos, no una frecuencia como la de la recesión.",
+   "fuente": "fri_2026",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "IA_INTENSIDAD",
+   "valor": {
+    "lento": 1,
+    "medio": 1.5,
+    "rapido": 2
+   },
+   "unidad": "multiplicador",
+   "descripcion": "Cuánto más rápido se abre la brecha de contratación juvenil con cada ritmo. El lento sigue la tendencia observada (IA_CONTRATACION_ANUAL). Los economistas del FRI ven el desempleo juvenil en 9%, 10% y 11% al 2030 según el escenario: traducir esos +1 y +2 puntos a 1,5 y 2 veces la tendencia es supuesto del equipo.",
+   "fuente": "fri_2026",
+   "calidad": "supuesto",
+   "rango": [
+    1,
+    3
+   ]
+  },
+  {
+   "id": "IA_CONTRATACION_ANUAL",
+   "valor": 0.05,
+   "unidad": "fracción por año",
+   "descripcion": "Cuánto se agranda cada año la brecha de empleo de los jóvenes en ocupaciones donde la IA automatiza. Canaries: la brecha de 22 a 25 años pasó de 15% (julio 2025) a 19% (junio 2026), unos 19 puntos en 3,6 años desde fines de 2022, cerca de 5 al año. Hosseini y Lichtinger (2026): las empresas que adoptan IA contratan 22% menos juniors en dos años.",
+   "fuente": "canaries_2026",
+   "calidad": "mixto",
+   "rango": [
+    0.04,
+    0.08
+   ]
+  },
+  {
+   "id": "IA_EDAD_JOVEN",
+   "valor": 30,
+   "unidad": "años",
+   "descripcion": "Hasta qué edad cuenta el golpe de la IA a la contratación. El Banco Central lo encuentra mayor en menores de 30 (27% menos permanencia en el empleo formal, contra 21% del total); Canaries lo mide en 22 a 25.",
+   "fuente": "bcch_ipom_2026",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "IA_PESO_TIPO",
+   "valor": {
+    "automatiza": 1,
+    "incognita": 0.5,
+    "aumenta": 0,
+    "no_afectado": 0
+   },
+   "unidad": "fracción",
+   "descripcion": "Cuánto del golpe de la IA recibe cada tipo de ocupación (OIT). Canaries: la caída del empleo joven se concentra donde la IA automatiza; donde complementa, el empleo está plano o sube. Que la incógnita reciba la mitad es supuesto del equipo.",
+   "fuente": "canaries_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_PISO_ENCONTRAR",
+   "valor": 0.5,
+   "unidad": "multiplicador",
+   "descripcion": "Lo más que la IA puede bajar la probabilidad de encontrar pega en 10 años. Los economistas del FRI ven efectos chicos aun en el escenario rápido (desempleo de 6% contra 5%); el piso evita que el juego pinte un colapso que su propia fuente no ve. Supuesto del equipo.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_DESPIDO_EXTRA",
+   "valor": {
+    "lento": 0,
+    "medio": 0,
+    "rapido": 1.6
+   },
+   "unidad": "veces P_SEPARACION",
+   "descripcion": "Despidos por reestructuración con IA, sobre la tasa de separación normal. Los economistas del FRI ven el desempleo de 2030 en 5,0% con IA lenta y moderada, y en 6,0% con IA rápida. Con la misma tasa de encontrar pega, pasar de 5% a 6% sube las separaciones cerca de 21%; repartido en el empleo que la IA automatiza (3% en Chile, peso 1) o donde es incógnita (20%, peso 0,5), unos 13% efectivos, da 1,6 veces la tasa base para ellos. La derivación es del equipo.",
+   "fuente": "fri_2026",
+   "calidad": "supuesto",
+   "rango": [
+    0.8,
+    2.4
+   ]
+  },
+  {
+   "id": "IA_RAMPA_ANIOS",
+   "valor": 4,
+   "unidad": "años",
+   "descripcion": "Años hasta que el efecto de la IA llega a su tamaño: los escenarios del FRI son al 2030, cuatro años después del inicio del juego. Sube en línea recta y después se queda ahí, porque más allá nadie lo mide.",
+   "fuente": "fri_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_ADOPCION_ANUAL",
+   "valor": {
+    "lento": 0.06,
+    "medio": 0.1,
+    "rapido": 0.16
+   },
+   "unidad": "probabilidad anual",
+   "descripcion": "Que tu empleador adopte IA en serio este año. En EE.UU., 22% de las empresas usa IA (Census, agosto 2026) y en servicios de Nueva York 61% (40% un año antes, NY Fed). En Chile, una encuesta privada (AWS) da 45%, pero solo 3,6% escaló pilotos con impacto medible. El valor por ritmo es supuesto del equipo.",
+   "fuente": "census_btos_2026",
+   "calidad": "supuesto",
+   "rango": [
+    0.03,
+    0.25
+   ]
+  },
+  {
+   "id": "IA_PRIMA_SKILL",
+   "valor": 0.21,
+   "unidad": "fracción",
+   "descripcion": "Prima de sueldo al cambiarte de pega para quien construyó la habilidad de trabajar con IA (un programa largo o liderar con éxito la adopción en su equipo); se cobra una vez. Un curso corto no la da: en Chile los cursos cortos no mueven el sueldo. Stephany y Teutloff (2024): +21% en freelancers, contra 8% de una habilidad promedio; es la estimación más conservadora. Lightcast (2025) da +28% en avisos de EE.UU.; PwC (2026) 56 a 62%, pero compara avisos sin controlar y la exagera. El FMI (2024) mide +6% para quien pasa a un empleo que la IA complementa.",
+   "fuente": "stephany_teutloff_2024",
+   "calidad": "mixto",
+   "rango": [
+    0.08,
+    0.28
+   ]
+  },
+  {
+   "id": "IA_PRIMA_PUBLICO",
+   "valor": 0.29,
+   "unidad": "fracción de IA_PRIMA_SKILL",
+   "descripcion": "En el Estado la prima por IA es menor: PwC (2026) la mide en 16% en gobierno contra 56% en promedio (16/56 = 0,29).",
+   "fuente": "pwc_2026",
+   "calidad": "mixto",
+   "rango": null
+  },
+  {
+   "id": "IA_OFERTAS_AUMENTA",
+   "valor": {
+    "lento": 0,
+    "medio": 0.05,
+    "rapido": 0.1
+   },
+   "unidad": "fracción",
+   "descripcion": "Ofertas extra para quien trabaja en algo que la IA complementa. Canaries: el empleo de los tres quintiles menos expuestos subió 10%, y donde la IA complementa el empleo está plano o sube. El valor por ritmo es supuesto del equipo.",
+   "fuente": "canaries_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_ADAPT_MESES_EDAD",
+   "valor": {
+    "15-24": 3.6,
+    "25-34": 6.1,
+    "35-49": 8.0,
+    "50+": 11.3
+   },
+   "unidad": "meses",
+   "descripcion": "Meses que dura en promedio el desempleo en Chile, por edad (marzo 2026). Mide el componente de edad de la adaptabilidad.",
+   "fuente": "ocec_udp_2026",
+   "calidad": "dato",
+   "rango": null
+  },
+  {
+   "id": "IA_ADAPT_EDU",
+   "valor": {
+    "media": 0,
+    "tecnica": 0.5,
+    "universitaria": 1,
+    "postgrado": 1
+   },
+   "unidad": "puntaje 0-1",
+   "descripcion": "Componente de educación de la adaptabilidad. El FMI (2024) encuentra que los universitarios desplazados pasan a empleos que la IA complementa y los demás caen a empleos menos expuestos y peor pagados. La escala es del equipo.",
+   "fuente": "fmi_genai_2024",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_ADAPT_REGION",
+   "valor": 0.5,
+   "unidad": "puntaje 0-1",
+   "descripcion": "Componente de densidad del mercado laboral: Santiago 1, regiones 0,5. Manning y Aguirre (2026) usan la densidad del empleo local; el valor es del equipo.",
+   "fuente": "manning_aguirre_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_ADAPT_MESES_COLCHON",
+   "valor": 6,
+   "unidad": "meses de sueldo",
+   "descripcion": "Ahorro que cuenta como colchón completo en la adaptabilidad (Manning y Aguirre usan la riqueza líquida). Seis meses son cerca de lo que dura el desempleo en promedio en Chile (7,2 meses).",
+   "fuente": "manning_aguirre_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_ADAPT_PESOS",
+   "valor": {
+    "edad": 1,
+    "edu": 1,
+    "region": 1,
+    "colchon": 1,
+    "usa_ia": 1
+   },
+   "unidad": "peso",
+   "descripcion": "Pesos de los componentes de la adaptabilidad. No se pudieron leer los de Manning y Aguirre: promedio simple.",
+   "fuente": "manning_aguirre_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_ADAPT_EFECTO",
+   "valor": 0.5,
+   "unidad": "fracción",
+   "descripcion": "Cuánto cambia la adaptabilidad la chance de reemplearse el mismo año tras una reestructuración por IA: multiplica por 1 + 0,5 × (2 × adaptabilidad − 1), de 0,5 a 1,5. Supuesto del equipo.",
+   "fuente": "manning_aguirre_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_APRENDE_PROB",
+   "valor": 0.8,
+   "unidad": "probabilidad",
+   "descripcion": "Que alguien que decide aprender a usar IA de verdad la integre a su trabajo. Supuesto del equipo.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_CURSO_CORTO_USA",
+   "valor": 0.6,
+   "unidad": "probabilidad",
+   "descripcion": "Que un curso corto deje a la persona usando IA en su trabajo. Supuesto del equipo. En sueldo y empleo, los cursos cortos de la franquicia SENCE no tienen efecto (Comisión Revisora 2011).",
+   "fuente": "sence_comision_2011",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_PROGRAMA_TERMINA",
+   "valor": 0.7,
+   "unidad": "probabilidad",
+   "descripcion": "Que alguien termine un programa largo (más de 140 horas). Supuesto del equipo. Solo los cursos de más de 140 horas mueven el sueldo en Chile (Comisión Revisora 2011), y la capacitación paga recién a los 2 o 3 años (Card, Kluve y Weber 2018).",
+   "fuente": "sence_comision_2011",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_LIDERAR_EXITO",
+   "valor": 0.5,
+   "unidad": "probabilidad",
+   "descripcion": "Que liderar la adopción de IA en tu equipo resulte. Supuesto del equipo: en Chile solo 3,6% de las empresas escaló pilotos con impacto medible (MAS Analytics, encuesta privada).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "IA_LIDERAR_ASCENSO",
+   "valor": 0.03,
+   "unidad": "puntos de probabilidad",
+   "descripcion": "Ascenso extra por año para quien lideró con éxito la adopción de IA en su equipo. Supuesto del equipo.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_BURBUJA_IA",
+   "valor": 0.07,
+   "unidad": "probabilidad anual",
+   "descripcion": "Que se pinche la burbuja de la IA este año. Polymarket le dio 7 a 15% a una caída antes de fines de 2026 casi todo el año (saltó a 35-44% el 20 de noviembre); el Banco Central (IEF, noviembre 2026) advierte que una corrección de las inversiones en IA endurecería el financiamiento en Chile. Mercado volátil y mal definido: supuesto.",
+   "fuente": "polymarket_burbuja_2026",
+   "calidad": "supuesto",
+   "rango": [
+    0.03,
+    0.15
+   ]
+  },
+  {
+   "id": "BURBUJA_CIERRE",
+   "valor": 2.0,
+   "unidad": "multiplicador",
+   "descripcion": "Cierre de startups el año en que se pincha la burbuja de la IA. Supuesto del equipo.",
+   "fuente": "bcch_ief_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "BURBUJA_DESPIDO",
+   "valor": 1.4,
+   "unidad": "multiplicador",
+   "descripcion": "Despidos en startups y en Información y comunicaciones el año de la burbuja: lo mismo que una recesión para todos. Supuesto del equipo.",
+   "fuente": "bcch_ief_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "P_AUGE_COBRE",
+   "valor": {
+    "lento": 0.03,
+    "medio": 0.05,
+    "rapido": 0.08
+   },
+   "unidad": "probabilidad anual",
+   "descripcion": "Que la demanda de cobre de los data centers dispare el precio y la inversión en Chile. S&P: los data centers pasarían de 1,1 a 2,5 millones de toneladas de cobre entre 2025 y 2040; el cobre fue 51,6% de las exportaciones de 2025. Más probable con IA rápida. El valor es supuesto del equipo.",
+   "fuente": "sp_cobre_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "AUGE_COBRE_DESPIDO",
+   "valor": 0.8,
+   "unidad": "multiplicador",
+   "descripcion": "Despidos en Minería y Construcción durante un auge del cobre. Supuesto del equipo.",
+   "fuente": "sp_cobre_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "AUGE_COBRE_OFERTAS",
+   "valor": 1.3,
+   "unidad": "multiplicador",
+   "descripcion": "Ofertas en Minería y Construcción durante un auge del cobre. Supuesto del equipo.",
+   "fuente": "sp_cobre_2026",
+   "calidad": "supuesto",
+   "rango": null
+  },
+  {
+   "id": "AUGE_COBRE_ALZA",
+   "valor": 0.02,
+   "unidad": "tasa",
+   "descripcion": "Alza extra del sueldo en Minería durante un auge del cobre. Supuesto del equipo.",
+   "fuente": "sp_cobre_2026",
+   "calidad": "supuesto",
+   "rango": null
   }
  ]
 }

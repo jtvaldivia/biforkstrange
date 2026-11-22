@@ -198,6 +198,10 @@ def estado_al_azar(R: random.Random) -> dict:
         "financia": R.choice(["", "cae", "gratuidad", "familia"]), "ingles": R.randint(0, 1),
         "isapre": R.randint(0, 1), "marcado": R.randint(0, 1), "validado": R.randint(0, 1),
         "primer_grande": R.randint(0, 1), "bootcamp": R.randint(0, 1), "oferta_al_titularse": R.randint(0, 1),
+        # la oferta del mes estando cesante (0 / '' si no hay oferta pendiente) y si sigue buscando desde lo informal
+        "oferta_sueldo": R.choice([0, round(R.lognormvariate(math.log(900000), 0.5))]),
+        "oferta_tipo_empleador": R.choice(["", "grande", "pyme", "startup", "publico"]),
+        "busca_mientras_informal": R.randint(0, 1),
         "ocupacion": R.randint(0, 9), "edad_decide_estudios": R.choice([18, 19]), "cierra_en": R.choice([0, 0, 1, 3]),
         "rubro_destino": R.choice(RUBROS), "rubro_emprendimiento": R.choice(RUBROS), "region_destino": R.choice(REGIONES), "ocupacion_destino": R.randint(0, 9),
         "universidad_destino": R.choice([f["universidad_id"] for f in p.filas("universidades")
@@ -206,7 +210,10 @@ def estado_al_azar(R: random.Random) -> dict:
         "institucion_destino": R.choice([f["universidad_id"] for f in p.filas("universidades") if f["tipo_institucion"] != "EXT"]),
         "empresa_id": R.choice([-1, R.randint(0, len(p.filas("empresas_catalogo")) - 1)]),
         "cargo_id": R.choice([-1, R.randint(0, len(p.filas("cargos_catalogo")) - 1)]),
-        "ia_adopcion": R.random(), "ia_castigo_joven": R.uniform(0.75, 0.9),
+        "ia_adopcion": R.random(), "ia_castigo_joven": R.uniform(0.75, 0.9), "ia_v2": R.randint(0, 1), "ia_ritmo": R.choice(["lento", "medio", "rapido"]),
+         "ia_tipo": R.choice(["automatiza", "aumenta", "incognita", "no_afectado"]), "ia_anios": R.randint(0, 10),
+         "ia_rampa": R.random(), "adaptabilidad": R.random(), "ia_encontrar": R.uniform(0.5, 1), "ia_empresa": R.randint(0, 1),
+         "ia_reconvertido": R.randint(0, 1), "ia_prima_cobrada": R.randint(0, 1), "ia_burbuja": 1 if R.random() < 0.1 else 0, "auge_cobre": 1 if R.random() < 0.1 else 0,
     }
     for v in p.variables.values():
         if v["tipo"] == "modificador":
@@ -250,6 +257,7 @@ def expresiones_del_paquete() -> list[tuple[str, str, object, bool]]:
             de_resultados(f"{d['id']}/fila", desde["resultados"], fila=True)
     for ev in p.eventos.values():
         salida.append(("cuando", f"evento {ev['id']}", ev["cuando"], False))
-        salida.append(("prob_anual", f"evento {ev['id']}", ev["prob_anual"], False))
+        campo = "prob_mensual" if ev.get("paso") == "mes" else "prob_anual"
+        salida.append((campo, f"evento {ev['id']}", ev[campo], False))
         de_resultados(f"evento {ev['id']}", ev["resultados"])
     return salida

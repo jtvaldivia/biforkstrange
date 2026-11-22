@@ -212,6 +212,8 @@ class PesoCvIn(BaseModel):
     duda: str
     semilla: int = 0
     gemelos: int = Field(100, ge=20, le=300)
+    # la misma edad final de la partida: así "con" es la misma comparación que su primera carta
+    edad_final: int | None = Field(None, ge=19, le=60)
 
 
 class EnJuegoIn(BaseModel):
@@ -219,5 +221,7 @@ class EnJuegoIn(BaseModel):
 
     perfil: PerfilIn = PerfilIn()
     dudas: list[str] = Field(min_length=1, max_length=5)
+    # con la semilla y la edad final que usará la partida, la duda elegida ya queda calculada para su primera carta
     semilla: int = 0
     gemelos: int = Field(100, ge=20, le=300)
+    edad_final: int | None = Field(None, ge=19, le=60)

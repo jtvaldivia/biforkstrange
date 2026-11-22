@@ -1,0 +1,428 @@
+ciuo08_4d,titulo,mu_2025,sd_2025,potencial23,potencial25,tipo_ia
+1111,Legislators,0.3100,0.0400,Not affected,Not Exposed,no_afectado
+1112,Senior Government Officials,0.3800,0.0800,Not affected,Minimal Exposure,no_afectado
+1113,Traditional Chiefs and Heads of Villages,0.2300,0.1000,Augmentation Potential,Not Exposed,aumenta
+1114,Senior Officials of Special-interest Organizations,0.3700,0.0600,Not affected,Minimal Exposure,no_afectado
+1120,Managing Directors and Chief Executives,0.3800,0.0600,Not affected,Minimal Exposure,no_afectado
+1211,Finance Managers,0.3700,0.0400,Not affected,Minimal Exposure,no_afectado
+1212,Human Resource Managers,0.3600,0.0500,Not affected,Minimal Exposure,no_afectado
+1213,Policy and Planning Managers,0.3600,0.0400,Not affected,Not Exposed,no_afectado
+1219,Business Services and Administration Managers Not Elsewhere Classified,0.4200,0.1000,Not affected,Exposed: Gradient 2,incognita
+1221,Sales and Marketing Managers,0.4100,0.0900,Not affected,Exposed: Gradient 2,incognita
+1222,Advertising and Public Relations Managers,0.3900,0.0500,Not affected,Minimal Exposure,no_afectado
+1223,Research and Development Managers,0.4000,0.0600,Not affected,Minimal Exposure,no_afectado
+1311,Agricultural and Forestry Production Managers,0.2700,0.1300,Not affected,Minimal Exposure,no_afectado
+1312,Aquaculture and Fisheries Production Managers,0.2200,0.0800,Not affected,Not Exposed,no_afectado
+1321,Manufacturing Managers,0.3800,0.1100,Not affected,Minimal Exposure,no_afectado
+1322,Mining Managers,0.3500,0.1100,Augmentation Potential,Minimal Exposure,aumenta
+1323,Construction Managers,0.3400,0.0600,The Big Uknown,Minimal Exposure,incognita
+1324,"Supply, Distribution and Related Managers",0.3800,0.0500,Augmentation Potential,Minimal Exposure,aumenta
+1330,Information and Communications Technology Service Managers,0.4400,0.0700,Not affected,Exposed: Gradient 2,incognita
+1341,Child Care Service Managers,0.3000,0.1500,Not affected,Minimal Exposure,no_afectado
+1342,Health Service Managers,0.3600,0.0500,Not affected,Minimal Exposure,no_afectado
+1343,Aged Care Service Managers,0.3400,0.0900,Not affected,Minimal Exposure,no_afectado
+1344,Social Welfare Managers,0.3700,0.0700,Not affected,Minimal Exposure,no_afectado
+1345,Education Managers,0.3600,0.1000,Not affected,Minimal Exposure,no_afectado
+1346,Financial and Insurance Services Branch managers,0.4700,0.1200,The Big Uknown,Exposed: Gradient 2,incognita
+1349,Professional Services Managers Not Elsewhere Classified,0.3800,0.0700,Not affected,Minimal Exposure,no_afectado
+1411,Hotel Managers,0.3700,0.1300,The Big Uknown,Exposed: Gradient 1,incognita
+1412,Restaurant Managers,0.3600,0.1200,The Big Uknown,Minimal Exposure,incognita
+1420,Retail and Wholesale Trade Managers,0.4400,0.1500,The Big Uknown,Exposed: Gradient 2,incognita
+1431,"Sports, Recreation and Cultural Centre Managers",0.3200,0.1000,Not affected,Minimal Exposure,no_afectado
+2111,Physicists and Astronomers,0.3800,0.1400,Augmentation Potential,Exposed: Gradient 1,aumenta
+2112,Meteorologists,0.5400,0.1300,The Big Uknown,Exposed: Gradient 3,incognita
+2113,Chemists,0.3900,0.1000,Not affected,Minimal Exposure,no_afectado
+2114,Geologists and geophysicists,0.3600,0.1000,Not affected,Minimal Exposure,no_afectado
+2120,"Mathematicians, Actuaries and Statisticians",0.5600,0.0900,The Big Uknown,Exposed: Gradient 3,incognita
+2131,"Biologists, Botanists, Zoologists and Related Professionals",0.4000,0.1000,Augmentation Potential,Exposed: Gradient 2,aumenta
+2132,"Farming, Forestry and Fisheries Advisers",0.2900,0.1000,Not affected,Not Exposed,no_afectado
+2133,Environmental Protection Professionals,0.3800,0.0400,Not affected,Minimal Exposure,no_afectado
+2141,Industrial and Production Engineers,0.3700,0.0700,Not affected,Minimal Exposure,no_afectado
+2142,Civil Engineers,0.3000,0.0600,Not affected,Not Exposed,no_afectado
+2143,Environmental Engineers,0.3800,0.0700,Not affected,Minimal Exposure,no_afectado
+2144,Mechanical Engineers,0.3200,0.0700,Not affected,Not Exposed,no_afectado
+2145,Chemical Engineers,0.3500,0.1200,Not affected,Minimal Exposure,no_afectado
+2146,"Mining Engineers, Metallurgists and Related Professionals",0.2900,0.0500,Not affected,Not Exposed,no_afectado
+2149,Engineering Professionals Not Elsewhere Classified,0.3000,0.0800,Not affected,Not Exposed,no_afectado
+2151,Electrical Engineers,0.3100,0.0800,Not affected,Not Exposed,no_afectado
+2152,Electronics Engineers,0.4200,0.1300,Not affected,Exposed: Gradient 2,incognita
+2153,Telecommunications Engineers,0.4800,0.1200,Not affected,Exposed: Gradient 2,incognita
+2161,Building Architects,0.3700,0.0800,Augmentation Potential,Minimal Exposure,aumenta
+2162,Landscape Architects,0.3700,0.0800,Augmentation Potential,Minimal Exposure,aumenta
+2163,Product and Garment Designers,0.3500,0.0900,Augmentation Potential,Minimal Exposure,aumenta
+2164,Town and Traffic Planners,0.4100,0.0600,The Big Uknown,Minimal Exposure,incognita
+2165,Cartographers and Surveyors,0.4400,0.1200,Augmentation Potential,Exposed: Gradient 2,aumenta
+2166,Graphic and Multimedia Designers,0.4900,0.0900,The Big Uknown,Exposed: Gradient 2,incognita
+2211,Generalist Medical Practitioners,0.2900,0.1000,Not affected,Not Exposed,no_afectado
+2212,Specialist Medical Practitioners,0.2700,0.1200,Augmentation Potential,Not Exposed,aumenta
+2221,Nursing Professionals,0.2500,0.1300,Not affected,Not Exposed,no_afectado
+2222,Midwifery Professionals,0.3000,0.1500,Not affected,Minimal Exposure,no_afectado
+2230,Traditional and Complementary Medicine Professionals,0.3200,0.1100,Augmentation Potential,Minimal Exposure,aumenta
+2240,Paramedical Practitioners,0.2300,0.1300,Not affected,Not Exposed,no_afectado
+2250,Veterinarians,0.1400,0.0500,Not affected,Not Exposed,no_afectado
+2261,Dentists,0.1500,0.0600,Not affected,Not Exposed,no_afectado
+2262,Pharmacists,0.3300,0.0900,Augmentation Potential,Minimal Exposure,aumenta
+2263,Environmental and Occupational Health and Hygiene Professionals,0.2800,0.0500,Not affected,Not Exposed,no_afectado
+2264,Physiotherapists,0.2800,0.1400,Not affected,Minimal Exposure,no_afectado
+2265,Dieticians and Nutritionists,0.4100,0.0700,Augmentation Potential,Minimal Exposure,aumenta
+2266,Audiologists and Speech Therapists,0.2400,0.0400,Not affected,Not Exposed,no_afectado
+2267,Optometrists and Ophthalmic Opticians,0.2400,0.0700,Not affected,Not Exposed,no_afectado
+2269,Health Professionals Not Elsewhere Classified,0.2000,0.0800,Not affected,Not Exposed,no_afectado
+2310,University and Higher Education Teachers,0.3700,0.1200,Not affected,Minimal Exposure,no_afectado
+2320,Vocational Education Teachers,0.3500,0.1200,Augmentation Potential,Minimal Exposure,aumenta
+2330,Secondary Education Teachers,0.3000,0.0700,Augmentation Potential,Not Exposed,aumenta
+2341,Primary School Teachers,0.2600,0.0900,Augmentation Potential,Not Exposed,aumenta
+2342,Early Childhood Educators,0.2100,0.0500,Not affected,Not Exposed,no_afectado
+2351,Education Methods Specialists,0.3900,0.1100,Augmentation Potential,Exposed: Gradient 1,aumenta
+2352,Special Needs Teachers,0.2800,0.1000,Not affected,Not Exposed,no_afectado
+2353,Other Language Teachers,0.3400,0.1100,The Big Uknown,Minimal Exposure,incognita
+2354,Other Music Teachers,0.3500,0.0900,Not affected,Minimal Exposure,no_afectado
+2355,Other Arts Teachers,0.3500,0.1000,The Big Uknown,Minimal Exposure,incognita
+2356,Information Technology Trainers,0.4700,0.1000,The Big Uknown,Exposed: Gradient 2,incognita
+2359,Teaching Professionals Not Elsewhere Classified,0.3300,0.1000,The Big Uknown,Minimal Exposure,incognita
+2411,Accountants,0.5100,0.0800,The Big Uknown,Exposed: Gradient 3,incognita
+2412,Financial and Investment Advisers,0.5700,0.1100,The Big Uknown,Exposed: Gradient 3,incognita
+2413,Financial Analysts,0.6200,0.0600,The Big Uknown,Exposed: Gradient 4,incognita
+2421,Management and Organization Analysts,0.4600,0.1000,The Big Uknown,Exposed: Gradient 2,incognita
+2422,Policy Administration Professionals,0.4200,0.0600,The Big Uknown,Minimal Exposure,incognita
+2423,Personnel and Careers Professionals,0.4500,0.0700,The Big Uknown,Exposed: Gradient 2,incognita
+2424,Training and Staff Development Professionals,0.4100,0.0900,The Big Uknown,Exposed: Gradient 2,incognita
+2431,Advertising and Marketing Professionals,0.5500,0.0900,The Big Uknown,Exposed: Gradient 3,incognita
+2432,Public Relations Professionals,0.4300,0.0900,Not affected,Exposed: Gradient 2,incognita
+2433,Technical and Medical Sales Professionals (excluding ICT),0.5000,0.1000,The Big Uknown,Exposed: Gradient 3,incognita
+2434,Information and Communications Technology Sales Professionals,0.5100,0.0900,The Big Uknown,Exposed: Gradient 3,incognita
+2511,Systems Analysts,0.4900,0.0500,Not affected,Exposed: Gradient 2,incognita
+2512,Software Developers,0.5300,0.0700,Not affected,Exposed: Gradient 3,incognita
+2513,Web and Multimedia Developers,0.6000,0.0800,Not affected,Exposed: Gradient 4,incognita
+2514,Applications Programmers,0.5700,0.0800,Automation Potential,Exposed: Gradient 3,automatiza
+2519,Software and Applications Developers and Analysts Not Elsewhere Classified,0.5500,0.1600,Augmentation Potential,Exposed: Gradient 3,aumenta
+2521,Database Designers and Administrators,0.5700,0.0800,Not affected,Exposed: Gradient 3,incognita
+2522,Systems Aministrators,0.5700,0.0500,The Big Uknown,Exposed: Gradient 3,incognita
+2523,Computer Network Professionals,0.5200,0.0600,Augmentation Potential,Exposed: Gradient 3,aumenta
+2529,Database and Network Professionals Not Elsewhere Classified,0.4900,0.0600,The Big Uknown,Exposed: Gradient 2,incognita
+2611,Lawyers,0.3600,0.0900,Not affected,Minimal Exposure,no_afectado
+2612,Judges,0.3100,0.0800,Not affected,Not Exposed,no_afectado
+2619,Legal Professionals Not Elsewhere Classified,0.3700,0.0900,Not affected,Minimal Exposure,no_afectado
+2621,Archivists and Curators,0.4700,0.1100,The Big Uknown,Exposed: Gradient 2,incognita
+2622,Librarians and Related Information Professionals,0.5500,0.0400,Automation Potential,Exposed: Gradient 3,automatiza
+2631,Economists,0.5500,0.0800,The Big Uknown,Exposed: Gradient 3,incognita
+2632,"Sociologists, Anthropologists and Related Professionals",0.4800,0.1200,The Big Uknown,Exposed: Gradient 2,incognita
+2633,"Philosophers, Historians and Political Scientists",0.4700,0.0600,The Big Uknown,Exposed: Gradient 2,incognita
+2634,Psychologists,0.3900,0.1400,The Big Uknown,Exposed: Gradient 1,incognita
+2635,Social Work and Counselling Professionals,0.2800,0.1000,Not affected,Not Exposed,no_afectado
+2636,Religious Professionals,0.1700,0.1200,Not affected,Not Exposed,no_afectado
+2641,Authors and Related Writers,0.5500,0.0900,Automation Potential,Exposed: Gradient 3,automatiza
+2642,Journalists,0.5400,0.1000,The Big Uknown,Exposed: Gradient 3,incognita
+2643,"Translators, Interpreters and Other Linguists",0.5900,0.1100,The Big Uknown,Exposed: Gradient 3,incognita
+2651,Visual Artists,0.2100,0.0400,Not affected,Not Exposed,no_afectado
+2652,"Musicians, Singers and Composers",0.2800,0.0900,Augmentation Potential,Not Exposed,aumenta
+2653,Dancers and Choreographers,0.1900,0.1000,Not affected,Not Exposed,no_afectado
+2654,"Film, Stage and Related Directors and Producers",0.3700,0.0700,Not affected,Minimal Exposure,no_afectado
+2655,Actors,0.3100,0.1500,Augmentation Potential,Minimal Exposure,aumenta
+2656,"Announcers on Radio, Television and Other Media",0.4700,0.1200,The Big Uknown,Exposed: Gradient 2,incognita
+2659,Creative and Performing Artists Not Elsewhere Classified,0.1300,0.0600,Not affected,Not Exposed,no_afectado
+3111,Chemical and Physical Science Technicians,0.2600,0.0900,Not affected,Not Exposed,no_afectado
+3112,Civil Engineering Technicians,0.2800,0.0700,Not affected,Not Exposed,no_afectado
+3113,Electrical Engineering Technicians,0.2700,0.0500,Not affected,Not Exposed,no_afectado
+3114,Electronics Engineering Technicians,0.3800,0.1100,Not affected,Minimal Exposure,no_afectado
+3115,Mechanical Engineering Technicians,0.2600,0.0800,Not affected,Not Exposed,no_afectado
+3116,Chemical Engineering Technicians,0.3200,0.0200,Augmentation Potential,Not Exposed,aumenta
+3117,Mining and metallurgical technicians,0.2800,0.0600,Not affected,Not Exposed,no_afectado
+3118,Draughtspersons,0.3500,0.1100,The Big Uknown,Minimal Exposure,incognita
+3119,Physical and Engineering Science Technicians Not Elsewhere Classified,0.2600,0.0500,The Big Uknown,Not Exposed,incognita
+3121,Mining Supervisors,0.2900,0.0800,Not affected,Not Exposed,no_afectado
+3122,Manufacturing Supervisors,0.3500,0.1300,Augmentation Potential,Minimal Exposure,aumenta
+3123,Construction Supervisors,0.2800,0.0600,Not affected,Not Exposed,no_afectado
+3131,Power Production Plant Operators,0.2800,0.1100,Augmentation Potential,Not Exposed,aumenta
+3132,Incinerator and Water Treatment Plant Operators,0.2700,0.0900,Not affected,Not Exposed,no_afectado
+3133,Chemical Processing Plant Controllers,0.2900,0.1000,Augmentation Potential,Not Exposed,aumenta
+3134,Petroleum and Natural Gas Refining Plant Operators,0.2900,0.1100,Not affected,Not Exposed,no_afectado
+3135,Metal Production Process Controllers,0.3100,0.1300,The Big Uknown,Minimal Exposure,incognita
+3141,Life Science Technicians (excluding Medical),0.3800,0.1800,Augmentation Potential,Exposed: Gradient 1,aumenta
+3142,Agricultural Technicians,0.2600,0.0900,Not affected,Not Exposed,no_afectado
+3143,Forestry Technicians,0.2100,0.0700,Not affected,Not Exposed,no_afectado
+3151,Ships' Engineers,0.2300,0.0500,Not affected,Not Exposed,no_afectado
+3152,Ships' Deck Officers and Pilots,0.2900,0.1100,Augmentation Potential,Not Exposed,aumenta
+3153,Aircraft Pilots and Related Associate Professionals,0.2700,0.0500,Not affected,Not Exposed,no_afectado
+3154,Air Traffic Controllers,0.3100,0.0900,Not affected,Minimal Exposure,no_afectado
+3155,Air Traffic Safety Electronics Technicians,0.3400,0.1000,Not affected,Minimal Exposure,no_afectado
+3211,Medical Imaging and Therapeutic Equipment Technicians,0.2200,0.0300,Not affected,Not Exposed,no_afectado
+3212,Medical and Pathology Laboratory Technicians,0.3100,0.1600,Augmentation Potential,Minimal Exposure,aumenta
+3213,Pharmaceutical Technicians and Assistants,0.3000,0.1200,Augmentation Potential,Minimal Exposure,aumenta
+3214,Medical and Dental Prosthetic Technicians,0.1800,0.0500,Not affected,Not Exposed,no_afectado
+3221,Nursing Associate Professionals,0.2200,0.2100,Not affected,Minimal Exposure,no_afectado
+3222,Midwifery Associate Professionals,0.2000,0.0700,Not affected,Not Exposed,no_afectado
+3230,Traditional and Complementary Medicine Associate Professionals,0.1900,0.1100,Not affected,Not Exposed,no_afectado
+3240,Veterinary Technicians and Assistants,0.1400,0.0200,Not affected,Not Exposed,no_afectado
+3251,Dental Assistants and Therapists,0.1600,0.1000,Not affected,Not Exposed,no_afectado
+3252,Medical Records and Health Information Technicians,0.5200,0.1000,The Big Uknown,Exposed: Gradient 3,incognita
+3253,Community Health Workers,0.2200,0.0800,Augmentation Potential,Not Exposed,aumenta
+3254,Dispensing Opticians,0.2400,0.0700,Not affected,Not Exposed,no_afectado
+3255,Physiotherapy Technicians and Assistants,0.1700,0.0700,Not affected,Not Exposed,no_afectado
+3256,Medical Assistants,0.3500,0.2300,Augmentation Potential,Exposed: Gradient 1,aumenta
+3257,Environmental and Occupational Health Inspectors and Associates,0.2400,0.0400,Not affected,Not Exposed,no_afectado
+3258,Ambulance Workers,0.2200,0.1700,Not affected,Not Exposed,no_afectado
+3259,Health Associate Professionals Not Elsewhere Classified,0.3000,0.1500,Not affected,Minimal Exposure,no_afectado
+3311,Securities and Finance Dealers and Brokers,0.6300,0.0400,Automation Potential,Exposed: Gradient 4,automatiza
+3312,Credit and Loans Officers,0.6000,0.0400,The Big Uknown,Exposed: Gradient 4,incognita
+3313,Accounting Associate Professionals,0.4900,0.1300,The Big Uknown,Exposed: Gradient 2,incognita
+3314,"Statistical, Mathematical and Related Associate Professionals",0.5700,0.1000,The Big Uknown,Exposed: Gradient 3,incognita
+3315,Valuers and Loss Assessors,0.4500,0.1900,Augmentation Potential,Exposed: Gradient 2,aumenta
+3321,Insurance Representatives,0.5300,0.1200,The Big Uknown,Exposed: Gradient 3,incognita
+3322,Commercial Sales Representatives,0.4900,0.0800,The Big Uknown,Exposed: Gradient 2,incognita
+3323,Buyers,0.3900,0.0800,The Big Uknown,Minimal Exposure,incognita
+3324,Trade Brokers,0.4400,0.1000,The Big Uknown,Exposed: Gradient 2,incognita
+3331,Clearing and Forwarding Aents,0.5700,0.0900,The Big Uknown,Exposed: Gradient 3,incognita
+3332,Conference and Event Planners,0.4800,0.1400,The Big Uknown,Exposed: Gradient 2,incognita
+3333,Employment agents and contractors,0.3900,0.0900,The Big Uknown,Minimal Exposure,incognita
+3334,Real Estate Agents and Property Managers,0.3500,0.0900,Augmentation Potential,Minimal Exposure,aumenta
+3339,Business Services Agents Not Elsewhere Classified,0.4400,0.1200,The Big Uknown,Exposed: Gradient 2,incognita
+3341,Office Supervisors,0.4300,0.1100,The Big Uknown,Exposed: Gradient 2,incognita
+3342,Legal Secretaries,0.5500,0.1300,The Big Uknown,Exposed: Gradient 3,incognita
+3343,Administrative and Executive Secretaries,0.5400,0.1400,The Big Uknown,Exposed: Gradient 3,incognita
+3344,Medical Secretaries,0.5300,0.1100,The Big Uknown,Exposed: Gradient 3,incognita
+3351,Customs and Border Inspectors,0.3200,0.1400,Augmentation Potential,Minimal Exposure,aumenta
+3352,Government Tax and Excise Officials,0.4900,0.1200,The Big Uknown,Exposed: Gradient 2,incognita
+3353,Government Social Benefits Officials,0.4500,0.0700,The Big Uknown,Exposed: Gradient 2,incognita
+3354,Government Licensing Officials,0.4300,0.0700,Automation Potential,Exposed: Gradient 2,automatiza
+3355,Police Inspectors and Detectives,0.2300,0.0700,Not affected,Not Exposed,no_afectado
+3359,Government Regulatory AssociatePprofessionals Not Elsewhere Classified,0.3600,0.1000,The Big Uknown,Minimal Exposure,incognita
+3411,Legal and Related Associate Professionals,0.3900,0.1400,Augmentation Potential,Exposed: Gradient 1,aumenta
+3412,Social Work Associate Professionals,0.3300,0.1300,Not affected,Minimal Exposure,no_afectado
+3413,Religious Associate Professionals,0.1200,0.0700,Not affected,Not Exposed,no_afectado
+3421,Athletes and Sports Players,0.2300,0.1100,Not affected,Not Exposed,no_afectado
+3422,"Sports Coaches, Instructors and Officials",0.3700,0.1200,Augmentation Potential,Minimal Exposure,aumenta
+3423,Fitness and Recreation Instructors and Programme Leaders,0.2500,0.0700,Augmentation Potential,Not Exposed,aumenta
+3431,Photographers,0.3900,0.1200,Augmentation Potential,Exposed: Gradient 1,aumenta
+3432,Interior Designers and Decorators,0.3700,0.0800,Augmentation Potential,Minimal Exposure,aumenta
+3433,"Gallery, Museum and Library Technicians",0.3700,0.2000,The Big Uknown,Exposed: Gradient 1,incognita
+3434,Chefs,0.2500,0.0600,Not affected,Not Exposed,no_afectado
+3511,Information and Communications Technology Operations Technicians,0.4300,0.1300,The Big Uknown,Exposed: Gradient 2,incognita
+3512,Information and Communications Technology User Support Technicians,0.4700,0.1900,The Big Uknown,Exposed: Gradient 2,incognita
+3513,Computer Network and Systems Technicians,0.4300,0.0800,The Big Uknown,Exposed: Gradient 2,incognita
+3514,Web Technicians,0.5300,0.1200,The Big Uknown,Exposed: Gradient 3,incognita
+3521,Broadcasting and Audio-visual Technicians,0.3500,0.1100,Augmentation Potential,Minimal Exposure,aumenta
+3522,Telecommunications Engineering Technicians,0.4500,0.0400,Augmentation Potential,Minimal Exposure,aumenta
+4110,General Office Clerks,0.6000,0.1000,The Big Uknown,Exposed: Gradient 4,incognita
+4120,Secretaries (general),0.5800,0.1000,Automation Potential,Exposed: Gradient 3,automatiza
+4131,Typists and Word Processing Operators,0.6500,0.0500,Automation Potential,Exposed: Gradient 4,automatiza
+4132,Data Entry Clerks,0.7000,0.0300,Automation Potential,Exposed: Gradient 4,automatiza
+4211,Bank Tellers and Related Clerks,0.5800,0.0900,Automation Potential,Exposed: Gradient 3,automatiza
+4212,"Bookmakers, Croupiers and Related Gaming Workers",0.4500,0.1900,The Big Uknown,Exposed: Gradient 2,incognita
+4213,Pawnbrokers and Money-lenders,0.4800,0.0600,The Big Uknown,Exposed: Gradient 2,incognita
+4214,Debt Collectors and Related Workers,0.4300,0.0700,The Big Uknown,Exposed: Gradient 2,incognita
+4221,Travel Consultants and Clerks,0.5600,0.0700,Automation Potential,Exposed: Gradient 3,automatiza
+4222,Contact Centre Information Clerks,0.5800,0.0600,Automation Potential,Exposed: Gradient 3,automatiza
+4223,Telephone Switchboard Operators,0.5400,0.1500,The Big Uknown,Exposed: Gradient 3,incognita
+4224,Hotel Receptionists,0.5100,0.0700,Automation Potential,Exposed: Gradient 3,automatiza
+4225,Inquiry Clerks,0.5700,0.0900,Automation Potential,Exposed: Gradient 3,automatiza
+4226,Receptionists (general),0.5700,0.1700,The Big Uknown,Exposed: Gradient 3,incognita
+4227,Survey and Market Research Interviewers,0.5500,0.1600,Automation Potential,Exposed: Gradient 3,automatiza
+4229,Client Information Workers Not Elsewhere Classified,0.4200,0.1300,The Big Uknown,Exposed: Gradient 2,incognita
+4311,Accounting and Bookkeeping Clerks,0.6400,0.0700,Automation Potential,Exposed: Gradient 4,automatiza
+4312,"Statistical, Finance and Insurance Clerks",0.6400,0.0200,Automation Potential,Exposed: Gradient 4,automatiza
+4313,Payroll Clerks,0.6100,0.0800,The Big Uknown,Exposed: Gradient 4,incognita
+4321,Stock Clerks,0.3700,0.0600,Augmentation Potential,Minimal Exposure,aumenta
+4322,Production Clerks,0.4400,0.0600,The Big Uknown,Exposed: Gradient 2,incognita
+4323,Transport Clerks,0.5000,0.1000,The Big Uknown,Exposed: Gradient 3,incognita
+4411,Library Clerks,0.4600,0.1800,The Big Uknown,Exposed: Gradient 2,incognita
+4412,Mail Carriers and Sorting Clerks,0.4100,0.1500,The Big Uknown,Exposed: Gradient 2,incognita
+4413,"Coding, Proofreading and Related Clerks",0.5100,0.2000,The Big Uknown,Exposed: Gradient 3,incognita
+4414,Scribes and Related Workers,0.5800,0.0800,Automation Potential,Exposed: Gradient 3,automatiza
+4415,Filing and Copying Clerks,0.3700,0.1700,The Big Uknown,Exposed: Gradient 1,incognita
+4416,Personnel Clerks,0.6000,0.0900,Automation Potential,Exposed: Gradient 4,automatiza
+4419,Clerical Support Workers Not Elsewhere Classified,0.6300,0.0300,Automation Potential,Exposed: Gradient 4,automatiza
+5111,Travel Attendants and Travel Stewards,0.2200,0.1000,Augmentation Potential,Not Exposed,aumenta
+5112,Transport Conductors,0.2500,0.1700,Augmentation Potential,Minimal Exposure,aumenta
+5113,Travel Guides,0.3200,0.1100,The Big Uknown,Minimal Exposure,incognita
+5120,Cooks,0.1800,0.0600,Not affected,Not Exposed,no_afectado
+5131,Waiters,0.2800,0.1600,Augmentation Potential,Minimal Exposure,aumenta
+5132,Bartenders,0.2600,0.1200,Not affected,Not Exposed,no_afectado
+5141,Hairdressers,0.1700,0.1800,Augmentation Potential,Not Exposed,aumenta
+5142,Beauticians and Related Workers,0.1800,0.1900,Not affected,Not Exposed,no_afectado
+5151,"Cleaning and Housekeeping Supervisors in Offices, Hotels and Other Establishments",0.2200,0.1000,Not affected,Not Exposed,no_afectado
+5152,Domestic Housekeepers,0.2000,0.1000,Not affected,Not Exposed,no_afectado
+5153,Building Caretakers,0.2700,0.1600,Augmentation Potential,Minimal Exposure,aumenta
+5161,"Astrologers, Fortune-tellers and Related Workers",0.3000,0.1600,The Big Uknown,Minimal Exposure,incognita
+5162,Companions and Valets,0.2200,0.0500,Not affected,Not Exposed,no_afectado
+5163,Undertakers and Embalmers,0.1700,0.1700,Not affected,Not Exposed,no_afectado
+5164,Pet Groomers and Animal Care Workers,0.1400,0.0600,Not affected,Not Exposed,no_afectado
+5165,Driving Instructors,0.2000,0.0300,Augmentation Potential,Not Exposed,aumenta
+5169,Personal Services Workers Not Elsewhere Classified,0.2100,0.0700,Not affected,Not Exposed,no_afectado
+5211,Stall and Market Salespersons,0.3500,0.1700,Augmentation Potential,Exposed: Gradient 1,aumenta
+5212,Street Food Salespersons,0.2200,0.1100,Not affected,Not Exposed,no_afectado
+5221,Shopkeepers,0.4300,0.1000,The Big Uknown,Exposed: Gradient 2,incognita
+5222,Shop Supervisors,0.3600,0.1200,The Big Uknown,Minimal Exposure,incognita
+5223,Shop Sales Assistants,0.3800,0.1600,The Big Uknown,Exposed: Gradient 1,incognita
+5230,Cashiers and Ticket Clerks,0.3900,0.1400,Not affected,Exposed: Gradient 1,incognita
+5241,Fashion and Other Models,0.2500,0.0600,Not affected,Not Exposed,no_afectado
+5242,Sales Demonstrators,0.4200,0.1100,The Big Uknown,Exposed: Gradient 2,incognita
+5243,Door-to-door Salespersons,0.4600,0.1800,The Big Uknown,Exposed: Gradient 2,incognita
+5244,Contact Centre Salespersons,0.6100,0.1000,Automation Potential,Exposed: Gradient 4,automatiza
+5245,Service Station Attendants,0.2400,0.1600,Augmentation Potential,Minimal Exposure,aumenta
+5246,Food Service Counter Attendants,0.2400,0.1300,Not affected,Not Exposed,no_afectado
+5311,Child Care Workers,0.1900,0.0900,Not affected,Not Exposed,no_afectado
+5312,Teachers' Aides,0.2400,0.1400,Augmentation Potential,Not Exposed,aumenta
+5321,Health Care Assistants,0.1400,0.0600,Not affected,Not Exposed,no_afectado
+5322,Home-based Personal Care Workers,0.2500,0.1800,Not affected,Minimal Exposure,no_afectado
+5329,Personal Care Workers in Health Services Not Elsewhere Classified,0.1500,0.0300,Not affected,Not Exposed,no_afectado
+5411,Fire Fighters,0.1800,0.1000,Not affected,Not Exposed,no_afectado
+5412,Police Officers,0.1400,0.0300,Not affected,Not Exposed,no_afectado
+5413,Prison Guards,0.1400,0.0400,Not affected,Not Exposed,no_afectado
+5414,Security Guards,0.2000,0.0900,Not affected,Not Exposed,no_afectado
+5419,Protective Services Workers Not Elsewhere Classified,0.2000,0.0500,Not affected,Not Exposed,no_afectado
+6111,Field Crop and Vegetable Growers,0.1800,0.1200,Not affected,Not Exposed,no_afectado
+6112,Tree and Shrub Crop Growers,0.1700,0.1100,Not affected,Not Exposed,no_afectado
+6113,"Gardeners, Horticultural and Nursery Growers",0.1800,0.1100,Not affected,Not Exposed,no_afectado
+6114,Mixed Crop Growers,0.1700,0.1200,Not affected,Not Exposed,no_afectado
+6121,Livestock and Dairy Producers,0.1700,0.1000,Not affected,Not Exposed,no_afectado
+6122,Poultry Producers,0.1900,0.1000,Not affected,Not Exposed,no_afectado
+6123,Apiarists and Sericulturists,0.2200,0.1100,Augmentation Potential,Not Exposed,aumenta
+6129,Animal Producers Not Elsewhere Classified,0.2000,0.1400,Not affected,Not Exposed,no_afectado
+6130,Mixed Crop and Animal Producers,0.1900,0.1100,Not affected,Not Exposed,no_afectado
+6210,Forestry and Related Workers,0.1200,0.0500,Not affected,Not Exposed,no_afectado
+6221,Aquaculture Workers,0.2200,0.1500,Not affected,Not Exposed,no_afectado
+6222,Inland and Coastal Waters Fishery Workers,0.1700,0.1000,Not affected,Not Exposed,no_afectado
+6223,Deep-sea Fishery Workers,0.1800,0.0700,Not affected,Not Exposed,no_afectado
+6224,Hunters and Trappers,0.0900,0.0300,Not affected,Not Exposed,no_afectado
+6310,Subsistence Crop Farmers,0.1300,0.0500,Not affected,Not Exposed,no_afectado
+6320,Subsistence Livestock Farmers,0.1300,0.0400,Not affected,Not Exposed,no_afectado
+6330,Subsistence Mixed Crop and Livestock Farmers,0.1200,0.0500,Not affected,Not Exposed,no_afectado
+6340,"Subsistence Fishers, Hunters, Trappers and Gatherers",0.1200,0.0500,Not affected,Not Exposed,no_afectado
+7111,House Builders,0.1400,0.0700,Not affected,Not Exposed,no_afectado
+7112,Bricklayers and Related Workers,0.0900,0.0100,Not affected,Not Exposed,no_afectado
+7113,"Stonemasons, Stone Cutters, Splitters and Carvers",0.1100,0.0200,Not affected,Not Exposed,no_afectado
+7114,"Concrete Placers, Concrete Finishers and Related Workers",0.1000,0.0300,Not affected,Not Exposed,no_afectado
+7115,Carpenters and Joiners,0.1300,0.0200,Not affected,Not Exposed,no_afectado
+7119,Building Frame and Related Trades Workers Not Elsewhere Classified,0.0900,0.0100,Not affected,Not Exposed,no_afectado
+7121,Roofers,0.1300,0.0800,Not affected,Not Exposed,no_afectado
+7122,Floor Layers and Tile Setters,0.1000,0.0200,Not affected,Not Exposed,no_afectado
+7123,Plasterers,0.1100,0.0100,Not affected,Not Exposed,no_afectado
+7124,Insulation Workers,0.1300,0.0200,Not affected,Not Exposed,no_afectado
+7125,Glaziers,0.1400,0.0000,Not affected,Not Exposed,no_afectado
+7126,Plumbers and Pipe Fitters,0.1800,0.1000,Not affected,Not Exposed,no_afectado
+7127,Air Conditioning and Refrigeration Mechanics,0.2100,0.1100,Not affected,Not Exposed,no_afectado
+7131,Painters and Related Workers,0.1300,0.0400,Not affected,Not Exposed,no_afectado
+7132,Spray Painters and Varnishers,0.1200,0.0000,Not affected,Not Exposed,no_afectado
+7133,Building Structure Cleaners,0.0900,0.0100,Not affected,Not Exposed,no_afectado
+7211,Metal Moulders and Coremakers,0.1300,0.0100,Not affected,Not Exposed,no_afectado
+7212,Welders and Flame Cutters,0.1300,0.0500,Not affected,Not Exposed,no_afectado
+7213,Sheet Metal Workers,0.2100,0.0900,Not affected,Not Exposed,no_afectado
+7214,Structural Metal Preparers and Erectors,0.1100,0.0200,Not affected,Not Exposed,no_afectado
+7215,Riggers and Cable Splicers,0.1300,0.0300,Not affected,Not Exposed,no_afectado
+7221,"Blacksmiths, Hammersmiths and Forging Press Workers",0.1700,0.0500,Not affected,Not Exposed,no_afectado
+7222,Toolmakers and Related Workers,0.2000,0.1000,Not affected,Not Exposed,no_afectado
+7223,Metal Working Machine Tool Setters and  Operators,0.1800,0.0500,Not affected,Not Exposed,no_afectado
+7224,"Metal Polishers, Wheel Grinders and Tool Sharpeners",0.1700,0.0500,Not affected,Not Exposed,no_afectado
+7231,Motor Vehicle Mechanics and Repairers,0.1800,0.0400,Not affected,Not Exposed,no_afectado
+7232,Aircraft Engine Mechanics and Repairers,0.1900,0.0700,Not affected,Not Exposed,no_afectado
+7233,Agricultural and Industrial Machinery Mechanics and Repairers,0.1700,0.0400,Not affected,Not Exposed,no_afectado
+7234,Bicycle and Related Repairers,0.1300,0.0200,Not affected,Not Exposed,no_afectado
+7311,Precision-instrument Makers and Repairers,0.2100,0.0800,Not affected,Not Exposed,no_afectado
+7312,Musical Instrument Makers and Tuners,0.1400,0.0200,Not affected,Not Exposed,no_afectado
+7313,Jewellery and Precious Metal Workers,0.1800,0.0500,Not affected,Not Exposed,no_afectado
+7314,Potters and Related Workers,0.1800,0.0700,Not affected,Not Exposed,no_afectado
+7315,"Glass Makers, Cutters, Grinders and Finishers",0.1900,0.0600,Not affected,Not Exposed,no_afectado
+7316,"Sign Writers, Decorative Painters, Engravers and Etchers",0.1800,0.0800,Not affected,Not Exposed,no_afectado
+7317,"Handicraft Workers in Wood, Basketry and Related Materials",0.1400,0.0100,Not affected,Not Exposed,no_afectado
+7318,"Handicraft Workers in Textile, Leather and Related Materials",0.1300,0.0300,Not affected,Not Exposed,no_afectado
+7321,Pre-press Technicians,0.3800,0.2200,Not affected,Exposed: Gradient 1,incognita
+7322,Printers,0.2500,0.1100,Not affected,Not Exposed,no_afectado
+7323,Print Finishing and Binding Workers,0.2200,0.0900,Not affected,Not Exposed,no_afectado
+7411,Building and Related Electricians,0.1900,0.0600,Not affected,Not Exposed,no_afectado
+7412,Electrical Mechanics and Fitters,0.1700,0.0500,Not affected,Not Exposed,no_afectado
+7413,Electrical Line Installers and Repairers,0.1500,0.0800,Not affected,Not Exposed,no_afectado
+7421,Electronics Mechanics and Servicers,0.2500,0.1300,Not affected,Not Exposed,no_afectado
+7422,Information and Communications Technology Installers and Servicers,0.2400,0.1400,Not affected,Not Exposed,no_afectado
+7511,"Butchers, Fishmongers and Related Food Preparers",0.1300,0.0300,Not affected,Not Exposed,no_afectado
+7512,"Bakers, Pastry-cooks and Confectionery Makers",0.1700,0.0800,Not affected,Not Exposed,no_afectado
+7513,Dairy Products Makers,0.2200,0.1700,Not affected,Not Exposed,no_afectado
+7514,"Fruit, Vegetable and Related Preservers",0.1500,0.0400,Not affected,Not Exposed,no_afectado
+7515,Food and Beverage Tasters and Graders,0.3100,0.1600,Not affected,Minimal Exposure,no_afectado
+7516,Tobacco Preparers and Tobacco Products Makers,0.1400,0.0600,Not affected,Not Exposed,no_afectado
+7521,Wood Treaters,0.2200,0.1500,Not affected,Not Exposed,no_afectado
+7522,Cabinet-makers and Related Workers,0.1600,0.0600,Not affected,Not Exposed,no_afectado
+7523,Woodworking Machine Tool Setters and Operators,0.2200,0.1600,Not affected,Not Exposed,no_afectado
+7531,"Tailors, Dressmakers, Furriers and Hatters",0.1500,0.0500,Not affected,Not Exposed,no_afectado
+7532,Garment and Related Patternmakers and Cutters,0.1700,0.0400,Not affected,Not Exposed,no_afectado
+7533,"Sewing, Embroidery and Related Workers",0.1200,0.0200,Not affected,Not Exposed,no_afectado
+7534,Upholsterers and Related Workers,0.1800,0.0900,Not affected,Not Exposed,no_afectado
+7535,"Pelt Dressers, Tanners and Fellmongers",0.1100,0.0300,Not affected,Not Exposed,no_afectado
+7536,Shoemakers and Related Workers,0.1700,0.0600,Not affected,Not Exposed,no_afectado
+7541,Underwater Divers,0.1600,0.0900,Not affected,Not Exposed,no_afectado
+7542,Shotfirers and Blasters,0.1200,0.0500,Not affected,Not Exposed,no_afectado
+7543,Product Graders and Testers (except Foods and Beverages),0.3100,0.1100,The Big Uknown,Minimal Exposure,incognita
+7544,Fumigators and Other Pest and Weed Controllers,0.1300,0.0400,Not affected,Not Exposed,no_afectado
+7549,Craft and Related Workers not Elsewhere Classified,0.1400,0.0100,Not affected,Not Exposed,no_afectado
+8111,Miners and Quarriers,0.1700,0.1100,Not affected,Not Exposed,no_afectado
+8112,Mineral and Stone Processing Plant Operators,0.2100,0.1000,Not affected,Not Exposed,no_afectado
+8113,Well Drillers and Borers and Related Workers,0.1900,0.1200,Not affected,Not Exposed,no_afectado
+8114,"Cement, Stone and Other Mineral Products Machine Operators",0.2300,0.1100,Not affected,Not Exposed,no_afectado
+8121,Metal Processing Plant Operators,0.2600,0.1000,Not affected,Not Exposed,no_afectado
+8122,"Metal Finishing, Plating and Coating Machine Operators",0.2000,0.0400,Not affected,Not Exposed,no_afectado
+8131,Chemical Products Plant and Machine Operators,0.2400,0.0700,Not affected,Not Exposed,no_afectado
+8132,Photographic Products Machine Operators,0.2700,0.0600,Augmentation Potential,Not Exposed,aumenta
+8141,Rubber Products Machine Operators,0.1800,0.0500,Not affected,Not Exposed,no_afectado
+8142,Plastic Products Machine Operators,0.1700,0.0500,Not affected,Not Exposed,no_afectado
+8143,Paper Products Machine Operators,0.1800,0.0200,Not affected,Not Exposed,no_afectado
+8151,"Fibre Preparing, Spinning and Winding Machine Operators",0.1500,0.0200,Not affected,Not Exposed,no_afectado
+8152,Weaving and Knitting Machine Operators,0.1600,0.0300,Not affected,Not Exposed,no_afectado
+8153,Sewing Machine Operators,0.1500,0.0300,Not affected,Not Exposed,no_afectado
+8154,"Bleaching, Dyeing and Fabric Cleaning Machine Operators",0.2100,0.1500,Not affected,Not Exposed,no_afectado
+8155,Fur and Leather Preparing Machine Operators,0.1500,0.0200,Not affected,Not Exposed,no_afectado
+8156,Shoemaking and Related Machine Operators,0.1600,0.0200,Not affected,Not Exposed,no_afectado
+8157,Laundry Machine Operators,0.1600,0.0300,Not affected,Not Exposed,no_afectado
+8159,"Textile, Fur and Leather Products Machine Operators Not Elsewhere Classified",0.1600,0.0100,Not affected,Not Exposed,no_afectado
+8160,Food and Related Products Machine Operators,0.1500,0.0300,Not affected,Not Exposed,no_afectado
+8171,Pulp and Papermaking Plant Operators,0.2800,0.1400,Augmentation Potential,Minimal Exposure,aumenta
+8172,Wood Processing Plant Operators,0.1400,0.0500,Not affected,Not Exposed,no_afectado
+8181,Glass and Ceramics Plant Operators,0.1700,0.0600,Not affected,Not Exposed,no_afectado
+8182,Steam Engine and Boiler Operators,0.2000,0.0400,Not affected,Not Exposed,no_afectado
+8183,"Packing, Bottling and Labelling Machine Operators",0.2200,0.0100,Not affected,Not Exposed,no_afectado
+8211,Mechanical Machinery Assemblers,0.2700,0.1700,Augmentation Potential,Minimal Exposure,aumenta
+8212,Electrical and Electronic Equipment Assemblers,0.2800,0.1900,Augmentation Potential,Minimal Exposure,aumenta
+8219,Assemblers Not Elsewhere Classified,0.3200,0.1700,Augmentation Potential,Minimal Exposure,aumenta
+8311,Locomotive Engine Drivers,0.2000,0.0800,Not affected,Not Exposed,no_afectado
+8312,"Railway Brake, Signal and Switch Operators",0.1700,0.0400,Not affected,Not Exposed,no_afectado
+8321,Motorcycle Drivers,0.2500,0.1700,Augmentation Potential,Minimal Exposure,aumenta
+8322,"Car, Taxi and Van Drivers",0.2800,0.2300,Not affected,Exposed: Gradient 1,incognita
+8331,Bus and Tram Drivers,0.1800,0.0600,Not affected,Not Exposed,no_afectado
+8332,Heavy Truck and Lorry Drivers,0.2400,0.2200,Not affected,Minimal Exposure,no_afectado
+8341,Mobile Farm and Forestry Plant Operators,0.1200,0.0300,Not affected,Not Exposed,no_afectado
+8342,Earthmoving and Related Plant Operators,0.1300,0.0200,Not affected,Not Exposed,no_afectado
+8343,"Crane, hoist and related plant operators",0.1800,0.0300,Not affected,Not Exposed,no_afectado
+8344,Lifting Truck Operators,0.2000,0.1000,Augmentation Potential,Not Exposed,aumenta
+8350,Ships' Deck Crews and Related Workers,0.1400,0.0200,Not affected,Not Exposed,no_afectado
+9111,Domestic Cleaners and Helpers,0.1400,0.0800,Not affected,Not Exposed,no_afectado
+9112,"Cleaners and Helpers in Offices, Hotels and Other Establishments",0.1200,0.0200,Not affected,Not Exposed,no_afectado
+9121,Hand Launderers and Pressers,0.1400,0.0300,Not affected,Not Exposed,no_afectado
+9122,Vehicle Cleaners,0.0900,0.0100,Not affected,Not Exposed,no_afectado
+9123,Window Cleaners,0.1100,0.0300,Not affected,Not Exposed,no_afectado
+9129,Other Cleaning Workers,0.1000,0.0100,Not affected,Not Exposed,no_afectado
+9211,Crop Farm Labourers,0.0900,0.0200,Not affected,Not Exposed,no_afectado
+9212,Livestock Farm Labourers,0.1200,0.0300,Not affected,Not Exposed,no_afectado
+9213,Mixed Crop and Livestock Farm Labourers,0.1100,0.0300,Not affected,Not Exposed,no_afectado
+9214,Garden and Horticultural Labourers,0.1200,0.0200,Not affected,Not Exposed,no_afectado
+9215,Forestry Labourers,0.0900,0.0200,Not affected,Not Exposed,no_afectado
+9216,Fishery and Aquaculture Labourers,0.1100,0.0300,Not affected,Not Exposed,no_afectado
+9311,Mining and Quarrying Labourers,0.1100,0.0200,Not affected,Not Exposed,no_afectado
+9312,Civil Engineering Labourers,0.0900,0.0200,Not affected,Not Exposed,no_afectado
+9313,Building Construction Labourers,0.0900,0.0200,Not affected,Not Exposed,no_afectado
+9321,Hand Packers,0.2000,0.0500,Not affected,Not Exposed,no_afectado
+9329,Manufacturing Labourers Not Elsewhere Classified,0.1200,0.0200,Not affected,Not Exposed,no_afectado
+9331,Hand and Pedal Vehicle Drivers,0.2100,0.0800,Not affected,Not Exposed,no_afectado
+9332,Drivers of Animal-drawn Vehicles and Machinery,0.1300,0.0800,Not affected,Not Exposed,no_afectado
+9333,Freight Handlers,0.1400,0.0300,Not affected,Not Exposed,no_afectado
+9334,Shelf Fillers,0.2000,0.1000,Not affected,Not Exposed,no_afectado
+9411,Fast Food Preparers,0.1800,0.0500,Not affected,Not Exposed,no_afectado
+9412,Kitchen Helpers,0.1300,0.0200,Not affected,Not Exposed,no_afectado
+9510,Street and Related Service Workers,0.1800,0.0900,Augmentation Potential,Not Exposed,aumenta
+9520,Street Vendors (excluding Food),0.2000,0.1000,Not affected,Not Exposed,no_afectado
+9611,Garbage and Recycling Collectors,0.0900,0.0200,Not affected,Not Exposed,no_afectado
+9612,Refuse Sorters,0.1800,0.1100,Not affected,Not Exposed,no_afectado
+9613,Sweepers and Related Labourers,0.0900,0.0300,Not affected,Not Exposed,no_afectado
+9621,"Messengers, Package Deliverers and Luggage Porters",0.3700,0.1900,Augmentation Potential,Exposed: Gradient 1,aumenta
+9622,Odd Job Persons,0.1100,0.0300,Not affected,Not Exposed,no_afectado
+9623,Meter Readers and Vending-machine Collectors,0.3800,0.2100,Augmentation Potential,Exposed: Gradient 1,aumenta
+9624,Water and Firewood Collectors,0.0900,0.0300,Not affected,Not Exposed,no_afectado
+9629,Elementary Workers Not Elsewhere Classified,0.2900,0.1400,Augmentation Potential,Minimal Exposure,aumenta

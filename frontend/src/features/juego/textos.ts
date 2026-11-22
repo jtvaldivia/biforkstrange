@@ -44,6 +44,10 @@ export function enLista(xs: string[]): string {
   return xs.length <= 1 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} y ${xs[xs.length - 1]}`;
 }
 /** Sobre 100, como se cuentan los mundos: "63 de 100". Lo que pasa muy rara vez no se redondea a cero. */
+/** Probabilidad dicha en porcentaje: "4%", "menos de 1%". Para lo que puede pasarte (no para contar mundos). */
+export const porciento = (p: number) => (p > 0 && p < 0.005 ? "menos de 1%" : `${Math.round(p * 100)}%`);
+
+/** Cuántos de los 100 mundos: "33 de 100". Solo para contar mundos o copias, no para una probabilidad del año. */
 export const deCien = (p: number) => (p > 0 && p < 0.005 ? "menos de 1 de 100" : `${Math.round(p * 100)} de 100`);
 
 export const minuscula = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
@@ -135,6 +139,10 @@ const ARTE_DUDA: Record<string, DecisionArtKind> = {
   intercambio: "viaje",
   financiar_estudios: "chanchito",
   licencia_salud_mental: "corazon",
+  diplomado: "magister",
+  certificacion: "magister",
+  postular_a_jefatura: "subir",
+  trabajar_por_tu_cuenta: "puerta",
 };
 
 /** Ids que significan lo mismo en cualquier decisión. Los que cambian de sentido ("si", "ir") van en ARTE_PAR. */

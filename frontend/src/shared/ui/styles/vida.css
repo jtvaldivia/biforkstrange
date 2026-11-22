@@ -92,7 +92,7 @@
   --velo: rgb(0 0 0 / .62);
 }
 
-/* Fuera de las pantallas (márgenes en escritorio, /simulacion) también va el fondo del tema */
+/* Fuera de las pantallas (márgenes en escritorio) también va el fondo del tema */
 html { background: var(--papel); color: var(--tinta); }
 
 /* ───────── Base ───────── */
@@ -109,6 +109,9 @@ html { background: var(--papel); color: var(--tinta); }
 .vd-pantalla { width: 100%; max-width: 430px; min-height: 100dvh; margin: 0 auto; padding: 48px 20px 28px; display: flex; flex-direction: column; gap: var(--vd-gap, 20px); }
 .vd-pantalla--ancha { padding-left: 24px; padding-right: 24px; }
 .vd-cabecera { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+/* Logo de Bifurca: isotipo + nombre */
+.vd-marca { display: inline-flex; align-items: center; gap: .4em; font: 700 1em/1 var(--font); letter-spacing: -.045em; color: var(--tinta); }
+.vd-marca svg { flex: none; display: block; }
 .vd-pie { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
 .vd-pila { display: flex; flex-direction: column; gap: var(--vd-gap, 8px); }
 .vd-fila { display: flex; flex-wrap: wrap; gap: var(--vd-gap, 8px); }

@@ -41,6 +41,16 @@ _No usar_: trayectoria, rama
 **Ganador del mundo**:
 La opción con la que la copia termina ganando más al año 10 en ese mundo. Si las dos mejores quedan a menos de 0,5%, el mundo es **empate**.
 
+**Ritmo de la IA**:
+Qué tan rápido avanza la IA en un mundo: lenta, a ritmo medio o rápida. Cada mundo trae uno, igual para todas sus vidas, como la recesión. Sale con las probabilidades que economistas y superforecasters dieron a cada escenario al 2030 (FRI 2026, `P_RITMO_IA`). Solo existe con la incertidumbre de IA prendida.
+_No usar_: escenario de IA (en el código, `escenario_ia` sigue con el nombre viejo), régimen, velocidad
+
+**Cómo te toca la IA**:
+Si la IA automatiza tu ocupación, la complementa, no se sabe (incógnita) o no la toca, según la OIT (2025). En el código, `ia_tipo`.
+
+**Adaptabilidad**:
+Qué tan bien te recuperas si la IA te saca de tu pega (0 a 1): edad, estudios, Santiago o región, ahorro y si ya usas IA (Manning y Aguirre 2026).
+
 ## Lo que le toca decidir
 
 **Decisión**:

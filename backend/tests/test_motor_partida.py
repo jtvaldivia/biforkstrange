@@ -8,6 +8,7 @@ from _motor_util import CARTAS_PERFIL_BASE, Guion, foto, n, vida, z_binomial
 from app.sim.motor import gemelos, partida
 from app.sim.motor.azar import Dados
 from app.sim.motor.motor import FaltaEleccion
+from app.sim.motor.paquete import Paquete
 from app.sim.motor.perfil import Perfil
 from app.sim.motor.politicas import Jugador
 
@@ -132,13 +133,14 @@ def test_vista_con_decision_pendiente():
     assert v["edad_final"] == 40
     assert (v["terminada"], v["anio"], v["anios"], v["semilla"], v["duda"]) == (False, 0, 10, 3, "unirse_a_startup")
     assert v["cierre"] is None and v["historia"] == [] and v["elecciones"] == []
-    assert set(v["anio_en_curso"]) == {"anio", "edad", "recesion", "decisiones", "eventos"}
+    # con qué sueldo y ahorro partió el año: para explicar cómo se movió la plata
+    assert set(v["anio_en_curso"]) == {"anio", "edad", "recesion", "decisiones", "eventos", "sueldo_inicio", "ahorro_inicio"}
     assert (v["anio_en_curso"]["anio"], v["anio_en_curso"]["edad"]) == (1, 30)
     assert (v["estado"]["edad"], v["estado"]["estado"], v["estado"]["sueldo"], v["estado"]["cargo"]) == (
         30, "empleado", 1_400_000, "Semi senior")
     p = v["pendiente"]
     assert set(p) == {"decision", "nombre", "pregunta", "categoria", "calidad", "creencia_vs_dato", "evidencia", "narrativa",
-                      "opciones", "comparacion", "por_que", "oferta_sueldo"}
+                      "opciones", "comparacion", "por_que", "oferta_sueldo", "busqueda"}
     assert p["decision"] == "unirse_a_startup" and [o["opcion"] for o in p["opciones"]] == ["ir", "quedarse"]
     assert all(set(o) == {"opcion", "nombre", "detalle", "calidad", "respaldo", "elecciones_internas", "empresa"} for o in p["opciones"])
     c = p["comparacion"]
@@ -181,8 +183,10 @@ def test_vista_al_cierre():
                     for a in v["historia"]]
     assert len(v["historia"]) == 10 and sin_historia == p.vida.historia and v["estado"] == p.vida.resumen()
     c = v["cierre"]
-    assert set(c) == {"sueldo_final", "estado", "anios_sin_trabajo", "primera_decision", "mejor_que_gemelos"}
+    assert set(c) == {"sueldo_final", "estado", "anios_sin_trabajo", "meses_sin_trabajo", "primera_decision",
+                      "mejor_que_gemelos"}
     assert c["estado"] == v["estado"] and c["anios_sin_trabajo"] == p.vida.anios_buscando
+    assert c["meses_sin_trabajo"] == p.vida.meses_buscando
     assert c["sueldo_final"] == round(p.vida.e["sueldo"] or p.vida.e["sueldo_ref"])
     primera = c["primera_decision"]
     assert (primera["decision"], primera["elegida"]) == ("unirse_a_startup", "ir")
@@ -259,7 +263,9 @@ def test_comparar_forma_y_coherencia_interna():
         assert [t["edad"] for t in o["trayectoria"]] == [36 + i for i in range(anios)]
         assert all(set(t) == {"edad", "p10", "p50", "p90", "sin_trabajo"} for t in o["trayectoria"])
         assert 0 <= o["sin_trabajo_al_final"] <= o["paso_por_cesantia"] <= 1
-        assert o["meses_sin_trabajo"] >= 12 * o["paso_por_cesantia"] - 1e-9
+        # la cesantía se vive mes a mes: quien pasó por ella pudo encontrar en un mes, pero nadie pasa más
+        # meses sin trabajo que los del horizonte
+        assert 0 <= o["meses_sin_trabajo"] <= 12 * anios * o["paso_por_cesantia"] + 1e-9
         assert o["trayectoria"][-1]["sin_trabajo"] == pytest.approx(o["sin_trabajo_al_final"])
         assert o["trayectoria"][-1]["p50"] == o["sueldo"]["p50"]
         assert o["ingreso_total"]["p50"] > 0
@@ -439,3 +445,18 @@ def test_terminar_sin_trabajo_cuenta_cero_en_la_comparacion():
     for o in c["opciones"]:
         sin_trabajo = round(o["sin_trabajo_al_final"] * len(o["sueldos"]))
         assert sum(1 for s in o["sueldos"] if s == 0) >= sin_trabajo
+
+
+def test_la_comparacion_se_guarda_y_nadie_la_ensucia():
+    """La comparación de gemelos es lo caro de cada llamada y el motor es determinista: la segunda vez sale del
+    caché, idéntica, y lo que el que la recibe le haga (el cierre saca los sueldos) no la cambia para el resto."""
+    p = partida.jugar(Perfil(), 5, [], "unirse_a_startup")
+    primera = partida.comparar_pendiente(p, 5, n(20), crudo=True)
+    for o in primera["opciones"]:
+        o.pop("sueldos")
+    segunda = partida.comparar_pendiente(partida.jugar(Perfil(), 5, [], "unirse_a_startup"), 5, n(20), crudo=True)
+    assert all("sueldos" in o for o in segunda["opciones"])
+    assert segunda == gemelos.comparar(p.vida, "unirse_a_startup", n=n(20), anios=p.horizonte(), semilla=5, crudo=True)
+    # otra semilla, otros años u otro paquete no comparten la entrada
+    assert partida.jugar(Perfil(), 5, [], "unirse_a_startup", anios=5).clave != p.clave
+    assert partida.jugar(Perfil(), 5, [], "unirse_a_startup", pq=Paquete()).clave is None

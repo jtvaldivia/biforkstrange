@@ -6,7 +6,6 @@ evento ocurre si y solo si el dado cae bajo la probabilidad literal del paquete)
 frecuencia con dados reales, con tolerancia de 3,5 desvíos del tamaño de muestra.
 """
 
-import math
 from collections import Counter
 
 import pytest
@@ -19,7 +18,10 @@ from app.sim.motor.perfil import Perfil
 from app.sim.motor.politicas import Fija, Inercia, Jugador, Poblacion
 
 Z = 3.5
-QUIETA = {"oferta_externa": "quedarse"}  # responde sin cambiar nada si llega una oferta
+# responde sin cambiar nada si llega una oferta; cesante, busca y rechaza lo que llegue (con NADA no llega nada)
+QUIETA = {"oferta_externa": "quedarse", "cesantia": "buscar", "oferta_en_cesantia": "rechazar"}
+# la primera oferta del año estando cesante (la cesantía se vive mes a mes)
+OFERTA_MES1 = {"evento:oferta_cesante:mes1": 0.0}
 A_LOS_35 = Perfil(edad=35)  # empleada en pyme de Servicios profesionales, nivel 1, 2 años de antigüedad
 
 # ------------------------------------------------------------------ cartas
@@ -78,7 +80,7 @@ def test_las_forzadas_van_antes_que_las_cartas_y_las_reemplazan():
     for g in range(n(200)):
         v = vida(cesante, Dados(5, g), tipo_empleador="pyme", rubro="Comercio")
         assert v.cartas_posibles(), "tiene cartas disponibles, pero no le deben tocar"
-        reg = v.vivir_anio(Guion({"cesantia": "nivel", **QUIETA}, con_cartas=True))
+        reg = v.vivir_anio(Guion(QUIETA, con_cartas=True))
         assert reg["decisiones"][0]["decision"] == "cesantia"
         assert [d["decision"] for d in reg["decisiones"] if d["origen"] == "carta"] == ["cesantia"]
 
@@ -167,8 +169,8 @@ def test_la_duda_inicial_no_se_salta_las_forzadas_del_anio():
     igual busca pega ese año (antes la duda tapaba la cesantía y todos sus gemelos quedaban un año
     entero sin trabajo). Y al fundador le sigue tocando decidir sobre su empresa."""
     cesante = Perfil(edad=35, estado="buscando", sueldo=1_000_000)
-    v = vida(cesante, DadosGuion({"dec:cesantia:rapido": 0.0}), tipo_empleador="pyme", rubro="Comercio")
-    reg = v.vivir_anio(Guion({"invertir_en_red": "si", "cesantia": "rapido", **QUIETA}), carta="invertir_en_red")
+    v = vida(cesante, DadosGuion(OFERTA_MES1), tipo_empleador="pyme", rubro="Comercio")
+    reg = v.vivir_anio(Guion({**QUIETA, "invertir_en_red": "si", "oferta_en_cesantia": "aceptar"}), carta="invertir_en_red")
     assert [d["decision"] for d in reg["decisiones"] if d["origen"] == "carta"] == ["invertir_en_red", "cesantia"]
     assert v.e["estado"] == "empleado"
     fundador = Perfil(edad=35, estado="fundador", sueldo=2_000_000, empresa_anos=2)
@@ -182,7 +184,7 @@ def test_si_la_duda_resuelve_la_forzada_esta_ya_no_se_pregunta():
     (el bootcamp la coloca), la cesantía ya no aplica cuando le llega su turno."""
     cesante = Perfil(edad=35, estado="buscando", sueldo=1_000_000)
     v = vida(cesante, DadosGuion(), tipo_empleador="pyme", rubro="Comercio")
-    reg = v.vivir_anio(Guion({"cesantia": "nivel", **QUIETA}), carta="cesantia")
+    reg = v.vivir_anio(Guion(QUIETA), carta="cesantia")
     assert [d["decision"] for d in reg["decisiones"]] == ["cesantia"]
     v = vida(cesante, DadosGuion({"dec:bootcamp:hacer": 0.0}), tipo_empleador="pyme", rubro="Comercio")
     reg = v.vivir_anio(Guion({"bootcamp": "hacer", **QUIETA}), carta="bootcamp")
@@ -254,10 +256,18 @@ def test_poblacion_en_alcance_laboral_nunca_toca_lo_personal():
 
 # ------------------------------------------------------------------ orden del año
 def test_la_recesion_se_sortea_antes_que_todo_y_el_anio_ya_la_ve():
-    """Con recesión, la separación del mismo año usa x 1,4 y el reempleo x 0,85."""
+    """Con recesión, la separación del mismo año usa x 1,4 y las ofertas de cada mes buscando, x 0,85."""
     p_normal = 0.066 * 1.12 * 1.04
-    d = DadosGuion({"evento:recesion": 0.0, "evento:separacion_empleo": p_normal * 1.4 - 1e-6,
-                    "evento:separacion_empleo:res": (1 - math.exp(-9 / 10.5)) * 0.85 + 1e-6})
+    ofertas = {}
+    for recesion in (0.0, NADA):
+        # despedido en el primer mes: busca los 12 meses del año
+        d = DadosGuion({"evento:recesion": recesion, "evento:separacion_empleo": 0.0, "evento:separacion_empleo:mes": 0.0,
+                        **OFERTA_MES1})
+        v = vida(A_LOS_35, d)
+        reg = v.vivir_anio(Guion(QUIETA))
+        ofertas[recesion] = [x["prob_evento"] for x in reg["eventos"] if x["evento"] == "oferta_cesante"]
+    assert ofertas[0.0][0] == pytest.approx(ofertas[NADA][0] * 0.85)
+    d = DadosGuion({"evento:recesion": 0.0, "evento:separacion_empleo": p_normal * 1.4 - 1e-6})
     v = vida(A_LOS_35, d)
     reg = v.vivir_anio(Guion(QUIETA))
     assert reg["recesion"] is True
@@ -265,8 +275,8 @@ def test_la_recesion_se_sortea_antes_que_todo_y_el_anio_ya_la_ve():
     sep = [x for x in reg["eventos"] if x["evento"] == "separacion_empleo"]
     assert len(sep) == 1 and sep[0]["resultado"] == "cesante"
     assert sep[0]["prob_evento"] == pytest.approx(p_normal * 1.4)
-    # prob es la de que pase el evento y además salga ese resultado (aquí, no reemplearse en recesión)
-    assert sep[0]["prob"] == pytest.approx(p_normal * 1.4 * (1 - (1 - math.exp(-9 / 10.5)) * 0.85))
+    # sin reempleo automático el mismo año: perder la pega es el único resultado del despido
+    assert sep[0]["prob"] == pytest.approx(p_normal * 1.4)
     # el primer dado del año es el del mundo (el escenario de IA se sorteó una vez, al nacer la vida)
     assert [p for p in d.pedidos if p[1] != "mundo:ia"][0] == (0, "evento:recesion")
 
@@ -492,12 +502,15 @@ def test_cierre_alza_extra_anual_se_suma_al_alza_de_la_empleada():
 def test_cierre_cuenta_los_anios_buscando():
     v = vida(Perfil(edad=35, estado="buscando", sueldo=1_000_000), DadosGuion(), tipo_empleador="pyme", rubro="Comercio")
     for esperado in (1, 2, 3):
-        v.vivir_anio(Guion({"cesantia": "nivel"}))  # con este dado no encuentra
+        v.vivir_anio(Guion(QUIETA))  # con este dado no llega ninguna oferta: 12 meses más buscando
         assert v.anios_buscando == esperado and v.e["meses_cesante"] == 12 * esperado
-    v.dados = DadosGuion({"dec:cesantia:nivel": 0.0, "dec:tipo_de_empleador:sorteo": 0.5})
-    v.vivir_anio(Guion({"cesantia": "nivel", **QUIETA}))
+        assert v.meses_buscando == 12 * esperado
+    v.dados = DadosGuion(OFERTA_MES1)
+    v.vivir_anio(Guion({**QUIETA, "oferta_en_cesantia": "aceptar"}))
     assert v.anios_buscando == 3 and v.e["estado"] == "empleado" and v.e["meses_cesante"] == 0
-    assert 0.93 * 1_000_000 * 0.8 <= v.e["sueldo"] <= 1.06 * 1_000_000 * 1.25  # sueldo_ref x U(0,93; 1,06) y el alza
+    assert v.meses_buscando == 36  # aceptó la oferta del primer mes, antes de sumar otro mes buscando
+    # la oferta: sueldo_ref x U(0,78; 1,06) x 0,93 (ya pasó los 6 meses), y el alza del año
+    assert 0.78 * 0.93 * 1_000_000 <= v.e["sueldo"] <= 1.06 * 1_000_000 * 1.25
 
 
 # ------------------------------------------------------------------ frecuencias: corte exacto
@@ -559,12 +572,16 @@ def test_la_recesion_ocurre_bajo_0_08_y_el_reempleo_bajo_su_corte():
     for u, hay in ((0.08 - 1e-7, True), (0.08 + 1e-7, False)):
         v = vida(A_LOS_35, DadosGuion({"evento:recesion": u}))
         assert v.vivir_anio(Guion(QUIETA))["recesion"] is hay
-    corte = 1 - math.exp(-9 / 10.5)  # MESES_CESANTIA 30-44 = 10,5
-    for u, resultado in ((corte - 1e-7, "reemplea"), (corte + 1e-7, "cesante")):
-        d = DadosGuion({"evento:separacion_empleo": 0.0, "evento:separacion_empleo:res": u,
-                        "dec:tipo_de_empleador:sorteo": 0.5})
-        reg = vida(A_LOS_35, d).vivir_anio(Guion(QUIETA))
-        assert [x["resultado"] for x in reg["eventos"] if x["evento"] == "separacion_empleo"] == [resultado]
+    # despedida, cada mes buscando le llega una oferta bajo K_OFERTA_CESANTE / MESES_CESANTIA (30-44 = 10,5)
+    corte = 1.8 / 10.5
+    for u, llega in ((corte - 1e-7, True), (corte + 1e-7, False)):
+        d = DadosGuion({"evento:separacion_empleo": 0.0, "evento:separacion_empleo:mes": 0.0,
+                        "evento:oferta_cesante:mes1": u})
+        reg = vida(A_LOS_35, d).vivir_anio(Guion({**QUIETA, "oferta_en_cesantia": "aceptar"}))
+        assert [x["resultado"] for x in reg["eventos"] if x["evento"] == "separacion_empleo"] == ["cesante"]
+        ofertas = [x for x in reg["eventos"] if x["evento"] == "oferta_cesante"]
+        assert bool(ofertas) is llega and (not llega or ofertas[0]["prob_evento"] == pytest.approx(corte))
+        assert (reg["fin"]["estado"] == "empleado") is llega
 
 
 def test_el_ascenso_sube_un_nivel_y_entre_5_y_10_por_ciento():
@@ -626,13 +643,18 @@ def _vidas_del_mismo_gemelo(g, opcion_a, opcion_b, decision, alcance="laboral", 
     return vidas
 
 
+# lo que la red cambia: llegan ofertas trabajando (oferta_llega) y estando cesante (oferta_cesante), y se responden
+OFERTAS = {"oferta_llega", "oferta_externa", "oferta_cesante", "tipo_de_oferta", "oferta_en_cesantia"}
+
+
 def test_suerte_compartida_una_decision_que_no_toca_el_trabajo_deja_la_carrera_identica():
     """Invertir o no en tu red no cambia tu pega: las dos vidas del mismo gemelo tienen que tener
     exactamente la misma recesión, los mismos eventos y el mismo sueldo. La única diferencia permitida
-    es la oferta que llega (su probabilidad sube con la red): las dos vidas la rechazan."""
+    son las ofertas que llegan (su probabilidad sube con la red, también estando cesante): las dos vidas
+    las rechazan."""
     distintos = set()
     sin_oferta = lambda r, clave, quitar: [  # noqa: E731
-        tuple(x[c] for c in clave) for x in r if x[clave[0]] != quitar]
+        tuple(x[c] for c in clave) for x in r if x[clave[0]] not in quitar]
     for g in range(n(120)):
         a, b = _vidas_del_mismo_gemelo(g, "si", "no", "invertir_en_red",
                                        despues=lambda: Guion(QUIETA, resto=Inercia()))
@@ -640,10 +662,10 @@ def test_suerte_compartida_una_decision_que_no_toca_el_trabajo_deja_la_carrera_i
         for ra, rb in zip(a.historia, b.historia, strict=True):
             assert ra["recesion"] == rb["recesion"]
             evento = ("evento", "resultado", "prob")
-            assert sin_oferta(ra["eventos"], evento, "oferta_llega") == sin_oferta(rb["eventos"], evento, "oferta_llega")
+            assert sin_oferta(ra["eventos"], evento, OFERTAS) == sin_oferta(rb["eventos"], evento, OFERTAS)
             decision = ("decision", "opcion", "resultado")
-            assert sin_oferta(ra["decisiones"][1:], decision, "oferta_externa") == \
-                   sin_oferta(rb["decisiones"][1:], decision, "oferta_externa")
+            assert sin_oferta(ra["decisiones"][1:], decision, OFERTAS) == \
+                   sin_oferta(rb["decisiones"][1:], decision, OFERTAS)
             for k in ("estado", "sueldo", "sueldo_ref", "nivel", "tipo_empleador", "rubro", "antiguedad"):
                 assert ra["fin"][k] == rb["fin"][k]
         assert a.e["red"] > b.e["red"]
@@ -780,3 +802,16 @@ def test_clonar_con_los_mismos_dados_repite_la_vida_y_con_otros_no():
     # el año en curso ya tenía su recesión: los clones con otros dados la conservan
     assert all(o.historia[0]["recesion"] is True for o in otras)
     assert v.dados.gemelo != otras[0].dados.gemelo and otras[0].dados.semilla == 9
+
+
+def test_si_te_despiden_ese_anio_no_te_toca_alza_ni_ascenso():
+    """El despido va primero: antes salían juntas «Te ascienden» y «Pierdes el trabajo» el mismo año."""
+    d = DadosGuion({"evento:separacion_empleo@0": 0.0, "evento:separacion_empleo@0:res": 0.999, "evento:ascenso@0": 0.0})
+    v = vida(Perfil(edad=26, sueldo=1_500_000), d, tipo_empleador="pyme", rubro="Comercio")
+    v.iniciar_anio(con_cartas=False)
+    try:
+        v.avanzar(Guion({"oferta_externa": "quedarse"}))  # sin respuesta para la cesantía: se detiene ahí
+    except AssertionError:
+        pass  # quedó cesante y le toca decidir cómo busca: los eventos del año ya corrieron
+    eventos = [x["evento"] for x in v.registro["eventos"]]
+    assert eventos[0] == "separacion_empleo" and "ascenso" not in eventos and "alza_anual" not in eventos

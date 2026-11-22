@@ -75,7 +75,7 @@ def dudas(body: DudasIn):
     return partida.dudas_posibles(body.perfil.a_perfil())
 
 
-def _anios(body: PartidaIn) -> int:
+def _anios(body: PartidaIn | PesoCvIn | EnJuegoIn) -> int:
     """Cuántos años se juegan: hasta la edad final que eligió la persona, o 10."""
     if body.edad_final is None:
         return partida.ANIOS
@@ -155,7 +155,7 @@ def peso_del_cv(body: PesoCvIn):
     con el dato y sin él). Con la misma semilla y gemelos, "con" coincide con la carta de la duda.
     """
     try:
-        return peso.peso_cv(body.perfil.a_perfil(), body.duda, body.semilla, body.gemelos)
+        return peso.peso_cv(body.perfil.a_perfil(), body.duda, body.semilla, body.gemelos, _anios(body))
     except (ValueError, KeyError) as error:
         raise HTTPException(422, str(error)) from error
 
@@ -168,6 +168,10 @@ def dudas_en_juego(body: EnJuegoIn):
     `mas_en_juego` la de mayor rango entre la mala y la buena suerte, sobre el sueldo típico de quedarse.
     """
     try:
-        return peso.en_juego(body.perfil.a_perfil(), tuple(body.dudas), body.semilla, body.gemelos)
+        anios = _anios(body)
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from error
+    try:
+        return peso.en_juego(body.perfil.a_perfil(), tuple(body.dudas), body.semilla, body.gemelos, anios)
     except KeyError as error:
         raise HTTPException(422, f"no existe la decisión {error}") from error

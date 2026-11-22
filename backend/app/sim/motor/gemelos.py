@@ -8,6 +8,7 @@ diferencia entre opciones es el efecto de esta decisión y no de otras diez.
 from collections import Counter
 from statistics import median, quantiles
 
+from app.sim.motor import ia
 from app.sim.motor.azar import Dados
 from app.sim.motor.motor import Vida
 from app.sim.motor.perfil import NIVELES
@@ -35,7 +36,11 @@ def _parametros(vida: Vida, opcion, parametros: dict[str, dict]) -> dict:
 
 
 def escenario_ia(adopcion: float) -> str:
-    """El escenario de IA de un mundo, por tercil de su velocidad de adopción."""
+    """El escenario de IA de un mundo. Con la incertidumbre de IA prendida es el ritmo sorteado con los pesos del
+    FRI (ia.ritmo); apagada, el tercil de su velocidad de adopción."""
+    if ia.activa():
+        from app.sim.motor.paquete import paquete
+        return ia.ritmo(paquete(), adopcion)
     return "lento" if adopcion < 1 / 3 else "medio" if adopcion < 2 / 3 else "rapido"
 
 
@@ -96,6 +101,7 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
     opciones = vida.opciones(decision_id)
     parametros = parametros or {}
     anio0, buscando0, ingreso0 = len(vida.historia), vida.anios_buscando, vida.ingreso_total
+    meses0 = vida.meses_buscando
     edad0, nivel0 = vida.e["edad"], vida.e["nivel"]
     usados = {o.id: _parametros(vida, o, parametros) for o in opciones}
     finales: dict[str, list[Vida]] = {
@@ -146,8 +152,9 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
             "es_base": es_base, "parametros": usados[o.id],
             "sueldo": _rango(sueldos),
             "ingreso_total": _rango([v.ingreso_total - ingreso0 for v in vidas]),
-            "paso_por_cesantia": sum(1 for v in vidas if v.anios_buscando > buscando0) / n,
-            "meses_sin_trabajo": 12 * sum(v.anios_buscando - buscando0 for v in vidas) / n,
+            # cesante, la búsqueda se vive mes a mes: cuenta quien pasó al menos un mes buscando
+            "paso_por_cesantia": sum(1 for v in vidas if v.meses_buscando > meses0 or v.anios_buscando > buscando0) / n,
+            "meses_sin_trabajo": sum(v.meses_buscando - meses0 for v in vidas) / n,
             "sin_trabajo_al_final": sum(1 for v in vidas if v.e["estado"] == "buscando") / n,
             "cargo_mas_probable": NIVELES[niveles.most_common(1)[0][0]],
             # la moda engaña: con 35 de 100 en junior y el resto repartido arriba, "lo más probable" es junior
@@ -166,6 +173,12 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
         "gemelos": n, "anios": anios, "base": base, "opciones": salida,
         # en cada mundo, con qué opción terminas ganando más (None: empate); el índice es el número del mundo
         "ganador_por_mundo": [_ganador(f) for f in finales_por_mundo],
+        # el ritmo de la IA de cada mundo (igual en todas sus opciones); None con la incertidumbre de IA apagada
+        "ia_por_mundo": [finales[base][g].e.get("ia_ritmo") for g in range(n)] if ia.activa() else None,
+        "ia": ia.por_ritmo([finales[base][g].e.get("ia_ritmo") for g in range(n)],
+                           [_ganador(f) for f in finales_por_mundo],
+                           {o.id: [finales[o.id][g].sueldo_al_final() for g in range(n)] for o in opciones})
+        if ia.activa() else None,
     }
 
 
@@ -211,7 +224,9 @@ def mundo(vida: Vida, decision_id: str, numero: int, *, anios: int = HORIZONTE, 
     return {
         "mundo": numero, "decision": decision_id,
         "ia": {"adopcion": round(next(iter(vidas.values()))[1].e.get("ia_adopcion", 0.5), 3),
-               "escenario": escenario_ia(next(iter(vidas.values()))[1].e.get("ia_adopcion", 0.5)),
+               "escenario": next(iter(vidas.values()))[1].e.get("ia_ritmo")
+               or escenario_ia(next(iter(vidas.values()))[1].e.get("ia_adopcion", 0.5)),
+               "activa": ia.activa(),
                "castigo_joven": round(next(iter(vidas.values()))[1].e.get("ia_castigo_joven", 0.81), 3)},
         "ganador": _ganador({k: v.sueldo_al_final() for k, (_, v) in vidas.items()}),
         "opciones": [

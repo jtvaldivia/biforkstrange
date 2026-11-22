@@ -102,8 +102,9 @@ def _catalogo_evaluable(v) -> list[str]:
         if not v._evento_en_alcance(id_):
             continue
         try:
-            if p.evaluar(ev["cuando"], e) and not 0 <= p.evaluar(ev["prob_anual"], e) <= 1:
-                malas.append(f"evento {id_}: prob_anual fuera de [0, 1]")
+            campo = "prob_mensual" if ev.get("paso") == "mes" else "prob_anual"  # la cesantía se vive mes a mes
+            if p.evaluar(ev["cuando"], e) and not 0 <= p.evaluar(ev[campo], e) <= 1:
+                malas.append(f"evento {id_}: {campo} fuera de [0, 1]")
         except Exception as x:  # noqa: BLE001
             malas.append(f"evento {id_}: {type(x).__name__}: {x}")
     return malas

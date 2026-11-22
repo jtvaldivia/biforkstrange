@@ -296,7 +296,7 @@ def test_cuanto_le_falta_a_quien_estudia():
     assert r["perfil"]["semestres_restantes"] is None and not any("titular" in f for f in r["inferido"])
 
 
-@pytest.mark.parametrize(("rasgo", "opcion"), [("volvio_a_su_nivel", "nivel"), ("freelance_entre_pegas", "informal"),
+@pytest.mark.parametrize(("rasgo", "opcion"), [("volvio_a_su_nivel", "buscar"), ("freelance_entre_pegas", "informal"),
                                               ("emprendio_antes", "emprender")])
 def test_en_la_cesantia_tus_gemelos_salen_como_saliste_tu(rasgo, opcion):
     from app.sim.motor.paquete import paquete

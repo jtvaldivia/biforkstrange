@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import QRCode from "qrcode";
-import { Button, Meta, Stack, Text } from "@/shared/ui";
+import { BifurcaLogo, Button, Meta, Stack, Text } from "@/shared/ui";
 import { plata } from "../textos";
 import type { Comparacion } from "../types";
 import "../demo.css";
@@ -153,7 +153,7 @@ export function CompartirResultado({
         <div className="jg-tarjeta-lienzo" aria-hidden="true">
           <div className="jg-tarjeta" ref={tarjeta}>
             <div className="jg-tarjeta-marca">
-              Bifurca
+              <BifurcaLogo size={34} color="#1D1E22" acento="#2447F9" />
               <span>{comparacion.gemelos} mundos, la misma suerte</span>
             </div>
             <p className="jg-tarjeta-pregunta">{comparacion.pregunta}</p>

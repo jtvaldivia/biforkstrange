@@ -1,7 +1,6 @@
 /**
  * Kit de UI de Bifurca (desde el Claude Design "Gemelo Laboral · simulador de vida").
  * Los estilos (styles/vida.css) se importan una vez en main.tsx. Usa los componentes desde "@/shared/ui".
- * Catálogo vivo en /ui (ver features/ui-kit).
  */
 
 export * from "./tokens";
@@ -19,6 +18,7 @@ export { StationTimeline, YearTicker } from "./components/Timeline";
 export { LinesChart, RangeCompare, VisitsTimeline, type Range } from "./components/Charts";
 export { ChevronLeftIcon, CheckIcon, PhoneIcon, SunIcon, MoonIcon } from "./components/Icon";
 export { ThemeToggle } from "./components/ThemeToggle";
+export { BifurcaMark, BifurcaLogo } from "./components/Brand";
 
 export { LifePathHero } from "./illustrations/LifePathHero";
 export { DecisionArt, DECISION_ART_KINDS, type DecisionArtKind } from "./illustrations/DecisionArt";

@@ -1,10 +1,12 @@
 import { Button, Meta, Narrative, NightBand, Panel, Pill, Screen, ScreenFooter, ScreenHeader, SlowReveal, Stack, Text, YearTicker, cssVars } from "@/shared/ui";
-import { TIPO_EMPLEADOR, aniosDe, cargoYSueldo, conSigno, deCada, deCada10, deCien, pesos, plata, sinSueldo, situacion } from "../textos";
+import { TIPO_EMPLEADOR, aniosDe, cargoYSueldo, conSigno, deCada, deCada10, deCien, pesos, plata, porciento, sinSueldo, situacion } from "../textos";
 import type { Anio, Estado, Narrado, Vista } from "../types";
 import { useNarracion } from "../hooks/useNarracion";
 import { GEMELOS } from "../api";
-import { Info, LineaSueldo, Ruleta, sinMovimiento, type Casilla } from "./graficos";
-import { Noticia, Pensando, Salir } from "./piezas";
+import { DadoEnJuego, Info, LineaSueldo, Ruleta, sinMovimiento, type Casilla } from "./graficos";
+import { Noticia, Salir } from "./piezas";
+import { ComoCambioTuSueldo, TuIngreso } from "./Plata";
+import { TiraMeses, mesesDelAnio } from "./BuscandoTrabajo";
 
 /** Todo lo que pasó entre la elección y la siguiente decisión pendiente: años cerrados y lo que va del año en curso. */
 export function loNuevo(previa: Vista | null, vista: Vista): Anio[] {
@@ -17,7 +19,8 @@ export function loNuevo(previa: Vista | null, vista: Vista): Anio[] {
     .map((a, i) => (i === 0 ? { ...a, decisiones: a.decisiones.slice(yaDecisiones), eventos: a.eventos.slice(yaEventos) } : a));
 }
 
-const queTanProbable = (prob: number) => (prob >= 0.995 ? "Seguro" : deCien(prob));
+// lo que puede pasarte en el año va en porcentaje; "de 100" queda solo para contar mundos
+const queTanProbable = (prob: number) => (prob >= 0.995 ? "Seguro" : porciento(prob));
 
 /** Por qué bajó el sueldo, según lo que de verdad pasó: un despido, otro empleador o el mismo trabajo. */
 function porQueBajo(antes: Estado, ahora: Estado, despido: boolean): string {
@@ -127,7 +130,15 @@ export function QuePaso({
   const boton = vista.terminada ? "Ver cómo terminaste" : mismoAnio ? queSigue : `Seguir al año ${proximo}`;
 
   // el dado sigue girando hasta que Claude cuenta el año: las noticias se muestran una vez y no cambian
-  if (!listo) return <Pensando titulo={`Mundo ${GEMELOS + 1} · ${primero ? `${primero.edad} años` : `año ${proximo}`}`} onSalir={onSalir} />;
+  // mientras Claude cuenta el año sigue la misma escena de la carta: la ficha buscando, o la espera corta si era segura
+  if (!listo)
+    return (
+      <DadoEnJuego
+        casillas={hayRuleta ? casillas : []}
+        titulo={`Mundo ${GEMELOS + 1} · ${primero ? `${primero.edad} años` : `año ${proximo}`}`}
+        texto={hayRuleta ? undefined : "Contando tu año…"}
+      />
+    );
 
   return (
     <Screen tone={noche ? "noche" : "dia"} gap={16} className="jg-quepaso" key={`${vista.historia.length}:${vista.anio_en_curso?.decisiones.length ?? 0}`}>
@@ -166,20 +177,25 @@ export function QuePaso({
       )}
 
       {tramos.map((a, i) => {
-        const decisiones = i === 0 ? a.decisiones.slice(1) : a.decisiones;
-        const eventos = a.eventos.filter((e) => !e.rutina);
-        const nada = decisiones.length === 0 && eventos.length === 0;
+        // la oferta del mes y su sorteo de empleador se ven en la tira de meses, no como noticias
+        const decisiones = (i === 0 ? a.decisiones.slice(1) : a.decisiones).filter((d) => d.decision !== "tipo_de_oferta");
+        const eventos = a.eventos.filter((e) => !e.rutina && e.evento !== "oferta_cesante");
+        const celdas = mesesDelAnio(a);
+        const titular = a.ia?.titular;
+        const nada = decisiones.length === 0 && eventos.length === 0 && !titular;
         return (
           <Stack as="section" gap={8} key={`${a.anio}:${a.edad}`} className="jg-despues" style={cssVars({ "--jg-espera": `${espera + 0.2 + i * 0.1}s` })}>
             <Meta>
               {aniosDe(a.edad, a.fin?.edad, edadInicial)} · {a.edad} años{a.fin ? "" : " · en curso"}
             </Meta>
+            {titular && <Noticia titulo="En las noticias" texto={titular} className="jg-titular-ia" />}
+            {celdas && <TiraMeses celdas={celdas} />}
             {eventos.map((e, j) => (
               <Noticia
                 key={`e${j}`}
                 titulo={e.nombre}
                 texto={narrados[`anio:${a.anio}:evento:${a.eventos.indexOf(e)}`] ?? e.texto}
-                lado={e.directo ? undefined : queTanProbable(e.prob)}
+                lado={e.directo ? undefined : `${queTanProbable(e.prob)}${e.prob >= 0.995 ? "" : " al año"}`}
               />
             ))}
             {decisiones.map((d, j) => (
@@ -204,9 +220,10 @@ export function QuePaso({
       })}
 
       {conProbabilidad && (
-        <Info pregunta="¿Qué son los «X de 100»?">
-          Qué tan probable era que te pasara eso este año, a alguien en tu situación. Por ejemplo, «4 de 100» junto a un despido: de cada 100 personas como tú,
-          a unas 4 las despiden en un año. Junto a una decisión, es qué tan probable era el resultado que te tocó.
+        <Info pregunta="¿Qué es el % junto a cada noticia?">
+          Qué tan probable era que te pasara eso, a alguien en tu situación. Por ejemplo, «4% al año» junto a un despido: de cada 100 personas como tú, a
+          unas 4 las despiden en un año. Junto a una decisión, es qué tan probable era el resultado que te tocó. Los «de 100 mundos», en cambio, cuentan en
+          cuántos de tus 100 mundos simulados pasó algo.
         </Info>
       )}
 
@@ -218,6 +235,8 @@ export function QuePaso({
       )}
 
       <Quedaste antes={previa?.estado} ahora={vista.estado} recorrido={recorrido} espera={espera + 0.3} despido={despido} />
+      <ComoCambioTuSueldo tramos={tramos} antes={previa?.estado} ahora={vista.estado} />
+      <TuIngreso tramos={tramos} ahora={vista.estado} />
 
       <ScreenFooter>
         <Button variant={vista.terminada ? "sol" : "primary"} onClick={onSeguir}>

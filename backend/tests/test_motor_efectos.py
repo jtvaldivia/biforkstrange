@@ -246,25 +246,29 @@ def test_el_azar_de_un_efecto_depende_solo_de_gemelo_anio_y_sitio():
 
 # ------------------------------------------------------------------ caso literal del paquete
 def _despedida(antiguedad: int, cesante: bool):
-    guion = {"evento:separacion_empleo": 0.0} if cesante else {}
+    # despedida en el primer mes: busca los 12 meses del año (sin ofertas con el dado NADA)
+    guion = {"evento:separacion_empleo": 0.0, "evento:separacion_empleo:mes": 0.0} if cesante else {}
     v = vida(Perfil(edad=35, sueldo=1_000_000, antiguedad=antiguedad), DadosGuion(guion), ahorro=0.0)
-    registro = v.vivir_anio(Guion({"oferta_externa": "quedarse"}))
+    registro = v.vivir_anio(Guion({"oferta_externa": "quedarse", "cesantia": "buscar"}))
     return v, registro
 
 
 @pytest.mark.parametrize(("antiguedad", "sueldos_de_finiquito"), [(5, 5), (15, 11), (0, 0)])
 def test_separacion_cesante_lee_sueldo_y_antiguedad_de_antes(antiguedad, sueldos_de_finiquito):
     """`separacion_empleo/cesante`: el sueldo queda en 0, pero el finiquito es sueldo x min(antigüedad, 11)
-    y `sueldo_ref` queda en sueldo x (1 - CAIDA_REEMPLEO) = sueldo x 0,85. Todo con el sueldo de antes."""
-    gemela, _ = _despedida(antiguedad, cesante=False)   # misma suerte, sin despido: su sueldo es el de antes
-    sueldo_antes = gemela.e["sueldo"]
-    assert 800_000 <= sueldo_antes <= 1_250_000 and sueldo_antes != 1_000_000  # ya pasó el alza del año
+    y `sueldo_ref` queda en el sueldo de antes (la baja la traen las ofertas). El despido va primero en el
+    año, así que el sueldo de antes es el del año pasado, sin el alza."""
+    gemela, _ = _despedida(antiguedad, cesante=False)   # misma suerte, sin despido
+    assert gemela.e["sueldo"] != 1_000_000  # a ella sí le tocó el alza del año
     v, registro = _despedida(antiguedad, cesante=True)
     assert [x["resultado"] for x in registro["eventos"] if x["evento"] == "separacion_empleo"] == ["cesante"]
-    assert v.e["estado"] == "buscando" and v.e["sueldo"] == 0
-    assert v.e["sueldo_ref"] == pytest.approx(sueldo_antes * 0.85, rel=1e-12)
-    # cierre: sin sueldo no hay ahorro del año; el finiquito rinde el retorno real (4%)
-    assert v.e["ahorro"] == pytest.approx(sueldo_antes * sueldos_de_finiquito * 1.04, rel=1e-12)
+    assert v.e["estado"] == "buscando" and v.e["sueldo"] == 0 and v.e["meses_cesante"] == 12
+    assert v.e["sueldo_ref"] == 1_000_000
+    # cada mes buscando gasta sueldo_ref x (COBERTURA_SEGURO - 1) x 0,5 del ahorro; sin sueldo no hay ahorro
+    # del año, y al cierre lo ahorrado (si es positivo) rinde el retorno real (4%)
+    ahorro = 1_000_000 * sueldos_de_finiquito + 12 * 1_000_000 * (0.126 - 1) * 0.5
+    assert v.e["ahorro"] == pytest.approx(ahorro * 1.04 if ahorro > 0 else ahorro, rel=1e-12)
+    assert registro["plata"]["meses_sin_sueldo"] == 12 and registro["plata"]["ganado"] == 0
     assert v.e["animo"] < gemela.e["animo"]
 
 
@@ -449,13 +453,15 @@ def _escalera_desde_pyme() -> list[tuple[float, str, str]]:
 
 @pytest.mark.parametrize(("u", "tipo", "rubro"), _escalera_desde_pyme())
 def test_tipo_de_empleador_al_reemplearse(u, tipo, rubro):
-    """Despido con reempleo el mismo año: encadena la decisión interna `tipo_de_empleador`, que lee la fila
-    de su tipo de origen (pyme) en la escalera de transiciones_tipo."""
-    d = DadosGuion({"evento:separacion_empleo": 0.0, "evento:separacion_empleo:res": 0.0,
-                    "dec:tipo_de_empleador:sorteo": u})
+    """La decisión interna `tipo_de_empleador` (la encadenan los cambios de pega sin una oferta que ya diga
+    la empresa) lee la fila de su tipo de origen (pyme) en la escalera de transiciones_tipo. El despido ya
+    no reemplea el mismo año: el tipo de la pega nueva lo trae cada oferta mes a mes (test_motor_anio)."""
+    d = DadosGuion({"dec:tipo_de_empleador:sorteo": u})
     v = vida(Perfil(edad=35, rubro="Comercio", tipo_empleador="pyme", antiguedad=6), d)
-    registro = v.vivir_anio(Guion({"oferta_externa": "quedarse"}))
-    assert [x["resultado"] for x in registro["eventos"] if x["evento"] == "separacion_empleo"] == ["reemplea"]
+    v.iniciar_anio(con_cartas=False)
+    v.cola.insert(0, ("decision", "tipo_de_empleador", "luego"))
+    v.avanzar(Guion({"oferta_externa": "quedarse"}))
+    registro = v.historia[-1]
     interna = [x for x in registro["decisiones"] if x["decision"] == "tipo_de_empleador"]
     assert len(interna) == 1 and interna[0]["origen"] == "luego" and interna[0]["resultado"] == tipo
     assert v.e["estado"] == "empleado" and v.e["tipo_empleador"] == tipo and v.e["rubro"] == rubro
@@ -464,19 +470,20 @@ def test_tipo_de_empleador_al_reemplearse(u, tipo, rubro):
 
 
 def test_p_encontrar_multiplica_la_probabilidad_de_encontrar_trabajo():
-    """Literal: cesantía a los 30-44 con red 30, sin hueco ni recesión:
-    rápido = (1 - exp(-12 / 10,5)) x 1,15 = 0,7833; a tu nivel = x 0,8 = 0,5449.
-    Con p_encontrar = 0,81 (ignorar la IA siendo joven en un área expuesta), se multiplican."""
-    base = 1 - math.exp(-12 / 10.5)
-    for opcion, p in (("rapido", base * 1.15), ("nivel", base * 0.8)):
-        for p_encontrar in (1.0, 0.81):
-            corte = p * p_encontrar
-            for u, esperado in ((corte - 1e-6, "encuentra"), (corte + 1e-6, "nada")):
-                d = DadosGuion({f"dec:cesantia:{opcion}": u})
-                v = vida(Perfil(edad=35, estado="buscando", sueldo=1_000_000), d, p_encontrar=p_encontrar,
-                         tipo_empleador="pyme", rubro="Comercio")
-                reg = v.vivir_anio(Guion({"cesantia": opcion, "oferta_externa": "quedarse"}))
-                assert reg["decisiones"][0]["resultado"] == esperado, (opcion, p_encontrar, u)
+    """Literal: cesante a los 30-44 con red 30, sin hueco ni recesión, el primer mes le llega una oferta
+    con K_OFERTA_CESANTE / MESES_CESANTIA = 1,8 / 10,5 = 0,1714. Con p_encontrar = 0,81 (ignorar la IA
+    siendo joven en un área expuesta), se multiplican."""
+    for p_encontrar in (1.0, 0.81):
+        corte = 1.8 / 10.5 * p_encontrar
+        for u, llega in ((corte - 1e-6, True), (corte + 1e-6, False)):
+            d = DadosGuion({"evento:oferta_cesante:mes1": u})
+            v = vida(Perfil(edad=35, estado="buscando", sueldo=1_000_000), d, p_encontrar=p_encontrar,
+                     tipo_empleador="pyme", rubro="Comercio")
+            reg = v.vivir_anio(Guion({"cesantia": "buscar", "oferta_en_cesantia": "aceptar", "oferta_externa": "quedarse"}))
+            ofertas = [x for x in reg["eventos"] if x["evento"] == "oferta_cesante" and x["mes"] == 1]
+            assert bool(ofertas) is llega, (p_encontrar, u)
+            assert not llega or ofertas[0]["prob_evento"] == pytest.approx(corte)
+            assert (v.e["estado"] == "empleado") is llega
     assert NADA < 1
 
 
@@ -501,12 +508,15 @@ def test_quedar_sin_trabajo_con_sueldo_lo_pasa_a_sueldo_de_referencia():
 
 
 def test_la_decision_encadenada_corre_antes_que_los_eventos_que_siguen():
-    """Despido con reempleo en una startup: `tipo_de_empleador` se resuelve en el acto, así que el
-    evento `startup_cierra`, que viene después en el año, ya la encuentra en una startup."""
-    d = DadosGuion({"evento:separacion_empleo": 0.0, "evento:separacion_empleo:res": 0.0,
-                    "dec:tipo_de_empleador:sorteo": 0.995, "evento:startup_cierra": 0.0})
+    """Despedida, acepta en el primer mes una oferta de una startup: `tipo_de_oferta` y `oferta_en_cesantia`
+    se resuelven en el acto, así que el evento `startup_cierra`, que viene después en el año, ya la
+    encuentra en una startup."""
+    d = DadosGuion({"evento:separacion_empleo": 0.0, "evento:separacion_empleo:mes": 0.0,
+                    "evento:oferta_cesante:mes1": 0.0, "dec:tipo_de_oferta:sorteo:mes1": 0.995,
+                    "evento:startup_cierra": 0.0})
     v = vida(Perfil(edad=35, rubro="Comercio"), d)
-    reg = v.vivir_anio(Guion({"oferta_externa": "quedarse"}))
+    reg = v.vivir_anio(Guion({"oferta_externa": "quedarse", "cesantia": "buscar", "oferta_en_cesantia": "aceptar"}))
+    assert [x["resultado"] for x in reg["decisiones"] if x["decision"] == "tipo_de_oferta"] == ["startup"]
     assert [x["evento"] for x in reg["eventos"] if x["evento"] in ("separacion_empleo", "startup_cierra")] == [
         "separacion_empleo", "startup_cierra"]
     assert v.e["tipo_empleador"] == "startup" and v.e["estado"] == "buscando"

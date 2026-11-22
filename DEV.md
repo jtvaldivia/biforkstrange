@@ -93,7 +93,7 @@ Las empresas reales están en `backend/data/empresas/` y se regeneran con `backe
 
 Los supuestos que pone el motor (lo que el paquete no define) están listados en `docs/motor/TICKETS.md`; el resultado de la validación, en `docs/motor/VALIDACION.md`.
 
-El esqueleto anterior (`sim/engine.py`, `sim/decisions/`, `sim/labor.py`) sigue en `/simulacion` y en `make simular`, pero el juego ya no lo usa.
+El esqueleto anterior (`sim/engine.py`, `sim/decisions/`, `sim/labor.py`) sigue en `make simular`, pero el juego ya no lo usa.
 
 ## Frontend (`frontend/src`)
 
@@ -115,7 +115,7 @@ Componentes del Claude Design "Gemelo Laboral · simulador de vida". Todo se imp
 - Gráficos: `LinesChart`, `RangeCompare` (rangos Monte Carlo A vs B), `VisitsTimeline`, `StationTimeline`, `YearTicker`
 - Escenas: `LifePathHero`, `TravelScene`, `OfficeScene`
 
-Las escenas animadas usan un reloj CSS (`--vd-t`): pon `scene="once"` en el `Screen` y usa `revealAt` en indicadores y notificaciones para que entren en su momento (ver `shared/ui/scene.ts`). Catálogo vivo y las 8 pantallas armadas con el kit en **http://localhost:5173/ui** (`features/ui-kit`).
+Las escenas animadas usan un reloj CSS (`--vd-t`): pon `scene="once"` en el `Screen` y usa `revealAt` en indicadores y notificaciones para que entren en su momento (ver `shared/ui/scene.ts`).
 
 ## Deploy (Render)
 

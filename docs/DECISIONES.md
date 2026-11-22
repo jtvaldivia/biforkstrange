@@ -95,3 +95,16 @@ Cada año, para la persona y para sus copias:
 **Por qué.** Es más realista: la mayoría de los años no pasa nada grande. Es más entretenido: las decisiones pesan más si no son constantes, y buscar algo por tu cuenta da control. Y la persona y las copias siguen la misma regla, así que compararlos es justo.
 
 **Pendiente.** Qué tan seguido llega una propuesta sale de los pesos relativos del paquete, no de una probabilidad anual medida. Para las ofertas hay dato (EPS, NY Fed); para el resto, convertir los pesos en probabilidades anuales es trabajo de los frentes de Cris y Valdi.
+
+## 14. La IA llega a un ritmo distinto en cada mundo, con pesos de expertos
+
+Cada mundo trae un ritmo de la IA (lento, medio o rápido), sorteado con las probabilidades que economistas y superforecasters dieron a cada escenario al 2030 (FRI 2026). El ritmo mueve lo que le pasa a tu pega según cómo te toca la IA (OIT 2025). Se apaga con `BIFURCA_IA=0`.
+
+**Lo que descartamos.**
+- Sortear el ritmo uniforme, como era antes: también es un peso, solo que inventado.
+- Mostrar los tres ritmos por separado sin un conteo total: es lo más honesto ante incertidumbre profunda, pero cambia cómo se lee "gana en X de 100". La carta muestra solo el conteo total, con los pesos del FRI; el cierre dice cuánto habría ganado tu opción con cada ritmo.
+- Meter la AGI como un cuarto ritmo con efectos: no hay frecuencias ni consenso, y sus efectos salen de modelos teóricos.
+
+**Por qué.** El FRI es la única fuente con probabilidades explícitas por escenario, de grupos con historial de pronóstico. Y los efectos quedan chicos, como dice esa misma fuente: aun con IA rápida ven el desempleo en 6% contra 5%.
+
+**Qué nos haría cambiar.** Que haya una medición chilena del efecto de la IA en el empleo, o que los pronósticos de expertos se muevan mucho (el FRI se actualiza).

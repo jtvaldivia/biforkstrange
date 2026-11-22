@@ -642,6 +642,198 @@
    "pais": "EE.UU.",
    "tipo": "estudio",
    "verificacion": "descargado"
+  },
+  {
+   "id": "fri_2026",
+   "cita": "Forecasting Research Institute, Forecasting the Economic Effects of AI: encuesta a economistas, expertos en IA, superforecasters y público (oct-2025 a feb-2026), marzo 2026, revisada mayo 2026",
+   "url": "https://forecastingresearch.org/research/economic-effects-of-ai",
+   "pais": "EE.UU.",
+   "tipo": "encuesta abierta",
+   "verificacion": "leído en la fuente"
+  },
+  {
+   "id": "oit_genai_2025",
+   "cita": "Gmyrek, Berg, Kamiński et al., Generative AI and Jobs: A Refined Global Index of Occupational Exposure, OIT, documento de trabajo 140, mayo 2025 (datos CC-BY-4.0)",
+   "url": "https://github.com/pgmyrek/2025_GenAI_scores_ISCO08",
+   "pais": "mundo",
+   "tipo": "datos",
+   "verificacion": "descargado"
+  },
+  {
+   "id": "oit_bm_2024",
+   "cita": "Gmyrek, Winkler y Garganta, Buffer or Bottleneck? Employment Exposure to Generative AI and the Digital Divide in Latin America, OIT y Banco Mundial, documento de trabajo 121, julio 2024",
+   "url": "https://www.ilo.org/sites/default/files/2024-07/WP121_web.pdf",
+   "pais": "Chile",
+   "tipo": "paper",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "hosseini_lichtinger_2026",
+   "cita": "Hosseini y Lichtinger, Generative AI as Seniority-Biased Technological Change, SSRN, revisión mayo 2026",
+   "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5425555",
+   "pais": "EE.UU.",
+   "tipo": "paper",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "bcch_ipom_2026",
+   "cita": "Banco Central de Chile, IPoM septiembre 2026, Recuadro I.2 (Albagli et al. 2026): exposición a la automatización y permanencia en el empleo formal",
+   "url": "https://www.bcentral.cl/documents/33528/8621177/Recuadro%20I.2%20IPoM%20Septiembre%202026.pdf/4589ee24-2da8-7508-bb56-cc80dd978ec6",
+   "pais": "Chile",
+   "tipo": "informe",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "stephany_teutloff_2024",
+   "cita": "Stephany y Teutloff, What is the price of a skill? The value of complementarity, Research Policy 53(1), 2024",
+   "url": "https://www.sciencedirect.com/science/article/pii/S0048733323001828",
+   "pais": "mundo",
+   "tipo": "paper",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "lightcast_2025",
+   "cita": "Lightcast, Beyond the Buzz: Developing the AI Skills Employers Actually Need, julio 2025",
+   "url": "https://lightcast.io/resources/research/beyond-the-buzz-developing-the-ai-skills-employers-actually-need",
+   "pais": "EE.UU.",
+   "tipo": "informe",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "pwc_2026",
+   "cita": "PwC, Global AI Jobs Barometer 2026",
+   "url": "https://www.pwc.com/gx/en/news-room/press-releases/2026/pwc-2026-ai-jobs-barometer.html",
+   "pais": "mundo",
+   "tipo": "informe",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "fmi_movilidad_2024",
+   "cita": "Cazzaniga, Pizzinelli, Rockall y Tavares, Exposure to Artificial Intelligence and Occupational Mobility: A Cross-Country Analysis, FMI WP/24/116, 2024",
+   "url": "https://www.elibrary.imf.org/view/journals/001/2024/116/article-A001-en.xml",
+   "pais": "Brasil y Reino Unido",
+   "tipo": "paper",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "fmi_genai_2024",
+   "cita": "Cazzaniga et al., Gen-AI: Artificial Intelligence and the Future of Work, FMI Staff Discussion Note SDN/2024/001",
+   "url": "https://www.imf.org/-/media/files/publications/sdn/2024/english/sdnea2024001.pdf",
+   "pais": "mundo",
+   "tipo": "paper",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "manning_aguirre_2026",
+   "cita": "Manning y Aguirre, How Adaptable Are American Workers to AI-Induced Job Displacement?, NBER WP 34705, enero 2026",
+   "url": "https://www.nber.org/papers/w34705",
+   "pais": "EE.UU.",
+   "tipo": "paper",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "ocec_udp_2026",
+   "cita": "OCEC UDP con la ENE del INE: duración media del desempleo por edad, marzo 2026 (vía Meganoticias)",
+   "url": "https://www.meganoticias.cl/nacional/518388-desempleo-chile-supera-medio-ano-busqueda-laboral-31-03-2026.html",
+   "pais": "Chile",
+   "tipo": "prensa",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "sence_comision_2011",
+   "cita": "Comisión Revisora del Sistema de Capacitación e Intermediación Laboral, informe final, 2011",
+   "url": "https://www.mintrab.gob.cl/wp-content/uploads/downloads/2011/11/Informe-Final-Comisi%C3%B3n-Revisora_231111.pdf",
+   "pais": "Chile",
+   "tipo": "informe",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "card_kluve_weber_2018",
+   "cita": "Card, Kluve y Weber, What Works? A Meta Analysis of Recent Active Labor Market Program Evaluations, JEEA 16(3), 2018",
+   "url": "https://www.nber.org/papers/w21431",
+   "pais": "mundo",
+   "tipo": "meta-análisis",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "census_btos_2026",
+   "cita": "U.S. Census Bureau, Business Trends and Outlook Survey: uso de IA en empresas, mayo-agosto 2026",
+   "url": "https://www.census.gov/library/stories/2026/05/ai-use-businesses.html",
+   "pais": "EE.UU.",
+   "tipo": "encuesta abierta",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "bcch_ief_2026",
+   "cita": "Banco Central de Chile, Informe de Estabilidad Financiera, noviembre 2026: riesgo de una corrección de las inversiones en IA",
+   "url": "https://www.redimin.cl/banco-central-advierte-que-una-correccion-en-las-inversiones-de-ia-podria-tensionar-el-financiamiento-en-chile",
+   "pais": "Chile",
+   "tipo": "prensa",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "polymarket_burbuja_2026",
+   "cita": "Polymarket, mercado 'AI bubble burst' a fin de 2026 (cobertura de prensa)",
+   "url": "https://predictionnews.com/story/prediction-markets-show-low-odds-for-ai-bubble-burst-despite-2026-crash-fears",
+   "pais": "mundo",
+   "tipo": "prensa",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "sp_cobre_2026",
+   "cita": "S&P Global, demanda de cobre de los data centers (1,1 Mt en 2025 a 2,5 Mt en 2040), cobertura de prensa 2026; exportaciones de cobre de Chile 2025 (DF)",
+   "url": "https://mineriaenlinea.com/2026/09/ia-elevara-la-demanda-de-cobre-y-minerales-criticos-hacia-2035/",
+   "pais": "Chile",
+   "tipo": "prensa",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "anthropic_mercado_2026",
+   "cita": "Massenkoff y McCrory, Labor market impacts of AI: a new measure and early evidence, Anthropic, marzo 2026",
+   "url": "https://www.anthropic.com/research/labor-market-impacts",
+   "pais": "EE.UU.",
+   "tipo": "paper",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "korinek_suh_2024",
+   "cita": "Korinek y Suh, Scenarios for the Transition to AGI, NBER WP 32255, 2024",
+   "url": "https://www.nber.org/papers/w32255",
+   "pais": "mundo",
+   "tipo": "paper",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "nyfed_ia_2026",
+   "cita": "Federal Reserve Bank of New York, encuestas regionales de empresas sobre IA, agosto 2026",
+   "url": "https://libertystreeteconomics.newyorkfed.org/2025/09/are-businesses-scaling-back-hiring-due-to-ai/",
+   "pais": "EE.UU.",
+   "tipo": "encuesta abierta",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "amodei_axios_2025",
+   "cita": "Dario Amodei (CEO de Anthropic) en Axios, 28 de mayo de 2025: la IA podría eliminar la mitad de los empleos de entrada de oficina y llevar el desempleo a 10-20% en 1 a 5 años",
+   "url": "https://www.axios.com/2025/05/28/ai-jobs-white-collar-unemployment-anthropic",
+   "pais": "EE.UU.",
+   "tipo": "declaración",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "ai_2027",
+   "cita": "Kokotajlo, Alexander, Larsen, Lifland y Dean, AI 2027 (escenario), 2025, y sus actualizaciones de AI Futures",
+   "url": "https://ai-2027.com",
+   "pais": "mundo",
+   "tipo": "informe",
+   "verificacion": "resumen"
+  },
+  {
+   "id": "narayanan_kapoor_2025",
+   "cita": "Narayanan y Kapoor, AI as Normal Technology, Knight First Amendment Institute, 2025",
+   "url": "https://knightcolumbia.org/content/ai-as-normal-technology",
+   "pais": "mundo",
+   "tipo": "paper",
+   "verificacion": "resumen"
   }
  ]
 }

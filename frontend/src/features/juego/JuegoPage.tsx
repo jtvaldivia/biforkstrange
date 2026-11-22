@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Heading, Screen, ScreenFooter, Stack, Text } from "@/shared/ui";
 import { AnioTranquilo } from "./components/AnioTranquilo";
 import { OfertaLiviana } from "./components/OfertaLiviana";
+import { BuscandoTrabajo } from "./components/BuscandoTrabajo";
 import { Carta } from "./components/Carta";
 import { CierrePantalla } from "./components/Cierre";
 import { ComoFunciona } from "./components/ComoFunciona";
@@ -85,11 +86,14 @@ function Fase({
   }
   if (j.fase === "duda") {
     return (
-      <DudaPicker fuentes={j.fuentes} origenSugeridas={j.origenSugeridas} perfil={j.perfil} dudas={j.dudas} sugeridas={j.dudasSugeridas} cargando={j.cargando} error={j.error} onVolver={j.irAPerfil} onElegir={j.empezar} onReintentarDudas={j.reintentarDudas} onReintentar={j.reintentar} onSinDuda={() => j.empezarAlAzar(j.perfil)} />
+      <DudaPicker semilla={j.semillaNueva} fuentes={j.fuentes} origenSugeridas={j.origenSugeridas} perfil={j.perfil} dudas={j.dudas} sugeridas={j.dudasSugeridas} cargando={j.cargando} error={j.error} onVolver={j.irAPerfil} onElegir={j.empezar} onReintentarDudas={j.reintentarDudas} onReintentar={j.reintentar} onSinDuda={() => j.empezarAlAzar(j.perfil)} />
     );
   }
   if (j.fase === "carta" && j.vista?.pendiente?.decision === "anio_tranquilo") {
     return <AnioTranquilo vista={j.vista} cargando={j.cargando} error={j.error} onElegir={j.elegir} onSalir={j.irAInicio} sinNovedad={j.sinNovedad} />;
+  }
+  if (j.fase === "carta" && j.vista?.pendiente?.decision === "oferta_en_cesantia" && j.vista.pendiente.busqueda && mirada !== llaveCarta) {
+    return <BuscandoTrabajo vista={j.vista} cargando={j.cargando} error={j.error} onMirar={() => setMirada(llaveCarta)} onElegir={j.elegir} onSalir={j.irAInicio} />;
   }
   if (j.fase === "carta" && j.vista?.pendiente?.decision === "oferta_externa" && j.vista.pendiente.por_que?.tipo === "llega" && mirada !== llaveCarta) {
     return <OfertaLiviana vista={j.vista} cargando={j.cargando} error={j.error} onMirar={() => setMirada(llaveCarta)} onElegir={j.elegir} onSalir={j.irAInicio} sinNovedad={j.sinNovedad} />;
@@ -123,6 +127,8 @@ function Fase({
         onSalir={j.irAInicio}
         retrato={j.retrato}
         onOtraVida={j.jugarDeNuevo}
+        onRevivir={j.revivir}
+        anterior={j.anterior}
         onCambiarPerfil={j.irAPerfil}
       />
     );

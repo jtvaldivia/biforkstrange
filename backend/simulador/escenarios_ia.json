@@ -1,0 +1,56 @@
+{
+ "version": "1.0.0",
+ "fecha": "2026-11-22",
+ "descripcion": "Los tres ritmos de la IA y las voces que se muestran al cierre. Los pesos de cada ritmo están en parametros.json (P_RITMO_IA); aquí solo va el texto y de dónde sale cada cifra.",
+ "ritmos": {
+  "lento": {
+   "nombre": "IA lenta",
+   "que_es": "La IA es un asistente capaz. Lo que ya se ve sigue: se contrata algo menos a los jóvenes donde la IA automatiza, y poco más.",
+   "fuente": "fri_2026"
+  },
+  "medio": {
+   "nombre": "IA a ritmo medio",
+   "que_es": "La IA colabora en casi todo el trabajo de oficina. Se contrata bastante menos a los jóvenes donde automatiza; los despidos no cambian.",
+   "fuente": "fri_2026"
+  },
+  "rapido": {
+   "nombre": "IA rápida",
+   "que_es": "La IA supera al humano en la mayoría de las tareas. Además de contratar menos, se reestructuran las áreas donde la IA automatiza.",
+   "fuente": "fri_2026"
+  }
+ },
+ "voces": [
+  {
+   "quien": "Economistas",
+   "tipo": "pronóstico de expertos",
+   "dice": "14% de chance de IA rápida al 2030. Aun así, ven el desempleo de EE.UU. en 6%, contra 5% con IA lenta.",
+   "fuente": "fri_2026"
+  },
+  {
+   "quien": "Superforecasters",
+   "tipo": "pronóstico de quienes más aciertan",
+   "dice": "45% de IA lenta y 13% de IA rápida al 2030.",
+   "fuente": "fri_2026"
+  },
+  {
+   "quien": "Dario Amodei, CEO de Anthropic",
+   "tipo": "opinión",
+   "dice": "La IA podría eliminar la mitad de los empleos de entrada de oficina y llevar el desempleo a 10-20% en 1 a 5 años.",
+   "fuente": "amodei_axios_2025"
+  },
+  {
+   "quien": "Autores de AI 2027",
+   "tipo": "escenario",
+   "dice": "Una IA que investiga mejor que los humanos hacia 2027, y de ahí una explosión de inteligencia.",
+   "fuente": "ai_2027"
+  },
+  {
+   "quien": "Narayanan y Kapoor",
+   "tipo": "ensayo",
+   "dice": "La IA es una tecnología normal: como la electricidad, la frenan la adopción, las organizaciones y la regulación.",
+   "fuente": "narayanan_kapoor_2025"
+  }
+ ],
+ "fuera_del_juego": "La AGI y la superinteligencia no entran con números: no hay frecuencias ni consenso, y lo que dicen de los sueldos sale de modelos teóricos, no de datos.",
+ "fuera_del_juego_fuente": "korinek_suh_2024"
+}

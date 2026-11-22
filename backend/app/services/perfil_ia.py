@@ -613,8 +613,8 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
 # Lo que Claude lee de los trabajos anteriores y cómo se lo contamos a la persona: (campo, efecto en simple).
 # El campo se llama igual en PerfilLeido y en el perfil; el efecto sale de politicas.pesos_personales.
 HISTORIA_LEIDA = {
-    "volvio_a_su_nivel": ("cesantia", "nivel", "Ya pasaste por una cesantía larga y volviste a tu nivel: si quedan "
-                          "cesantes, tus copias esperan un cargo como el tuyo"),
+    "volvio_a_su_nivel": ("cesantia", "buscar", "Ya pasaste por una cesantía larga y volviste a tu nivel: si quedan "
+                          "cesantes, tus copias salen a buscar un trabajo con contrato"),
     "freelance_entre_pegas": ("cesantia", "informal", "Entre un trabajo y otro trabajaste por tu cuenta: si quedan "
                               "cesantes, tus copias hacen boletas"),
     "emprendio_antes": ("cesantia", "emprender", "Ya tuviste una empresa propia: si quedan cesantes, tus copias "

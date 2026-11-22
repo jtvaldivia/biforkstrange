@@ -161,6 +161,9 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
     elif decision == "aprender_ia":
         texto = (f"En {aqui.split(',')[0]} empezaron a usar herramientas de IA y hay tareas que antes te tomaban una tarde "
                  f"y ahora salen en minutos. ¿Le dedicas tiempo a aprenderlas de verdad?")
+    elif decision == "liderar_adopcion_ia":
+        texto = (f"En {aqui.split(',')[0]} anuncian que van a meter IA en el trabajo de tu equipo. "
+                 f"{s.uno('lid', ['Tu jefa pregunta quién quiere encabezarlo', 'Nadie sabe bien qué va a pasar con los puestos', 'Llega una consultora a mirar qué tareas se pueden automatizar'])}.")
     elif decision == "invertir_en_red":
         texto = (f"Te invitan a {s.uno('evento', ['un meetup de la industria', 'un after de exalumnos', 'una conferencia del rubro'])} "
                  f"este jueves. Podrías ir, o quedarte en la casa como siempre.")
@@ -216,9 +219,47 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
     elif decision == "bootcamp":
         texto = (f"Ves un aviso de {s.uno('bc', ['un bootcamp de programación', 'un bootcamp de análisis de datos', 'un bootcamp de diseño UX'])}: "
                  f"cuatro meses intensivos para cambiarte al mundo tech.")
-    elif decision == "cesantia":
-        texto = (f"Llevas meses mandando currículums. {s.uno('ces', ['Te llamaron de dos lados y en ninguno quedaste', 'Te ofrecieron algo, pero pagan menos que antes', 'Un conocido te ofrece trabajar con él sin contrato'])}. "
+    elif decision == "cesantia" and int(contexto.get("meses_cesante") or 0) > 0:
+        texto = (f"Llevas {int(contexto['meses_cesante'])} meses sin trabajo. {s.uno('ces', ['Te llamaron de dos lados y en ninguno quedaste', 'Un conocido te ofrece trabajar con él sin contrato', 'Viste un bootcamp que promete reconvertirte en cuatro meses'])}. "
                  f"Los ahorros se van achicando.")
+    elif decision == "cesantia":
+        texto = (f"Te quedaste sin trabajo. {s.uno('ces', ['Actualizas el currículum esa misma noche', 'Un conocido te ofrece trabajar con él sin contrato', 'Te preguntas si es el momento de armar lo tuyo'])}. "
+                 f"Desde ahora cada mes cuenta.")
+    elif decision == "oferta_en_cesantia":
+        meses = int(contexto.get("meses_cesante") or 0)
+        llevas = "Recién empiezas a buscar" if meses == 0 else f"Llevas {meses} {'mes' if meses == 1 else 'meses'} buscando"
+        donde = f"de {oferta['nombre']}" if oferta.get("nombre") else "de una empresa"
+        texto = f"{llevas}. {canal}, te llama {quien} {donde} y te ofrece {puesto}."
     else:
         return None
     return {"situacion": texto}
+
+
+# Titulares de cada año según el ritmo de la IA del mundo: lo que la persona va leyendo sin saber en qué mundo vive.
+# Son la historia de este mundo simulado, no hechos ni pronósticos, y no traen cifras (las cifras van en la evidencia).
+TITULARES_IA: dict[str, dict[int, str]] = {
+    "lento": {
+        1: "Las empresas prueban la IA, pero pocas la usan en serio.",
+        3: "La IA se vuelve una herramienta más de la oficina, como el correo.",
+        5: "Se contrata algo menos en los trabajos de oficina de entrada; lo demás sigue parecido.",
+        8: "La IA está en todas partes y ya casi nadie habla de ella.",
+    },
+    "medio": {
+        1: "Los modelos de IA ya hacen bien buena parte del trabajo de oficina.",
+        3: "Las empresas reorganizan sus equipos alrededor de la IA y contratan menos juniors.",
+        5: "Saber trabajar con IA se pide en casi todos los avisos de oficina.",
+        8: "Muchos trabajos cambiaron por dentro: menos tareas de rutina, más revisión y criterio.",
+    },
+    "rapido": {
+        1: "Un modelo nuevo supera a expertos en la mayoría de las tareas de oficina.",
+        2: "Las empresas congelan la contratación de juniors mientras ven qué hacer con la IA.",
+        4: "Áreas enteras de atención al cliente y back office pasan a agentes de IA.",
+        6: "El debate en Chile pasa a ser cómo repartir lo que produce la IA.",
+        9: "Ya nadie discute si la IA cambió el trabajo; se discute para quién.",
+    },
+}
+
+
+def titular_ia(ritmo: str, anio: int) -> str | None:
+    """El titular de ese año del juego (1, 2, ...) en un mundo con ese ritmo; None si ese año no hay."""
+    return TITULARES_IA.get(ritmo, {}).get(anio)

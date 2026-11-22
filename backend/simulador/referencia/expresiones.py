@@ -73,7 +73,7 @@ class Paquete:
         self.raiz = raiz
         self.parametros = {p['id']: p for p in json.load(open(os.path.join(raiz, 'parametros.json'), encoding='utf-8'))['parametros']}
         self.indice = {t['tabla']: t for t in json.load(open(os.path.join(raiz, 'tablas', 'indice.json'), encoding='utf-8'))['tablas']}
-        self._tablas, self._cache, self._arboles = {}, {}, {}
+        self._tablas, self._cache, self._arboles, self._crudo = {}, {}, {}, {}
 
     # ------------------------------------------------------------------ datos
     def filas(self, nombre):
@@ -83,8 +83,19 @@ class Paquete:
         return self._tablas[nombre]
 
     def tabla(self, nombre, columna, *pares):
+        # Atajo: la misma llamada con los mismos valores tal cual (se repite cientos de miles de veces por
+        # simulación). Normalizar con _clave cuesta más que buscar, así que solo se hace si no está.
+        crudo = (nombre, columna) + pares
+        try:
+            return self._crudo[crudo]
+        except KeyError:
+            pass
+        except TypeError:  # algún valor no se puede usar de llave: se sigue por el camino normal
+            crudo = None
         clave = (nombre, columna) + tuple(_clave(v) for v in pares)
         if clave in self._cache:
+            if crudo is not None:
+                self._crudo[crudo] = self._cache[clave]
             return self._cache[clave]
         cond = [(pares[i], _clave(pares[i + 1])) for i in range(0, len(pares), 2)]
         for f in self.filas(nombre):
@@ -97,6 +108,8 @@ class Paquete:
                 except ValueError:
                     val = txt
                 self._cache[clave] = val
+                if crudo is not None:
+                    self._crudo[crudo] = val
                 return val
         raise ErrorExpresion(f'sin fila: {nombre} con {dict(cond)}')
 

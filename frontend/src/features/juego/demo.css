@@ -22,7 +22,7 @@
 .jg-tarjeta-lienzo { position: fixed; left: -10000px; top: 0; pointer-events: none; }
 .jg-tarjeta { box-sizing: border-box; width: 1080px; padding: 64px; display: flex; flex-direction: column; gap: 32px; background: #FFFFFF; color: #1D1E22; font-family: var(--font); }
 .jg-tarjeta-marca { display: flex; justify-content: space-between; align-items: center; font: 700 28px/1 var(--font); }
-.jg-tarjeta-marca span { padding: 10px 18px; border-radius: 999px; background: #FFC83D; font: 600 22px/1 var(--font); }
+.jg-tarjeta-marca > span:not(.vd-marca) { padding: 10px 18px; border-radius: 999px; background: #FFC83D; font: 600 22px/1 var(--font); }
 .jg-tarjeta-pregunta { margin: 0; font: 700 52px/1.1 var(--font); letter-spacing: -.01em; }
 .jg-tarjeta-retrato { margin: 0; padding: 20px 24px; border-left: 6px solid #FFC83D; background: #FFF8E1; font: 400 28px/1.35 var(--font); }
 .jg-tarjeta-cuerpo { display: grid; grid-template-columns: 420px 1fr; gap: 48px; align-items: center; }

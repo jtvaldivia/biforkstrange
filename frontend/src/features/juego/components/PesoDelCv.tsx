@@ -65,9 +65,9 @@ function Linea({ d, i }: { d: PesoDato; i: number }) {
   const valorSin = gana ? o.gana_sin : o.sueldo_sin;
   const tope = gana ? 1 : Math.max(o.sueldo_con, o.sueldo_sin, 1);
   const frase = gana
-    ? `«${o.nombre}» gana en ${deCien(o.gana_con)} de 100 mundos; ${sin}, en ${deCien(o.gana_sin)}.`
+    ? `«${o.nombre}» gana en ${deCien(o.gana_con)} mundos; ${sin}, en ${deCien(o.gana_sin)}.`
     : `con «${o.nombre}» tu sueldo típico llega a ${plata(o.sueldo_con)} al mes; ${sin}, a ${plata(o.sueldo_sin)}.`;
-  const texto = (v: number) => (gana ? `${deCien(v)} de 100` : plata(v));
+  const texto = (v: number) => (gana ? deCien(v) : plata(v));
   return (
     <div className="jg-peso-linea" style={cssVars({ "--jg-i": i })}>
       <Text size="sm">

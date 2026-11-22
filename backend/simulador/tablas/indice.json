@@ -609,6 +609,46 @@
    "filas": 785
   },
   {
+   "tabla": "ia_cargos_ciuo08",
+   "archivo": "tablas/ia_cargos_ciuo08.csv",
+   "descripcion": "Cada cargo del catálogo con su ocupación CIUO-08 y su tipo de exposición a la IA (OIT).",
+   "columnas": {
+    "cargo_id": "cargo de cargos_catalogo",
+    "nombre": "nombre del cargo",
+    "ciuo08_4d": "ocupación CIUO-08 a 4 dígitos asignada por el equipo",
+    "titulo_oit": "nombre de esa ocupación en la OIT",
+    "mu_2025": "exposición media (ia_oit_ciuo08)",
+    "tipo_ia": "automatiza, aumenta, incognita o no_afectado (ia_oit_ciuo08)",
+    "equivalencia": "directa si el cargo calza con la ocupación, aproximada si es la más cercana"
+   },
+   "poblacion": "136 cargos del catálogo",
+   "ponderador": "",
+   "fuente_id": "oit_genai_2025",
+   "script": "scripts/ia_oit.py",
+   "advertencia": "El código CIUO-08 de cada cargo lo asignó el equipo desde el nombre del cargo.",
+   "filas": 136
+  },
+  {
+   "tabla": "ia_oit_ciuo08",
+   "archivo": "tablas/ia_oit_ciuo08.csv",
+   "descripcion": "Exposición de cada ocupación CIUO-08 a la IA generativa y si la IA tiende a automatizarla o a complementarla.",
+   "columnas": {
+    "ciuo08_4d": "ocupación CIUO-08 a 4 dígitos (la del INE)",
+    "titulo": "nombre de la ocupación en inglés (OIT)",
+    "mu_2025": "exposición media de sus tareas a la IA generativa (0-1), puntaje 2025",
+    "sd_2025": "desviación de la exposición entre sus tareas",
+    "potencial23": "clasificación OIT 2023: Automation Potential, Augmentation Potential, The Big Uknown (sic) o Not affected",
+    "potencial25": "gradiente OIT 2025 (Exposed: Gradient 1-4, Minimal Exposure, Not Exposed)",
+    "tipo_ia": "potencial23 en el juego: automatiza, aumenta, incognita o no_afectado; las no afectadas en 2023 que el gradiente 2025 pone expuestas pasan a incognita"
+   },
+   "poblacion": "427 ocupaciones CIUO-08; puntajes de tareas por GPT-4o y Gemini validados con encuestas en Polonia",
+   "ponderador": "",
+   "fuente_id": "oit_genai_2025",
+   "script": "scripts/ia_oit.py",
+   "advertencia": "El puntaje es de tareas, global: no mide adopción en Chile. Con potencial23, Chile tiene 3% del empleo en automatización, 13% en aumento y 20% en incógnita (OIT-Banco Mundial 2024).",
+   "filas": 427
+  },
+  {
    "tabla": "iarc_cancer_incidencia",
    "archivo": "tablas/iarc_cancer_incidencia.csv",
    "descripcion": "Riesgo anual de un cáncer por edad y sexo.",

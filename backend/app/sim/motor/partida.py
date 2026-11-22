@@ -6,16 +6,20 @@ los dados dan lo mismo, así que el resultado es idéntico. Cuando faltan
 elecciones, la partida queda detenida en la decisión pendiente.
 """
 
+import copy
+import json
 import re
+from collections import OrderedDict
 from dataclasses import dataclass
+from threading import Lock
 
-from app.sim.motor import empresas, gemelos
+from app.sim.motor import empresas, gemelos, ia
 from app.sim.motor.azar import Dados
 from app.sim.motor.motor import LLEGAN, REPETIR_CARTA, TRANQUILO, FaltaEleccion, Opcion, Vida
 from app.sim.motor.paquete import Paquete, paquete
 from app.sim.motor.perfil import Perfil, estado_inicial
 from app.sim.motor.narrativa import narrar
-from app.sim.motor.politicas import Jugador, elecciones_internas
+from app.sim.motor.politicas import Jugador, acepta_oferta_cesante, elecciones_internas
 
 ANIOS = 10
 JUGADOR = "tu"  # nombre de los dados de la persona; los gemelos usan 0, 1, 2...
@@ -27,6 +31,7 @@ class Partida:
     pendiente: FaltaEleccion | None  # decisión que espera respuesta; None si terminó
     anios: int
     edad_final: int = 0  # hasta qué edad se juega; los mundos miran hasta esa misma edad
+    clave: tuple | None = None  # (perfil, semilla, duda, años, elecciones): identifica la partida para el caché
 
     @property
     def terminada(self) -> bool:
@@ -51,6 +56,8 @@ def dudas_posibles(perfil: Perfil, pq: Paquete | None = None) -> list[dict]:
 def jugar(perfil: Perfil, semilla: int, elecciones: list[dict], duda: str | None = None, anios: int = ANIOS,
           pq: Paquete | None = None) -> Partida:
     pq = pq or paquete()
+    # solo con el paquete de siempre: otro paquete (tests) da otros resultados con la misma partida
+    clave = (perfil, semilla, duda, anios, json.dumps(elecciones, sort_keys=True)) if pq is paquete() else None
     vida = Vida(estado_inicial(perfil, pq), Dados(semilla, JUGADOR), pq)
     vida.variedad = REPETIR_CARTA  # tu vida no te repite la misma pregunta año tras año
     if duda is not None and not vida.aplica(duda):
@@ -62,13 +69,20 @@ def jugar(perfil: Perfil, semilla: int, elecciones: list[dict], duda: str | None
         while vida.e["edad"] < edad_final and not vida.terminada():
             vida.vivir_anio(jugador, carta=duda if vida.anio == 0 and not vida.cola else None)
     except FaltaEleccion as falta:
-        return Partida(vida, falta, anios, edad_final)
+        return Partida(vida, falta, anios, edad_final, clave)
     if jugador.usadas < len(elecciones):
         raise ValueError(f"sobran elecciones: la partida usó {jugador.usadas} de {len(elecciones)}")
-    return Partida(vida, None, anios, edad_final)
+    return Partida(vida, None, anios, edad_final, clave)
 
 
 MAX_OPCIONES_COMPARAR = 6  # elegir carrera tiene 252 opciones: ahí no se simulan gemelos
+
+# Simular los gemelos es lo caro de cada llamada (segundos con 0,1 CPU) y el motor es determinista:
+# la misma partida con la misma semilla da la misma comparación. La pantalla vuelve a pedirla al
+# recargar, en el cierre, en "peso del CV" y en "más en juego", así que se guarda en memoria.
+CACHE_COMPARAR = 256  # cada comparación pesa unas decenas de KB
+_comparaciones: OrderedDict[tuple, dict] = OrderedDict()
+_candado = Lock()
 
 
 def comparar_pendiente(partida: Partida, semilla: int, n: int = gemelos.N_GEMELOS,
@@ -77,8 +91,21 @@ def comparar_pendiente(partida: Partida, semilla: int, n: int = gemelos.N_GEMELO
     if (partida.pendiente is None or partida.pendiente.decision["id"] == TRANQUILO
             or len(partida.pendiente.opciones) > MAX_OPCIONES_COMPARAR or n <= 0):
         return None
-    return gemelos.comparar(partida.vida, partida.pendiente.decision["id"], n=n, anios=partida.horizonte(),
-                            semilla=semilla, parametros=parametros, crudo=crudo)
+    clave = None
+    if partida.clave is not None:
+        clave = (partida.clave, semilla, n, json.dumps(parametros or {}, sort_keys=True), crudo)
+        with _candado:
+            if clave in _comparaciones:
+                _comparaciones.move_to_end(clave)
+                return copy.deepcopy(_comparaciones[clave])  # quien la recibe la modifica (el cierre saca los sueldos)
+    resultado = gemelos.comparar(partida.vida, partida.pendiente.decision["id"], n=n, anios=partida.horizonte(),
+                                 semilla=semilla, parametros=parametros, crudo=crudo)
+    if clave is not None:
+        with _candado:
+            _comparaciones[clave] = copy.deepcopy(resultado)
+            while len(_comparaciones) > CACHE_COMPARAR:
+                _comparaciones.popitem(last=False)
+    return resultado
 
 
 def mundo_pendiente(perfil: Perfil, semilla: int, duda: str | None, elecciones: list[dict], numero: int,
@@ -97,7 +124,8 @@ def _cierre(perfil: Perfil, semilla: int, duda: str | None, elecciones: list[dic
             n: int, pq: Paquete) -> dict:
     """Tu vida frente a los gemelos de la primera decisión que tuvo mundos (un año tranquilo no tiene)."""
     cierre = {"sueldo_final": round(partida.vida.sueldo_o_ultimo()), "estado": partida.vida.resumen(),
-              "anios_sin_trabajo": partida.vida.anios_buscando, "primera_decision": None}
+              "anios_sin_trabajo": partida.vida.anios_buscando, "meses_sin_trabajo": partida.vida.meses_buscando,
+              "primera_decision": None}
     comparacion, elegida = None, None
     for k in range(len(elecciones)):
         hasta = jugar(perfil, semilla, elecciones[:k], duda, partida.anios, pq)
@@ -114,6 +142,10 @@ def _cierre(perfil: Perfil, semilla: int, duda: str | None, elecciones: list[dic
                 cierre["mejor_que_gemelos"] = sum(1 for x in sueldos if x < hoy) / len(sueldos)
         cierre["primera_decision"] = {"decision": comparacion["decision"], "pregunta": comparacion["pregunta"],
                                       "elegida": elegida, "comparacion": comparacion}
+    if ia.activa():
+        # el ritmo de la IA de tu mundo (lo fuiste leyendo en los titulares), qué es cada ritmo y quién dice qué
+        cierre["ia"] = {"ritmo": partida.vida.e.get("ia_ritmo"), **ia.escenarios(),
+                        "por_ritmo": (comparacion or {}).get("ia")}
     return cierre
 
 
@@ -149,11 +181,14 @@ def vista(perfil: Perfil, semilla: int = 0, duda: str | None = None, elecciones:
         }
         return salida
     ocurrencia = sum(1 for x in vida.registro["decisiones"] if x["decision"] == d["id"]) if vida.registro else 0
-    contexto = {k: vida.e[k] for k in ("edad", "rubro", "tipo_empleador", "nivel", "region", "ocupacion", "estado", "antiguedad", "validado", "edu", "sexo", "recesion")}
+    contexto = {k: vida.e[k] for k in ("edad", "rubro", "tipo_empleador", "nivel", "region", "ocupacion", "estado", "antiguedad", "validado", "edu", "sexo", "recesion",
+                                        "meses_cesante")}
     contexto.update(vida.contexto_empleo())
     ofertas = {o.id: empresas.oferta(vida, d["id"], o.id, ocurrencia) for o in falta.opciones}
     primera = next((f for f in ofertas.values() if f is not None), None)
-    if primera is not None:
+    # la historia nombra a la empresa solo si la decisión es sobre una oferta; si cada opción trae la suya
+    # (la cesantía), nombrar la de una opción haría creer que todas hablan de ella
+    if primera is not None and d["id"] in empresas.DECISIONES_CON_OFERTA:
         contexto["oferta"] = {k: primera[k] for k in ("empresa_id", "nombre", "cargo", "tipo", "rubro", "pais")}
     # por qué te tocó esta decisión: sorteada entre las cartas posibles, obligada por tu situación, o consecuencia
     origen = vida.cola[0][2] if vida.cola and vida.cola[0][0] == "decision" and vida.cola[0][1] == d["id"] else None
@@ -185,8 +220,29 @@ def vista(perfil: Perfil, semilla: int = 0, duda: str | None = None, elecciones:
         "comparacion": comparar_pendiente(partida, semilla, n_gemelos, parametros),
         # una oferta llega con su sueldo, como en la vida: el que tendrías si la aceptas (empresa incluida)
         "oferta_sueldo": ({"hoy": vida.e["sueldo"], "si_aceptas": vida.sueldo_si_elige(d["id"], "cambiar")}
-                          if d["id"] == "oferta_externa" else None),
+                          if d["id"] == "oferta_externa" else
+                          # cesante, "hoy" es lo que ganabas en tu último trabajo
+                          {"hoy": vida.e["sueldo_ref"], "si_aceptas": vida.sueldo_si_elige(d["id"], "aceptar"),
+                           "cesante": True}
+                          if d["id"] == "oferta_en_cesantia" else None),
+        # sin trabajo, el año pasa mes a mes: en qué mes vas y cuánto llevas buscando
+        "busqueda": _busqueda(vida, d["id"], ofertas.get("aceptar")) if vida.mes else None,
     }
+    return salida
+
+
+def _busqueda(vida: Vida, decision_id: str, empresa: dict | None) -> dict:
+    """La búsqueda mes a mes: en qué mes vas, cuánto llevas, lo que ganabas y, si llegó una oferta,
+    qué riesgo de despido trae (la regla del paquete con el empleador de la oferta) y qué haría tu copia."""
+    salida = {"mes": vida.mes, "meses_cesante": vida.e["meses_cesante"], "sueldo_ref": round(vida.e["sueldo_ref"]),
+              # trabaja informal y sigue postulando: tiene ingreso, pero le siguen llegando ofertas con contrato
+              "informal": bool(vida.e["busca_mientras_informal"]) and vida.e["estado"] == "independiente"}
+    if decision_id == "oferta_en_cesantia":
+        e = {**vida.e, "estado": "empleado", "tipo_empleador": vida.e["oferta_tipo_empleador"],
+             "empresa_id": (empresa or {}).get("empresa_id", -1), "rubro": (empresa or {}).get("rubro") or vida.e["rubro"]}
+        ev = vida.pq.eventos["separacion_empleo"]
+        salida["riesgo_despido"] = min(1.0, max(0.0, float(vida.pq.evaluar(ev["prob_anual"], vida.pq.derivar(e)))))
+        salida["gemelo_acepta"] = acepta_oferta_cesante(vida)
     return salida
 
 

@@ -261,6 +261,50 @@ export function Ruleta({ casillas, salio }: { casillas: Casilla[]; salio: string
   );
 }
 
+/**
+ * Lo que te juegas, mientras se tira tu dado: los resultados posibles de la opción que elegiste, con sus chances,
+ * y la ficha buscando dónde caer. Sin resultados que sortear (una opción segura) es solo una espera corta.
+ * Es la misma pista que la ruleta del resultado: ahí la ficha cae donde te tocó.
+ */
+export function DadoEnJuego({ casillas, titulo, texto }: { casillas: Casilla[]; titulo: string; texto?: string }) {
+  const total = casillas.reduce((a, c) => a + c.prob, 0) || 1;
+  const hay = casillas.length > 1;
+  return (
+    <div className="jg-dado-pantalla" data-sorteo={hay} role="status" aria-live="polite">
+      <span className="ap-titulo">{titulo}</span>
+      {hay ? (
+        <div className="jg-dado-cuerpo">
+          <span className="jg-dado-eti">Te juegas</span>
+          <div className="jg-ruleta" aria-label={`Te juegas: ${casillas.map((c) => `${c.texto}, ${Math.round((c.prob / total) * 100)} de cada 100`).join("; ")}`}>
+            <div className="jg-ruleta-pista">
+              {casillas.map((c) => (
+                <span key={c.id} className="jg-ruleta-tramo" data-tono={c.tono} style={{ flexGrow: c.prob / total }}>
+                  {c.prob / total >= 0.12 ? `${Math.round((c.prob / total) * 100)}` : ""}
+                </span>
+              ))}
+              <span className="jg-ruleta-ficha jg-ficha-busca" aria-hidden="true">⚄</span>
+            </div>
+            <div className="jg-ruleta-leyenda" aria-hidden="true">
+              {casillas.map((c) => (
+                <span key={c.id}>
+                  <i data-tono={c.tono} />
+                  {c.texto} <b>{Math.round((c.prob / total) * 100)} de 100</b>
+                </span>
+              ))}
+            </div>
+          </div>
+          <p className="ap-texto">{texto ?? "Tirando tu dado…"}</p>
+        </div>
+      ) : (
+        <div className="jg-cargando">
+          <i aria-hidden="true" />
+          <span>{texto ?? "Viviendo el año…"}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Tu sueldo año a año hasta ahora: una línea con el último punto marcado. */
 export function LineaSueldo({ puntos }: { puntos: { edad: number; sueldo: number }[] }) {
   if (puntos.length < 2) return null;

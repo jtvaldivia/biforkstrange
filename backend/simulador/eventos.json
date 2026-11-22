@@ -4,6 +4,57 @@
  "descripcion": "Eventos que pasan cada año sin que nadie decida, con su probabilidad anual.",
  "eventos": [
   {
+   "id": "separacion_empleo",
+   "nombre": "Despido o fin de contrato",
+   "categoria": "trabajo",
+   "cuando": "y(estado == 'empleado', tipo_empleador != 'extranjero')",
+   "prob_anual": "k('P_SEPARACION', banda3) * k('MULT_DESPIDO_TIPO', tipo_empleador) * si(tipo_empleador == 'publico', 1, k('MULT_DESPIDO_RUBRO', rubro, 1)) * si(recesion, 1.4, 1) * tabla_o(1, 'empresas_catalogo', 'mult_despido', 'empresa_id', empresa_id) * si(y(ia_burbuja, o(tipo_empleador == 'startup', rubro == 'Información y comunicaciones')), k('BURBUJA_DESPIDO'), 1) * si(y(auge_cobre, en(rubro, 'Minería', 'Construcción')), k('AUGE_COBRE_DESPIDO'), 1)",
+   "resultados": [
+    {
+     "id": "cesante",
+     "prob": 1,
+     "texto": "Pierdes el trabajo.",
+     "tono": "malo",
+     "efectos": [
+      {
+       "var": "estado",
+       "op": "fija",
+       "valor": "'buscando'"
+      },
+      {
+       "var": "sueldo_ref",
+       "op": "fija",
+       "valor": "sueldo"
+      },
+      {
+       "var": "sueldo",
+       "op": "fija",
+       "valor": 0
+      },
+      {
+       "var": "ahorro",
+       "op": "suma",
+       "valor": "sueldo * min(antiguedad, 11)"
+      },
+      {
+       "var": "animo",
+       "op": "suma",
+       "valor": "k('ANIMO_CESANTIA')"
+      }
+     ],
+     "luego": "cesantia"
+    }
+   ],
+   "fuentes": [
+    "eps_2024",
+    "ine_flujos",
+    "elsoc",
+    "couch_placzek_2010"
+   ],
+   "calidad": "dato",
+   "notas": "La indemnización (un sueldo por año, tope 11) solo corresponde a despido por necesidades de la empresa; el simulador puede separarla del fin de contrato con eps_terminos_empleo. Ya no hay recontrato automático el mismo año: quien encuentra trabajo rápido lo hace por las ofertas mes a mes (oferta_cesante). Tampoco se descuenta CAIDA_REEMPLEO al despedirte: las ofertas ya traen la baja de sueldo (78% a 106% de lo que ganabas, y menos desde el mes 7). Va primero entre los eventos del año: si pierdes el trabajo, ese año ya no te toca alza ni ascenso (antes podían salir las tres noticias juntas)."
+  },
+  {
    "id": "alza_anual",
    "nombre": "Alza anual del sueldo",
    "categoria": "trabajo",
@@ -19,7 +70,7 @@
       {
        "var": "sueldo",
        "op": "multiplica",
-       "valor": "1 + clamp(si(y(anos_titulado < 4, carrera_id >= 0), crecimiento_carrera, crecimiento_esi) * si(tipo_empleador == 'publico', 0.8, 1) - k('ASCENSO_POBLACION', banda7) * (k('ALZA_ASCENSO', 0) + k('ALZA_ASCENSO', 1)) / 2 + si(azar() < 0.9, 0.03 * azar_normal(), -0.05 + 0.08 * azar_normal()) + si(recesion, -0.015, 0), 0, 0.25)"
+       "valor": "1 + clamp(si(y(anos_titulado < 4, carrera_id >= 0), crecimiento_carrera, crecimiento_esi) * si(tipo_empleador == 'publico', 0.8, 1) - k('ASCENSO_POBLACION', banda7) * (k('ALZA_ASCENSO', 0) + k('ALZA_ASCENSO', 1)) / 2 + si(azar() < 0.9, 0.03 * azar_normal(), -0.05 + 0.08 * azar_normal()) + si(recesion, -0.015, 0) + si(y(auge_cobre, rubro == 'Minería'), k('AUGE_COBRE_ALZA'), 0), 0, 0.25)"
       }
      ]
     }
@@ -91,17 +142,139 @@
    "calidad": "supuesto"
   },
   {
-   "id": "separacion_empleo",
-   "nombre": "Despido o fin de contrato",
+   "id": "oferta_cesante",
+   "nombre": "Te llega una oferta estando cesante",
    "categoria": "trabajo",
-   "cuando": "y(estado == 'empleado', tipo_empleador != 'extranjero')",
-   "prob_anual": "k('P_SEPARACION', banda3) * k('MULT_DESPIDO_TIPO', tipo_empleador) * si(tipo_empleador == 'publico', 1, k('MULT_DESPIDO_RUBRO', rubro, 1)) * si(recesion, 1.4, 1) * tabla_o(1, 'empresas_catalogo', 'mult_despido', 'empresa_id', empresa_id)",
+   "paso": "mes",
+   "cuando": "y(o(estado == 'buscando', busca_mientras_informal == 1), primer_empleo == 0, oferta_sueldo == 0)",
+   "prob_mensual": "clamp(k('K_OFERTA_CESANTE') / k('MESES_CESANTIA', banda3) * (1 - (1 - k('PENAL_HUECO')) * min(meses_cesante, 8) / 8) * si(hueco, k('PENAL_HUECO'), 1) * si(recesion, 0.85, 1) * (1 + (red - 30) / 400), 0.02, 0.6)",
+   "resultados": [
+    {
+     "id": "oferta",
+     "prob": 1,
+     "texto": "Te llega una oferta.",
+     "tono": "neutro",
+     "efectos": [
+      {
+       "var": "oferta_sueldo",
+       "op": "fija",
+       "valor": "sueldo_ref * azar_uniforme(0.78, 1.06) * si(meses_cesante >= 6, 0.93, 1) * si(hueco, 0.93, 1)"
+      }
+     ],
+     "luego": "tipo_de_oferta"
+    }
+   ],
+   "fuentes": [
+    "eps_2024",
+    "kroft_2013",
+    "ine_esi_2025"
+   ],
+   "calidad": "mixto",
+   "notas": "Paso mensual. Se evalúa antes que mes_buscando, así que meses_cesante cuenta los meses ya vividos. Los llamados bajan de forma lineal hasta PENAL_HUECO a los 8 meses (Kroft 2013). El sueldo une los rangos de las antiguas opciones rápido (0,78-0,9) y nivel (0,93-1,06). Quien trabaja informal mientras busca (busca_mientras_informal) también recibe ofertas; sus meses_cesante no avanzan, porque tiene ingreso."
+  },
+  {
+   "id": "mes_buscando",
+   "nombre": "Un mes más buscando",
+   "categoria": "trabajo",
+   "paso": "mes",
+   "cuando": "y(estado == 'buscando', primer_empleo == 0)",
+   "prob_mensual": 1,
+   "resultados": [
+    {
+     "id": "mes",
+     "prob": 1,
+     "texto": "Pasa un mes sin trabajo.",
+     "tono": "malo",
+     "efectos": [
+      {
+       "var": "meses_cesante",
+       "op": "suma",
+       "valor": 1
+      },
+      {
+       "var": "animo",
+       "op": "suma",
+       "valor": "-2 / 12"
+      },
+      {
+       "var": "ahorro",
+       "op": "suma",
+       "valor": "sueldo_ref * (k('COBERTURA_SEGURO') - 1) * 0.5"
+      }
+     ]
+    }
+   ],
+   "fuentes": [
+    "cep_788",
+    "elsoc"
+   ],
+   "calidad": "mixto",
+   "notas": "Paso mensual. Reparte por mes lo que antes la carta de cesantía aplicaba de una vez al año (12 meses, ánimo −2 y el gasto neto del seguro)."
+  },
+  {
+   "id": "oferta_llega",
+   "nombre": "Te llega una oferta sin buscarla",
+   "categoria": "trabajo",
+   "cuando": "estado == 'empleado'",
+   "prob_anual": "k('P_CAMBIO_EMPLEADOR', banda3) * 1.5 * (1 + red / 100) * (1 + si(y(ia_v2, ia_tipo == 'aumenta'), k('IA_OFERTAS_AUMENTA', ia_ritmo), 0)) * si(y(auge_cobre, en(rubro, 'Minería', 'Construcción')), k('AUGE_COBRE_OFERTAS'), 1)",
+   "resultados": [
+    {
+     "id": "oferta",
+     "prob": 1,
+     "texto": "Te escribe una empresa.",
+     "tono": "neutro",
+     "efectos": [],
+     "luego": "oferta_externa"
+    }
+   ],
+   "fuentes": [
+    "eps_2024",
+    "nyfed_sce"
+   ],
+   "calidad": "mixto",
+   "notas": "Llegan más ofertas de las que se aceptan; el 1,5 lo ajusta para que los cambios de empleador por edad cuadren con la EPS 2024 (20,2/14,1/10,9% contra 21,8/13,8/10,2%), con las ofertas que pagan más aceptadas el doble de seguido (ACEPTA_SI_PAGA_MAS). Es el único camino por el que llega una oferta: la carta oferta_externa conserva su lugar en el sorteo (para no inflar a las demás) pero tiene solo_por_evento, así que como carta no trae nada. Antes, como carta, salía de más desde los 45, cuando hay menos cartas posibles con quien competir. Ver sce_ofertas para la tasa de ofertas en EE.UU."
+  },
+  {
+   "id": "ia_empresa_adopta",
+   "nombre": "Tu empresa adopta IA",
+   "categoria": "trabajo",
+   "cuando": "y(ia_v2, estado == 'empleado', ia_empresa == 0, tipo_empleador != 'extranjero')",
+   "prob_anual": "k('IA_ADOPCION_ANUAL', ia_ritmo)",
+   "resultados": [
+    {
+     "id": "adopta",
+     "prob": 1,
+     "tono": "neutro",
+     "texto": "Tu empresa decide meter IA en serio en el trabajo de tu equipo.",
+     "efectos": [
+      {
+       "var": "ia_empresa",
+       "op": "fija",
+       "valor": 1
+      }
+     ],
+     "luego": "liderar_adopcion_ia"
+    }
+   ],
+   "fuentes": [
+    "census_btos_2026",
+    "nyfed_ia_2026"
+   ],
+   "calidad": "supuesto",
+   "notas": "Va con la pega (EVENTOS_DE_LA_PEGA): al cambiarte, tu nueva empresa tiene su propia suerte y ia_empresa vuelve a 0."
+  },
+  {
+   "id": "ia_reestructura",
+   "nombre": "Tu área se reestructura con IA",
+   "categoria": "trabajo",
+   "cuando": "y(ia_v2, estado == 'empleado', tipo_empleador != 'extranjero', k('IA_PESO_TIPO', ia_tipo) > 0)",
+   "prob_anual": "clamp(k('P_SEPARACION', banda3) * k('IA_DESPIDO_EXTRA', ia_ritmo) * k('IA_PESO_TIPO', ia_tipo) * ia_rampa, 0, 0.5)",
    "resultados": [
     {
      "id": "reemplea",
-     "prob": "(1 - exp(-9 / k('MESES_CESANTIA', banda3))) * si(recesion, 0.85, 1)",
-     "texto": "Pierdes el trabajo y encuentras otro el mismo año.",
+     "prob": "clamp((1 - exp(-9 / k('MESES_CESANTIA', banda3))) * (1 + k('IA_ADAPT_EFECTO') * (2 * adaptabilidad - 1)) * si(recesion, 0.85, 1), 0, 0.95)",
      "tono": "malo",
+     "texto": "La IA hace parte de lo que hacía tu área y sobran puestos. Pierdes el trabajo, pero encuentras otro el mismo año.",
      "efectos": [
       {
        "var": "sueldo",
@@ -124,8 +297,8 @@
     {
      "id": "cesante",
      "prob": "resto",
-     "texto": "Pierdes el trabajo.",
      "tono": "malo",
+     "texto": "La IA hace parte de lo que hacía tu área y sobran puestos. Pierdes el trabajo.",
      "efectos": [
       {
        "var": "estado",
@@ -161,36 +334,12 @@
     }
    ],
    "fuentes": [
-    "eps_2024",
-    "ine_flujos",
-    "elsoc",
-    "couch_placzek_2010"
+    "fri_2026",
+    "oit_genai_2025",
+    "manning_aguirre_2026"
    ],
-   "calidad": "dato",
-   "notas": "La indemnización (un sueldo por año, tope 11) solo corresponde a despido por necesidades de la empresa; el simulador puede separarla del fin de contrato con eps_terminos_empleo."
-  },
-  {
-   "id": "oferta_llega",
-   "nombre": "Te llega una oferta sin buscarla",
-   "categoria": "trabajo",
-   "cuando": "estado == 'empleado'",
-   "prob_anual": "k('P_CAMBIO_EMPLEADOR', banda3) * 1.5 * (1 + red / 100)",
-   "resultados": [
-    {
-     "id": "oferta",
-     "prob": 1,
-     "texto": "Te escribe una empresa.",
-     "tono": "neutro",
-     "efectos": [],
-     "luego": "oferta_externa"
-    }
-   ],
-   "fuentes": [
-    "eps_2024",
-    "nyfed_sce"
-   ],
-   "calidad": "mixto",
-   "notas": "Llegan más ofertas de las que se aceptan; el 1,5 lo ajusta para que los cambios de empleador por edad cuadren con la EPS 2024 (20,2/14,1/10,9% contra 21,8/13,8/10,2%), con las ofertas que pagan más aceptadas el doble de seguido (ACEPTA_SI_PAGA_MAS). Es el único camino por el que llega una oferta: la carta oferta_externa conserva su lugar en el sorteo (para no inflar a las demás) pero tiene solo_por_evento, así que como carta no trae nada. Antes, como carta, salía de más desde los 45, cuando hay menos cartas posibles con quien competir. Ver sce_ofertas para la tasa de ofertas en EE.UU."
+   "calidad": "supuesto",
+   "notas": "Solo pasa con IA rápida (IA_DESPIDO_EXTRA es 0 en lenta y media: el FRI ve el mismo desempleo) y en ocupaciones donde la IA automatiza o es incógnita. Los mismos efectos que separacion_empleo; la adaptabilidad mueve la chance de reemplearse el mismo año."
   },
   {
    "id": "recesion",
@@ -218,6 +367,63 @@
     "equipo"
    ],
    "calidad": "supuesto"
+  },
+  {
+   "id": "burbuja_ia",
+   "nombre": "Se pincha la burbuja de la IA",
+   "categoria": "mundo",
+   "cuando": "ia_v2",
+   "prob_anual": "k('P_BURBUJA_IA')",
+   "resultados": [
+    {
+     "id": "pincha",
+     "prob": 1,
+     "tono": "malo",
+     "texto": "Se pincha la burbuja de la IA: caen las acciones tecnológicas, se corta el financiamiento y cierran startups.",
+     "efectos": [
+      {
+       "var": "ia_burbuja",
+       "op": "fija",
+       "valor": 1,
+       "duracion": 1
+      }
+     ]
+    }
+   ],
+   "fuentes": [
+    "polymarket_burbuja_2026",
+    "bcch_ief_2026"
+   ],
+   "calidad": "supuesto",
+   "notas": "Es del mundo, como la recesión: se sortea al inicio del año (EVENTOS_MUNDO en motor.py) y es igual en todas las vidas."
+  },
+  {
+   "id": "auge_cobre",
+   "nombre": "Auge del cobre por los data centers",
+   "categoria": "mundo",
+   "cuando": "ia_v2",
+   "prob_anual": "k('P_AUGE_COBRE', ia_ritmo)",
+   "resultados": [
+    {
+     "id": "auge",
+     "prob": 1,
+     "tono": "bueno",
+     "texto": "Los data centers de IA disparan la demanda de cobre: la minería y la construcción contratan más.",
+     "efectos": [
+      {
+       "var": "auge_cobre",
+       "op": "fija",
+       "valor": 1,
+       "duracion": 2
+      }
+     ]
+    }
+   ],
+   "fuentes": [
+    "sp_cobre_2026"
+   ],
+   "calidad": "supuesto",
+   "notas": "Del mundo: se sortea al inicio del año y dura dos."
   },
   {
    "id": "titularse_en_recesion",
@@ -331,7 +537,7 @@
    "nombre": "Tu startup cierra",
    "categoria": "trabajo",
    "cuando": "y(estado == 'empleado', tipo_empleador == 'startup')",
-   "prob_anual": "(1 - pow(1 - k('YC_CERRADA'), 1 / 8)) * tabla_o(1, 'empresas_catalogo', 'mult_cierre', 'empresa_id', empresa_id)",
+   "prob_anual": "clamp((1 - pow(1 - k('YC_CERRADA'), 1 / 8)) * tabla_o(1, 'empresas_catalogo', 'mult_cierre', 'empresa_id', empresa_id) * si(ia_burbuja, k('BURBUJA_CIERRE'), 1), 0, 1)",
    "resultados": [
     {
      "id": "cierra",

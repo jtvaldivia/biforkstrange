@@ -46,19 +46,20 @@ def test_bootcamp_desde_la_cesantia_no_revienta_el_anio():
 
 def test_mas_meses_cesante_nunca_ayuda_a_encontrar_trabajo():
     """Corregido. cesantia/rapido sumaba 0,1 x min(3, meses/12): con 7 meses encontraba más rápido (0,84) que
-    recién despedido (0,78), con 8 caía a 0,51 por el hueco y con 36 volvía a 0,75. MESES_CESANTIA es una
-    exponencial (salida constante, EPS) y el hueco de 8 meses es el único castigo por duración (Kroft)."""
+    recién despedido (0,78), con 8 caía a 0,51 por el hueco y con 36 volvía a 0,75. Ahora la cesantía se vive
+    mes a mes: la oferta de cada mes (oferta_cesante) baja de forma lineal hasta PENAL_HUECO a los 8 meses
+    (Kroft 2013) y el hueco en el CV la castiga otra vez; nunca sube con los meses."""
     from dataclasses import replace
+    from itertools import pairwise
 
     base = Perfil(edad=30, estado="buscando", sueldo=1_400_000)
-    for opcion in ("rapido", "nivel"):
-        prob = next(o for o in pq().decisiones["cesantia"]["opciones"] if o["id"] == opcion)["resultados"][0]["prob"]
-        ps = [pq().evaluar(prob, vida(replace(base, meses_cesante=m)).e) for m in range(0, 61)]
-        assert all(b <= a for a, b in zip(ps, ps[1:])), opcion
-        # dentro de la simulación (sin hueco), los meses que ya lleva tampoco cambian nada
-        assert pq().evaluar(prob, vida(base, meses_cesante=36).e) == pytest.approx(ps[0])
-    rapido = pq().decisiones["cesantia"]["opciones"][0]["resultados"][0]["prob"]
-    assert pq().evaluar(rapido, vida(base).e) == pytest.approx(0.783, abs=1e-3)  # recién despedido, como antes
+    prob = pq().eventos["oferta_cesante"]["prob_mensual"]
+    ps = [pq().evaluar(prob, vida(replace(base, meses_cesante=m)).e) for m in range(61)]
+    assert all(b <= a for a, b in pairwise(ps))
+    # también dentro de la simulación, sin el hueco del CV: los meses que lleva no la suben
+    sin_hueco = [pq().evaluar(prob, vida(base, meses_cesante=m).e) for m in range(61)]
+    assert all(b <= a for a, b in pairwise(sin_hueco))
+    assert ps[0] == pytest.approx(1.8 / 10.5)  # recién despedido a los 30-44: K_OFERTA_CESANTE / MESES_CESANTIA
 
 
 @pytest.mark.parametrize("estado", ["fundador", "independiente", "buscando"])

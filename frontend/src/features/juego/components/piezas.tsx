@@ -111,10 +111,19 @@ export function ErrorCaja({ error, onReintentar }: { error: string; onReintentar
  * Si el perfil no es del todo tuyo, se dice: sin datos es un perfil de ejemplo; si saltaste preguntas, esas quedan
  * como supuesto. `fuentes` son los campos que sí se saben; null si no se sabe (una partida guardada de antes).
  */
-export function AvisoPerfil({ fuentes }: { fuentes: Record<string, string> | null }) {
+export function AvisoPerfil({ fuentes, corto = false }: { fuentes: Record<string, string> | null; corto?: boolean }) {
   if (!fuentes) return null;
   const supuestos = Object.keys(CAMPOS_PERFIL).filter((k) => !(k in fuentes));
   if (supuestos.length === 0) return null;
+  // ya se explicó en la primera carta: después basta un chip que lo recuerde
+  if (corto) {
+    const todo = supuestos.length === Object.keys(CAMPOS_PERFIL).length;
+    return (
+      <span title={todo ? "Jugaste sin datos: estos mundos son de una persona de ejemplo." : `Supuestos en: ${enLista(supuestos.map((k) => CAMPOS_PERFIL[k]))}.`}>
+        <Tag tone="sol">{todo ? "Ejemplo" : "Con supuestos"}</Tag>
+      </span>
+    );
+  }
   const ejemplo = supuestos.length === Object.keys(CAMPOS_PERFIL).length;
   return (
     <div className="jg-aviso-perfil" role="note">

@@ -117,7 +117,7 @@ for dcs in DEC:
 for e in EVE:
     E = 'evento ' + e['id']
     revisar(E + ' cuando', e['cuando'])
-    revisar(E + ' prob', e['prob_anual'])
+    revisar(E + ' prob', e['prob_anual'] if 'prob_anual' in e else e['prob_mensual'])
     for f in e['fuentes']:
         if f not in FUE:
             err(f'{E}: fuente desconocida {f!r}')
@@ -157,7 +157,7 @@ def estado_al_azar():
          'carrera_id': int(c['carrera_id']) if c else -1, 'area': c['area'] if c else '', 'tipo_institucion': c['tipo_institucion'] if c else R.choice(['', 'U', 'IP', 'CFT']),
          'semestres_restantes': R.randint(0, 10) if est == 'estudiando' else 0, 'anos_titulado': R.randint(0, 20), 'tipo_empleador': tipo,
          'rubro': 'Administración pública' if tipo == 'publico' else R.choice(RUBROS), 'nivel': nivel, 'sueldo': sueldo, 'sueldo_ref': sueldo or round(R.lognormvariate(math.log(800000), 0.5)),
-         'antiguedad': R.randint(0, 10), 'meses_cesante': R.choice([0, 6, 12, 24]) if est == 'buscando' else 0, 'hueco': R.randint(0, 1), 'horas': R.choice([22, 44, 55]),
+         'antiguedad': R.randint(0, 10), 'meses_cesante': R.choice([0, 6, 12, 24]) if est == 'buscando' else 0, 'oferta_sueldo': R.choice([0, 0, round(R.uniform(4e5, 3e6))]) if est == 'buscando' else 0, 'oferta_tipo_empleador': R.choice(['grande', 'pyme', 'startup', 'publico']), 'busca_mientras_informal': R.randint(0, 1) if est == 'independiente' else 0, 'hueco': R.randint(0, 1), 'horas': R.choice([22, 44, 55]),
          'parcial': R.randint(0, 1), 'remoto': R.randint(0, 1), 'formal': R.randint(0, 1), 'pais': R.choice(['chile', 'chile', 'afuera']), 'region': R.choice(['rm', 'otra']),
          'region_perfil': R.choice(REGIONES),
          'ahorro': round(R.uniform(-5e6, 6e7)), 'deuda_estudios': R.choice([0, 0, 8e6]), 'animo': R.uniform(20, 90), 'energia': R.uniform(10, 95), 'salud': 'bien',
@@ -171,7 +171,11 @@ def estado_al_azar():
          'universidad_destino': R.choice([f['universidad_id'] for f in pq.filas('sies_magister_2026')] + UNIS_EXT),
          'universidad_id': R.choice(UNIS_PRE + ['']), 'institucion_destino': R.choice(UNIS_PRE or ['']),
          'empresa_id': R.choice([-1] + EMPRESAS) if est == 'empleado' else -1, 'cargo_id': R.choice([-1] + CARGOS) if est == 'empleado' else -1,
-         'ia_adopcion': R.random(), 'ia_castigo_joven': R.uniform(0.75, 0.9)}
+         'ia_adopcion': R.random(), 'ia_castigo_joven': R.uniform(0.75, 0.9), 'ia_v2': R.randint(0, 1), 'ia_ritmo': R.choice(['lento', 'medio', 'rapido']),
+         'ia_tipo': R.choice(['automatiza', 'aumenta', 'incognita', 'no_afectado']), 'ia_anios': R.randint(0, 10),
+         'ia_rampa': R.random(), 'adaptabilidad': R.random(), 'ia_encontrar': R.uniform(0.5, 1), 'ia_empresa': R.randint(0, 1),
+         'ia_reconvertido': R.randint(0, 1), 'ia_prima_cobrada': R.randint(0, 1), 'ia_burbuja': 1 if R.random() < 0.1 else 0, 'auge_cobre': 1 if R.random() < 0.1 else 0,
+         'prima_personal': R.uniform(0.6, 3)}
     for v in EST.values():
         if v['tipo'] == 'modificador':
             e.setdefault(v['nombre'], 1 if v['inicio'] == '1' else 0)
@@ -253,9 +257,10 @@ for _ in range(N):
         try:
             if not pq.evaluar(ev['cuando'], e, R):
                 continue
-            p = pq.evaluar(ev['prob_anual'], e, R)
+            campo = 'prob_anual' if 'prob_anual' in ev else 'prob_mensual'
+            p = pq.evaluar(ev[campo], e, R)
             if not (0 <= p <= 1):
-                falla('evento ' + ev['id'], f'prob_anual fuera de [0,1]: {p}', e)
+                falla('evento ' + ev['id'], f'{campo} fuera de [0,1]: {p}', e)
         except Exception as x:  # noqa: BLE001
             falla('evento ' + ev['id'], 'cuando/prob: ' + str(x), e)
             continue

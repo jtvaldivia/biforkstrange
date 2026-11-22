@@ -134,12 +134,28 @@ export type Estado = {
   edu: string;
   antiguedad: number;
   ahorro: number;
+  /** Fracción del sueldo que ahorra. */
+  tasa_ahorro?: number;
+  /** Meses que lleva buscando trabajo (0 si trabaja). */
+  meses_cesante?: number;
+  /** Lo ganado en sueldos desde que empezó la partida. */
+  ingreso_total?: number;
   empresa_id?: number;
   /** Empresa y cargo donde trabaja: los del catálogo o, mientras siga en su pega de hoy, los que contó. */
   empresa?: string | null;
   rol?: string | null;
   ia_adopcion?: number;
+  /** Con la incertidumbre de IA prendida: el ritmo de tu mundo, cómo te toca la IA y qué tan adaptable eres (0-1). */
+  ia_ritmo?: Ritmo;
+  ia_tipo?: "automatiza" | "aumenta" | "incognita" | "no_afectado";
+  adaptabilidad?: number;
+  usa_ia?: number;
 };
+
+export type Ritmo = "lento" | "medio" | "rapido";
+
+/** Lo de la IA en un año de tu partida: el ritmo de tu mundo y el titular que leíste (si ese año hubo). */
+export type AnioIA = { ritmo: Ritmo; titular?: string | null; burbuja?: boolean; auge_cobre?: boolean };
 
 /** La historia de la carta: qué empresa, quién te escribe. Solo texto; los números vienen aparte. */
 export type Narrativa = { situacion: string } | null;
@@ -156,7 +172,7 @@ export type DecisionTomada = {
   texto: string;
   tono: Tono;
   prob: number;
-};
+} & MovimientoPlata;
 
 export type Evento = {
   evento: string;
@@ -170,17 +186,50 @@ export type Evento = {
   /** Gatillado por otra regla: no tiene probabilidad propia que mostrar. */
   directo?: boolean;
   rutina?: boolean;
-};
+} & MovimientoPlata;
 
 export type Anio = {
   /** Número de ronda, no de año: para el año usa la edad. */
   anio: number;
   edad: number;
   recesion: boolean;
+  /** Solo con la incertidumbre de IA prendida. */
+  ia?: AnioIA;
   decisiones: DecisionTomada[];
   eventos: Evento[];
   /** Solo en los años cerrados. */
   fin?: Estado;
+  sueldo_inicio?: number;
+  ahorro_inicio?: number;
+  /** Cómo se movió la plata al cerrar el año (solo en los años cerrados). */
+  plata?: Plata;
+  /** Los meses de este año que se vivieron buscando trabajo (de 1 a 12). */
+  meses_busqueda?: number[];
+};
+
+/** Lo que pasa con la plata al cerrar el año: lo que ahorraste, lo que gastaste sin sueldo y lo que rentó. */
+export type Plata = {
+  /** Fracción del sueldo que ahorras. */
+  tasa_ahorro: number;
+  /** Rentabilidad real anual del ahorro. */
+  retorno_real: number;
+  alza_extra?: number;
+  /** Meses del año que pasaste buscando trabajo: esos meses no hubo sueldo. */
+  meses_sin_sueldo?: number;
+  /** Lo ganado en sueldos ese año. */
+  ganado?: number;
+  ahorrado?: number;
+  deuda_estudios?: number;
+  retorno?: number;
+};
+
+/** Cuánto movió el sueldo y el ahorro una decisión o un evento (solo si lo movió). */
+export type MovimientoPlata = {
+  sueldo_antes?: number;
+  sueldo_despues?: number;
+  ahorro_cambio?: number;
+  /** Si pasó en un año que se vivió mes a mes (sin trabajo): el mes, de 1 a 12. */
+  mes?: number;
 };
 
 export type Rango = { p10: number; p50: number; p90: number };
@@ -238,6 +287,23 @@ export type Comparacion = {
   opciones: OpcionComparada[];
   /** En cada mundo (el índice), con qué opción terminas ganando más; null si dos quedan a menos de 0,5%. */
   ganador_por_mundo?: (string | null)[];
+  /** El ritmo de la IA de cada mundo; null con la incertidumbre de IA apagada. */
+  ia_por_mundo?: (Ritmo | null)[] | null;
+  ia?: IAPorRitmo | null;
+};
+
+/** La comparación separada por ritmo de la IA (el cierre la usa para el sueldo con cada ritmo). */
+export type IAPorRitmo = {
+  ritmos: Partial<Record<Ritmo, { mundos: number; gana: Record<string, number>; sueldo_p50: Record<string, number> }>>;
+};
+
+export type ConFuente = { fuente: string; cita: string; url: string };
+export type CierreIA = {
+  ritmo: Ritmo;
+  ritmos: Record<Ritmo, ConFuente & { nombre: string; que_es: string }>;
+  voces: (ConFuente & { quien: string; tipo: string; dice: string })[];
+  fuera_del_juego: string;
+  por_ritmo: IAPorRitmo | null;
 };
 
 export type Suceso = { tipo: "decision" | "evento"; nombre: string; opcion?: string; texto: string; tono: Tono };
@@ -256,7 +322,7 @@ export type AnioMundo = {
 };
 
 /** Qué tan rápido llega la IA en un mundo: se sortea por gemelo dentro del rango con fuente de IA_JOVEN. */
-export type EscenarioIA = { adopcion: number; escenario: "lento" | "medio" | "rapido"; castigo_joven: number };
+export type EscenarioIA = { adopcion: number; escenario: Ritmo; castigo_joven: number; activa?: boolean };
 
 /** Respuesta de `POST /api/juego/mundo`: un mundo, con su historia por opción. */
 export type MundoDetalle = {
@@ -349,7 +415,9 @@ export type Pendiente = {
   evidencia: { fuente: string; cifra: string; uso: string }[];
   opciones: OpcionPendiente[];
   /** Una oferta llega con su sueldo: el de hoy y el que tendrías si la aceptas, con la empresa nueva incluida. */
-  oferta_sueldo?: { hoy: number; si_aceptas: number | null } | null;
+  oferta_sueldo?: { hoy: number; si_aceptas: number | null; cesante?: boolean } | null;
+  /** Sin trabajo, el año pasa mes a mes: en qué mes vas, cuánto llevas y, si llegó una oferta, su riesgo y qué haría tu copia. */
+  busqueda?: Busqueda | null;
   /** null cuando la decisión tiene demasiadas opciones para simular gemelos, o en un año tranquilo. */
   comparacion: Comparacion | null;
   /** En un año tranquilo: algo que gente como tú se plantea este año. */
@@ -367,12 +435,27 @@ export type Pendiente = {
   } | null;
 };
 
+export type Busqueda = {
+  mes: number;
+  meses_cesante: number;
+  /** Lo que ganabas en tu último trabajo, al mes. */
+  sueldo_ref: number;
+  /** Trabajas informal mientras sigues buscando un empleo con contrato. */
+  informal?: boolean;
+  /** Probabilidad de que te despidan en un año en el trabajo que te ofrecen. */
+  riesgo_despido?: number;
+  /** Lo que haría tu copia con esta oferta, con su regla fija. */
+  gemelo_acepta?: boolean;
+};
+
 export type Cierre = {
   sueldo_final: number;
   estado: Estado;
   anios_sin_trabajo: number;
+  meses_sin_trabajo?: number;
   mejor_que_gemelos?: number;
   primera_decision: { decision: string; pregunta: string; elegida: string; comparacion: Comparacion } | null;
+  ia?: CierreIA;
 };
 
 export type Vista = {

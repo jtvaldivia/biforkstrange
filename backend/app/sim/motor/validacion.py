@@ -93,7 +93,9 @@ def _filas(vida: Vida, estado0: str) -> list[tuple]:
         decisiones = [(d["decision"], d["opcion"], d["resultado"]) for d in r["decisiones"]]
         filas.append((
             r["edad"], previo, fin["estado"], fin["sueldo"], fin["tipo_empleador"], fin["edu"],
-            fin.get("primer_empleo", 0), fin["edad"] - r["edad"], "alza_anual" in eventos,
+            # en riesgo de despido: tenía trabajo cuando corrieron los eventos del año (le tocó el alza, o lo
+            # despidieron antes de que le tocara: el despido va primero)
+            fin.get("primer_empleo", 0), fin["edad"] - r["edad"], "alza_anual" in eventos or "separacion_empleo" in eventos,
             eventos.get("separacion_empleo"),
             any((d, res) in CAMBIOS_DIRECTOS for d, _, res in decisiones),
             decisiones, tuple(eventos),

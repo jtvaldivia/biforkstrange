@@ -260,7 +260,6 @@
       "dato",
       "mixto",
       "supuesto",
-
       "sintetico"
      ]
     }
@@ -475,7 +474,6 @@
          "dato",
          "mixto",
          "supuesto",
-
          "sintetico"
         ]
        }
@@ -507,7 +505,6 @@
       "dato",
       "mixto",
       "supuesto",
-
       "sintetico"
      ]
     },
@@ -531,10 +528,21 @@
     "id",
     "nombre",
     "cuando",
-    "prob_anual",
     "resultados",
     "fuentes",
     "calidad"
+   ],
+   "oneOf": [
+    {
+     "required": [
+      "prob_anual"
+     ]
+    },
+    {
+     "required": [
+      "prob_mensual"
+     ]
+    }
    ],
    "properties": {
     "id": {
@@ -550,6 +558,20 @@
      "type": "string"
     },
     "prob_anual": {
+     "description": "Expresión del mini lenguaje (texto) o número",
+     "type": [
+      "string",
+      "number"
+     ]
+    },
+    "paso": {
+     "enum": [
+      "año",
+      "mes"
+     ],
+     "description": "año (por omisión) o mes: los de paso mes se evalúan en cada uno de los 12 meses de un año de búsqueda"
+    },
+    "prob_mensual": {
      "description": "Expresión del mini lenguaje (texto) o número",
      "type": [
       "string",
@@ -644,7 +666,6 @@
       "dato",
       "mixto",
       "supuesto",
-
       "sintetico"
      ]
     },

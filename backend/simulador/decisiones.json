@@ -724,7 +724,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": -6000000
+         "valor": "-k('COSTO_INTERCAMBIO')"
         },
         {
          "var": "semestres_restantes",
@@ -1235,7 +1235,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": -6000000
+         "valor": "-k('COSTO_VOLVER_A_ESTUDIAR')"
         },
         {
          "var": "energia",
@@ -1269,7 +1269,7 @@
         {
          "var": "ahorro",
          "op": "suma",
-         "valor": -3000000
+         "valor": "-k('COSTO_VOLVER_A_ESTUDIAR') * 0.5"
         },
         {
          "var": "energia",
@@ -1281,7 +1281,8 @@
      ],
      "fuentes": [
       "ine_esi_2025",
-      "equipo"
+      "equipo",
+      "mineduc_mifuturo"
      ],
      "calidad": "mixto"
     },
@@ -1701,7 +1702,7 @@
    "id": "cesantia",
    "nombre": "Qué hacer estando cesante",
    "categoria": "trabajo",
-   "pregunta": "Llevas meses buscando. ¿Cómo sigues?",
+   "pregunta": "Estás sin trabajo. ¿Cómo enfrentas este año?",
    "cuando": "y(estado == 'buscando', primer_empleo == 0)",
    "aparicion": {
     "tipo": "forzada",
@@ -1710,137 +1711,33 @@
    },
    "opciones": [
     {
-     "id": "rapido",
-     "nombre": "Tomar lo primero que salga",
-     "detalle": "Más probable que esperar algo de tu nivel, por menos sueldo.",
+     "id": "buscar",
+     "nombre": "Buscar trabajo",
+     "detalle": "El año pasa mes a mes. Cada mes puede llegar una oferta y tú decides si la tomas (oferta_en_cesantia).",
      "resultados": [
       {
-       "id": "encuentra",
-       "prob": "clamp(clamp((1 - exp(-12 / k('MESES_CESANTIA', banda3))) * si(hueco, k('PENAL_HUECO'), 1) * si(recesion, 0.85, 1) * (1 + (red - 30) / 400), 0.08, 0.95) * 1.15, 0, 0.96)",
-       "texto": "Vuelves a trabajar, por menos.",
-       "tono": "bueno",
-       "efectos": [
-        {
-         "var": "estado",
-         "op": "fija",
-         "valor": "'empleado'"
-        },
-        {
-         "var": "sueldo",
-         "op": "fija",
-         "valor": "sueldo_ref * azar_uniforme(0.78, 0.9) * si(hueco, 0.93, 1)"
-        },
-        {
-         "var": "meses_cesante",
-         "op": "fija",
-         "valor": 0
-        },
-        {
-         "var": "animo",
-         "op": "suma",
-         "valor": "k('ANIMO_REEMPLEO')"
-        }
-       ],
-       "luego": "tipo_de_empleador"
-      },
-      {
-       "id": "nada",
-       "prob": "resto",
-       "texto": "No sale nada.",
-       "tono": "malo",
-       "efectos": [
-        {
-         "var": "meses_cesante",
-         "op": "suma",
-         "valor": 12
-        },
-        {
-         "var": "animo",
-         "op": "suma",
-         "valor": -2
-        },
-        {
-         "var": "ahorro",
-         "op": "suma",
-         "valor": "12 * sueldo_ref * (k('COBERTURA_SEGURO') - 1) * 0.5"
-        }
-       ]
+       "id": "busca",
+       "prob": 1,
+       "texto": "Sales a buscar. Cada mes puede llegar una oferta.",
+       "tono": "neutro",
+       "efectos": []
       }
      ],
      "fuentes": [
       "eps_2024",
-      "couch_placzek_2010",
       "kroft_2013"
-     ],
-     "calidad": "mixto"
-    },
-    {
-     "id": "nivel",
-     "nombre": "Esperar algo de tu nivel",
-     "detalle": "Menos probable; cuidas tu sueldo.",
-     "resultados": [
-      {
-       "id": "encuentra",
-       "prob": "clamp(clamp((1 - exp(-12 / k('MESES_CESANTIA', banda3))) * si(hueco, k('PENAL_HUECO'), 1) * si(recesion, 0.85, 1) * (1 + (red - 30) / 400), 0.08, 0.95) * 0.8, 0, 0.9)",
-       "texto": "Encuentras algo a tu altura.",
-       "tono": "bueno",
-       "efectos": [
-        {
-         "var": "estado",
-         "op": "fija",
-         "valor": "'empleado'"
-        },
-        {
-         "var": "sueldo",
-         "op": "fija",
-         "valor": "sueldo_ref * azar_uniforme(0.93, 1.06) * si(hueco, 0.93, 1)"
-        },
-        {
-         "var": "meses_cesante",
-         "op": "fija",
-         "valor": 0
-        },
-        {
-         "var": "animo",
-         "op": "suma",
-         "valor": "k('ANIMO_REEMPLEO')"
-        }
-       ],
-       "luego": "tipo_de_empleador"
-      },
-      {
-       "id": "nada",
-       "prob": "resto",
-       "texto": "No sale nada.",
-       "tono": "malo",
-       "efectos": [
-        {
-         "var": "meses_cesante",
-         "op": "suma",
-         "valor": 12
-        },
-        {
-         "var": "animo",
-         "op": "suma",
-         "valor": -2
-        }
-       ]
-      }
-     ],
-     "fuentes": [
-      "eps_2024"
      ],
      "calidad": "mixto"
     },
     {
      "id": "informal",
      "nombre": "Trabajar informal mientras buscas",
-     "detalle": "Sin contrato ni cotizaciones. Ganas como la mitad de quienes trabajan por su cuenta sin boleta a tu edad (ESI); puedes seguir buscando algo con contrato.",
+     "detalle": "Sin contrato ni cotizaciones. Ganas como la mitad de quienes trabajan por su cuenta sin boleta a tu edad (ESI). Sigues buscando: cada mes puede llegar una oferta con contrato (oferta_cesante).",
      "resultados": [
       {
        "id": "trabaja",
        "prob": 1,
-       "texto": "Trabajas sin contrato. Puedes seguir buscando algo con contrato.",
+       "texto": "Trabajas sin contrato mientras sigues postulando. Cada mes puede llegarte una oferta con contrato.",
        "tono": "neutro",
        "efectos": [
         {
@@ -1857,6 +1754,11 @@
          "var": "sueldo",
          "op": "fija",
          "valor": "(tabla_o(tabla('esi_ingreso_categoria_formalidad', 'p50', 'categoria', 'cuenta_propia', 'banda_edad', '18-54', 'formalidad', 'informal'), 'esi_ingreso_categoria_formalidad', 'p50', 'categoria', 'cuenta_propia', 'banda_edad', banda7, 'formalidad', 'informal')) * prima_personal"
+        },
+        {
+         "var": "busca_mientras_informal",
+         "op": "fija",
+         "valor": 1
         }
        ]
       }
@@ -1930,7 +1832,7 @@
     {
      "fuente": "eps_2024",
      "cifra": "A los 12 meses sigue cesante 29,8% (18-29), 32% (30-44) y 40% (45-59)",
-     "uso": "probabilidad de encontrar en un año"
+     "uso": "duración de la búsqueda (calibra K_OFERTA_CESANTE)"
     },
     {
      "fuente": "carranza_2025",
@@ -1949,7 +1851,8 @@
     }
    ],
    "calidad": "dato",
-   "en_juego": "cesante"
+   "en_juego": "cesante",
+   "notas": "Se pregunta al empezar cada año en que la persona está buscando, y apenas te despiden. Si elige buscar, el resto del año se vive mes a mes: cada mes pueden pasar los eventos con paso \"mes\" (oferta_cesante y mes_buscando)."
   },
   {
    "id": "oferta_externa",
@@ -1978,12 +1881,17 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "azar_uniforme(1.05, 1.25)"
+         "valor": "azar_uniforme(1.05, 1.25) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
         },
         {
          "var": "antiguedad",
          "op": "fija",
          "valor": 0
+        },
+        {
+         "var": "ia_prima_cobrada",
+         "op": "fija",
+         "valor": "si(y(ia_v2, ia_reconvertido), 1, ia_prima_cobrada)"
         }
        ],
        "luego": "tipo_de_empleador"
@@ -1997,12 +1905,17 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "azar_uniforme(0.85, 1.02)"
+         "valor": "azar_uniforme(0.85, 1.02) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
         },
         {
          "var": "antiguedad",
          "op": "fija",
          "valor": 0
+        },
+        {
+         "var": "ia_prima_cobrada",
+         "op": "fija",
+         "valor": "si(y(ia_v2, ia_reconvertido), 1, ia_prima_cobrada)"
         }
        ],
        "luego": "tipo_de_empleador"
@@ -2059,12 +1972,17 @@
         {
          "var": "sueldo",
          "op": "multiplica",
-         "valor": "azar_uniforme(1.0, 1.2)"
+         "valor": "azar_uniforme(1.0, 1.2) * (1 + si(y(ia_v2, ia_reconvertido, ia_prima_cobrada == 0), k('IA_PRIMA_SKILL') * si(tipo_empleador == 'publico', k('IA_PRIMA_PUBLICO'), 1), 0))"
         },
         {
          "var": "antiguedad",
          "op": "fija",
          "valor": 0
+        },
+        {
+         "var": "ia_prima_cobrada",
+         "op": "fija",
+         "valor": "si(y(ia_v2, ia_reconvertido), 1, ia_prima_cobrada)"
         }
        ],
        "luego": "tipo_de_empleador"
@@ -3148,7 +3066,8 @@
      "fuentes": [
       "equipo"
      ],
-     "calidad": "supuesto"
+     "calidad": "supuesto",
+     "requisito": "no(ia_v2)"
     },
     {
      "id": "ignorar",
@@ -3174,6 +3093,121 @@
       "brynjolfsson_2025",
       "microsoft_ia"
      ],
+     "calidad": "mixto",
+     "requisito": "no(ia_v2)"
+    },
+    {
+     "id": "curso_corto",
+     "nombre": "Un curso corto",
+     "requisito": "ia_v2",
+     "detalle": "Unas 20 horas, como la mayoría de los cursos SENCE. Aprendes a usarla, pero un curso corto no mueve el sueldo.",
+     "resultados": [
+      {
+       "id": "la_usa",
+       "prob": "k('IA_CURSO_CORTO_USA')",
+       "texto": "Empiezas a usar IA en tu trabajo.",
+       "tono": "bueno",
+       "efectos": [
+        {
+         "var": "usa_ia",
+         "op": "fija",
+         "valor": 1
+        },
+        {
+         "var": "energia",
+         "op": "suma",
+         "valor": -1
+        }
+       ]
+      },
+      {
+       "id": "no_prende",
+       "prob": "resto",
+       "texto": "Haces el curso, pero no cambia cómo trabajas.",
+       "tono": "neutro",
+       "efectos": [
+        {
+         "var": "energia",
+         "op": "suma",
+         "valor": -1
+        }
+       ]
+      }
+     ],
+     "fuentes": [
+      "sence_comision_2011",
+      "stephany_teutloff_2024"
+     ],
+     "calidad": "supuesto"
+    },
+    {
+     "id": "programa_largo",
+     "nombre": "Un programa largo",
+     "requisito": "ia_v2",
+     "detalle": "Más de 140 horas en el año: en Chile, el único tipo de curso que mueve el sueldo. Tu trabajo pasa a ser con la IA, no contra ella, y al cambiarte de pega cobras la prima de saber IA.",
+     "resultados": [
+      {
+       "id": "termina",
+       "prob": "k('IA_PROGRAMA_TERMINA')",
+       "texto": "Terminas el programa y cambias cómo trabajas.",
+       "tono": "bueno",
+       "efectos": [
+        {
+         "var": "usa_ia",
+         "op": "fija",
+         "valor": 1
+        },
+        {
+         "var": "ia_reconvertido",
+         "op": "fija",
+         "valor": 1
+        },
+        {
+         "var": "energia",
+         "op": "suma",
+         "valor": -6
+        }
+       ]
+      },
+      {
+       "id": "abandona",
+       "prob": "resto",
+       "texto": "Lo dejas a medio camino.",
+       "tono": "neutro",
+       "efectos": [
+        {
+         "var": "energia",
+         "op": "suma",
+         "valor": -4
+        }
+       ]
+      }
+     ],
+     "fuentes": [
+      "sence_comision_2011",
+      "card_kluve_weber_2018",
+      "fmi_movilidad_2024"
+     ],
+     "calidad": "supuesto"
+    },
+    {
+     "id": "no_por_ahora",
+     "nombre": "No por ahora",
+     "requisito": "ia_v2",
+     "detalle": "Sigues como estás. Cuánto te afecta depende de qué tan rápido llegue la IA en este mundo y de si tu trabajo es de los que la IA reemplaza.",
+     "resultados": [
+      {
+       "id": "nada",
+       "prob": 1,
+       "texto": "Sigues igual.",
+       "tono": "neutro",
+       "efectos": []
+      }
+     ],
+     "fuentes": [
+      "canaries_2026",
+      "oit_genai_2025"
+     ],
      "calidad": "mixto"
     }
    ],
@@ -3187,10 +3221,21 @@
      "fuente": "microsoft_ia",
      "cifra": "Aplicabilidad por ocupación y área",
      "uso": "qué tan expuesta está el área"
+    },
+    {
+     "fuente": "sence_comision_2011",
+     "cifra": "Los cursos cortos de la franquicia SENCE no mueven sueldo ni empleo; solo los de más de 140 horas",
+     "uso": "curso corto contra programa largo"
+    },
+    {
+     "fuente": "stephany_teutloff_2024",
+     "cifra": "Saber IA paga 21% más al cambiarte (freelancers)",
+     "uso": "prima al cambiarte tras un programa largo o liderar la adopción"
     }
    ],
    "calidad": "mixto",
-   "en_juego": "ia"
+   "en_juego": "ia",
+   "creencia_vs_dato": "\"Un curso de IA y listo\": en Chile, los cursos cortos no mueven el sueldo; los de más de 140 horas sí, y pagan recién a los 2 o 3 años."
   },
   {
    "id": "invertir_en_red",
@@ -4678,6 +4723,401 @@
    "calidad": "mixto",
    "en_juego": null,
    "notas": "No es una decisión del jugador: es un sorteo que otras decisiones llaman con \"luego\"."
+  },
+  {
+   "id": "tipo_de_oferta",
+   "nombre": "De qué empleador es la oferta",
+   "categoria": "trabajo",
+   "pregunta": "Sorteo del tipo de empleador de una oferta estando cesante.",
+   "cuando": "falso()",
+   "aparicion": {
+    "tipo": "interna",
+    "peso": 0,
+    "proactiva": false
+   },
+   "opciones": [
+    {
+     "id": "sorteo",
+     "nombre": "Sorteo",
+     "detalle": "La misma mezcla que tipo_de_empleador, antes de que la persona decida.",
+     "resultados": [
+      {
+       "id": "publico",
+       "prob": "k('P_REEMPLEO_PUBLICO')",
+       "texto": "La oferta es del Estado.",
+       "tono": "neutro",
+       "efectos": [
+        {
+         "var": "oferta_tipo_empleador",
+         "op": "fija",
+         "valor": "'publico'"
+        }
+       ],
+       "luego": "oferta_en_cesantia"
+      },
+      {
+       "id": "grande",
+       "prob": "(1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande')",
+       "texto": "La oferta es de una empresa grande.",
+       "tono": "neutro",
+       "efectos": [
+        {
+         "var": "oferta_tipo_empleador",
+         "op": "fija",
+         "valor": "'grande'"
+        }
+       ],
+       "luego": "oferta_en_cesantia"
+      },
+      {
+       "id": "pyme",
+       "prob": "(1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme')",
+       "texto": "La oferta es de una pyme.",
+       "tono": "neutro",
+       "efectos": [
+        {
+         "var": "oferta_tipo_empleador",
+         "op": "fija",
+         "valor": "'pyme'"
+        }
+       ],
+       "luego": "oferta_en_cesantia"
+      },
+      {
+       "id": "startup",
+       "prob": "resto",
+       "texto": "La oferta es de una startup.",
+       "tono": "neutro",
+       "efectos": [
+        {
+         "var": "oferta_tipo_empleador",
+         "op": "fija",
+         "valor": "'startup'"
+        }
+       ],
+       "luego": "oferta_en_cesantia"
+      }
+     ],
+     "fuentes": [
+      "ine_esi_2025"
+     ],
+     "calidad": "mixto"
+    }
+   ],
+   "evidencia": [
+    {
+     "fuente": "ine_esi_2025",
+     "cifra": "Tamaño del empleador de asalariados privados; 13% a 17% de los ocupados es asalariado público",
+     "uso": "mezcla"
+    }
+   ],
+   "calidad": "mixto",
+   "en_juego": null,
+   "notas": "Se sortea antes de mostrar la oferta para que la persona vea el riesgo de despido del empleador nuevo."
+  },
+  {
+   "id": "oferta_en_cesantia",
+   "nombre": "Te llega una oferta estando cesante",
+   "categoria": "trabajo",
+   "pregunta": "Te ofrecen trabajo. ¿Lo tomas?",
+   "cuando": "y(o(estado == 'buscando', busca_mientras_informal == 1), oferta_sueldo > 0)",
+   "aparicion": {
+    "tipo": "forzada",
+    "peso": 1,
+    "proactiva": false
+   },
+   "opciones": [
+    {
+     "id": "aceptar",
+     "nombre": "La acepto",
+     "detalle": "Vuelves a trabajar con el sueldo y el empleador de la oferta.",
+     "resultados": [
+      {
+       "id": "vuelve",
+       "prob": 1,
+       "texto": "Vuelves a trabajar.",
+       "tono": "bueno",
+       "efectos": [
+        {
+         "var": "estado",
+         "op": "fija",
+         "valor": "'empleado'"
+        },
+        {
+         "var": "sueldo",
+         "op": "fija",
+         "valor": "oferta_sueldo"
+        },
+        {
+         "var": "tipo_empleador",
+         "op": "fija",
+         "valor": "oferta_tipo_empleador"
+        },
+        {
+         "var": "rubro",
+         "op": "fija",
+         "valor": "si(oferta_tipo_empleador == 'publico', 'Administración pública', rubro)"
+        },
+        {
+         "var": "antiguedad",
+         "op": "fija",
+         "valor": 0
+        },
+        {
+         "var": "meses_cesante",
+         "op": "fija",
+         "valor": 0
+        },
+        {
+         "var": "animo",
+         "op": "suma",
+         "valor": "k('ANIMO_REEMPLEO')"
+        },
+        {
+         "var": "oferta_sueldo",
+         "op": "fija",
+         "valor": 0
+        },
+        {
+         "var": "oferta_tipo_empleador",
+         "op": "fija",
+         "valor": "''"
+        },
+        {
+         "var": "busca_mientras_informal",
+         "op": "fija",
+         "valor": 0
+        },
+        {
+         "var": "formal",
+         "op": "fija",
+         "valor": 1
+        }
+       ]
+      }
+     ],
+     "fuentes": [
+      "eps_2024",
+      "elsoc"
+     ],
+     "calidad": "mixto"
+    },
+    {
+     "id": "rechazar",
+     "nombre": "La rechazo y sigo buscando",
+     "detalle": "La próxima puede ser mejor o peor, y mientras tanto bajan los ahorros.",
+     "resultados": [
+      {
+       "id": "sigue",
+       "prob": 1,
+       "texto": "Sigues buscando.",
+       "tono": "neutro",
+       "efectos": [
+        {
+         "var": "oferta_sueldo",
+         "op": "fija",
+         "valor": 0
+        },
+        {
+         "var": "oferta_tipo_empleador",
+         "op": "fija",
+         "valor": "''"
+        }
+       ]
+      }
+     ],
+     "fuentes": [
+      "kroft_2013"
+     ],
+     "calidad": "mixto"
+    }
+   ],
+   "evidencia": [
+    {
+     "fuente": "kroft_2013",
+     "cifra": "Llamados a entrevista: 7% al mes, 4% a los 8 meses",
+     "uso": "esperar cuesta"
+    },
+    {
+     "fuente": "ine_esi_2025",
+     "cifra": "Tamaño del empleador de asalariados privados",
+     "uso": "de dónde vienen las ofertas"
+    }
+   ],
+   "calidad": "mixto",
+   "en_juego": "cesante",
+   "notas": "La dispara oferta_cesante (vía tipo_de_oferta) en el mismo mes. Gemelos y vidas simuladas eligen con regla fija: aceptar si oferta_sueldo >= GEMELO_UMBRAL_OFERTA * sueldo_ref o si meses_cesante + 1 >= GEMELO_MES_ACEPTA_TODO; si no, rechazar. También le llega a quien trabaja informal mientras busca (busca_mientras_informal); al aceptar vuelve a un empleo con contrato."
+  },
+  {
+   "id": "liderar_adopcion_ia",
+   "nombre": "Tu empresa adopta IA",
+   "categoria": "trabajo",
+   "pregunta": "Tu empresa va a meter IA en el trabajo de tu equipo. ¿Qué haces?",
+   "cuando": "y(ia_v2, estado == 'empleado')",
+   "aparicion": {
+    "tipo": "carta",
+    "peso": 0,
+    "proactiva": false,
+    "solo_por_evento": true
+   },
+   "opciones": [
+    {
+     "id": "liderar",
+     "nombre": "Liderar la adopción",
+     "detalle": "Te ofreces a llevar la IA a tu equipo: más visibilidad, más trabajo.",
+     "resultados": [
+      {
+       "id": "resulta",
+       "prob": "k('IA_LIDERAR_EXITO')",
+       "texto": "Funciona: tu equipo trabaja distinto y se nota que fuiste tú.",
+       "tono": "bueno",
+       "efectos": [
+        {
+         "var": "usa_ia",
+         "op": "fija",
+         "valor": 1
+        },
+        {
+         "var": "prob_ascenso_extra",
+         "op": "suma",
+         "valor": "k('IA_LIDERAR_ASCENSO')"
+        },
+        {
+         "var": "red",
+         "op": "suma",
+         "valor": 5
+        },
+        {
+         "var": "energia",
+         "op": "suma",
+         "valor": -4
+        },
+        {
+         "var": "ia_reconvertido",
+         "op": "fija",
+         "valor": 1
+        }
+       ]
+      },
+      {
+       "id": "no_resulta",
+       "prob": "resto",
+       "texto": "El piloto no prende, pero aprendes a usarla.",
+       "tono": "neutro",
+       "efectos": [
+        {
+         "var": "usa_ia",
+         "op": "fija",
+         "valor": 1
+        },
+        {
+         "var": "energia",
+         "op": "suma",
+         "valor": -5
+        }
+       ]
+      }
+     ],
+     "fuentes": [
+      "equipo",
+      "stephany_teutloff_2024"
+     ],
+     "calidad": "supuesto"
+    },
+    {
+     "id": "aprender",
+     "nombre": "Aprender a usarla",
+     "detalle": "Haces lo que te piden y aprendes la herramienta.",
+     "resultados": [
+      {
+       "id": "aprende",
+       "prob": "k('IA_APRENDE_PROB')",
+       "texto": "La integras a tu trabajo.",
+       "tono": "bueno",
+       "efectos": [
+        {
+         "var": "usa_ia",
+         "op": "fija",
+         "valor": 1
+        },
+        {
+         "var": "energia",
+         "op": "suma",
+         "valor": -2
+        }
+       ]
+      },
+      {
+       "id": "a_medias",
+       "prob": "resto",
+       "texto": "La usas a medias.",
+       "tono": "neutro",
+       "efectos": []
+      }
+     ],
+     "fuentes": [
+      "equipo"
+     ],
+     "calidad": "supuesto"
+    },
+    {
+     "id": "seguir",
+     "nombre": "Seguir igual",
+     "detalle": "Trabajas como siempre mientras se pueda.",
+     "resultados": [
+      {
+       "id": "nada",
+       "prob": 1,
+       "texto": "Sigues igual.",
+       "tono": "neutro",
+       "efectos": []
+      }
+     ],
+     "fuentes": [
+      "equipo"
+     ],
+     "calidad": "supuesto"
+    },
+    {
+     "id": "buscar",
+     "nombre": "Buscar otra pega",
+     "detalle": "Si tu trabajo es de los que la IA reemplaza, quizás conviene moverse antes.",
+     "resultados": [
+      {
+       "id": "busca",
+       "prob": 1,
+       "texto": "Empiezas a buscar.",
+       "tono": "neutro",
+       "efectos": [],
+       "luego": "buscar_estando_empleado"
+      }
+     ],
+     "fuentes": [
+      "equipo"
+     ],
+     "calidad": "supuesto"
+    }
+   ],
+   "evidencia": [
+    {
+     "fuente": "census_btos_2026",
+     "cifra": "22% de las empresas de EE.UU. usa IA (agosto 2026)",
+     "uso": "frecuencia"
+    },
+    {
+     "fuente": "nyfed_ia_2026",
+     "cifra": "15% de las empresas de servicios contrató menos por la IA; 4% despidió",
+     "uso": "qué hacen las empresas"
+    },
+    {
+     "fuente": "hosseini_lichtinger_2026",
+     "cifra": "Las empresas que adoptan IA contratan 22% menos juniors; los seniors no cambian",
+     "uso": "a quién le pega"
+    }
+   ],
+   "calidad": "supuesto",
+   "en_juego": "ia",
+   "creencia_vs_dato": "\"La IA despide gente\": hasta ahora, las empresas que la adoptan contratan menos juniors, pero casi no despiden."
   }
  ]
 }

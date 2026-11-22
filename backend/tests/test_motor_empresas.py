@@ -374,3 +374,43 @@ def test_la_universidad_del_magister_dice_que_su_numero_es_el_arancel():
     opcion = next(o for o in v["pendiente"]["opciones"] if o["opcion"] == "vespertino")
     nombres = {a["valor"]: a["nombre"] for i in opcion["elecciones_internas"] for a in i["alternativas"]}
     assert nombres["23"] == "UAI · arancel $8,5 millones al año · selectiva"
+
+
+BUSCAR = [{"decision": "cesantia", "opcion": "buscar"}]
+
+
+def test_en_la_cesantia_cada_oferta_trae_su_propia_empresa():
+    """Las opciones de la cesantía son formas de pasar el año, no pegas: no muestran empresa. La empresa
+    llega con cada oferta del mes (oferta_en_cesantia), y no es siempre la misma."""
+    cesante = Perfil(edad=30, estado="buscando", sueldo=1_500_000)
+    empresas_vistas = set()
+    for semilla in range(10):
+        v = partida.vista(cesante, semilla, "cesantia", [], 0)
+        assert all(o["empresa"] is None for o in v["pendiente"]["opciones"])
+        pendiente = partida.vista(cesante, semilla, "cesantia", BUSCAR, 0)["pendiente"]
+        if pendiente is None or pendiente["decision"] != "oferta_en_cesantia":
+            continue  # ese año no le llegó ninguna oferta
+        ofertas = {o["opcion"]: o["empresa"] for o in pendiente["opciones"]}
+        assert ofertas["aceptar"] and ofertas["rechazar"] is None
+        empresas_vistas.add(ofertas["aceptar"]["empresa_id"])
+    assert len(empresas_vistas) >= 5
+
+
+def test_en_la_cesantia_vives_la_empresa_que_mostro_la_oferta():
+    """Antes el motor volvía a sortear la empresa al emplearte (y la sorteaba dos veces): la carta mostraba
+    una y vivías otra."""
+    cesante = Perfil(edad=30, estado="buscando", sueldo=1_500_000)
+    vistos = iguales = 0
+    for semilla in range(20):
+        pendiente = partida.vista(cesante, semilla, "cesantia", BUSCAR, 0)["pendiente"]
+        if pendiente is None or pendiente["decision"] != "oferta_en_cesantia":
+            continue
+        mostrada = next(o["empresa"] for o in pendiente["opciones"] if o["opcion"] == "aceptar")
+        acepta = [*BUSCAR, {"decision": "oferta_en_cesantia", "opcion": "aceptar"}]
+        vida = partida.jugar(cesante, semilla, acepta, duda="cesantia").vida
+        reg = vida.historia[0] if vida.historia else vida.registro
+        if vida.e["estado"] != "empleado" or any(x["evento"] == "separacion_empleo" for x in reg["eventos"]):
+            continue  # perdió esa pega el mismo año
+        vistos += 1
+        iguales += vida.e["empresa_id"] == mostrada["empresa_id"]
+    assert vistos >= 10 and iguales == vistos

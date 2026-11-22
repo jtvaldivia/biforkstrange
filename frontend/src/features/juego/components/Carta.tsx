@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import {
   Button, DecisionArt, DecisionCard, DecisionList, Heading, Meta, Pill, Row, Screen, ScreenHeader, Stack, Text, cssVars, type DecisionTag,
 } from "@/shared/ui";
-import { CALIDAD, EMPRESA_EJEMPLO, TIPO_EMPLEADOR, arteOpcion, conSigno, plata, primeraFrase, sinSueldo, situacion } from "../textos";
+import { CALIDAD, EMPRESA_EJEMPLO, TIPO_EMPLEADOR, arteOpcion, conSigno, mayuscula, plata, primeraFrase, sinSueldo, situacion } from "../textos";
 import type { ContraBase, Eleccion, EmpresaOferta, EscenarioIA, PorQue, MundoDetalle, Narrado, OpcionComparada, OpcionPendiente, ParametrosComparar, Partida, Respaldo, SinNovedad, Suceso, Vista } from "../types";
 import { useNarracion } from "../hooks/useNarracion";
 import { Logo } from "./Logo";
-import { BarraPartes, Info, ProgresoAnios, sinMovimiento, type Reparto } from "./graficos";
+import { BarraPartes, DadoEnJuego, Info, ProgresoAnios, sinMovimiento, type Casilla, type Reparto } from "./graficos";
 import { PesoDelCv } from "./PesoDelCv";
 import { HojaEleccion } from "./HojaEleccion";
 import { AvisoPerfil, CalidadTag, Cargando, ErrorCaja, FranjaSinNovedad, Hoy, Pensando, RangoSueldo, Salir } from "./piezas";
@@ -74,7 +74,7 @@ function porQueLargo(p: PorQue | undefined, primerAnio: boolean): string | null 
     const base = "Cada año el juego mira qué le pasa a gente en tu situación: tu edad, tu trabajo y tu rubro. Esto te llegó sin buscarlo.";
     // el primer año siempre llega algo: ahí la chance de esta carta en particular confunde más de lo que explica
     const chance = p.prob !== undefined && !primerAnio ? Math.round(p.prob * 100) : null;
-    const cuanto = chance === null ? "" : chance < 1 ? " Entre todo lo que podía pasarte este año, esto tenía menos de 1 de 100 chances." : ` Entre todo lo que podía pasarte este año, esto tenía unas ${chance} de 100 chances.`;
+    const cuanto = chance === null ? "" : chance < 1 ? " Entre todo lo que podía pasarte este año, esto tenía menos de 1% de probabilidad." : ` Entre todo lo que podía pasarte este año, esto tenía cerca de ${chance}% de probabilidad.`;
     return base + cuanto + (primerAnio ? " El primer año siempre te llega algo para decidir." : "");
   }
   if (p.tipo === "obligada") return "Te pasó algo que no se puede dejar pasar, como quedar sin trabajo. Cuando eso ocurre, hay que decidir qué hacer.";
@@ -101,7 +101,7 @@ function ComoLeer({ o, total, edadFinal, respaldo }: { o: OpcionComparada; base:
       {sorteo &&
         sorteo.map((r) => (
           <span key={r.resultado} style={{ display: "block", marginBottom: 6 }}>
-            <strong>{r.texto}:</strong> {r.valor !== null ? `${Math.round(r.valor * 100)} de 100.` : "depende de tu situación."}{" "}
+            <strong>{r.texto}:</strong> {r.valor !== null ? `${Math.round(r.valor * 100)}%.` : "depende de tu situación."}{" "}
             {r.fuentes.length > 0 ? `Fuente: ${r.fuentes.join("; ")}.` : ""}
           </span>
         ))}
@@ -172,7 +172,7 @@ function fraseCorta(o: OpcionComparada, detalle: string): string | undefined {
  * solo con el sueldo (mediana y 10% · 90%) y, si hay, lo que se supuso dentro. El resto va más abajo.
  */
 function OpcionConGemelos({
-  o, decision, categoria, base, tope, selected, onSelect, supuesto, cambiable, edadFinal, color, ganadas, total, lider, empresa, textoEmpresa, respaldo,
+  o, decision, categoria, base, tope, selected, onSelect, supuesto, cambiable, edadFinal, color, ganadas, empates = 0, total, lider, empresa, textoEmpresa, respaldo,
 }: {
   respaldo?: Respaldo[];
   /** Tiene algo que elegir dentro (rubro, región): tocarla de nuevo abre la hoja. */
@@ -190,6 +190,8 @@ function OpcionConGemelos({
   color: string;
   /** En cuántos mundos esta opción es la que más gana (el mismo número que la nube). */
   ganadas: number | null;
+  /** En cuántos mundos da lo mismo qué elijas. */
+  empates?: number;
   total: number;
   /** Es la que gana en más mundos. */
   lider: boolean;
@@ -200,7 +202,9 @@ function OpcionConGemelos({
   // "Tus 100 mundos". Así la tarjeta y la grilla nunca dicen cosas distintas, y con los empates suman 100.
   const de = total || 100;
   const veredicto = !o.es_base ? contraBase(o, base)?.frase : null;
-  const cesantia = Math.round(o.paso_por_cesantia * 100);
+  // el tiempo sin trabajo dice más que "cuántas copias pasaron por la cesantía": en 10 años a casi todos
+  // les toca una vez, pero suele durar meses. Es el promedio de tus copias, contando a las que nunca la vivieron.
+  const mesesSinTrabajo = Math.round(o.meses_sin_trabajo);
   const sube = Math.round((o.sube_de_cargo ?? 0) * 100);
   return (
     <DecisionCard
@@ -214,7 +218,17 @@ function OpcionConGemelos({
           {ganadas !== null && (
             <span className="jg-marcador" data-lider={lider}>
               <span className="jg-marcador-num">
-                {ganadas === 0 ? "En ningún mundo es la mejor" : <><b>{ganadas}</b> de {de} mundos es la mejor</>}
+                {empates >= de / 2 && ganadas < POCAS_GANADAS ? (
+                  <>
+                    {ganadas === 0 ? "En ningún mundo es la mejor" : <><b>{ganadas}</b> de {de} es la mejor</>}; en {empates} da lo mismo
+                  </>
+                ) : ganadas === 0 ? (
+                  "En ningún mundo es la mejor"
+                ) : (
+                  <>
+                    <b>{ganadas}</b> de {de} mundos es la mejor
+                  </>
+                )}
               </span>
               <MiniMundos ganadas={ganadas} total={de} color={color} />
             </span>
@@ -247,8 +261,8 @@ function OpcionConGemelos({
               <b>{plata(o.sueldo.p10)}</b>
             </span>
             <span role="listitem">
-              <span>Cierras algún año buscando trabajo</span>
-              <b>{cesantia === 0 ? "en ningún mundo" : `en ${cesantia} de 100`}</b>
+              <span>Tiempo sin trabajo hasta los {edadFinal}</span>
+              <b>{mesesSinTrabajo === 0 ? "casi nada" : `unos ${mesesSinTrabajo} ${mesesSinTrabajo === 1 ? "mes" : "meses"}`}</b>
             </span>
             <span role="listitem">
               <span>Terminas en un cargo más alto</span>
@@ -269,6 +283,10 @@ function OpcionConGemelos({
     />
   );
 }
+
+// Desde cuántos empates se avisa arriba de las opciones, y bajo cuántas ganadas una opción dice que "da lo mismo"
+const MUCHOS_EMPATES = 30;
+const POCAS_GANADAS = 15;
 
 /** Una tira de 100 puntitos: los primeros `ganadas` del color de la opción. La misma idea que la grilla, en chico. */
 function MiniMundos({ ganadas, total, color }: { ganadas: number; total: number; color: string }) {
@@ -949,6 +967,9 @@ export function Carta({
 
   /** La pregunta abierta en la hoja de abajo (a qué rubro, a qué región), o null si está cerrada. */
   const [hoja, setHoja] = useState<number | null>(null);
+  // Sin opción elegida, el botón del pie sube a las tarjetas: después de mirar los 100 mundos no hay que buscarlas
+  const opcionesRef = useRef<HTMLDivElement>(null);
+  const irAOpciones = () => opcionesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const [defectos, setDefectos] = useState<Internas>({});
   const primeraFaltante = (o: OpcionPendiente, valores: Internas) =>
     Math.max(0, o.elecciones_internas.findIndex((i) => valores[i.variable] === undefined));
@@ -1020,8 +1041,17 @@ export function Carta({
   /** Hasta qué edad vivieron los gemelos de esta carta (no siempre es el fin de la partida). */
   const edadGemelos = comparadas[0]?.trayectoria[comparadas[0].trayectoria.length - 1]?.edad ?? vista.edad_final;
   const colores = coloresDe(comparadas);
+  /** Lo que te juegas con la opción elegida: sus resultados posibles. Con uno solo, era segura y no hay dado. */
+  const enJuego: Casilla[] = (comparadas.find((c) => c.opcion === opcion?.opcion)?.por_resultado ?? []).map((r) => ({
+    id: r.resultado,
+    texto: r.texto || r.resultado,
+    prob: r.prob,
+    tono: r.tono,
+  }));
   const ganadores = comparacion?.ganador_por_mundo ?? null;
   const ganadas = (id: string) => (ganadores ? ganadores.filter((g) => g === id).length : 0);
+  // mundos donde da lo mismo qué elijas (las dos mejores a menos de 0,5%): el "X de 100 es la mejor" solo no los muestra
+  const empates = ganadores ? ganadores.filter((g) => g === null).length : 0;
   const hoy = { edad: e.edad, sueldo: sinSueldo(e) ? 0 : e.sueldo };
   const sinEfecto = comparadas.length > 1 && comparadas.every((o) => o.es_base || (o.igual_que_base ?? 0) >= 0.9);
   /** "Lo que vale cada línea de tu CV" solo tiene sentido si hubo CV o tu Claude: sin ellos, no hay líneas tuyas. */
@@ -1029,8 +1059,16 @@ export function Carta({
 
   return (
     <Screen gap={16}>
-      <ScreenHeader left={<Pill style={{ whiteSpace: "nowrap" }}>Año {anio} · {e.edad} años</Pill>} right={onSalir && <Salir onSalir={onSalir} />} />
-      {cargando && <Pensando titulo={`Mundo ${GEMELOS + 1} · año ${anio}`} onSalir={onSalir} />}
+      <ScreenHeader
+        left={<Pill style={{ whiteSpace: "nowrap" }}>Año {anio} · {e.edad} años</Pill>}
+        right={
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            {vista.anio > 0 && <AvisoPerfil fuentes={fuentes} corto />}
+            {onSalir && <Salir onSalir={onSalir} />}
+          </span>
+        }
+      />
+      {cargando && <DadoEnJuego casillas={enJuego} titulo={`Mundo ${GEMELOS + 1} · año ${anio}`} />}
       {/* mientras Claude escribe la carta no hay sorteo: una espera simple, no la apuesta */}
       {!cargando && !listo && (
         <div className="jg-preparando">
@@ -1040,15 +1078,14 @@ export function Carta({
       <ProgresoAnios actual={anio} total={vista.anios} />
       <FranjaSinNovedad s={sinNovedad} />
       <Hoy e={e} />
-      <AvisoPerfil fuentes={fuentes} />
+      {vista.anio === 0 && <AvisoPerfil fuentes={fuentes} />}
 
       <Stack gap={8} style={{ marginTop: 4 }}>
-        <Meta>
-          {pendiente.nombre}
-          {porQueCorto(pendiente.por_que) && ` · ${porQueCorto(pendiente.por_que)}`}
-        </Meta>
-        {porQueLargo(pendiente.por_que, vista.anio === 0) && (
-          <Info pregunta="¿Por qué te tocó esto?">{porQueLargo(pendiente.por_que, vista.anio === 0)}</Info>
+        {/* el nombre de la decisión ya lo dice la pregunta: aquí solo de dónde viene, en una línea */}
+        {porQueLargo(pendiente.por_que, vista.anio === 0) ? (
+          <Info pregunta={`${mayuscula(porQueCorto(pendiente.por_que) ?? "por qué te tocó")} · ¿por qué?`}>{porQueLargo(pendiente.por_que, vista.anio === 0)}</Info>
+        ) : (
+          porQueCorto(pendiente.por_que) && <span className="jg-chico">{mayuscula(porQueCorto(pendiente.por_que)!)}</span>
         )}
         {pendiente.narrativa && listo && (
           <div className="jg-mensaje" key={llave}>
@@ -1060,14 +1097,19 @@ export function Carta({
             <p className="jg-mensaje-texto">{narrados.situacion ?? pendiente.narrativa.situacion}</p>
           </div>
         )}
-        <Heading level={2} as="h1">
+        <Heading level={2} as="h1" className="jg-carta-pregunta">
           {pendiente.pregunta}
         </Heading>
         {sinEfecto && <Text size="sm" className="jg-destacado">Tu sueldo termina casi igual con cualquier opción.</Text>}
+        {!sinEfecto && empates >= MUCHOS_EMPATES && (
+          <Text size="sm" className="jg-destacado">
+            En {empates} de tus {ganadores!.length} mundos da lo mismo qué elijas: tu sueldo termina igual.
+          </Text>
+        )}
       </Stack>
 
       {comparacion ? (
-        <div className="vd-pila jg-columna jg-opciones-cortas" role="group" aria-label="Opciones" data-cargando={recalculando} style={{ gap: 14 }}>
+        <div ref={opcionesRef} className="vd-pila jg-columna jg-opciones-cortas" role="group" aria-label="Opciones" data-cargando={recalculando} style={{ gap: 14, scrollMarginTop: 16 }}>
           {comparadas.map((o) => (
             <OpcionConGemelos
               key={o.opcion}
@@ -1087,12 +1129,13 @@ export function Carta({
               edadFinal={edadGemelos}
               color={colores[o.opcion]}
               ganadas={ganadores ? ganadas(o.opcion) : null}
+              empates={empates}
               total={ganadores?.length ?? 0}
             />
           ))}
         </div>
       ) : (
-        <Stack gap={12} className="jg-columna">
+        <div ref={opcionesRef} className="vd-pila jg-columna" style={{ gap: 12, scrollMarginTop: 16 }}>
           {muchas && (
             <input className="jg-campo" type="search" placeholder="Filtrar opciones" aria-label="Filtrar opciones" value={filtro} onChange={(ev) => setFiltro(ev.target.value)} />
           )}
@@ -1115,8 +1158,9 @@ export function Carta({
             }))}
           />
           {visibles.length > 40 && <Text size="sm">Hay {visibles.length - 40} más: usa el filtro.</Text>}
-        </Stack>
+        </div>
       )}
+
 
       {comparacion && opcion && (() => {
         const c = comparadas.find((x) => x.opcion === opcion.opcion);
@@ -1198,25 +1242,18 @@ export function Carta({
 
       <div className="jg-pie-fijo">
         {error && <ErrorCaja error={error} onReintentar={onReintentar} />}
-        {/* elegir desde cualquier parte de la carta: no hay que volver arriba después de mirar los 100 mundos */}
-        {comparacion && comparadas.length >= 2 && comparadas.length <= 3 && !cargando && (
-          <div className="jg-pie-opciones" role="group" aria-label="Elegir una opción">
-            {comparadas.map((o) => (
-              <button key={o.opcion} type="button" className="vd-chip jg-pie-opcion" aria-pressed={sel === o.opcion} onClick={() => elegirOpcion(o.opcion)} disabled={recalculando}>
-                <i className="jg-color" style={{ background: colores[o.opcion] }} aria-hidden="true" />
-                {o.nombre}
-              </button>
-            ))}
-          </div>
-        )}
         {cargando && <Cargando>Sorteando y viviendo tu año…</Cargando>}
         {opcion && faltan.length > 0 && !cargando ? (
           <Button onClick={() => setHoja(primeraFaltante(opcion, internas))} disabled={recalculando}>
             Elegir el detalle
           </Button>
+        ) : opcion || cargando ? (
+          <Button onClick={confirmar} disabled={cargando || recalculando}>
+            {cargando ? "Sorteando…" : `Confirmar «${opcion?.nombre}»`}
+          </Button>
         ) : (
-          <Button onClick={confirmar} disabled={!opcion || cargando || recalculando}>
-            {cargando ? "Sorteando…" : opcion ? "Confirmar" : "Toca una opción"}
+          <Button variant="white" onClick={irAOpciones}>
+            Elige una opción ↑
           </Button>
         )}
       </div>

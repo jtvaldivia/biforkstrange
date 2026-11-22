@@ -66,6 +66,28 @@ function guardar(g: Guardado) {
 
 const mensaje = textoError;
 
+const semillaAlAzar = () => Math.floor(Math.random() * 1_000_000);
+
+/** La vida que terminaste, para compararla con la siguiente cuando vuelves a vivir el mismo mundo. */
+export type VidaAnterior = {
+  recorrido: { edad: number; sueldo: number }[];
+  sueldoFinal: number;
+  /** Lo que elegiste en la primera decisión, con su nombre. */
+  primera: { decision: string; nombre: string } | null;
+};
+
+function vidaDe(v: Vista, sueldoInicial: number): VidaAnterior | null {
+  if (!v.cierre) return null;
+  const edadInicial = v.edad_final - v.anios;
+  const pd = v.cierre.primera_decision;
+  const nombre = pd?.comparacion.opciones.find((o) => o.opcion === pd.elegida)?.nombre;
+  return {
+    recorrido: [{ edad: edadInicial, sueldo: sueldoInicial }, ...v.historia.filter((a) => a.fin).map((a) => ({ edad: a.fin!.edad, sueldo: a.fin!.sueldo }))],
+    sueldoFinal: v.cierre.sueldo_final,
+    primera: pd && nombre ? { decision: pd.decision, nombre } : null,
+  };
+}
+
 /**
  * Si al seguir igual el año pasó sin nada que contar (solo el ajuste normal del sueldo), lo que cambió;
  * si no, null. Una oferta que llega no cuenta: la muestra la pantalla siguiente.
@@ -105,7 +127,14 @@ export function usePartida() {
   const [error, setError] = useState<string | null>(null);
   /** Un aviso para la portada (no un error): por ejemplo, que la partida guardada ya no se puede seguir. */
   const [aviso, setAviso] = useState<string | null>(null);
+  /** Tu vida anterior en este mismo mundo: el cierre la dibuja junto a la de ahora. Solo en memoria. */
+  const [anterior, setAnterior] = useState<VidaAnterior | null>(null);
   const turno = useRef(0);
+  /**
+   * La semilla de la próxima partida nueva, elegida antes de empezar: "más en juego" calcula las dudas con
+   * ella, así que la primera carta de la duda que se elija ya está calculada en el servidor.
+   */
+  const [semillaNueva, setSemillaNueva] = useState(semillaAlAzar);
   /** Lo elegido dentro de las opciones de la carta actual: los mundos se ven con eso mismo. */
   const parametrosCarta = useRef<ParametrosComparar>({});
   /** El onboarding a medio armar: sobrevive a ir y volver de las dudas. */
@@ -184,6 +213,7 @@ export function usePartida() {
     const deClaude = new Set(b.claude?.sugeridas.map((d) => d.decision) ?? []);
     setOrigenSugeridas(sugeridas.length === 0 ? null : sugeridas.some((d) => deClaude.has(d.decision)) ? "claude" : "cv");
     fijarPerfil(p);
+    setAnterior(null);
     setPartida(null);
     setVista(null);
     setPrevia(null);
@@ -205,12 +235,16 @@ export function usePartida() {
   const reintentar = useCallback(() => reintento.current?.(), []);
   const reintentarDudas = useCallback(() => verDudas(perfil, dudasSugeridas), [verDudas, perfil, dudasSugeridas]);
 
-  /** Una partida nueva de `p` con la duda dada (o sin duda). */
+  /**
+   * Una partida nueva de `p` con la duda dada (o sin duda). Con `semilla` es el mismo mundo de antes: la misma
+   * primera carta y la misma suerte del país (la de la pega cambia si te cambias de trabajo).
+   */
   const nuevaPartida = useCallback(
-    (p: Perfil, duda: string | null) => {
+    (p: Perfil, duda: string | null, semilla?: number) => {
       parametrosCarta.current = {};
       setCargando(true);
-      const nueva: Partida = { perfil: p, semilla: Math.floor(Math.random() * 1_000_000), duda, elecciones: [] };
+      const nueva: Partida = { perfil: p, semilla: semilla ?? semillaNueva, duda, elecciones: [] };
+      setSemillaNueva(semillaAlAzar()); // la próxima partida nueva es otro mundo
       void pedir(nueva, (v) => {
         setPartida(nueva);
         setPrevia(null);
@@ -218,7 +252,7 @@ export function usePartida() {
         setFase(v.terminada ? "cierre" : "carta");
       });
     },
-    [pedir],
+    [pedir, semillaNueva],
   );
 
   /** Perfil listo y sin duda elegida: la primera carta se sortea como todas las demás. */
@@ -281,6 +315,8 @@ export function usePartida() {
       const busca = eleccion.decision === "anio_tranquilo" && eleccion.opcion !== "seguir";
       // seguir igual no tiene dado: si el año no trajo nada, se pasa directo al siguiente (sin "qué te pasó")
       const seguirIgual = eleccion.decision === "anio_tranquilo" && eleccion.opcion === "seguir";
+      // el dado solo se toma su tiempo si la opción tiene algo que sortear; si era segura, la espera es corta
+      const resultados = vista.pendiente?.comparacion?.opciones.find((o) => o.opcion === eleccion.opcion)?.por_resultado.length ?? 0;
       setCargando(true);
       void pedir(siguiente, (v) => {
         const quieto = seguirIgual ? anioSinNovedad(antes, v) : null;
@@ -289,7 +325,7 @@ export function usePartida() {
         setVista(v);
         setSinNovedad(quieto);
         setFase(quieto ? (v.terminada ? "cierre" : "carta") : busca && v.pendiente ? "carta" : "paso");
-      }, undefined, busca || seguirIgual || sinMovimiento() ? 0 : 2400); // sin dado o sin animaciones, no se espera
+      }, undefined, busca || seguirIgual || sinMovimiento() ? 0 : resultados > 1 ? 2400 : 600); // sin dado o sin animaciones, no se espera
     },
     [partida, vista, pedir],
   );
@@ -325,7 +361,24 @@ export function usePartida() {
   }, [vista]);
 
   /** Otra vida con el mismo perfil: se vuelve a elegir la duda. */
-  const jugarDeNuevo = useCallback(() => empezarAlAzar(perfil), [empezarAlAzar, perfil]);
+  /** Otra vida, en otro mundo, con la misma duda que elegiste (o sin duda, si empezaste sin una). */
+  const jugarDeNuevo = useCallback(() => {
+    turno.current++;
+    setAnterior(null);
+    setVista(null);
+    setPrevia(null);
+    nuevaPartida(partida?.perfil ?? perfil, partida?.duda ?? null);
+  }, [nuevaPartida, partida, perfil]);
+
+  /** El mismo mundo otra vez, desde el año 1, para elegir distinto. La vida que terminaste queda para comparar. */
+  const revivir = useCallback(() => {
+    if (!partida || !vista) return;
+    turno.current++;
+    setAnterior(vidaDe(vista, partida.perfil.sueldo));
+    setVista(null);
+    setPrevia(null);
+    nuevaPartida(partida.perfil, partida.duda, partida.semilla);
+  }, [nuevaPartida, partida, vista]);
 
   const descartar = useCallback(() => {
     turno.current++;
@@ -342,6 +395,7 @@ export function usePartida() {
    */
   const empezarDeCero = useCallback(() => {
     turno.current++;
+    setAnterior(null);
     setPartida(null);
     setVista(null);
     setPrevia(null);
@@ -358,8 +412,8 @@ export function usePartida() {
   }, [onboarding.reiniciar]);
 
   return {
-    aviso, fuentes, retrato, origenSugeridas, empezarDeCero, reintentarDudas, reintentar,
+    aviso, fuentes, retrato, origenSugeridas, empezarDeCero, reintentarDudas, reintentar, semillaNueva,
     fase, perfil, partida, vista, previa, sinNovedad, dudas, dudasSugeridas, cargando, recalculando, error, onboarding,
-    irAInicio, irAPerfil, verDudas, empezar, empezarAlAzar, continuar, elegir, compararCon, verMundo, narrar, seguir, jugarDeNuevo, descartar,
+    irAInicio, irAPerfil, verDudas, empezar, empezarAlAzar, continuar, elegir, compararCon, verMundo, narrar, seguir, jugarDeNuevo, revivir, anterior, descartar,
   };
 }

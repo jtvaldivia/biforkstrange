@@ -37,7 +37,7 @@ flowchart TD
 3. **Los 100 mundos.** Antes de elegir, el motor juega 100 mundos. En cada uno, tu copia vive 10 años una vez por cada opción.
 4. **La comparación.** Cada punto de la nube es un mundo, pintado con la opción que ganó ahí. Tocas un punto y ves qué pasó en ese mundo. Cada opción muestra sus resultados posibles con su probabilidad ("te sube el sueldo: 54 de 100").
 5. **Tu resultado.** Eliges y te toca uno de los resultados de esa opción, según su probabilidad.
-6. **El año.** Pasan los eventos que nadie decide: alza anual, ascenso, despido, una oferta que llega, una recesión.
+6. **El año.** Pasan los eventos que nadie decide: alza anual, ascenso, despido, una oferta que llega, una recesión. Al cerrarlo ves cómo cambió tu sueldo, línea por línea, y lo que has ganado en sueldos desde que empezaste.
 7. **El cierre.** Tras 10 años comparas tu vida con los 100 mundos.
 
 ## Lo que pasa por dentro
@@ -50,11 +50,32 @@ Todo lo que decide el azar se identifica por mundo, año y sitio (por ejemplo, "
 
 En cada mundo, la copia toma la opción que se compara y después no recibe más decisiones al azar. Si la vida la obliga a decidir (la despiden, le llega una oferta), responde como responde la gente real: por ejemplo, ante una oferta, 34% se cambia, 9% negocia y 57% se queda. Si tu CV muestra que te cambias seguido, tu copia acepta más ofertas. Esos pesos están en `politicas.py` (`PESOS_FORZADAS`, `PESOS_CARTAS` y `pesos_personales`). Así la comparación mide el efecto de esa decisión, no de diez decisiones encadenadas.
 
+### Sin trabajo, el año pasa mes a mes
+
+Si te despiden, decides cómo enfrentarlo (carta `cesantia`): buscar trabajo, trabajar informal mientras buscas, un bootcamp o emprender. Si buscas (o trabajas informal y sigues postulando), el resto del año se vive de a un mes, desde el mes del despido. Cada mes un dado decide si llega una oferta (evento `oferta_cesante`, con paso `"mes"`); si llega, trae sueldo y empleador, y la aceptas o la rechazas (`oferta_en_cesantia`). Cada mes sin trabajo suma a `meses_cesante` (`mes_buscando`): con los meses te llaman menos y las ofertas pagan menos. Los meses buscando no suman sueldo. No hay recontrato automático: quien vuelve rápido lo hace por una oferta.
+
+Tus copias responden las ofertas con una regla fija (`acepta_oferta_cesante` en `politicas.py`): aceptan si paga al menos 90% de lo que ganaban, o cualquiera desde el séptimo mes. Con esa regla se calibró `K_OFERTA_CESANTE` para que la búsqueda dure lo que mide la EPS. En el motor, los pasos del mes son `("mes", m)` en la cola del año (`_buscar_mes_a_mes`).
+
+Una oferta paga lo que dice: el resultado de la decisión fija cuánto cambia el sueldo, y la empresa y el cargo nuevos no se apilan encima (`_asignar_empresa`). Así la etiqueta ("te sube el sueldo") y `P_SUBE_CAMBIO` siguen siendo ciertas.
+
 ### Qué se compara
 
 El sueldo al año 10, el cargo, los meses sin trabajo y el estado (empleado, cesante, independiente). Un mundo lo gana la opción con mayor sueldo final. Si las dos primeras quedan a menos de 0,5%, es empate.
 
 El ánimo y la energía existen en el modelo, pero casi no se mueven con las decisiones de trabajo, así que no se muestran.
+
+### La incertidumbre de la IA
+
+Nadie sabe qué tan rápido va a avanzar la IA, y para eso no hay frecuencias como las de la recesión. El juego lo trata así (`app/sim/motor/ia.py`):
+
+- **Cada mundo trae un ritmo de la IA**: lento, medio o rápido, igual para todas sus vidas. Sale con los pesos que economistas y superforecasters dieron a cada escenario al 2030 (FRI 2026): 42%, 45% y 13%. Es un pronóstico de expertos, y la pantalla lo dice.
+- **Tu cargo tiene un tipo**: la IA lo automatiza, lo complementa, no se sabe o no lo toca (OIT 2025, `ia_cargos_ciuo08.csv`).
+- **El ritmo mueve la contratación, no los despidos**, como en los datos: donde la IA automatiza, a los menores de 30 les cuesta más encontrar pega, y la brecha crece hasta 2030 (`ia_encontrar`). Solo con IA rápida hay reestructuraciones (`ia_reestructura`), del tamaño que el FRI ve en el desempleo.
+- **Eventos y decisiones de IA**: tu empresa adopta IA (y te pregunta si lideras, aprendes, sigues o te vas), se pincha la burbuja de la IA, hay un auge del cobre por los data centers. `aprender_ia` separa el curso corto (no mueve el sueldo, dato SENCE) del programa largo (cobra la prima de saber IA al cambiarte).
+- **Lo que ve la persona**: un titular por año según el ritmo de su mundo, y el cierre dice qué ritmo vivió, cuánto habría ganado su opción con cada ritmo y quién pronostica qué.
+- **La AGI y la superinteligencia no entran con números**: no hay frecuencias ni consenso. Aparecen como voces en el cierre.
+
+Se prende y se apaga con la variable de entorno `BIFURCA_IA` (`0` la apaga; por omisión está prendida). Apagada, el juego es el de antes. Los tests corren con ella apagada salvo los marcados `@pytest.mark.ia` (`tests/test_motor_ia.py`). Con ella prendida, la cohorte de validación sigue cuadrando y el desempleo juvenil sube entre 1 y 2 puntos, lo que ve el FRI.
 
 ## De dónde salen los números
 
@@ -89,7 +110,10 @@ No copies estos conteos a otros documentos: cambian cuando alguien agrega un dat
 
 ## Qué hace Claude y qué no
 
-Claude se usa en un solo lugar: **leer tu texto para llenar el perfil** (`services/perfil_ia.py`). No inventa: lo que tu texto no dice queda vacío y se completa con un valor por defecto marcado como supuesto.
+Claude se usa en dos lugares:
+
+- **Leer tu texto para llenar el perfil** (`services/perfil_ia.py`). No inventa: lo que tu texto no dice queda vacío y se completa con un valor por defecto marcado como supuesto.
+- **Narrar** la ficha de una oferta, los eventos del año y la historia de un mundo con la empresa, el rubro y el cargo concretos (`services/narrador_ia.py`). Parte de la plantilla de `narrativa.py` y no puede escribir números: si escribe uno, o se demora, queda la plantilla tal cual.
 
 Claude **no** calcula probabilidades, no decide qué decisión sale y no escribe resultados. La historia de cada decisión ("te escribe por LinkedIn la jefa de producto de Pagosur") sale de plantillas en `narrativa.py`, sin cifras. Las ofertas nombran empresas reales del catálogo como ejemplo, con el aviso de que sus cifras y lo que les pasa son simulados; un cierre o un despido nunca se cuenta con el nombre de una empresa real (ni en la plantilla ni cuando narra Claude, que lo valida `narrador_ia.py`).
 
@@ -105,6 +129,7 @@ Regla del producto: **los números salen de los datos; la IA hace todo lo demás
 | Cómo responde la población a una decisión | `backend/app/sim/motor/politicas.py` |
 | Qué eventos quedan fuera del juego (solo trabajo: hoy, el cáncer) | `EVENTOS_PERSONALES` en `motor.py` |
 | Del perfil a las variables de la copia | `backend/app/sim/motor/perfil.py` |
+| La incertidumbre de la IA y su flag | `backend/app/sim/motor/ia.py`, `backend/simulador/escenarios_ia.json` y `backend/scripts/ia_oit.py` |
 | Leer el perfil desde un texto o con tu Claude | `services/perfil_ia.py` y `services/perfil_doc.py` |
 | La historia que cuenta cada decisión | `backend/app/sim/motor/narrativa.py` |
 | Empresas reales de ejemplo | `backend/data/empresas/` y `empresas.py` |

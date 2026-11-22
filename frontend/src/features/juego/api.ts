@@ -25,14 +25,17 @@ export const getMundo = (partida: Partida, mundo: number, parametros: Parametros
 export const getPesoCv = (perfil: Perfil, duda: string, semilla: number) =>
   http<PesoCv>("/api/juego/peso-cv", {
     method: "POST",
-    body: JSON.stringify({ perfil, duda, semilla, gemelos: GEMELOS }),
+    body: JSON.stringify({ perfil, duda, semilla, gemelos: GEMELOS, edad_final: perfil.edad_final ?? null }),
   });
 
-/** De las dudas que sugiere el CV, cuánto se juega en cada una y cuál es la que más. */
-export const getEnJuego = (perfil: Perfil, dudas: string[]) =>
+/**
+ * De las dudas que sugiere el CV, cuánto se juega en cada una y cuál es la que más. Con la semilla y la edad
+ * final de la partida que viene, el servidor deja calculada la primera carta de la duda que se elija.
+ */
+export const getEnJuego = (perfil: Perfil, dudas: string[], semilla: number) =>
   http<EnJuego>("/api/juego/dudas-en-juego", {
     method: "POST",
-    body: JSON.stringify({ perfil, dudas, gemelos: GEMELOS }),
+    body: JSON.stringify({ perfil, dudas, semilla, gemelos: GEMELOS, edad_final: perfil.edad_final ?? null }),
   });
 
 /** Textos de la partida contados por Claude. Sin gemelos: el servidor solo rejuega tu vida. */

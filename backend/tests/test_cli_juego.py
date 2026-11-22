@@ -219,15 +219,15 @@ def test_frase_de_mundos(opcion, frase):
     assert _frase_mundos(opcion, {"nombre": "No"}) == frase
 
 
-def test_cesantia_con_cinco_opciones_cabe_en_la_pantalla():
+def test_cesantia_con_cuatro_opciones_cabe_en_la_pantalla():
     cesante = Perfil(estado="buscando")
     comp = vista(cesante, 3, "cesantia", [], int(N))["pendiente"]["comparacion"]
-    assert len(comp["opciones"]) == 5
+    assert [o["opcion"] for o in comp["opciones"]] == ["buscar", "informal", "bootcamp", "emprender"]
     tabla = _tabla_gemelos(comp)
     assert max(len(linea) for linea in tabla) <= 100
     texto = "\n".join(tabla)
     for i, o in enumerate(comp["opciones"], 1):
-        assert f"{i}. {o['nombre'][:12]}" in texto
+        assert f"{i}. {o['nombre'][:10]}" in texto  # cuatro columnas en 100: el nombre largo se corta con «…»
         assert _plata(o["sueldo"]["p50"]) in texto
     assert "…" not in "\n".join(linea for linea in tabla if "de cada 100" in linea)  # ninguna celda cortada
 

@@ -21,7 +21,9 @@ PESOS_FORZADAS: dict[str, dict[str, float]] = {
     "financiar_estudios": {"gratuidad": 0.55, "cae": 0.25, "familia": 0.20},
     "seguir_o_desertar": {"seguir": 0.90, "cambiarse": 0.04, "dejar": 0.06},
     "primera_pega": {"grande": 0.32, "pyme": 0.47, "startup": 0.02, "estado": 0.12, "independiente": 0.05, "emprender": 0.02},
-    "cesantia": {"rapido": 0.48, "nivel": 0.40, "informal": 0.09, "bootcamp": 0.01, "emprender": 0.02},
+    # buscar junta a quienes antes tomaban lo primero (0,48) o esperaban algo de su nivel (0,40): ahora eso
+    # sale de qué ofertas aceptan mes a mes (`acepta_oferta_cesante`)
+    "cesantia": {"buscar": 0.88, "informal": 0.09, "bootcamp": 0.01, "emprender": 0.02},
     "oferta_externa": {"cambiar": 0.34, "contraoferta": 0.09, "quedarse": 0.57},
     "seguir_con_tu_empresa": {"seguir": 0.86, "levantar": 0.04, "vender": 0.05, "cerrar": 0.05},
     "licencia_salud_mental": {"pedir": 0.70, "seguir": 0.30},
@@ -45,7 +47,11 @@ PESOS_CARTAS: dict[str, dict[str, float]] = {
     "media_jornada": {"pedir": 0.12},
     "cambiar_de_rubro": {"cambiar": 0.15},
     "cambiar_de_ocupacion": {"cambiar": 0.15},
-    "aprender_ia": {"aprender": 0.45},
+    # con la incertidumbre de IA prendida aprender_ia trae curso corto y programa largo en vez de aprender (ia.py)
+    "aprender_ia": {"aprender": 0.45, "curso_corto": 0.35, "programa_largo": 0.10},
+    # tu empresa adopta IA: NY Fed (2026) ve que más de un tercio de las empresas recapacita a su gente; el
+    # reparto es supuesto del equipo
+    "liderar_adopcion_ia": {"liderar": 0.15, "aprender": 0.45, "buscar": 0.05},
     "invertir_en_red": {"si": 0.35},
     "unirse_a_startup": {"ir": 0.25},
     "independizarse": {"formal": 0.30},
@@ -63,7 +69,7 @@ ANOS_POR_EMPLEO_TIPICO = 3.0
 # Cuánto peso suma cada rasgo de tu historia a la opción que se le parece cuando quedas cesante
 # (supuestos del equipo, sin dato detrás: la dirección sale del CV, el tamaño es nuestro).
 CESANTIA_POR_HISTORIA = {
-    "volvio_a_su_nivel": ("nivel", 0.15),      # ya esperó más de 6 meses y volvió a un cargo igual o mayor
+    "volvio_a_su_nivel": ("buscar", 0.15),     # ya esperó más de 6 meses y volvió a un cargo igual o mayor
     "freelance_entre_pegas": ("informal", 0.12),  # ya hizo boletas entre una pega y otra
     "emprendio_antes": ("emprender", 0.06),    # ya tuvo una empresa propia
 }
@@ -115,11 +121,20 @@ def pesos_personales(e: dict) -> dict[str, dict[str, float]]:
 
 
 # Opción que equivale a no hacer nada, donde no es la última de la lista
-STATU_QUO = {"oferta_externa": "quedarse"}
+STATU_QUO = {"oferta_externa": "quedarse", "liderar_adopcion_ia": "seguir"}
 # Respuesta a una decisión que llega encadenada (`luego`) desde una opción que ya la eligió: quien,
 # cesante, elige "reconvertirte con un bootcamp" se inscribe ("Te inscribes"); no vuelve a dudar. Sin esto
 # los gemelos respondían la carta bootcamp con su peso de carta (Inercia: siempre "no").
 PESOS_ENCADENADAS: dict[str, dict[str, float]] = {"bootcamp": {"hacer": 1.0}}
+
+
+def acepta_oferta_cesante(vida: Vida) -> bool:
+    """La regla fija con que las copias responden una oferta estando cesantes (paquete: oferta_en_cesantia).
+    Aceptan si paga al menos GEMELO_UMBRAL_OFERTA de lo que ganaban, o cualquiera desde el mes GEMELO_MES_ACEPTA_TODO.
+    Con esta regla se calibró K_OFERTA_CESANTE para que la búsqueda dure lo que mide la EPS."""
+    e, pq = vida.e, vida.pq
+    return (e["oferta_sueldo"] >= pq.k("GEMELO_UMBRAL_OFERTA") * e["sueldo_ref"]
+            or e["meses_cesante"] + 1 >= pq.k("GEMELO_MES_ACEPTA_TODO"))
 
 
 def _llega_encadenada(vida: Vida, decision_id: str) -> bool:
@@ -291,6 +306,8 @@ class _PorPesos:
         if id_ == TRANQUILO:
             # como la gente real: considera lo que suele buscar alguien como él, y esa decisión la responde con sus pesos
             return (vida.sugerida if any(o.id == vida.sugerida for o in opciones) else "seguir"), {}
+        if id_ == "oferta_en_cesantia" and {o.id for o in opciones} >= {"aceptar", "rechazar"}:
+            return ("aceptar" if acepta_oferta_cesante(vida) else "rechazar"), {}
         ocurrencia = sum(1 for x in (vida.registro or {}).get("decisiones", []) if x["decision"] == id_)
         sitio = f"elige:{id_}" + (f":{ocurrencia}" if ocurrencia else "")
         if decision.get("opciones_desde_tabla") and not decision["opciones"]:

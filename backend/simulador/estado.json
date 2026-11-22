@@ -227,6 +227,42 @@
    "inicio": "0"
   },
   {
+   "nombre": "oferta_sueldo",
+   "tipo": "numero",
+   "dominio": [
+    0,
+    30000000
+   ],
+   "unidad": "CLP líquidos al mes",
+   "descripcion": "Sueldo de la oferta que llegó este mes estando cesante; 0 si no hay oferta pendiente.",
+   "inicio": "0"
+  },
+  {
+   "nombre": "busca_mientras_informal",
+   "tipo": "bool",
+   "dominio": [
+    0,
+    1
+   ],
+   "unidad": "",
+   "descripcion": "1 si trabaja informal mientras sigue buscando un empleo con contrato: le siguen llegando ofertas cada mes (oferta_cesante).",
+   "inicio": "0"
+  },
+  {
+   "nombre": "oferta_tipo_empleador",
+   "tipo": "categoria",
+   "dominio": [
+    "grande",
+    "pyme",
+    "startup",
+    "publico",
+    ""
+   ],
+   "unidad": "",
+   "descripcion": "Tipo de empleador de la oferta pendiente.",
+   "inicio": "''"
+  },
+  {
    "nombre": "hueco",
    "tipo": "bool",
    "dominio": [
@@ -964,10 +1000,10 @@
    "tipo": "numero",
    "dominio": [
     0.75,
-    0.9
+    1
    ],
    "unidad": "multiplicador",
-   "descripcion": "Empleo joven en ocupaciones expuestas a IA respecto de las menos expuestas en este mundo: el rango de IA_JOVEN (Brynjolfsson 2025) recorrido por ia_adopcion (0,9 lento, 0,75 rápido).",
+   "descripcion": "Empleo joven en ocupaciones expuestas a IA respecto de las menos expuestas en este mundo: el rango de IA_JOVEN (Brynjolfsson 2025) recorrido por ia_adopcion (0,9 lento, 0,75 rápido). Con la incertidumbre de IA prendida vale 1: el golpe a los jóvenes lo lleva ia_encontrar.",
    "inicio": "0.81"
   },
   {
@@ -985,6 +1021,141 @@
    "unidad": "",
    "descripcion": "Institución donde entra a estudiar al salir del colegio (código SIES; lo elige el jugador).",
    "inicio": "eleccion"
+  },
+  {
+   "nombre": "ia_v2",
+   "tipo": "bool",
+   "dominio": [
+    0,
+    1
+   ],
+   "unidad": "",
+   "descripcion": "Deriva: 1 si la incertidumbre de la IA está prendida (flag BIFURCA_IA, app/sim/motor/ia.py).",
+   "inicio": "deriva"
+  },
+  {
+   "nombre": "ia_ritmo",
+   "tipo": "categoria",
+   "dominio": [
+    "lento",
+    "medio",
+    "rapido"
+   ],
+   "unidad": "",
+   "descripcion": "Deriva: el ritmo de la IA en este mundo, sorteado una vez por gemelo con P_RITMO_IA. Igual en todas las opciones del mismo gemelo.",
+   "inicio": "deriva"
+  },
+  {
+   "nombre": "ia_tipo",
+   "tipo": "categoria",
+   "dominio": [
+    "automatiza",
+    "aumenta",
+    "incognita",
+    "no_afectado"
+   ],
+   "unidad": "",
+   "descripcion": "Deriva: cómo te toca la IA según tu cargo (OIT, ia_cargos_ciuo08) o, sin cargo, tu exposición.",
+   "inicio": "deriva"
+  },
+  {
+   "nombre": "ia_anios",
+   "tipo": "entero",
+   "dominio": [
+    0,
+    60
+   ],
+   "unidad": "años",
+   "descripcion": "Deriva: años desde que empezó el juego; el efecto de la IA crece con ellos.",
+   "inicio": "deriva"
+  },
+  {
+   "nombre": "ia_rampa",
+   "tipo": "numero",
+   "dominio": [
+    0,
+    1
+   ],
+   "unidad": "fracción",
+   "descripcion": "Deriva: min(1, ia_anios / IA_RAMPA_ANIOS), cuánto del efecto de la IA ya llegó.",
+   "inicio": "deriva"
+  },
+  {
+   "nombre": "adaptabilidad",
+   "tipo": "numero",
+   "dominio": [
+    0,
+    1
+   ],
+   "unidad": "puntaje",
+   "descripcion": "Deriva: qué tan bien te recuperas si la IA te saca de tu pega (edad, educación, región, ahorro, usa IA). Ver ia.adaptabilidad.",
+   "inicio": "deriva"
+  },
+  {
+   "nombre": "ia_encontrar",
+   "tipo": "numero",
+   "dominio": [
+    0,
+    1
+   ],
+   "unidad": "multiplicador",
+   "descripcion": "Deriva: multiplica la probabilidad de encontrar pega por el ritmo de la IA (jóvenes donde la IA automatiza). 1 con la flag apagada.",
+   "inicio": "deriva"
+  },
+  {
+   "nombre": "ia_empresa",
+   "tipo": "bool",
+   "dominio": [
+    0,
+    1
+   ],
+   "unidad": "",
+   "descripcion": "1 si tu empleador actual adoptó IA. Vuelve a 0 al cambiarte de pega.",
+   "inicio": "0"
+  },
+  {
+   "nombre": "ia_reconvertido",
+   "tipo": "bool",
+   "dominio": [
+    0,
+    1
+   ],
+   "unidad": "",
+   "descripcion": "1 si construiste la habilidad de trabajar con IA (programa largo o liderar con éxito la adopción): tu trabajo pasa a ser complementado por la IA y cobras la prima de saber IA al cambiarte.",
+   "inicio": "0"
+  },
+  {
+   "nombre": "ia_burbuja",
+   "tipo": "bool",
+   "dominio": [
+    0,
+    1
+   ],
+   "unidad": "",
+   "descripcion": "1 el año en que se pincha la burbuja de la IA (igual para todas las vidas del mundo).",
+   "inicio": "0"
+  },
+  {
+   "nombre": "auge_cobre",
+   "tipo": "bool",
+   "dominio": [
+    0,
+    1
+   ],
+   "unidad": "",
+   "descripcion": "1 mientras dura un auge del cobre por los data centers (igual para todas las vidas del mundo).",
+   "inicio": "0"
+  },
+  {
+   "nombre": "ia_prima_cobrada",
+   "tipo": "bool",
+   "dominio": [
+    0,
+    1
+   ],
+   "unidad": "",
+   "descripcion": "1 si ya cobraste la prima de saber IA al cambiarte de pega: se cobra una vez, al pasar a un trabajo que pide IA.",
+   "inicio": "0"
   }
  ]
 }
