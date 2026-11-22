@@ -43,14 +43,15 @@
     "tipos": "tipos de empleador separados por | o *",
     "peso": "share_ocupados_banda del gran grupo (esi_ingreso_ocupacion, 18-54) repartido entre los cargos del grupo",
     "calidad_ia": "'derivado' si la ocupación de EE.UU. calza directo, 'sintetico' si es la más cercana",
-    "calidad_prima": "'dato' si viene de getonbrd_sueldos, 'derivado' si es 1 por no tener área"
+    "calidad_prima": "'dato' si viene de getonbrd_sueldos, 'derivado' si es 1 por no tener área",
+    "familia": "familia de cargo (función): una de las de familias.csv; la elige el equipo a mano"
    },
-   "poblacion": "120 cargos de avisos de Get on Board, concursos del Estado y nombres comunes en Chile",
+   "poblacion": "136 cargos de avisos de Get on Board, concursos del Estado y nombres comunes en Chile",
    "ponderador": "peso",
    "fuente_id": "microsoft_ia",
    "script": "scripts/empresas_catalogo.py",
-   "advertencia": "Para cada empresa y cada (educación, nivel) hay al menos un cargo compatible si se ignora el área; el script lo verifica. La prima de Get on Board compara áreas de un portal tech, no el mercado completo.",
-   "filas": 120
+   "advertencia": "Para cada empresa y cada (educación, nivel) hay al menos un cargo compatible si se ignora el área y la familia; el script lo verifica. La prima de Get on Board compara áreas de un portal tech, no el mercado completo.",
+   "filas": 136
   },
   {
    "tabla": "duelo_satisfaccion",
@@ -120,10 +121,10 @@
     "tamano_esi": "clase de tamaño de esi_ingreso_tamano según trabajadores (SII o YC); vacío si no hay dato o no aplica",
     "dominio": "sitio web oficial, para el ícono; vacío si no hay uno seguro",
     "logo": "1 si existe frontend/public/logos/empresas/<empresa_id>.png",
-    "origen": "sii, yc, getonbrd, concursos o curada (ver scripts/datos/empresas_curadas.json)",
+    "origen": "sii, yc, getonbrd, concursos o curada (no está en las tablas del repo; ver la nota en scripts/datos/empresas_curadas.json)",
     "pais": "país de la empresa (Chile salvo las extranjeras)",
     "peso": "share_ocupados_banda del rubro (esi_ingreso_rubro_edad, 18-54) repartido en partes iguales entre las empresas del mismo tipo y rubro; probabilidad relativa de sorteo",
-    "mult_sueldo": "multiplicador del sueldo del rubro; media geométrica ponderada por peso = 1 en cada (tipo, rubro), para no mover las medianas. Grandes, pymes y startups: p50 ESI de su tamaño / media de su tipo × exp(σ·z − σ²/2) con σ = EMPRESA_SIGMA_SUELDO. Públicas: renta de sus concursos / mediana del estamento. Extranjeras: punto medio de sus avisos / mediana de su seniority. Públicas y extranjeras acotadas a [p25/p50, p75/p50] ESI del rubro",
+    "mult_sueldo": "multiplicador del sueldo del rubro; media geométrica ponderada por peso = 1 en cada (tipo, rubro), para no mover las medianas. Grandes, pymes y startups: p50 ESI de su tamaño / media de su tipo × exp(σ·z − σ²/2) con σ = EMPRESA_SIGMA_SUELDO. Públicas: renta de sus concursos / mediana del estamento. Extranjeras: punto medio de sus avisos / mediana de su seniority. Públicas sin concursos y extranjeras sin avisos: 1 (la mediana). Públicas y extranjeras acotadas a [p25/p50, p75/p50] ESI del rubro",
     "mult_despido": "salida anual INE de su tamaño de empresa / promedio de su tipo, normalizado a media 1 por (tipo, rubro); 1 si no hay tamaño",
     "mult_cierre": "solo startups: share_inactiva de su industria YC / promedio YC, normalizado a media 1 por (tipo, rubro); 1 para el resto",
     "mult_ascenso": "exp(σ·z − σ²/2) con σ = EMPRESA_SIGMA_ASCENSO, normalizado a media 1 por (tipo, rubro)",
@@ -135,12 +136,12 @@
     "calidad_ia": "'derivado' (sale de tablas sin sorteo) o 'sintetico' (lleva sorteo con semilla fija o un cruce hecho a mano)",
     "calidad_horas": "'derivado' (sale de tablas sin sorteo) o 'sintetico' (lleva sorteo con semilla fija o un cruce hecho a mano)"
    },
-   "poblacion": "160 empresas reales elegidas a mano, unas 10 por rubro",
+   "poblacion": "172 empresas reales y conocidas, elegidas a mano (unas 10 por rubro), todas con logo. pyme = scaleups y empresas medianas conocidas; startup = startups chilenas en crecimiento; extranjero = empleadores que contratan remoto desde Latinoamérica",
    "ponderador": "peso",
    "fuente_id": "sii_nomina_2024",
    "script": "scripts/empresas_catalogo.py",
-   "advertencia": "Los multiplicadores mueven a la empresa dentro de su tipo y rubro, no el promedio. σ de sueldo calibrado = 0.28. Fuentes: nómina SII 2024, Y Combinator, Get on Board, empleospublicos.cl, ESI 2025, INE flujos laborales, Microsoft (IA).",
-   "filas": 160
+   "advertencia": "Los multiplicadores mueven a la empresa dentro de su tipo y rubro, no el promedio. σ de sueldo calibrado = 0.225. Fuentes: nómina SII 2024, Y Combinator, Get on Board, empleospublicos.cl, ESI 2025, INE flujos laborales, Microsoft (IA).",
+   "filas": 172
   },
   {
    "tabla": "enut_cuidados_por_hijos",
@@ -599,6 +600,22 @@
    "filas": 8
   },
   {
+   "tabla": "familias",
+   "archivo": "tablas/familias.csv",
+   "descripcion": "Familias de cargo afines a cada área de carrera y a cada rubro, para que la oferta calce con el perfil.",
+   "columnas": {
+    "tipo": "area (área de carrera de estado.json) o rubro (rubro del juego)",
+    "clave": "nombre del área o del rubro",
+    "familias": "familias de cargo afines separadas por |, la primera la más típica (columna familia de cargos_catalogo)"
+   },
+   "poblacion": "10 áreas de carrera y 16 rubros",
+   "ponderador": "",
+   "fuente_id": "equipo_sintetico",
+   "script": "scripts/empresas_catalogo.py",
+   "advertencia": "Calidad sintetico: es un cruce curado a mano (scripts/datos/cargos_curados.json, clave familias), no sale de una tabla. El script verifica que cada familia tenga cargos en al menos 3 rubros y que cada familia listada para un rubro tenga cargos en ese rubro.",
+   "filas": 26
+  },
+  {
    "tabla": "getonbrd_sueldos",
    "archivo": "tablas/getonbrd_sueldos.csv",
    "descripcion": "Rangos de sueldo publicados en vacantes tech de GetOnBoard por seniority, área y trabajo remoto.",
@@ -1000,6 +1017,25 @@
    "script": "datos_laborales/scripts/modelo/magister_*.py (traído del PR #3)",
    "advertencia": "Arancel y duración son medianas por universidad, no por programa. La selectividad replica la regla de DIPRES con la PAES de DEMRE.",
    "filas": 51
+  },
+  {
+   "tabla": "transiciones_tipo",
+   "archivo": "tablas/transiciones_tipo.csv",
+   "descripcion": "Probabilidad del tipo de empleador nuevo según el tipo del empleo anterior, al cambiarse de trabajo.",
+   "columnas": {
+    "origen": "tipo del empleo anterior: grande, pyme, startup, publico, extranjero o ninguno (no venía de un empleo asalariado en los últimos 12 meses)",
+    "destino": "tipo del empleo nuevo: grande (privado, 200 o más personas), pyme (privado, menos de 200), startup o publico (incluye FF.AA. y de Orden)",
+    "prob": "P(destino | origen); suma 1 por origen",
+    "n": "transiciones EPS sin ponderar que respaldan la celda (vacío si la celda es supuesto)",
+    "calidad": "derivado (EPS ponderada y ajustada por raking) o supuesto",
+    "fuente": "de dónde sale la celda"
+   },
+   "poblacion": "Asalariados chilenos que empezaron un empleo entre 2006 y 2009 según la EPS 2009 (3412 transiciones)",
+   "ponderador": "factor_EPS09; luego IPF a la mezcla MIX_EMPLEADOR y P_REEMPLEO_PUBLICO de parametros.json",
+   "fuente_id": "eps_2009",
+   "script": "scripts/transiciones_tipo.py",
+   "advertencia": "Datos de 2006-2009: la EPS dejó de preguntar el tamaño de la empresa desde 2015. Startup no se mide: su columna es la proporción incondicional y su fila copia pyme. Extranjero copia ninguno. Privado sin tamaño se descarta.",
+   "filas": 24
   },
   {
    "tabla": "universidades",
