@@ -60,9 +60,9 @@ El juego no premia elegir la opción que gana más seguido, y no lo vamos a camb
 
 ## 9. Solo lo laboral
 
-Las decisiones y eventos de la vida personal (hijos, pareja, vivienda, enfermedades, duelos) están en el paquete, pero apagados en el juego (`DECISIONES_PERSONALES` y `EVENTOS_PERSONALES` en `motor.py`).
+Lo de la vida personal (hijos, pareja, vivienda, cuidado de un familiar, duelos, herencias y la carta de cuánto ahorras) se sacó del paquete. Solo queda el cáncer: está en el paquete, pero apagado en el juego (`EVENTOS_PERSONALES` en `motor.py`).
 
-**Por qué.** Mezclar "¿me cambio de pega?" con "te diagnostican cáncer" distrae de la duda de trabajo y toca temas que no queremos tratar a la ligera en un juego.
+**Por qué.** Mezclar "¿me cambio de pega?" con "te diagnostican cáncer" distrae de la duda de trabajo y toca temas que no queremos tratar a la ligera en un juego. Lo personal ya estaba apagado y no movía lo que se compara, así que mantenerlo solo sumaba variables, parámetros y fuentes que nadie usaba.
 
 ## 10. La primera decisión también sale al azar
 

@@ -134,7 +134,7 @@ def test_comparacion_de_la_pendiente(client):
     assert len(bases) == 1 and bases[0]["opcion"] == comp["base"]
     for o in comp["opciones"]:
         s = o["sueldo"]
-        assert 0 < s["p10"] <= s["p50"] <= s["p90"]
+        assert 0 <= s["p10"] <= s["p50"] <= s["p90"] and s["p90"] > 0  # 0: terminó sin trabajo
         assert o["ingreso_total"]["p10"] <= o["ingreso_total"]["p50"] <= o["ingreso_total"]["p90"]
         for fraccion in ("paso_por_cesantia", "sin_trabajo_al_final"):
             assert 0 <= o[fraccion] <= 1
@@ -428,16 +428,16 @@ def test_la_duda_elegida_se_dice_elegida(client):
 def test_sin_duda_la_primera_carta_es_un_sorteo_con_su_probabilidad(client):
     for semilla in range(5):
         por_que = _ok(client, semilla=semilla)["pendiente"]["por_que"]
-        if por_que["tipo"] == "sorteo":
-            assert 0 < por_que["prob"] <= 1 and por_que["posibles"] >= 1
+        if "prob" in por_que:  # una oferta que llegó por su evento, con su probabilidad
+            assert por_que["tipo"] == "llega" and 0 < por_que["prob"] <= 1 and por_que["posibles"] >= 1
         else:
-            assert por_que["tipo"] in {"obligada", "consecuencia"}
+            assert por_que["tipo"] in {"obligada", "consecuencia", "llega", "buscada", "tranquilo"}
 
 
 def test_cada_carta_dice_por_que_te_toco(client):
     _, _, vistas = _jugar_entera(client, lambda p: p["opciones"][-1], duda=DUDA)
     tipos = {v["pendiente"]["por_que"]["tipo"] for v in vistas if v["pendiente"]}
-    assert tipos <= {"elegida", "sorteo", "obligada", "consecuencia"} and "elegida" in tipos
+    assert tipos <= {"elegida", "llega", "buscada", "tranquilo", "obligada", "consecuencia"} and "elegida" in tipos
 
 
 # ── lo que llega mal se rechaza con un 422 que dice qué (antes: 500 o 200 en silencio) ──────

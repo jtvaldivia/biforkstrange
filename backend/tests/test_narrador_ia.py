@@ -90,8 +90,15 @@ def test_evento_malo_sin_marca_de_simulacion_cae_a_plantilla(monkeypatch):
     assert narrar([_despido()])[0].via == "plantilla"
 
 
-def test_evento_malo_con_marca_de_simulacion_pasa(monkeypatch):
+def test_evento_malo_con_marca_de_simulacion_pero_con_la_empresa_cae_a_plantilla(monkeypatch):
+    """La marca de simulación ya no basta: un cierre o un despido no se le atribuye a una empresa real."""
     texto = "En este mundo simulado, Falabella cierra tu área y te despiden."
+    monkeypatch.setattr(narrador_ia, "_por_api", _Api(lambda item: texto))
+    assert narrar([_despido()])[0].via == "plantilla"
+
+
+def test_evento_malo_con_marca_y_sin_la_empresa_pasa(monkeypatch):
+    texto = "En este mundo simulado, tu empresa cierra tu área y te despiden."
     monkeypatch.setattr(narrador_ia, "_por_api", _Api(lambda item: texto))
     r = narrar([_despido()])
     assert r[0].via == "claude" and r[0].texto == texto
@@ -204,3 +211,45 @@ def test_con_haiku_el_pedido_va_sin_razonar(monkeypatch):
     narrador_ia._por_api([_oferta()])
     assert pedidos[0]["model"] == "claude-haiku-5-5" and pedidos[0]["thinking"] == {"type": "disabled"}
     assert pedidos[0]["output_config"] == {"effort": "low"}
+
+
+def _cierre_sin_empresa() -> Item:
+    """Como lo arma narracion.items_historia: el contexto va sin la empresa y su nombre queda en sin_nombrar."""
+    return Item(id="c", tipo="evento", plantilla="La startup donde trabajas cierra.",
+                contexto={"evento": "cierre", "tono": "malo"}, sin_nombrar=["Jumpseller"])
+
+
+def test_evento_malo_que_nombra_la_empresa_cae_a_plantilla(monkeypatch):
+    monkeypatch.setattr(narrador_ia, "_por_api", _Api(lambda item: "En este mundo simulado, Jumpseller cierra."))
+    assert narrar([_cierre_sin_empresa()])[0].via == "plantilla"
+
+
+def test_evento_malo_sin_nombre_pasa(monkeypatch):
+    monkeypatch.setattr(narrador_ia, "_por_api", _Api(lambda item: "La startup donde trabajas cierra sus puertas."))
+    assert narrar([_cierre_sin_empresa()])[0].via == "claude"
+
+
+def test_sin_nombrar_no_se_le_manda_al_modelo():
+    assert "sin_nombrar" not in _cierre_sin_empresa().model_dump()
+
+
+def test_la_historia_no_le_pasa_la_empresa_a_un_evento_malo():
+    from app.services.narracion import items_historia
+
+    fin = {"empresa": "Jumpseller", "rol": "Analista", "rubro": "Información y comunicaciones", "tipo_empleador": "startup"}
+    vista = {"historia": [{"anio": 1, "edad": 30, "fin": fin, "decisiones": [], "eventos": [
+        {"nombre": "Cierre de la startup", "texto": "La startup donde trabajas cierra.", "tono": "malo"},
+        {"nombre": "Ascenso", "texto": "Te ascienden.", "tono": "bueno"}]}]}
+    malo, bueno = items_historia(vista)
+    assert "empresa" not in malo.contexto and malo.sin_nombrar == ["Jumpseller"]
+    assert bueno.contexto["empresa"] == "Jumpseller" and bueno.sin_nombrar == []
+
+
+def test_una_empresa_real_no_va_en_la_misma_frase_que_un_cierre(monkeypatch):
+    item = Item(id="m", tipo="mundo", plantilla="Te cambias y terminas en Jumpseller.",
+                contexto={"empresa": "Jumpseller", "tono": "neutro"})
+    monkeypatch.setattr(narrador_ia, "_por_api", _Api(lambda i: "Entras a Jumpseller, pero Jumpseller cierra al tercer año."))
+    assert narrar([item])[0].via == "plantilla"
+    narrador_ia.limpiar_cache()
+    monkeypatch.setattr(narrador_ia, "_por_api", _Api(lambda i: "Entras a Jumpseller. Años después, la startup cierra."))
+    assert narrar([item])[0].via == "claude"

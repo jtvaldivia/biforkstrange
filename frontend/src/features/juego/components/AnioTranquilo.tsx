@@ -1,17 +1,21 @@
 import { useState } from "react";
-import { Button, Heading, Meta, Pill, Screen, ScreenFooter, ScreenHeader, Stack, Text } from "@/shared/ui";
-import type { Eleccion, Vista } from "../types";
+import { Button, DecisionArt, Heading, Meta, Pill, Screen, ScreenFooter, ScreenHeader, Stack, Text } from "@/shared/ui";
+import { arteDuda, deCien } from "../textos";
+import type { Eleccion, SinNovedad, Vista } from "../types";
+import { FranjaSinNovedad, Noticia, Salir } from "./piezas";
 
 /**
  * Un año en que no te llegó nada. No te obliga a decidir ni te pone una lista: te hace una propuesta,
  * la que más se le plantea a gente como tú, con un dato real. Dices sí o sigues igual.
  * Quien quiere hacer otra cosa puede abrir la lista completa.
  */
-export function AnioTranquilo({ vista, cargando, error, onElegir }: {
+export function AnioTranquilo({ vista, cargando, error, onElegir, onSalir, sinNovedad }: {
   vista: Vista;
+  sinNovedad?: SinNovedad | null;
   cargando: boolean;
   error: string | null;
   onElegir: (e: Eleccion) => void;
+  onSalir?: () => void;
 }) {
   const [verTodo, setVerTodo] = useState(false);
   const p = vista.pendiente!;
@@ -19,17 +23,32 @@ export function AnioTranquilo({ vista, cargando, error, onElegir }: {
   const anio = Math.min(vista.anio + 1, vista.anios);
   const otras = p.opciones.filter((o) => o.opcion !== "seguir" && o.opcion !== s?.decision);
   const elegir = (opcion: string) => onElegir({ decision: p.decision, opcion });
+  // lo que ya pasó este año sin que lo eligieras (una recesión, un ascenso): no es un año "sin sobresaltos"
+  const eventos = (vista.anio_en_curso?.eventos ?? []).filter((e) => !e.rutina);
 
   return (
     <Screen gap={16}>
-      <ScreenHeader left={<Pill style={{ whiteSpace: "nowrap" }}>Año {anio} · {vista.estado.edad} años</Pill>} right={<Meta>{anio} de {vista.anios}</Meta>} />
+      <ScreenHeader left={<Pill style={{ whiteSpace: "nowrap" }}>Año {anio} · {vista.estado.edad} años</Pill>} right={onSalir && <Salir onSalir={onSalir} />} />
+      <FranjaSinNovedad s={sinNovedad} />
       <Stack gap={8} className="vd-subir">
-        <Meta>Un año tranquilo</Meta>
+        <Meta>{eventos.length > 0 ? "Sin propuestas" : "Un año tranquilo"}</Meta>
         <Heading level={2} as="h1">
-          Un año sin sobresaltos.
+          {eventos.length > 0 ? "No te llegó ninguna propuesta." : "Un año sin sobresaltos."}
         </Heading>
-        <Text>No te llegó ninguna propuesta. Puedes seguir igual, o mirar algo por tu cuenta.</Text>
+        <Text>
+          {eventos.length > 0
+            ? "Pero el año trae esto. Puedes seguir igual, o mirar algo por tu cuenta."
+            : "No te llegó ninguna propuesta. Puedes seguir igual, o mirar algo por tu cuenta."}
+        </Text>
       </Stack>
+
+      {eventos.length > 0 && (
+        <Stack gap={8} className="vd-subir">
+          {eventos.map((e, i) => (
+            <Noticia key={i} titulo={e.nombre} texto={e.texto} lado={e.directo ? undefined : deCien(e.prob)} />
+          ))}
+        </Stack>
+      )}
 
       {/* La sugerencia es opcional: va como una idea suave, no como la acción principal */}
       {s && (
@@ -55,8 +74,14 @@ export function AnioTranquilo({ vista, cargando, error, onElegir }: {
         <div className="jg-tranquilo vd-subir" role="list" aria-label="Otras cosas que puedes hacer este año">
           {otras.map((o) => (
             <button key={o.opcion} type="button" role="listitem" className="jg-tranquilo-op" disabled={cargando} onClick={() => elegir(o.opcion)}>
-              <b>{o.nombre}</b>
-              <span>{o.detalle}</span>
+              {/* el mismo dibujo que esa duda tiene en la lista de dudas */}
+              <span className="jg-tranquilo-arte" aria-hidden="true">
+                <DecisionArt kind={arteDuda(o.opcion, "")} llenar />
+              </span>
+              <span className="jg-tranquilo-texto">
+                <b>{o.nombre}</b>
+                <span>{o.detalle}</span>
+              </span>
             </button>
           ))}
         </div>

@@ -167,7 +167,7 @@ def test_flujo_reparte_como_dice_cada_funcion():
 
 
 def test_lognormal_asimetrica_respeta_la_mediana_y_el_ancho():
-    """Con p10 y p90 asimétricos (herencia: 2, 10 y 60 millones) la referencia fija la mediana
+    """Con p10 y p90 asimétricos (2, 10 y 60 millones) la referencia fija la mediana
     y el ancho p90/p10; los extremos no pueden calzar los dos a la vez."""
     m = n(20000)
     f = Flujo(5)

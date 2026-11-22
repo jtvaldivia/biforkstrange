@@ -28,6 +28,7 @@ def _dominios_eleccion() -> dict[str, frozenset | None]:
     regiones = {f["region"] for f in pq.filas("esi_ingreso_region")} - {"Metropolitana", "Nacional"}
     dominios: dict[str, frozenset | None] = {
         "rubro_destino": frozenset(r for r in _rubros() if r),
+        "rubro_emprendimiento": frozenset(r for r in _rubros() if r),
         "ocupacion_destino": frozenset(range(1, 10)),
         "region_destino": frozenset(regiones),
         "universidad_destino": _ids_universidades(),
@@ -93,6 +94,7 @@ class PerfilIn(BaseModel):
     empresa_fondos: int = Field(0, ge=0, le=1)
     anos_por_empleo: float | None = Field(None, gt=0, le=40)
     rubro_sonado: str | None = None
+    rubro_proyecto: str | None = None
     semestres_restantes: int | None = Field(None, ge=0, le=16)
     anos_en_carrera: int | None = Field(None, ge=0, le=10)
     volvio_a_su_nivel: int = Field(0, ge=0, le=1)
@@ -122,7 +124,7 @@ class PerfilIn(BaseModel):
             raise ValueError(f"rubro desconocido: {v!r}")
         return v
 
-    @field_validator("rubro_sonado")
+    @field_validator("rubro_sonado", "rubro_proyecto")
     @classmethod
     def _rubro_sonado_del_paquete(cls, v: str | None) -> str | None:
         if v and v not in _rubros():

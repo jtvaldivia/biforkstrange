@@ -292,6 +292,7 @@ export function Espera({
   titulo,
   pantalla = false,
   compacto = false,
+  onSalir,
 }: {
   texto?: string;
   frases?: string[];
@@ -300,6 +301,8 @@ export function Espera({
   titulo?: string;
   pantalla?: boolean;
   compacto?: boolean;
+  /** A pantalla completa la espera tapa todo: este botón deja salir igual. */
+  onSalir?: () => void;
 }) {
   const compartido = variante === undefined;
   // El desfase se fija al montar: si cambiara en cada render, la animación saltaría.
@@ -325,6 +328,12 @@ export function Espera({
   const linea = total ? frases![n % total] : texto;
   const Escena = ESCENAS[sorteo.variante];
   return (
+    <>
+    {pantalla && onSalir && (
+      <button type="button" className="jg-ayuda ap-salir" onClick={onSalir}>
+        Salir
+      </button>
+    )}
     <div className="ap-espera" data-modo={pantalla ? "pantalla" : compacto ? "compacto" : "bloque"} role="status" aria-live="polite">
       {titulo && <span className="ap-titulo">{titulo}</span>}
       <svg
@@ -343,5 +352,6 @@ export function Espera({
         </p>
       )}
     </div>
+    </>
   );
 }

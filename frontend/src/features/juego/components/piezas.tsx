@@ -1,8 +1,26 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Button, Tag, cx } from "@/shared/ui";
-import { CALIDAD, CAMPOS_PERFIL, enLista, plata } from "../textos";
-import type { Calidad, Rango } from "../types";
+import { Button, Tag, Text, cx } from "@/shared/ui";
+import { CALIDAD, CAMPOS_PERFIL, conSigno, enLista, plata, sinSueldo, situacion } from "../textos";
+import type { Calidad, Estado, Rango, SinNovedad } from "../types";
 import { Espera } from "./Apuesta";
+import { Logo } from "./Logo";
+
+/** "Año 2 sin novedades · $657 mil  +$4 mil al mes": lo único que cambió en un año que pasó sin nada. */
+export function FranjaSinNovedad({ s }: { s?: SinNovedad | null }) {
+  if (!s) return null;
+  return (
+    <div className="jg-sin-novedad" role="status">
+      <span>
+        Año {s.anio} sin novedades · <b>{plata(s.sueldo)}</b>
+      </span>
+      {Math.abs(s.delta) >= 1000 && (
+        <span className="jg-delta" data-signo={s.delta > 0 ? "mas" : "menos"}>
+          {conSigno(s.delta)} al mes
+        </span>
+      )}
+    </div>
+  );
+}
 
 /** Calidad del dato, discreta: dato / mixto / supuesto. */
 export function CalidadTag({ calidad }: { calidad: Calidad }) {
@@ -134,7 +152,7 @@ export function Noticia({ titulo, texto, lado, className }: { titulo: string; te
 
 /** Lo que el motor sortea de verdad en un año, y un par de cosas que no (dichas como lo que son: bromas). */
 const FRASES = [
-  "Tirando tu dado…",
+  "Sorteando tu año…",
   "¿Habrá recesión este año?",
   "Revisando si te ascienden…",
   "¿Te llegará una oferta?",
@@ -145,6 +163,36 @@ const FRASES = [
 ];
 
 /** Pantalla de espera mientras se vive tu año: una apuesta que va girando y lo que se está viendo en tu mundo. */
-export function Pensando({ titulo }: { titulo: string }) {
-  return <Espera pantalla titulo={titulo} frases={FRASES} cada={900} />;
+export function Pensando({ titulo, onSalir }: { titulo: string; onSalir?: () => void }) {
+  return <Espera pantalla titulo={titulo} frases={FRASES} cada={900} onSalir={onSalir} />;
+}
+
+/** "Hoy: Desarrollador backend en Betterfly [logo]" y, abajo, el sueldo: en su línea para que no se corte. */
+export function Hoy({ e }: { e: Estado }) {
+  return (
+    <div className="jg-hoy">
+      <Text size="sm">
+        <strong>Hoy:</strong>{" "}
+        {sinSueldo(e) ? (
+          situacion(e.estado)
+        ) : (
+          <>
+            {e.rol || e.cargo}
+            {e.empresa && (
+              <>
+                {" en "}
+                {e.empresa}{" "}
+                <span className="jg-hoy-logo">
+                  <Logo carpeta="empresas" id={e.empresa_id ?? e.empresa} nombre={e.empresa} grupo={e.rubro} hay={(e.empresa_id ?? -1) >= 0} tamano={22} />
+                </span>
+              </>
+            )}
+          </>
+        )}
+      </Text>
+      <Text size="sm" className="jg-hoy-sueldo">
+        {sinSueldo(e) ? `Antes ganabas ${plata(e.sueldo_ref)}/mes` : `${plata(e.sueldo)}/mes`}
+      </Text>
+    </div>
+  );
 }

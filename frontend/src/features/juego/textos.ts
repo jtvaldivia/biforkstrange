@@ -103,42 +103,37 @@ const ARTE_CATEGORIA: Record<string, DecisionArtKind> = {
   dinero: "chanchito",
   lugar: "viaje",
   salud: "corazon",
-  familia: "casa",
 };
 
 const ARTE_DUDA: Record<string, DecisionArtKind> = {
+  magister: "magister",
   oferta_externa: "puerta",
-  renunciar: "puerta",
-  independizarse: "puerta",
-  cambiar_de_rubro: "puerta",
-  cambiar_de_ocupacion: "puerta",
+  renunciar: "caja",
+  independizarse: "maletin",
+  cambiar_de_rubro: "rubros",
+  cambiar_de_ocupacion: "oficio",
+  doctorado: "libros",
   unirse_a_startup: "cohete",
   emprender: "invertir",
   seguir_con_tu_empresa: "invertir",
   pedir_aumento: "subir",
   jefatura: "subir",
-  aprender_ia: "laptop",
+  aprender_ia: "ia",
   bootcamp: "laptop",
   remoto_para_afuera: "laptop",
   buscar_estando_empleado: "lupa",
+  volver_a_contrato: "lupa",
   cesantia: "lupa",
   invertir_en_red: "negociar",
   pedir_hibrido: "casa",
   media_jornada: "pausa",
   trabajar_mas_horas: "consultora",
   sabatico: "viaje",
-  emigrar: "viaje",
-  mudarse_de_region: "viaje",
+  emigrar: "avion",
+  mudarse_de_region: "mapa",
   volver_a_chile: "viaje",
   intercambio: "viaje",
-  ahorro: "chanchito",
   financiar_estudios: "chanchito",
-  comprar_vivienda: "casa",
-  cuidar_familiar: "casa",
-  tener_hijo: "casa",
-  formalizar_pareja: "corazon",
-  buscar_pareja: "corazon",
-  separarse: "corazon",
   licencia_salud_mental: "corazon",
 };
 
@@ -158,7 +153,6 @@ const ARTE_OPCION: Record<string, DecisionArtKind> = {
   seguir: "quedarte",
   seguir_igual: "quedarte",
   rechazar: "quedarte",
-  arrendar: "quedarte",
   no: "pausa",
   esperar: "pausa",
   ignorar: "pausa",
@@ -184,17 +178,11 @@ const ARTE_OPCION: Record<string, DecisionArtKind> = {
   rapido: "lupa",
   nivel: "lupa",
   aceptar: "subir",
-  mucho: "chanchito",
-  normal: "chanchito",
   gratuidad: "chanchito",
   cae: "chanchito",
   informal: "chanchito",
-  gastar: "invertir",
   vender: "invertir",
-  comprar: "casa",
-  convivir: "casa",
   familia: "casa",
-  casarse: "corazon",
   grande: "consultora",
   pyme: "consultora",
   estado: "consultora",
@@ -213,11 +201,6 @@ const ARTE_PAR: Record<string, DecisionArtKind> = {
   "pedir_aumento:pedir": "subir",
   "pedir_hibrido:pedir": "casa",
   "media_jornada:pedir": "pausa",
-  "cuidar_familiar:pagar": "chanchito",
-  "cuidar_familiar:reducir": "pausa",
-  "cuidar_familiar:dejar_pega": "casa",
-  "separarse:intentar": "corazon",
-  "separarse:terminar": "puerta",
   // para que dos opciones de la misma carta no compartan dibujo
   "salir_del_colegio:instituto": "laptop",
   "salir_del_colegio:cft": "chanchito",
@@ -231,8 +214,6 @@ const ARTE_PAR: Record<string, DecisionArtKind> = {
   "media_jornada:no": "consultora",
   "emprender:lado": "laptop",
   "mudarse_de_region:a_santiago": "consultora",
-  "ahorro:normal": "quedarte",
-  "ahorro:gastar": "viaje",
 };
 
 /** El dibujo de una duda: el suyo propio o, si no tiene, el de su categoría. */
@@ -268,3 +249,6 @@ export function aniosDe(edad: number, edadFin: number | undefined, edadInicial: 
   const hasta = edadFin === undefined ? desde : Math.max(desde, edadFin - edadInicial);
   return hasta > desde ? `Años ${desde} a ${hasta}` : `Año ${desde}`;
 }
+
+/** Lo que se dice de una empresa real que aparece como ejemplo (docs/DECISIONES.md, 11). */
+export const EMPRESA_EJEMPLO = "Empresa real como ejemplo. Sus cifras y lo que le pasa en tu partida son simulados.";

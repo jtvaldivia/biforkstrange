@@ -101,7 +101,8 @@ export type Range = { low: number; high: number; median: number };
  * Rango de resultados de dos caminos en un indicador (0–100).
  * Barra angosta: camino seguro. Barra ancha: apuesta. La rayita es la mediana.
  */
-export function RangeCompare({ indicator, a, b, label }: { indicator: IndicatorKey; a: Range; b: Range; label?: string }) {
+/** `colorA` y `colorB` pisan los colores por defecto (A: el del indicador; B: solo el borde). */
+export function RangeCompare({ indicator, a, b, label, colorA, colorB }: { indicator: IndicatorKey; a: Range; b: Range; label?: string; colorA?: string; colorB?: string }) {
   const bar = (r: Range, fill: string) => (
     <span className="vd-rango-pista">
       <i style={{ left: `${r.low}%`, width: `${r.high - r.low}%`, background: fill }} />
@@ -117,9 +118,9 @@ export function RangeCompare({ indicator, a, b, label }: { indicator: IndicatorK
         aria-label={`${label ?? indicatorLabel(indicator)}: A entre ${a.low} y ${a.high}, B entre ${b.low} y ${b.high}`}
       >
         <em>A</em>
-        {bar(a, indicatorColor(indicator))}
+        {bar(a, colorA ?? indicatorColor(indicator))}
         <em>B</em>
-        {bar(b, "var(--papel)")}
+        {bar(b, colorB ?? "var(--papel)")}
       </div>
     </div>
   );

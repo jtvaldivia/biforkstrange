@@ -21,10 +21,7 @@ from app.sim.motor.perfil import Perfil, estado_inicial
 ESCALA = float(os.environ.get("MOTOR_N", "1"))
 
 # Literales del reglamento del motor (TICKETS.md), para no importarlos del código bajo prueba.
-DECISIONES_PERSONALES = {"tener_hijo", "formalizar_pareja", "separarse", "buscar_pareja", "cuidar_familiar",
-                         "comprar_vivienda"}
-EVENTOS_PERSONALES = {"cancer", "muere_madre", "muere_padre", "enferma_familiar", "forma_pareja", "termina_pareja",
-                      "hijo_no_planificado", "herencia"}
+EVENTOS_PERSONALES = {"cancer"}
 NADA = 0.999999  # un dado que no gatilla ningún sorteo con probabilidad menor que 1
 
 # Pesos literales de las cartas del perfil por omisión (30 años, universitaria, pyme de Servicios
@@ -35,7 +32,7 @@ CARTAS_PERFIL_BASE = {
     "remoto_para_afuera": 0.4, "pedir_hibrido": 0.4, "media_jornada": 0.2, "cambiar_de_rubro": 0.3,
     "cambiar_de_ocupacion": 0.25, "aprender_ia": 0.3 + 0.143, "invertir_en_red": 0.4,
     "unirse_a_startup": 0.04 + 50 / 1500, "independizarse": 0.3, "emprender": 0.08 + 50 / 500, "emigrar": 0.25,
-    "mudarse_de_region": 0.3, "sabatico": 0.1, "ahorro": 0.2,
+    "mudarse_de_region": 0.3, "sabatico": 0.1,
 }
 
 
@@ -174,13 +171,10 @@ def estado_al_azar(R: random.Random) -> dict:
     est = "estudiando" if (edad <= 24 and R.random() < 0.4) else R.choice(
         ["empleado", "empleado", "empleado", "buscando", "independiente", "fundador", "inactivo"])
     c = R.choice(carreras) if (edu != "media" or est == "estudiando") and R.random() < 0.9 else None
-    pareja = R.choice(["no", "pololeo", "convive", "casado"])
-    hijos = R.choice([0, 0, 1, 2]) if edad >= 22 else 0
     tipo = R.choice(["grande", "pyme", "startup", "publico", "extranjero"]) if est == "empleado" else ""
     if R.random() < 0.03:
         tipo = ""  # estado incoherente a propósito: ambos evaluadores deben fallar igual
     sueldo = round(R.lognormvariate(math.log(800000), 0.6)) if est in ("empleado", "independiente", "fundador") else 0
-    madre = edad + R.randint(18, 42) if R.random() < 0.9 else -1
     e = {
         "edad": edad, "sexo": R.choice(["h", "m"]), "edu": edu, "estado": est,
         "primer_empleo": 1 if (est == "buscando" and R.random() < 0.3) else 0,
@@ -193,22 +187,19 @@ def estado_al_azar(R: random.Random) -> dict:
         "antiguedad": R.randint(0, 14), "meses_cesante": R.choice([0, 6, 12, 24, 48]) if est == "buscando" else 0,
         "hueco": R.randint(0, 1), "horas": R.choice([22, 44, 55]), "parcial": R.randint(0, 1),
         "remoto": R.randint(0, 1), "formal": R.randint(0, 1), "pais": R.choice(["chile", "chile", "afuera"]),
-        "region": R.choice(["rm", "otra"]), "region_perfil": R.choice(REGIONES), "pareja": pareja, "hijos": hijos,
-        "edad_hijo_menor": R.randint(0, 15) if hijos else -1, "ahorro": round(R.uniform(-5e6, 6e7)),
+        "region": R.choice(["rm", "otra"]), "region_perfil": R.choice(REGIONES), "ahorro": round(R.uniform(-5e6, 6e7)),
         "deuda_estudios": R.choice([0, 0, 8e6]), "animo": R.uniform(20, 90), "energia": R.uniform(10, 95),
         "salud": R.choice(["bien", "bien", "licencia", "cancer", "cronica"]), "red": R.uniform(0, 100),
         "skill": R.uniform(0, 100), "riesgo": R.uniform(0, 100), "ambicion": R.uniform(0, 100),
         "usa_ia": R.randint(0, 1), "empresa_anos": R.randint(0, 8),
         "base_empresa": R.choice([0, 0, round(R.lognormvariate(math.log(600000), 0.6))]), "empresa_fondos": R.randint(0, 1),
-        "madre_edad": madre, "padre_edad": madre + 2 if madre > 0 and R.random() < 0.85 else -1,
-        "familiar_enfermo": R.choice(["", "", "", "madre", "padre"]), "recesion": 1 if R.random() < 0.2 else 0,
+        "recesion": 1 if R.random() < 0.2 else 0,
         "anos_en_carrera": R.randint(0, 5), "anos_en_startup": R.randint(0, 6),
         "financia": R.choice(["", "cae", "gratuidad", "familia"]), "ingles": R.randint(0, 1),
         "isapre": R.randint(0, 1), "marcado": R.randint(0, 1), "validado": R.randint(0, 1),
-        "propietario": R.randint(0, 1), "primer_grande": R.randint(0, 1), "oferta_al_titularse": R.randint(0, 1),
+        "primer_grande": R.randint(0, 1), "bootcamp": R.randint(0, 1), "oferta_al_titularse": R.randint(0, 1),
         "ocupacion": R.randint(0, 9), "edad_decide_estudios": R.choice([18, 19]), "cierra_en": R.choice([0, 0, 1, 3]),
-        "rubro_destino": R.choice(RUBROS), "region_destino": R.choice(REGIONES), "ocupacion_destino": R.randint(0, 9),
-        "quien_enferma": R.choice(["madre", "padre"]),
+        "rubro_destino": R.choice(RUBROS), "rubro_emprendimiento": R.choice(RUBROS), "region_destino": R.choice(REGIONES), "ocupacion_destino": R.randint(0, 9),
         "universidad_destino": R.choice([f["universidad_id"] for f in p.filas("universidades")
                                          if f["tipo_institucion"] in ("U", "EXT")]),
         "universidad_id": R.choice([""] + [f["universidad_id"] for f in p.filas("universidades")]),

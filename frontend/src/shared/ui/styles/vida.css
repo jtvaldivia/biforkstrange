@@ -167,7 +167,9 @@ html { background: var(--papel); color: var(--tinta); }
 /* Segmento de dos opciones */
 .vd-seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 2px solid var(--tinta); border-radius: 14px; overflow: hidden; }
 .vd-seg button { min-height: 48px; padding: 0 8px; border: 0; background: var(--papel); color: var(--tinta); font: 600 15px/20px var(--font); cursor: pointer; transition: background-color 160ms ease, color 160ms ease; }
-.vd-seg button[aria-pressed="true"] { background: var(--tinta); color: var(--papel); }
+/* seleccionado como los chips (amarillo): un solo estilo para los controles chicos */
+.vd-seg button[aria-pressed="true"] { background: var(--sol); color: var(--sobre-sol); }
+.vd-seg button + button { border-left: 2px solid var(--tinta); }
 
 /* Deslizador de prioridades */
 .vd-rango { width: 100%; height: 28px; margin: 0; accent-color: var(--tinta); }
@@ -194,6 +196,8 @@ html { background: var(--papel); color: var(--tinta); }
 .vd-opcion--tile .vd-opcion-tags { margin-top: auto; padding-top: 3px; }
 
 .vd-tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; background: var(--niebla); color: var(--tinta); font: 600 11px/1 var(--mono); letter-spacing: .02em; white-space: nowrap; }
+/* borde fino: en oscuro la niebla casi no se distingue del papel */
+.vd-tag:not(.vd-tag--menos, .vd-tag--acento, .vd-tag--sol) { box-shadow: inset 0 0 0 1px var(--linea); }
 .vd-tag--menos { background: transparent; border: 1.5px dashed var(--control); }
 .vd-tag--acento { background: var(--acento); color: var(--sobre-acento); }
 .vd-tag--sol { background: var(--sol); color: var(--sobre-sol); }

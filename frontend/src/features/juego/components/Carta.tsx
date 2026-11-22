@@ -2,14 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import {
   Button, DecisionArt, DecisionCard, DecisionList, Heading, Meta, Pill, Row, Screen, ScreenHeader, Stack, Text, cssVars, type DecisionTag,
 } from "@/shared/ui";
-import { CALIDAD, TIPO_EMPLEADOR, arteOpcion, conSigno, plata, primeraFrase, sinSueldo, situacion } from "../textos";
-import type { ContraBase, Eleccion, EmpresaOferta, EscenarioIA, PorQue, MundoDetalle, Narrado, OpcionComparada, OpcionPendiente, ParametrosComparar, Partida, Respaldo, Suceso, Vista } from "../types";
+import { CALIDAD, EMPRESA_EJEMPLO, TIPO_EMPLEADOR, arteOpcion, conSigno, plata, primeraFrase, sinSueldo, situacion } from "../textos";
+import type { ContraBase, Eleccion, EmpresaOferta, EscenarioIA, PorQue, MundoDetalle, Narrado, OpcionComparada, OpcionPendiente, ParametrosComparar, Partida, Respaldo, SinNovedad, Suceso, Vista } from "../types";
 import { useNarracion } from "../hooks/useNarracion";
 import { Logo } from "./Logo";
 import { BarraPartes, Info, ProgresoAnios, sinMovimiento, type Reparto } from "./graficos";
 import { PesoDelCv } from "./PesoDelCv";
 import { HojaEleccion } from "./HojaEleccion";
-import { AvisoPerfil, CalidadTag, Cargando, ErrorCaja, Pensando, RangoSueldo, Salir } from "./piezas";
+import { AvisoPerfil, CalidadTag, Cargando, ErrorCaja, FranjaSinNovedad, Hoy, Pensando, RangoSueldo, Salir } from "./piezas";
 import { GEMELOS, textoError } from "../api";
 
 type Internas = Record<string, string | number>;
@@ -111,12 +111,6 @@ function ComoLeer({ o, total, edadFinal, respaldo }: { o: OpcionComparada; base:
 
 type Narrar = (que: "pendiente" | "historia" | "mundo", signal: AbortSignal, mundo?: number) => Promise<{ items: Narrado[] }>;
 
-/** "+8%" o "−20%" respecto del promedio de su tipo y rubro; "promedio" si casi no se mueve. */
-function relativo(x: number): string {
-  const d = Math.round((x - 1) * 100);
-  return Math.abs(d) < 3 ? "promedio" : `${d > 0 ? "+" : "−"}${Math.abs(d)}%`;
-}
-
 function nivelIA(x: number): string {
   return x >= 0.35 ? "alta" : x >= 0.2 ? "media" : "baja";
 }
@@ -125,18 +119,15 @@ export function ofertaTexto(e: EmpresaOferta): string {
   return e.cargo ? `Te ofrecen ser ${e.cargo} en ${e.nombre}.` : `Te ofrecen entrar a ${e.nombre}.`;
 }
 
-/** La empresa real y el cargo que trae la opción, con sus cifras. Las cifras son sintéticas: salen de su rubro y tamaño. */
+/**
+ * La empresa real y el cargo que trae la opción. Sus cifras de sueldo, despidos, ascensos y cierre son sintéticas
+ * (salen de su rubro y tamaño), así que no se muestran como si fueran de la empresa: solo la exposición a IA, que
+ * es la de la ocupación del cargo.
+ */
 function EmpresaLinea({ empresa, texto }: { empresa: EmpresaOferta; texto?: string }) {
   const c = empresa.cifras;
-  // solo lo que se aparta de lo normal en su rubro: "Sueldo promedio" no le dice nada a nadie
-  const cifras = [
-    relativo(c.sueldo) !== "promedio" && `Sueldo ${relativo(c.sueldo)} que su rubro`,
-    relativo(c.despido) !== "promedio" && `Despidos ${relativo(c.despido)}`,
-    relativo(c.ascenso) !== "promedio" && `Ascensos ${relativo(c.ascenso)}`,
-    empresa.tipo === "startup" && relativo(c.cierre) !== "promedio" && `Riesgo de cierre ${relativo(c.cierre)}`,
-    nivelIA(c.exposicion_ia) !== "baja" && `Exposición a IA ${nivelIA(c.exposicion_ia)}`,
-    c.horas > 45 && `${c.horas} h a la semana`,
-  ].filter((x): x is string => !!x);
+  const cifras = [nivelIA(c.exposicion_ia) !== "baja" && `Exposición a IA del cargo ${nivelIA(c.exposicion_ia)}`]
+    .filter((x): x is string => !!x);
   return (
     <span className="jg-empresa">
       <span className="jg-empresa-cabeza">
@@ -156,6 +147,7 @@ function EmpresaLinea({ empresa, texto }: { empresa: EmpresaOferta; texto?: stri
           ))}
         </span>
       )}
+      <span className="jg-chico">{EMPRESA_EJEMPLO}</span>
     </span>
   );
 }
@@ -209,6 +201,7 @@ function OpcionConGemelos({
   const de = total || 100;
   const veredicto = !o.es_base ? contraBase(o, base)?.frase : null;
   const cesantia = Math.round(o.paso_por_cesantia * 100);
+  const sube = Math.round((o.sube_de_cargo ?? 0) * 100);
   return (
     <DecisionCard
       art={<DecisionArt kind={arteOpcion(decision, o.opcion, categoria)} />}
@@ -221,9 +214,15 @@ function OpcionConGemelos({
           {ganadas !== null && (
             <span className="jg-marcador" data-lider={lider}>
               <span className="jg-marcador-num">
-                <b>{ganadas}</b> de {de} mundos es la mejor
+                {ganadas === 0 ? "En ningún mundo es la mejor" : <><b>{ganadas}</b> de {de} mundos es la mejor</>}
               </span>
               <MiniMundos ganadas={ganadas} total={de} color={color} />
+            </span>
+          )}
+          {/* lo típico a la vista sin abrirla, para comparar las opciones de un vistazo; abierta, va en el detalle */}
+          {!selected && (
+            <span className="jg-tipico">
+              Lo típico a los {edadFinal}: <b>{plata(o.sueldo.p50)}</b>
             </span>
           )}
         </span>
@@ -240,7 +239,7 @@ function OpcionConGemelos({
               <b>{plata(o.sueldo.p90)}</b>
             </span>
             <span role="listitem" data-fuerte="true">
-              <span>Lo típico a los {edadFinal}</span>
+              <span>Lo típico a los {edadFinal}, en pesos de hoy</span>
               <b>{plata(o.sueldo.p50)}</b>
             </span>
             <span role="listitem">
@@ -248,8 +247,12 @@ function OpcionConGemelos({
               <b>{plata(o.sueldo.p10)}</b>
             </span>
             <span role="listitem">
-              <span>Pasas por la cesantía</span>
+              <span>Cierras algún año buscando trabajo</span>
               <b>{cesantia === 0 ? "en ningún mundo" : `en ${cesantia} de 100`}</b>
+            </span>
+            <span role="listitem">
+              <span>Terminas en un cargo más alto</span>
+              <b>{sube === 0 ? "en ningún mundo" : `en ${sube} de 100`}</b>
             </span>
           </span>
           {veredicto && <span className="jg-frase">{veredicto}</span>}
@@ -278,8 +281,8 @@ function MiniMundos({ ganadas, total, color }: { ganadas: number; total: number;
   );
 }
 
-/** Un color por opción: la base siempre naranja; las demás en este orden. El gris es el empate. */
-const COLORES = ["var(--jg-mas)", "var(--acento)", "var(--vida)", "var(--violeta)", "var(--turquesa)"];
+/** Un color por opción: la base siempre naranja; las demás en este orden. El gris es el empate. Sin azul: es el de la interfaz y la mediana. */
+const COLORES = ["var(--jg-mas)", "var(--vida)", "var(--violeta)", "var(--turquesa)"];
 export function coloresDe(comparadas: OpcionComparada[]): Record<string, string> {
   const salida: Record<string, string> = {};
   let i = 0;
@@ -514,7 +517,13 @@ function MundoAbierto({
     comunes.push(sinRepetir(listas[0] ?? []).filter((x) => listas.every((l) => l.some((y) => claveSuceso(y) === claveSuceso(x)))));
   }
   // lo que se muestra como "del mundo" son solo los eventos: que dos copias decidan lo mismo un año no es suerte compartida
-  const eventosDelMundo: Suceso[][] = comunes.map((l) => l.filter((x) => x.tipo === "evento"));
+  // la recesión no viene como suceso sino como marca del año: se suma aquí para que la lista diga lo mismo que el gráfico
+  const RECESION: Suceso = { tipo: "evento", nombre: "Recesión", texto: "Recesión en el país.", tono: "malo" };
+  const eventosDelMundo: Suceso[][] = comunes.map((l, i) => {
+    const eventos = l.filter((x) => x.tipo === "evento");
+    const recesion = vidas.some((v) => v.anios[i]?.recesion) && !eventos.some((x) => x.nombre === RECESION.nombre);
+    return recesion ? [RECESION, ...eventos] : eventos;
+  });
   const esComun = (i: number, x: Suceso) => eventosDelMundo[i].some((y) => claveSuceso(y) === claveSuceso(x));
   const anioDe = (i: number) => anioInicial + i;
   const delMundo = eventosDelMundo.map((l, i) => ({ i, l })).filter((x) => x.l.length > 0);
@@ -523,19 +532,15 @@ function MundoAbierto({
     opcion: v.opcion,
     nombre: v.nombre,
     color: colores[v.opcion],
-    puntos: v.anios.filter((a) => a.fin).map((a) => ({ edad: a.edad, sueldo: a.fin!.estado === "buscando" ? 0 : a.fin!.sueldo })),
+    // la edad al cerrar el año, como en el resto del juego: con la de partida el último punto quedaba en 39 y no en 40
+    puntos: v.anios.filter((a) => a.fin).map((a) => ({ edad: a.fin!.edad, sueldo: a.fin!.estado === "buscando" ? 0 : a.fin!.sueldo })),
   }));
-  const recesiones = (vidas[0]?.anios ?? []).filter((a) => a.recesion).map((a) => a.edad);
+  const recesiones = (vidas[0]?.anios ?? []).filter((a) => a.recesion).map((a) => a.fin?.edad ?? a.edad + 1);
 
   return (
     <div className="jg-mundo" role="region" aria-label={`Mundo ${mundo.mundo + 1}`} key={mundo.mundo}>
       <div className="jg-mundo-cabeza">
         <span className="jg-fuerte">Mundo {mundo.mundo + 1}</span>
-        {mundo.ia && (
-          <span className="jg-chip-ia" title="Cada mundo sortea qué tan rápido llega la IA, dentro del rango medido por Brynjolfsson y otros (2025).">
-            La IA llega {ESCENARIO_IA[mundo.ia.escenario]}
-          </span>
-        )}
         <span className="jg-mundo-acciones">
           {onOtro && (
             <button type="button" className="jg-ayuda" onClick={onOtro}>
@@ -572,8 +577,14 @@ function MundoAbierto({
 
       <div className="jg-mundo-comun">
         <span className="jg-chico">Lo que pasa en este mundo con cualquier opción</span>
+        {/* la IA va aquí y no como chip suelto: así "sin sorpresas" no la contradice */}
+        {mundo.ia && (
+          <span className="jg-chico" title="Cada mundo sortea qué tan rápido llega la IA, dentro del rango medido por Brynjolfsson y otros (2025).">
+            La IA llega {ESCENARIO_IA[mundo.ia.escenario]}: cada mundo sortea a qué ritmo cambia el trabajo.
+          </span>
+        )}
         {delMundo.length === 0 ? (
-          <span className="jg-chico">Nada fuera de lo normal: sin recesión ni sorpresas.</span>
+          <span className="jg-chico">{mundo.ia ? "Fuera de eso, ni recesión ni sorpresas." : "Ni recesión ni sorpresas."}</span>
         ) : (
           <ol className="jg-mundo-anios">
             {delMundo.map(({ i, l }) => (
@@ -797,13 +808,14 @@ function Simulacion({
           {comparadas.map((o) => (
             <span key={o.opcion}>
               <i style={{ background: colores[o.opcion] }} />
-              {o.nombre} gana en <b>{cuenta.get(o.opcion) ?? 0}</b> mundos
+              {/* el número primero, para que encolumne; el nombre entre comillas, para que «No» no se lea como negación */}
+              <b>{cuenta.get(o.opcion) ?? 0}</b> mundos: gana «{o.nombre}»
             </span>
           ))}
           {empates > 0 && (
             <span>
               <i data-tipo="igual" />
-              Empate en <b>{empates}</b> mundos
+              <b>{empates}</b> mundos: empate
             </span>
           )}
         </span>
@@ -886,8 +898,10 @@ function Porque({ o, base }: { o: OpcionComparada; base: OpcionComparada | undef
 
 /** La carta: la decisión pendiente con lo que vivieron los gemelos. Viene de "3 · Decisión del año" del kit. */
 export function Carta({
-  vista, partida, fuentes = null, cargando, onReintentar, recalculando, error, onElegir, onComparar, onVerMundo, onSalir, onNarrar,
+  vista, partida, fuentes = null, cargando, onReintentar, recalculando, error, onElegir, onComparar, onVerMundo, onSalir, onNarrar, sinNovedad,
 }: {
+  /** El año anterior, si pasó sin novedades: va como franja arriba. */
+  sinNovedad?: SinNovedad | null;
   /** Perfil y semilla de la partida: con ellos se mide cuánto pesa cada línea del CV en la duda. */
   partida?: Partida | null;
   /** De dónde salió cada dato del perfil: sin datos es un perfil de ejemplo. */
@@ -1016,7 +1030,7 @@ export function Carta({
   return (
     <Screen gap={16}>
       <ScreenHeader left={<Pill style={{ whiteSpace: "nowrap" }}>Año {anio} · {e.edad} años</Pill>} right={onSalir && <Salir onSalir={onSalir} />} />
-      {cargando && <Pensando titulo={`Mundo ${GEMELOS + 1} · año ${anio}`} />}
+      {cargando && <Pensando titulo={`Mundo ${GEMELOS + 1} · año ${anio}`} onSalir={onSalir} />}
       {/* mientras Claude escribe la carta no hay sorteo: una espera simple, no la apuesta */}
       {!cargando && !listo && (
         <div className="jg-preparando">
@@ -1024,30 +1038,8 @@ export function Carta({
         </div>
       )}
       <ProgresoAnios actual={anio} total={vista.anios} />
-      <div className="jg-hoy">
-        <Text size="sm">
-          <strong>Hoy:</strong>{" "}
-          {sinSueldo(e) ? (
-            situacion(e.estado)
-          ) : (
-            <>
-              {e.rol || e.cargo}
-              {e.empresa && (
-                <>
-                  {" en "}
-                  {e.empresa}{" "}
-                  <span className="jg-hoy-logo">
-                    <Logo carpeta="empresas" id={e.empresa_id ?? e.empresa} nombre={e.empresa} grupo={e.rubro} hay={(e.empresa_id ?? -1) >= 0} tamano={22} />
-                  </span>
-                </>
-              )}
-            </>
-          )}
-        </Text>
-        <Text size="sm" className="jg-hoy-sueldo">
-          {sinSueldo(e) ? `Antes ganabas ${plata(e.sueldo_ref)}/mes` : `${plata(e.sueldo)}/mes`}
-        </Text>
-      </div>
+      <FranjaSinNovedad s={sinNovedad} />
+      <Hoy e={e} />
       <AvisoPerfil fuentes={fuentes} />
 
       <Stack gap={8} style={{ marginTop: 4 }}>
@@ -1206,14 +1198,25 @@ export function Carta({
 
       <div className="jg-pie-fijo">
         {error && <ErrorCaja error={error} onReintentar={onReintentar} />}
-        {cargando && <Cargando>Tirando tu dado y viviendo el año…</Cargando>}
+        {/* elegir desde cualquier parte de la carta: no hay que volver arriba después de mirar los 100 mundos */}
+        {comparacion && comparadas.length >= 2 && comparadas.length <= 3 && !cargando && (
+          <div className="jg-pie-opciones" role="group" aria-label="Elegir una opción">
+            {comparadas.map((o) => (
+              <button key={o.opcion} type="button" className="vd-chip jg-pie-opcion" aria-pressed={sel === o.opcion} onClick={() => elegirOpcion(o.opcion)} disabled={recalculando}>
+                <i className="jg-color" style={{ background: colores[o.opcion] }} aria-hidden="true" />
+                {o.nombre}
+              </button>
+            ))}
+          </div>
+        )}
+        {cargando && <Cargando>Sorteando y viviendo tu año…</Cargando>}
         {opcion && faltan.length > 0 && !cargando ? (
           <Button onClick={() => setHoja(primeraFaltante(opcion, internas))} disabled={recalculando}>
             Elegir el detalle
           </Button>
         ) : (
           <Button onClick={confirmar} disabled={!opcion || cargando || recalculando}>
-            {cargando ? "Tirando el dado…" : opcion ? "Confirmar" : "Toca una opción"}
+            {cargando ? "Sorteando…" : opcion ? "Confirmar" : "Toca una opción"}
           </Button>
         )}
       </div>

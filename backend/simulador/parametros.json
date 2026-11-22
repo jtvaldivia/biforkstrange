@@ -318,13 +318,13 @@
   {
    "id": "ASCENSO_POBLACION",
    "valor": {
-    "18-24": 0.056,
-    "25-29": 0.061,
-    "30-34": 0.061,
-    "35-39": 0.055,
-    "40-44": 0.05,
-    "45-49": 0.045,
-    "50-54": 0.045
+    "18-24": 0.065,
+    "25-29": 0.069,
+    "30-34": 0.066,
+    "35-39": 0.06,
+    "40-44": 0.055,
+    "45-49": 0.052,
+    "50-54": 0.052
    },
    "unidad": "probabilidad anual",
    "descripcion": "Probabilidad de ascenso promedio de los años de empleado de la población, por tramo de edad. Es lo que el alza anual descuenta: el perfil por edad de la ESI ya incluye los ascensos promedio, así que quien asciende más que el promedio gana más y quien asciende menos, menos. Medida con la cohorte de validación (5.000 personas desde los 18, semilla 0, prob_ascenso de cada año de empleado); 50-54 repite 45-49 porque la cohorte llega a los 50. Si cambia la regla de ascenso, hay que volver a medirla (tests/test_motor_validacion.py lo revisa).",
@@ -531,6 +531,18 @@
    "rango": null
   },
   {
+   "id": "EMPRESA_RUIDO_ANUAL",
+   "valor": 0.25,
+   "unidad": "fracción",
+   "descripcion": "Cuánto se mueve de un año a otro la ganancia de una misma empresa alrededor de su nivel: 1 de cada 10 años queda 25% sobre él (o bajo 1/1,25). El nivel de cada empresa (0,3 a 4 veces la mediana de un microemprendedor) se sortea una vez, al partir.",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": [
+    0.1,
+    0.5
+   ]
+  },
+  {
    "id": "FUNDADOR_MEDIANA",
    "valor": 0.65,
    "unidad": "fracción",
@@ -633,67 +645,6 @@
    "rango": null
   },
   {
-   "id": "HIJO_INGRESO_MUJER",
-   "valor": {
-    "privado": -0.35,
-    "publico": -0.2
-   },
-   "unidad": "fracción",
-   "descripcion": "Ingreso laboral de la madre a 20 meses del primer hijo.",
-   "fuente": "coes_2024",
-   "calidad": "dato",
-   "rango": null
-  },
-  {
-   "id": "HIJO_SALE",
-   "valor": {
-    "m": 0.173,
-    "h": 0.05
-   },
-   "unidad": "probabilidad",
-   "descripcion": "Quien trabajaba y no trabaja 12 meses después del primer hijo.",
-   "fuente": "eps_2024",
-   "calidad": "dato",
-   "rango": null
-  },
-  {
-   "id": "HIJO_CUIDADOS_H_DIA",
-   "valor": {
-    "m": 5.01,
-    "h": 1.82
-   },
-   "unidad": "horas por día",
-   "descripcion": "Horas extra de cuidado con un hijo de 0 a 4 años.",
-   "fuente": "ine_enut_2023",
-   "calidad": "dato",
-   "rango": null
-  },
-  {
-   "id": "P_FORMAR_PAREJA",
-   "valor": {
-    "20-35": 0.11,
-    "36+": 0.05
-   },
-   "unidad": "probabilidad anual",
-   "descripcion": "Empezar una relación si estás sin pareja. Calibrado para llegar a 62% en pareja a los 30-34.",
-   "fuente": "cep_casen_pareja",
-   "calidad": "mixto",
-   "rango": null
-  },
-  {
-   "id": "P_SEPARARSE",
-   "valor": {
-    "casado": 0.016,
-    "convive": 0.032,
-    "pololeo": 0.04
-   },
-   "unidad": "probabilidad anual",
-   "descripcion": "Terminar la relación.",
-   "fuente": "ine_vitales",
-   "calidad": "mixto",
-   "rango": null
-  },
-  {
    "id": "MORT_GOMPERTZ",
    "valor": {
     "h": [
@@ -709,51 +660,6 @@
    "descripcion": "q(x) = exp(a + b·x), ajustada entre 50 y 95 años.",
    "fuente": "ine_mortalidad",
    "calidad": "dato",
-   "rango": null
-  },
-  {
-   "id": "P_MUERE_ENFERMO",
-   "valor": 0.134,
-   "unidad": "probabilidad anual",
-   "descripcion": "Morir el año siguiente si un familiar tiene una enfermedad grave: mortalidad anual media en 5 años de un cáncer en Chile (sobrevida neta 54% a 5 años; 36% muere el primer año).",
-   "fuente": "minsal_sobrevida_cancer_2023",
-   "calidad": "mixto",
-   "rango": [
-    0.11,
-    0.36
-   ]
-  },
-  {
-   "id": "EDAD_MADRE",
-   "valor": 28.5,
-   "unidad": "años",
-   "descripcion": "Edad media de la madre al tener al gemelo (27,7 en 2002; 30,1 en 2022).",
-   "fuente": "ine_vitales",
-   "calidad": "dato",
-   "rango": [
-    26,
-    31
-   ]
-  },
-  {
-   "id": "LUTO_A_ANIMO",
-   "valor": 10,
-   "unidad": "puntos por punto",
-   "descripcion": "Un punto de satisfacción 0-10 equivale a 10 puntos de ánimo.",
-   "fuente": "equipo",
-   "calidad": "supuesto",
-   "rango": null
-  },
-  {
-   "id": "INGRESO_TRAS_MUERTE_PADRE",
-   "valor": {
-    "h": 0.97,
-    "m": 0.98
-   },
-   "unidad": "multiplicador",
-   "descripcion": "Ingreso tras la muerte de un padre o madre.",
-   "fuente": "equipo",
-   "calidad": "mixto",
    "rango": null
   },
   {
@@ -778,18 +684,6 @@
    "rango": [
     2.6,
     9.4
-   ]
-  },
-  {
-   "id": "ANIMO_PAREJA",
-   "valor": 2.4,
-   "unidad": "puntos",
-   "descripcion": "Ánimo al formar pareja.",
-   "fuente": "elsoc",
-   "calidad": "dato",
-   "rango": [
-    1.0,
-    3.8
    ]
   },
   {

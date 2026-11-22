@@ -96,6 +96,7 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
     opciones = vida.opciones(decision_id)
     parametros = parametros or {}
     anio0, buscando0, ingreso0 = len(vida.historia), vida.anios_buscando, vida.ingreso_total
+    edad0, nivel0 = vida.e["edad"], vida.e["nivel"]
     usados = {o.id: _parametros(vida, o, parametros) for o in opciones}
     finales: dict[str, list[Vida]] = {
         o.id: [_vivir(vida.clonar(Dados(semilla, g)), decision_id, o.id, usados[o.id], anios) for g in range(n)]
@@ -109,11 +110,11 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
         return None
 
     base = opcion_base(decision, opciones)
-    sueldos_base = [round(v.sueldo_o_ultimo()) for v in finales[base]]
+    sueldos_base = [round(v.sueldo_al_final()) for v in finales[base]]
     salida = []
     for o in opciones:
         vidas = finales[o.id]
-        sueldos = [round(v.sueldo_o_ultimo()) for v in vidas]  # en pesos, igual que la trayectoria
+        sueldos = [round(v.sueldo_al_final()) for v in vidas]  # en pesos, igual que la trayectoria
         niveles = Counter(v.e["nivel"] for v in vidas)
         es_base = o.id == base
         resultados = [primer_resultado(v) for v in vidas]
@@ -126,14 +127,18 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
                 "tono": definiciones.get(rid, {}).get("tono", "neutro"),
                 "gemelos": cuantos, "prob": cuantos / n, **_contra_base(pares),
             })
+        # por edad, no por ronda: una ronda puede durar varios años (un magíster con beca) y su cierre cuenta
+        # para cada año que cubre
+        por_edad = [{ed: h["fin"] for h in v.historia[anio0:] if h.get("fin") for ed in range(h["edad"], h["fin"]["edad"])}
+                    for v in vidas]
         trayectoria = []
         for i in range(anios):
-            del_anio = [v.historia[anio0 + i]["fin"] for v in vidas if len(v.historia) > anio0 + i]
+            del_anio = [d[edad0 + i] for d in por_edad if edad0 + i in d]
             if len(del_anio) < n / 2:
                 break
             trayectoria.append({
                 "edad": round(median(f["edad"] for f in del_anio)),
-                **_rango([f["sueldo"] or f["sueldo_ref"] for f in del_anio]),
+                **_rango([f["sueldo"] for f in del_anio]),
                 "sin_trabajo": sum(1 for f in del_anio if f["estado"] == "buscando") / len(del_anio),
             })
         salida.append({
@@ -145,13 +150,15 @@ def comparar(vida: Vida, decision_id: str, *, n: int = N_GEMELOS, anios: int = H
             "meses_sin_trabajo": 12 * sum(v.anios_buscando - buscando0 for v in vidas) / n,
             "sin_trabajo_al_final": sum(1 for v in vidas if v.e["estado"] == "buscando") / n,
             "cargo_mas_probable": NIVELES[niveles.most_common(1)[0][0]],
+            # la moda engaña: con 35 de 100 en junior y el resto repartido arriba, "lo más probable" es junior
+            "sube_de_cargo": sum(c for k, c in niveles.items() if k > nivel0) / n,
             "cargos": [{"cargo": NIVELES[k], "prob": c / n} for k, c in sorted(niveles.items())],
             **_contra_base([] if es_base else list(zip(sueldos, sueldos_base))),
             "por_resultado": por_resultado,
             "trayectoria": trayectoria,
             **({"sueldos": sorted(round(x) for x in sueldos)} if crudo else {}),
         })
-    finales_por_mundo = [{o.id: finales[o.id][g].sueldo_o_ultimo() for o in opciones} for g in range(n)]
+    finales_por_mundo = [{o.id: finales[o.id][g].sueldo_al_final() for o in opciones} for g in range(n)]
     return {
         "decision": decision_id, "nombre": decision["nombre"], "pregunta": decision["pregunta"],
         "calidad": decision["calidad"], "creencia_vs_dato": decision.get("creencia_vs_dato"),
@@ -180,7 +187,7 @@ def _anios_vividos(v: Vida, anio0: int, antes: tuple[int, int]) -> list[dict]:
                 *({"tipo": "evento", "nombre": e["nombre"], "texto": e["texto"], "tono": e["tono"]}
                   for e in eventos if not e.get("rutina")),
             ],
-            "fin": None if fin is None else {"sueldo": fin["sueldo"], "sueldo_ref": fin["sueldo_ref"], "cargo": fin["cargo"],
+            "fin": None if fin is None else {"edad": fin["edad"], "sueldo": fin["sueldo"], "sueldo_ref": fin["sueldo_ref"], "cargo": fin["cargo"],
                                              "estado": fin["estado"], "tipo_empleador": fin["tipo_empleador"],
                                              "empresa": fin.get("empresa"), "rol": fin.get("rol"), "rubro": fin.get("rubro")},
         })
@@ -206,9 +213,9 @@ def mundo(vida: Vida, decision_id: str, numero: int, *, anios: int = HORIZONTE, 
         "ia": {"adopcion": round(next(iter(vidas.values()))[1].e.get("ia_adopcion", 0.5), 3),
                "escenario": escenario_ia(next(iter(vidas.values()))[1].e.get("ia_adopcion", 0.5)),
                "castigo_joven": round(next(iter(vidas.values()))[1].e.get("ia_castigo_joven", 0.81), 3)},
-        "ganador": _ganador({k: v.sueldo_o_ultimo() for k, (_, v) in vidas.items()}),
+        "ganador": _ganador({k: v.sueldo_al_final() for k, (_, v) in vidas.items()}),
         "opciones": [
-            {"opcion": o.id, "nombre": o.nombre, "sueldo_final": round(v.sueldo_o_ultimo()), "estado_final": v.e["estado"],
+            {"opcion": o.id, "nombre": o.nombre, "sueldo_final": round(v.sueldo_al_final()), "estado_final": v.e["estado"],
              "empresa_final": v.resumen()["empresa"], "rol_final": v.resumen()["rol"],
              "anios": _anios_vividos(v, anio0, antes)}
             for o, v in vidas.values()

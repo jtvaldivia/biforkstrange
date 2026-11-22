@@ -133,7 +133,6 @@ class Paquete:
         """Agrega las variables derivadas al estado (devuelve un dict nuevo)."""
         e = dict(e)
         x = e['edad']
-        e['mujer'] = 1 if e['sexo'] == 'm' else 0
         e['sexo_txt'] = 'mujer' if e['sexo'] == 'm' else 'hombre'
         e['edu_esi'] = 'media_o_menos' if e['edu'] == 'media' else e['edu']
         e['banda3'] = '18-29' if x < 30 else '30-44' if x < 45 else '45-59'
@@ -145,8 +144,6 @@ class Paquete:
         e['seniority'] = ['Junior', 'Semi Senior', 'Senior', 'Expert', 'Expert'][int(e.get('nivel', 0))]
         e['region_nombre'] = 'Metropolitana' if e.get('region', 'rm') == 'rm' else e.get('region_perfil', 'Valparaíso')
         e['percentil'] = self.percentil(e)
-        e['quintil'] = ['I', 'II', 'III', 'IV', 'V'][min(4, int(e['percentil'] // 20))]
-        e['pareja_previa'] = e.get('pareja', 'no')
         e['crecimiento_esi'] = self.crecimiento_esi(e)
         e['crecimiento_carrera'] = self.crecimiento_carrera(e)
         e['crecimiento_cuenta_propia'] = self.crecimiento_cuenta_propia(e)

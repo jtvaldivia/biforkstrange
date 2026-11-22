@@ -503,7 +503,6 @@ export function PerfilForm({
               min={SLIDER_MIN}
               max={SLIDER_MAX}
               step={50_000}
-              color="var(--dinero)"
               onChange={(n) => set("sueldo", n)}
               display={sueldoValido ? pesos(p.sueldo) : "entre $1 y $30.000.000"}
             />

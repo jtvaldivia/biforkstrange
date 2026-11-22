@@ -4,6 +4,8 @@ Los pendientes estaban marcados `xfail` y se sacaron para acelerar la suite; la 
 docs/motor/TICKETS.md (M12). El detalle está en el informe M5.
 """
 
+import re
+
 import pytest
 from _motor_util import NADA, DadosGuion, Guion, pq, vida
 
@@ -78,7 +80,9 @@ def test_dos_ofertas_en_el_mismo_anio_se_sortean_por_separado():
     for g in range(400):
         v = vida(Perfil(edad=24), DadosGuion({"evento:oferta_llega": 0.0, "evento:separacion_empleo": NADA},
                                              defecto=0.5, semilla=6, gemelo=g))
-        v.dados.u = lambda anio, sitio, _d=v.dados: _d.guion.get(sitio, Dados(6, _d._reales.gemelo).u(anio, sitio))
+        # el guion nombra los eventos sin el número de pega: al aceptar la primera oferta, la oferta pasa a `@1`
+        v.dados.u = lambda anio, sitio, _d=v.dados: _d.guion.get(re.sub(r"@\d+", "", sitio),
+                                                                 Dados(6, _d._reales.gemelo).u(anio, sitio))
         reg = v.vivir_anio(Guion({"oferta_externa": "cambiar"}, con_cartas=True), carta="oferta_externa")
         ofertas = [x["resultado"] for x in reg["decisiones"] if x["decision"] == "oferta_externa"]
         assert len(ofertas) == 2

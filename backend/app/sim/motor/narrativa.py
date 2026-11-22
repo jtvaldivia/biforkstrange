@@ -55,7 +55,7 @@ EMPRESAS: dict[str, list[tuple[str, str]]] = {
 TAMANO = {"grande": "de más de mil personas", "pyme": "de unas 40 personas", "startup": "de 30 personas que acaba de levantar capital",
           "publico": "", "extranjero": "con oficinas en varios países"}
 QUIENES = ["la gerenta de personas", "un headhunter", "una excompañera tuya", "el jefe del área", "una reclutadora",
-           "un amigo de la universidad que ahora trabaja ahí"]
+           "un conocido tuyo"]  # "te contacta {quien} de {empresa}": que se lea bien con "de"
 CERCANOS = ["una excompañera", "un amigo de la universidad", "tu hermana", "un excolega"]
 CANALES = ["Por LinkedIn", "Por correo", "Por WhatsApp", "En un evento de la industria"]
 # Startups ficticias por rubro: la que te escribe es de tu mundo
@@ -112,6 +112,8 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
     tipo = contexto.get("tipo_empleador") or "pyme"
     nivel = int(contexto.get("nivel") or 0)
     quien, canal, cercano = s.uno("quien", QUIENES), s.uno("canal", CANALES), s.uno("cercano", CERCANOS)
+    if cercano == "un amigo de la universidad" and contexto.get("edu") in ("media", "tecnica"):
+        cercano = "un amigo"  # no fue a la universidad
     # tu empresa de hoy es un dato tuyo: la real si se sabe, y si no, sin inventarle nombre
     aqui = contexto.get("empresa") or "tu empresa"
     oferta = contexto.get("oferta") or {}
@@ -140,7 +142,9 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
         texto = (f"Llevas un tiempo en {aqui.split(',')[0]} y te preguntas si afuera te valorarían más. "
                  f"¿Actualizas el CV y empiezas a postular, sin que se entere nadie?")
     elif decision == "pedir_aumento":
-        texto = (f"Se viene la evaluación de desempeño en {aqui.split(',')[0]}. Cerraste un buen año y {s.uno('par', ['un compañero', 'una compañera'])} "
+        clima = ("El país está en recesión y en varias empresas hay despidos, pero tú cerraste un buen año"
+                 if contexto.get("recesion") else "Cerraste un buen año")
+        texto = (f"Se viene la evaluación de desempeño en {aqui.split(',')[0]}. {clima} y {s.uno('par', ['un compañero', 'una compañera'])} "
                  f"que entró después que tú te contó cuánto gana. ¿Pides aumento?")
     elif decision == "trabajar_mas_horas":
         texto = (f"En {aqui.split(',')[0]} viene un cierre {s.uno('cierre', ['de año', 'de proyecto', 'de licitación'])} y tu equipo "
@@ -160,12 +164,18 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
     elif decision == "invertir_en_red":
         texto = (f"Te invitan a {s.uno('evento', ['un meetup de la industria', 'un after de exalumnos', 'una conferencia del rubro'])} "
                  f"este jueves. Podrías ir, o quedarte en la casa como siempre.")
+    elif decision == "emprender" and contexto.get("validado"):
+        texto = ("Tu proyecto de noches y fines de semana ya tiene clientes que pagan. "
+                 f"{cercano.capitalize()} te pregunta qué esperas para dedicarte a él.")
     elif decision == "emprender":
         texto = (f"Tienes una idea dándote vueltas hace meses: {s.uno('idea', ['un servicio para pymes de tu rubro', 'una app que resuelve algo que ves todos los días en el trabajo', 'una consultora propia'])}. "
                  f"{cercano.capitalize()} te anima a lanzarte.")
     elif decision == "independizarse":
         texto = (f"Un cliente de {aqui.split(',')[0]} te dice que te contrataría directo, a honorarios. "
                  f"Serías independiente: sin jefatura, pero sin contrato.")
+    elif decision == "volver_a_contrato":
+        texto = (f"Llevas un tiempo trabajando por tu cuenta y los meses flojos pesan. {cercano.capitalize()} te cuenta "
+                 f"que en su pega buscan a alguien como tú, con contrato. ¿Postulas?")
     elif decision == "renunciar":
         texto = (f"Llevas semanas llegando sin ganas a {aqui.split(',')[0]} y el ambiente no mejora. "
                  f"Un domingo en la noche, escribes la carta de renuncia en el celular.")
@@ -173,18 +183,22 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
         texto = (f"Te llega la convocatoria de {s.uno('mg', ['un magíster en la Chile', 'un MBA en la Católica', 'un magíster en la Adolfo Ibáñez'])}. "
                  f"Varios de tu generación ya lo hicieron.")
     elif decision == "emigrar" and oferta:
-        texto = (f"{oferta['nombre']} está contratando gente de Latinoamérica con visa de trabajo y te ofrece {puesto}. "
-                 f"{canal}, te escribe {quien}.")
+        texto = (f"{oferta['nombre']} está contratando gente de Latinoamérica y te ofrece {puesto}, si te sale la visa "
+                 f"de trabajo. {canal}, te escribe {quien}.")
     elif decision == "emigrar":
         nombre, desc = s.uno("afuera", EXTRANJERAS)
-        texto = f"{nombre}, {desc}, está contratando gente de Latinoamérica con visa de trabajo. {canal}, te escribe {quien}."
+        texto = (f"{nombre}, {desc}, está contratando gente de Latinoamérica, si les sale la visa de trabajo. "
+                 f"{canal}, te escribe {quien}.")
     elif decision == "remoto_para_afuera" and oferta:
-        texto = f"{oferta['nombre']} busca gente remota desde Chile, pagando en dólares: te ofrece {puesto}. {canal}, te llega la oferta."
+        texto = (f"{oferta['nombre']} busca gente remota desde Chile, pagando en dólares, para {'el puesto de ' + oferta['cargo'] if oferta.get('cargo') else CARGOS[min(nivel, 4)]}. "
+                 f"{canal}, te invitan a postular. Hay entrevista técnica, en inglés.")
     elif decision == "remoto_para_afuera":
         nombre, desc = s.uno("remoto", EXTRANJERAS)
-        texto = f"{nombre}, {desc}, busca gente remota desde Chile, pagando en dólares. {canal}, te llega la oferta."
+        texto = (f"{nombre}, {desc}, busca gente remota desde Chile, pagando en dólares. {canal}, te invitan a postular. "
+                 f"Hay entrevista técnica, en inglés.")
     elif decision == "mudarse_de_region":
-        destino = "Santiago" if contexto.get("region") == "otra" else s.uno("region", ["Antofagasta", "Concepción", "Puerto Montt", "La Serena"])
+        # la región la eliges tú dentro de la opción: la historia no la fija
+        destino = "Santiago" if contexto.get("region") == "otra" else "otra región"
         texto = f"{cercano.capitalize()} te cuenta de una vacante en {destino} en tu mismo rubro. Implicaría mudarte."
     elif decision == "pedir_hibrido":
         texto = f"En {aqui.split(',')[0]} algunos equipos ya trabajan dos días desde la casa. El tuyo no. ¿Lo pides?"
@@ -193,14 +207,18 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
     elif decision == "sabatico":
         texto = "Llevas años sin parar y {}. ¿Te tomas un año para ti?".format(
             s.uno("sab", ["un amigo se fue a recorrer Sudamérica", "te ofrecen un voluntariado afuera", "te sientes al límite"]))
+    elif decision == "doctorado":
+        texto = (f"Un profesor con el que trabajaste te escribe: tiene un cupo en su doctorado y cree que podrías ganar "
+                 f"una beca. Serían cuatro o cinco años.")
+    elif decision == "volver_a_estudiar":
+        texto = (f"{cercano.capitalize()} sacó un título técnico estudiando de noche y ahora gana más. "
+                 f"Te pasa el dato del instituto. Serían tres o cuatro años, después de la pega.")
     elif decision == "bootcamp":
         texto = (f"Ves un aviso de {s.uno('bc', ['un bootcamp de programación', 'un bootcamp de análisis de datos', 'un bootcamp de diseño UX'])}: "
                  f"cuatro meses intensivos para cambiarte al mundo tech.")
     elif decision == "cesantia":
         texto = (f"Llevas meses mandando currículums. {s.uno('ces', ['Te llamaron de dos lados y en ninguno quedaste', 'Te ofrecieron algo, pero pagan menos que antes', 'Un conocido te ofrece trabajar con él sin contrato'])}. "
                  f"Los ahorros se van achicando.")
-    elif decision == "ahorro":
-        texto = f"Te llega el sueldo y {s.uno('ah', ['te dan ganas de cambiar el auto', 'tus amigos arman un viaje', 'ves que no has ahorrado nada este año'])}. ¿Cómo manejas tu plata?"
     else:
         return None
     return {"situacion": texto}

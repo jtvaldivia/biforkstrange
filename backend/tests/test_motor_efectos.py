@@ -79,7 +79,7 @@ def test_un_efecto_que_no_se_aplica_no_deja_nada_que_revertir():
     ("red", "suma", 500, 100), ("red", "suma", -500, 0), ("nivel", "fija", 9, 4), ("nivel", "suma", -3, 0),
     ("sueldo_ref", "suma", -5_000_000_000, 0), ("sueldo_ref", "fija", 99_000_000, 30_000_000),
     ("ahorro", "suma", -900_000_000, -100_000_000), ("tasa_ahorro", "fija", 0.9, 0.5),
-    ("p_encontrar", "multiplica", 50, 2), ("edad", "suma", 40, 60), ("hijos", "suma", 10, 6),
+    ("p_encontrar", "multiplica", 50, 2), ("edad", "suma", 40, 60), ("cierra_en", "suma", 15, 10),
     ("marcado", "fija", 7, 1), ("alza_extra_anual", "suma", 0.2, 0.05),
 ])
 def test_los_efectos_se_acotan_al_dominio_de_la_variable(var, op, valor, esperado):
@@ -89,16 +89,16 @@ def test_los_efectos_se_acotan_al_dominio_de_la_variable(var, op, valor, esperad
 
 
 def test_enteros_quedan_enteros_y_categorias_no_se_tocan():
-    v = _lab(semestres_restantes=4, hijos=1)
+    v = _lab(semestres_restantes=4, antiguedad=1)
     v._aplicar([
         {"var": "semestres_restantes", "op": "suma", "valor": 1.4},
-        {"var": "hijos", "op": "multiplica", "valor": 2.6},
+        {"var": "antiguedad", "op": "multiplica", "valor": 2.6},
         {"var": "pais", "op": "fija", "valor": "'afuera'"},
         {"var": "rubro_destino", "op": "fija", "valor": "'Minería'"},
         {"var": "animo", "op": "suma", "valor": 0.25},
     ], "lab")
     assert v.e["semestres_restantes"] == 5 and type(v.e["semestres_restantes"]) is int
-    assert v.e["hijos"] == 3 and type(v.e["hijos"]) is int
+    assert v.e["antiguedad"] == 3 and type(v.e["antiguedad"]) is int
     assert v.e["pais"] == "afuera" and v.e["rubro_destino"] == "Minería"
     assert v.e["animo"] == pytest.approx(64.25)  # los números no se redondean
 
@@ -107,7 +107,7 @@ def test_enteros_quedan_enteros_y_categorias_no_se_tocan():
 def test_las_variables_derivadas_no_se_pisan_y_se_recalculan():
     v = vida(Perfil(edad=29, nivel=1), DadosGuion())
     v.iniciar_anio(con_cartas=False)
-    antes = {k: v.e[k] for k in ("prob_ascenso", "percentil", "banda3", "banda7", "quintil", "seniority")}
+    antes = {k: v.e[k] for k in ("prob_ascenso", "percentil", "banda3", "banda7", "estamento", "seniority")}
     temporales = len(v.temporales)
     v._aplicar([
         {"var": "prob_ascenso", "op": "multiplica", "valor": 0.5},
@@ -127,17 +127,17 @@ def test_las_variables_derivadas_no_se_pisan_y_se_recalculan():
 
 
 def test_prob_ascenso_derivada_es_la_del_evento_ascenso():
-    """Literal del paquete: ASCENSO[1] = 0,08 con oficio 50; +0,0006 por punto de oficio;
+    """Literal del paquete: ASCENSO[1] = 0,07 con oficio 50; +0,0006 por punto de oficio;
     0 si el evento no aplica (sin antigüedad, o sin empleo)."""
-    assert vida(Perfil(nivel=1)).e["prob_ascenso"] == pytest.approx(0.08)
+    assert vida(Perfil(nivel=1)).e["prob_ascenso"] == pytest.approx(0.07)
     assert vida(Perfil(nivel=0), skill=60).e["prob_ascenso"] == pytest.approx(0.10 + 10 * 0.0006)
     # oficio 50 explícito: sin dato, quien terminó la media a los 18 tiene a los 30 el oficio de 12 años de experiencia
-    assert vida(Perfil(nivel=1, edu="media", skill=50)).e["prob_ascenso"] == pytest.approx(0.04)
-    assert vida(Perfil(nivel=1, tipo_empleador="startup")).e["prob_ascenso"] == pytest.approx(0.13)
-    assert vida(Perfil(nivel=1, tipo_empleador="publico")).e["prob_ascenso"] == pytest.approx(0.04)
-    assert vida(Perfil(nivel=1), parcial=1).e["prob_ascenso"] == pytest.approx(0.04)
+    assert vida(Perfil(nivel=1, edu="media", skill=50)).e["prob_ascenso"] == pytest.approx(0.035)
+    assert vida(Perfil(nivel=1, tipo_empleador="startup")).e["prob_ascenso"] == pytest.approx(0.12)
+    assert vida(Perfil(nivel=1, tipo_empleador="publico")).e["prob_ascenso"] == pytest.approx(0.03)
+    assert vida(Perfil(nivel=1), parcial=1).e["prob_ascenso"] == pytest.approx(0.035)
     # prob_ascenso_extra se suma tal cual (por ejemplo ASCENSO_HORAS, que escribe trabajar_mas_horas)
-    assert vida(Perfil(nivel=1), prob_ascenso_extra=0.0064).e["prob_ascenso"] == pytest.approx(0.08 + 0.0064)
+    assert vida(Perfil(nivel=1), prob_ascenso_extra=0.0064).e["prob_ascenso"] == pytest.approx(0.07 + 0.0064)
     assert vida(Perfil(nivel=3), marcado=1).e["prob_ascenso"] == pytest.approx(0.01)  # piso del clamp
     assert vida(Perfil(nivel=1, antiguedad=0)).e["prob_ascenso"] == 0.0
     assert vida(Perfil(nivel=4)).e["prob_ascenso"] == 0.0
@@ -151,7 +151,7 @@ def test_quedarse_hasta_tarde_suma_el_ascenso_por_horas_una_sola_vez():
     v.iniciar_anio(con_cartas=False)
     si = next(o for o in pq().decisiones["trabajar_mas_horas"]["opciones"] if o["id"] == "si")
     v._aplicar(si["resultados"][0]["efectos"], "lab")
-    assert v.e["horas"] == 55 and v.e["prob_ascenso"] == pytest.approx(0.08 + 0.0064)
+    assert v.e["horas"] == 55 and v.e["prob_ascenso"] == pytest.approx(0.07 + 0.0064)
     _cerrar(v)
     assert v.e["horas"] == 44 and v.e["prob_ascenso_extra"] == pytest.approx(0)
 
@@ -263,8 +263,8 @@ def test_separacion_cesante_lee_sueldo_y_antiguedad_de_antes(antiguedad, sueldos
     assert [x["resultado"] for x in registro["eventos"] if x["evento"] == "separacion_empleo"] == ["cesante"]
     assert v.e["estado"] == "buscando" and v.e["sueldo"] == 0
     assert v.e["sueldo_ref"] == pytest.approx(sueldo_antes * 0.85, rel=1e-12)
-    # cierre: sin sueldo no hay ahorro del año; el finiquito rinde el retorno real (3%)
-    assert v.e["ahorro"] == pytest.approx(sueldo_antes * sueldos_de_finiquito * 1.03, rel=1e-12)
+    # cierre: sin sueldo no hay ahorro del año; el finiquito rinde el retorno real (4%)
+    assert v.e["ahorro"] == pytest.approx(sueldo_antes * sueldos_de_finiquito * 1.04, rel=1e-12)
     assert v.e["animo"] < gemela.e["animo"]
 
 
@@ -305,7 +305,7 @@ def paquete_lab():
         {"id": "expresion", "nombre": "", "resultados": [_resultado("a", "red / 100", marca(1)),
                                                          _resultado("r", "resto", marca(9))]},
         {"id": "encadena", "nombre": "", "resultados": [_resultado("a", 1, marca(1), luego="lab2")]},
-        {"id": "a_evento", "nombre": "", "resultados": [_resultado("a", 1, marca(1), luego="herencia")]},
+        {"id": "a_evento", "nombre": "", "resultados": [_resultado("a", 1, marca(1), luego="cancer")]},
         {"id": "con_requisito", "nombre": "", "requisito": "red > 90", "resultados": [_resultado("a", 1)]},
     ])
     decision("lab2", [{"id": "x", "nombre": "", "resultados": [
@@ -335,7 +335,7 @@ def test_sorteo_sin_resto_puede_no_dar_ningun_resultado(paquete_lab, u, resultad
     assert (d["decision"], d["opcion"], d["resultado"]) == ("lab", "sin_resto", resultado)
     assert d["prob"] == pytest.approx(prob)
     assert v.e["red"] == red
-    assert v.e["ahorro"] == pytest.approx(4000 * 1.03)  # el costo de la opción se paga salga lo que salga
+    assert v.e["ahorro"] == pytest.approx(4000 * 1.04)  # el costo de la opción se paga salga lo que salga
 
 
 @pytest.mark.parametrize(("u", "resultado", "prob"), [
@@ -374,14 +374,14 @@ def test_luego_encadena_en_el_mismo_anio_y_la_interna_no_pregunta(paquete_lab):
 
 
 def test_luego_a_un_evento_lo_hace_ocurrir_sin_sortear_su_probabilidad(paquete_lab):
-    """`herencia` tiene 1% anual y es un evento personal: por `luego` ocurre seguro en alcance
-    completo y no ocurre en alcance laboral."""
-    v, registro, d = _jugar_lab(paquete_lab, "a_evento", 0.5, alcance="completo", ahorro=0.0)
-    assert [x["evento"] for x in registro["eventos"]].count("herencia") == 1
-    assert v.e["ahorro"] > 0
-    v, registro, d = _jugar_lab(paquete_lab, "a_evento", 0.5, alcance="laboral", ahorro=0.0)
-    assert "herencia" not in [x["evento"] for x in registro["eventos"]]
-    assert v.e["ahorro"] == 0
+    """`cancer` tiene menos de 1% anual a los 40 y es un evento personal: por `luego` ocurre seguro
+    en alcance completo y no ocurre en alcance laboral."""
+    v, registro, d = _jugar_lab(paquete_lab, "a_evento", 0.5, alcance="completo", salud="bien")
+    assert [x["evento"] for x in registro["eventos"]].count("cancer") == 1
+    assert v.e["salud"] == "cancer"
+    v, registro, d = _jugar_lab(paquete_lab, "a_evento", 0.5, alcance="laboral", salud="bien")
+    assert "cancer" not in [x["evento"] for x in registro["eventos"]]
+    assert v.e["salud"] == "bien"
 
 
 def test_requisito_filtra_opciones_y_una_opcion_no_disponible_es_error(paquete_lab):

@@ -263,11 +263,8 @@ def _catalogo(pq: Paquete) -> str:
 
 
 def _dudas(pq: Paquete) -> list[dict]:
-    """Las dudas laborales del banco: las que Claude puede sugerir."""
-    from app.sim.motor.motor import DECISIONES_PERSONALES
-
-    return [{"id": id_, **d} for id_, d in pq.decisiones.items()
-            if d["aparicion"]["tipo"] == "carta" and id_ not in DECISIONES_PERSONALES]
+    """Las dudas del banco (todas laborales): las que Claude puede sugerir."""
+    return [{"id": id_, **d} for id_, d in pq.decisiones.items() if d["aparicion"]["tipo"] == "carta"]
 
 
 NO_SE = "?"

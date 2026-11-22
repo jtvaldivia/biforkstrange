@@ -334,15 +334,6 @@
    "medir": "episodios que siguen al año / episodios"
   },
   {
-   "id": "pareja_30_34",
-   "grupo": "Vida",
-   "indicador": "Con pareja a los 30-34",
-   "valor": 0.62,
-   "tolerancia": 0.03,
-   "fuente": "cep_casen_pareja",
-   "medir": "años con pareja != 'no' / años, 30-34"
-  },
-  {
    "id": "cancer_18_50",
    "grupo": "Vida",
    "indicador": "Tuvo cáncer entre los 18 y los 50",
@@ -350,15 +341,6 @@
    "tolerancia": 0.01,
    "fuente": "iarc_ci5",
    "medir": "personas con evento cancer / personas"
-  },
-  {
-   "id": "hijo_madre_sale",
-   "grupo": "Vida",
-   "indicador": "Madres que trabajaban y no trabajan 12 meses después del primer hijo",
-   "valor": 0.173,
-   "tolerancia": 0.04,
-   "fuente": "eps_2024",
-   "medir": "entre mujeres empleadas al nacer el primer hijo"
   },
   {
    "id": "startup_anos",

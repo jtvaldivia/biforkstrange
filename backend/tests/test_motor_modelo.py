@@ -16,8 +16,8 @@ from app.sim.motor.perfil import Perfil, estado_inicial
 from app.sim.motor.politicas import Inercia
 
 # Literales de parametros.json (no se importan del código bajo prueba)
-ASCENSO_POBLACION = {"18-24": 0.056, "25-29": 0.061, "30-34": 0.061, "35-39": 0.055, "40-44": 0.05,
-                     "45-49": 0.045, "50-54": 0.045}
+ASCENSO_POBLACION = {"18-24": 0.065, "25-29": 0.069, "30-34": 0.066, "35-39": 0.06, "40-44": 0.055,
+                     "45-49": 0.052, "50-54": 0.052}
 ALZA_ASCENSO_MEDIA = (0.05 + 0.1) / 2
 MICRO_MEDIANA = 400_000
 
@@ -100,13 +100,13 @@ def test_el_primer_anio_el_fundador_gana_en_la_mediana_lo_que_declaro():
 
 
 def test_quien_recien_emprende_gana_como_un_microemprendedor_aunque_ya_haya_tenido_empresa():
-    """Partir una empresa nueva vuelve base_empresa a 0: su ganancia sale de MICRO_MEDIANA, no de la anterior."""
+    """Partir una empresa nueva sortea su base desde MICRO_MEDIANA, no la hereda de la anterior."""
     guion = Guion({"emprender": "emprender", "seguir_con_tu_empresa": "seguir"})
     sueldos = []
     for base in (0, 2_000_000):
         v = vida(Perfil(edad=35), DadosGuion({"dec:seguir_con_tu_empresa:seguir": 0.0}), base_empresa=base)
         v.vivir_anio(guion, carta="emprender")
-        assert v.e["estado"] == "fundador" and v.e["base_empresa"] == 0
+        assert v.e["estado"] == "fundador" and v.e["base_empresa"] > 0
         sueldos.append(v.e["sueldo"])
     assert sueldos[0] == sueldos[1] > 0
 

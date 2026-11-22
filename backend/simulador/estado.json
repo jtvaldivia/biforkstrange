@@ -304,41 +304,6 @@
    "inicio": "perfil"
   },
   {
-   "nombre": "pareja",
-   "tipo": "categoria",
-   "dominio": [
-    "no",
-    "pololeo",
-    "convive",
-    "casado"
-   ],
-   "unidad": "",
-   "descripcion": "Situación de pareja.",
-   "inicio": "perfil"
-  },
-  {
-   "nombre": "hijos",
-   "tipo": "entero",
-   "dominio": [
-    0,
-    6
-   ],
-   "unidad": "hijos",
-   "descripcion": "Hijos.",
-   "inicio": "perfil"
-  },
-  {
-   "nombre": "edad_hijo_menor",
-   "tipo": "entero",
-   "dominio": [
-    -1,
-    40
-   ],
-   "unidad": "años",
-   "descripcion": "-1 si no tiene hijos.",
-   "inicio": "perfil"
-  },
-  {
    "nombre": "ahorro",
    "tipo": "numero",
    "dominio": [
@@ -484,41 +449,6 @@
    "inicio": "0"
   },
   {
-   "nombre": "madre_edad",
-   "tipo": "entero",
-   "dominio": [
-    -1,
-    110
-   ],
-   "unidad": "años",
-   "descripcion": "-1 si murió.",
-   "inicio": "edad + edad de la madre al tenerlo (ine_vitales)"
-  },
-  {
-   "nombre": "padre_edad",
-   "tipo": "entero",
-   "dominio": [
-    -1,
-    110
-   ],
-   "unidad": "años",
-   "descripcion": "-1 si murió.",
-   "inicio": "edad de la madre + 2,5"
-  },
-  {
-   "nombre": "familiar_enfermo",
-   "tipo": "categoria",
-   "dominio": [
-    "",
-    "madre",
-    "padre",
-    "abuela"
-   ],
-   "unidad": "",
-   "descripcion": "Familiar con enfermedad grave que necesita cuidado.",
-   "inicio": "''"
-  },
-  {
    "nombre": "recesion",
    "tipo": "bool",
    "dominio": [
@@ -528,17 +458,6 @@
    "unidad": "",
    "descripcion": "1 si el país está en recesión este año.",
    "inicio": "0"
-  },
-  {
-   "nombre": "mujer",
-   "tipo": "bool",
-   "dominio": [
-    0,
-    1
-   ],
-   "unidad": "",
-   "descripcion": "Deriva: sexo == 'm'.",
-   "inicio": "deriva"
   },
   {
    "nombre": "banda3",
@@ -666,20 +585,6 @@
    ],
    "unidad": "",
    "descripcion": "Deriva: 'Metropolitana' si region == 'rm'; si no, la región del perfil (Valparaíso por omisión).",
-   "inicio": "deriva"
-  },
-  {
-   "nombre": "quintil",
-   "tipo": "categoria",
-   "dominio": [
-    "I",
-    "II",
-    "III",
-    "IV",
-    "V"
-   ],
-   "unidad": "",
-   "descripcion": "Deriva: quintil del hogar según percentil del sueldo.",
    "inicio": "deriva"
   },
   {
@@ -817,17 +722,6 @@
    "inicio": "0"
   },
   {
-   "nombre": "propietario",
-   "tipo": "bool",
-   "dominio": [
-    0,
-    1
-   ],
-   "unidad": "",
-   "descripcion": "1 si tiene vivienda propia.",
-   "inicio": "perfil"
-  },
-  {
    "nombre": "primer_grande",
    "tipo": "bool",
    "dominio": [
@@ -836,6 +730,17 @@
    ],
    "unidad": "",
    "descripcion": "1 si su primer empleador fue una empresa grande.",
+   "inicio": "0"
+  },
+  {
+   "nombre": "bootcamp",
+   "tipo": "bool",
+   "dominio": [
+    0,
+    1
+   ],
+   "unidad": "",
+   "descripcion": "1 si terminó un bootcamp de programación o datos: puede entrar a cargos de tecnología de nivel técnico aunque no tenga ese título.",
    "inicio": "0"
   },
   {
@@ -848,19 +753,6 @@
    "unidad": "",
    "descripcion": "1 si la práctica le dejó una oferta.",
    "inicio": "0"
-  },
-  {
-   "nombre": "pareja_previa",
-   "tipo": "categoria",
-   "dominio": [
-    "no",
-    "pololeo",
-    "convive",
-    "casado"
-   ],
-   "unidad": "",
-   "descripcion": "Situación de pareja al inicio del año.",
-   "inicio": "deriva"
   },
   {
    "nombre": "ocupacion",
@@ -904,6 +796,14 @@
    "inicio": "eleccion"
   },
   {
+   "nombre": "rubro_emprendimiento",
+   "tipo": "eleccion",
+   "dominio": [],
+   "unidad": "",
+   "descripcion": "Rubro de la empresa que parte (lo elige el jugador; por defecto, el de su proyecto, el que soñó o el suyo).",
+   "inicio": "eleccion"
+  },
+  {
    "nombre": "region_destino",
    "tipo": "eleccion",
    "dominio": [],
@@ -925,17 +825,6 @@
    "dominio": [],
    "unidad": "",
    "descripcion": "Universidad donde hace el magíster (código SIES; lo elige el jugador).",
-   "inicio": "eleccion"
-  },
-  {
-   "nombre": "quien_enferma",
-   "tipo": "eleccion",
-   "dominio": [
-    "madre",
-    "padre"
-   ],
-   "unidad": "",
-   "descripcion": "Lo sortea el evento enferma_familiar en proporción al riesgo de cada uno.",
    "inicio": "eleccion"
   },
   {
@@ -1016,28 +905,6 @@
    "inicio": "0"
   },
   {
-   "nombre": "horas_cuidado_dia",
-   "tipo": "modificador",
-   "dominio": [
-    0,
-    12
-   ],
-   "unidad": "horas por día",
-   "descripcion": "Horas de cuidado no remunerado.",
-   "inicio": "0"
-  },
-  {
-   "nombre": "gasto_mensual",
-   "tipo": "modificador",
-   "dominio": [
-    0,
-    10000000
-   ],
-   "unidad": "CLP",
-   "descripcion": "Gasto fijo del hogar; se descuenta del ahorro.",
-   "inicio": "epf_quintiles.gasto_hogar del quintil"
-  },
-  {
    "nombre": "tasa_ahorro",
    "tipo": "modificador",
    "dominio": [
@@ -1047,39 +914,6 @@
    "unidad": "fracción",
    "descripcion": "Parte del sueldo que ahorra.",
    "inicio": "TASA_AHORRO según percentil"
-  },
-  {
-   "nombre": "acompana",
-   "tipo": "modificador",
-   "dominio": [
-    0,
-    1
-   ],
-   "unidad": "fracción",
-   "descripcion": "Qué parte del proceso de enfermedad del familiar acompaña.",
-   "inicio": "0"
-  },
-  {
-   "nombre": "luto_madre",
-   "tipo": "modificador",
-   "dominio": [
-    -1,
-    10
-   ],
-   "unidad": "años",
-   "descripcion": "Años desde la muerte de la madre (-1 si vive); el simulador aplica luto() cada año.",
-   "inicio": "-1"
-  },
-  {
-   "nombre": "luto_padre",
-   "tipo": "modificador",
-   "dominio": [
-    -1,
-    10
-   ],
-   "unidad": "años",
-   "descripcion": "Años desde la muerte del padre.",
-   "inicio": "-1"
   },
   {
    "nombre": "alza_extra_anual",

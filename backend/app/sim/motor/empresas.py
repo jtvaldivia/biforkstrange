@@ -180,6 +180,8 @@ def familias_de(pq: Paquete, e: dict) -> list[str]:
     car = cargo(pq, e.get("cargo_id", -1))
     if car is not None and car.get("familia"):
         return [car["familia"]]
+    if e.get("bootcamp"):
+        return list(FAMILIAS_BOOTCAMP)  # recién salido del bootcamp: entra a tecnología
     if e.get("familia_inicial"):
         return [e["familia_inicial"]]
     fam = _catalogo(pq)["familias"]
@@ -197,30 +199,72 @@ def _duros(pq: Paquete, emp: dict, e: dict) -> list[dict]:
             if (c["_tipos"] is None or emp["tipo"] in c["_tipos"])
             and (c["_rubros"] is None or emp["rubro"] in c["_rubros"])
             and c["nivel_min"] <= nivel <= c["nivel_max"]
-            and EDU_ORDEN.get(c["edu_min"], 0) <= edu and c["peso"] > 0]
+            and (EDU_ORDEN.get(c["edu_min"], 0) <= edu or _por_bootcamp(c, e)) and c["peso"] > 0]
+
+
+FAMILIAS_BOOTCAMP = ("tecnologia", "datos")
+
+
+def _por_bootcamp(c: dict, e: dict) -> bool:
+    """Un bootcamp abre los cargos de tecnología y datos que piden título técnico, aunque no lo tengas."""
+    return bool(e.get("bootcamp")) and c.get("familia") in FAMILIAS_BOOTCAMP and EDU_ORDEN.get(c["edu_min"], 0) <= 1
+
+
+def ocupacion_tipica(pq: Paquete, rubro: str, edu: str, nivel: int, area: str = "") -> int | None:
+    """El oficio (CIUO a 1 dígito) más probable de quien trabaja en ese rubro con esa educación y ese nivel.
+
+    Recorre las líneas de trabajo de su carrera (si se sabe) y luego las de su rubro, en el orden de la tabla
+    `familias`, y toma del catálogo un cargo que podría tener (rubro, educación, nivel y, en las profesiones de
+    una sola carrera, que sea la suya): entre los que piden la educación más cercana a la suya, el oficio que
+    suma más peso. None si nada calza.
+    """
+    cat = _catalogo(pq)
+    familias = (cat["familias"].get(("area", area), []) if area else []) + cat["familias"].get(("rubro", rubro), [])
+    nivel_edu = EDU_ORDEN.get(edu, 0)
+    respaldo = None  # la primera línea con algo, si ninguna pide una educación cercana a la suya
+    for familia in familias:
+        posibles = [c for c in cat["cargos"]
+                    if c.get("familia") == familia and c["peso"] > 0
+                    and (c["_rubros"] is None or rubro in c["_rubros"])
+                    and EDU_ORDEN.get(c["edu_min"], 0) <= nivel_edu and c["nivel_min"] <= nivel <= c["nivel_max"]
+                    and not (c["_areas"] is not None and len(c["_areas"]) == 1 and area not in c["_areas"])]
+        if posibles:
+            # los cargos que piden la educación más cercana a la suya (un universitario no queda de peoneta), y de
+            # ellos el oficio que suma más peso (albañil, electricista y soldador son todos operarios, CIUO 7)
+            tope = max(EDU_ORDEN.get(c["edu_min"], 0) for c in posibles)
+            por_oficio: dict[int, float] = {}
+            for c in posibles:
+                if EDU_ORDEN.get(c["edu_min"], 0) == tope:
+                    por_oficio[int(c["ciuo08_1d"])] = por_oficio.get(int(c["ciuo08_1d"]), 0.0) + c["peso"]
+            oficio = max(por_oficio, key=por_oficio.get)
+            if tope >= nivel_edu - 1:  # un universitario en hotelería no queda de camarera si el rubro tiene más
+                return oficio
+            respaldo = oficio if respaldo is None else respaldo
+    return respaldo
 
 
 def compatibles(pq: Paquete, emp: dict, e: dict) -> list[dict]:
     """Cargos que la empresa le ofrecería a esta persona.
 
-    Duro: tipo y rubro de la empresa, nivel actual y educación mínima. Blando, en este orden: su familia
-    (finanzas, tecnología, salud...), su grupo ocupacional de hoy y el área de su carrera. Se sueltan de a
-    uno, el área primero y la familia al final, hasta que quede alguno.
+    Duro: tipo y rubro de la empresa, nivel actual, educación mínima, su grupo ocupacional de hoy (un cambio de
+    trabajo no te cambia de oficio: eso lo hacen "cambiar de oficio" o un bootcamp, que mueven la ocupación
+    antes) y las profesiones de una sola carrera (no se le ofrece "Abogado" a quien no estudió Derecho).
+    Blando, en este orden: su familia (finanzas, tecnología, salud...) y el área de su carrera. Si nada calza,
+    no hay cargo y la historia dice "un cargo parecido al tuyo".
     """
-    duros = _duros(pq, emp, e)
     area, ocup = e.get("area") or "", int(e.get("ocupacion", -1))
+
+    def profesion_ajena(c):  # el cargo pide una sola carrera y no es la tuya (un bootcamp abre los de tecnología)
+        return (c["_areas"] is not None and len(c["_areas"]) == 1 and area not in c["_areas"]
+                and not _por_bootcamp(c, e))
+
+    duros = [c for c in _duros(pq, emp, e) if (ocup < 0 or c["ciuo08_1d"] == ocup) and not profesion_ajena(c)]
     familias = set(familias_de(pq, e))
 
     def del_area(c):
         return c["_areas"] is None or (area and area in c["_areas"])
 
-    def de_familia(c):
-        return c.get("familia") in familias
-
-    for filtro in (lambda c: de_familia(c) and c["ciuo08_1d"] == ocup and del_area(c),
-                   lambda c: de_familia(c) and c["ciuo08_1d"] == ocup,
-                   de_familia,
-                   lambda c: c["ciuo08_1d"] == ocup and del_area(c), lambda c: c["ciuo08_1d"] == ocup,
+    for filtro in (lambda c: c.get("familia") in familias and del_area(c), lambda c: c.get("familia") in familias,
                    del_area, lambda c: True):
         quedan = [c for c in duros if filtro(c)]
         if quedan:
@@ -305,6 +349,8 @@ def _tipo_y_rubro(vida, decision_id: str, opcion_id: str) -> tuple[str, str | No
                 rubro = literal if literal is not None else e.get(v) if v in e else None
             elif ef["var"] == "estado" and literal == "empleado":
                 emplea = True
+            elif ef["var"] == "estado" and literal in ("fundador", "independiente"):
+                return None  # tu empresa o por tu cuenta: nadie te contrata
         if r.get("luego") == "tipo_de_empleador":
             tipo = _predecir_tipo(vida)
         elif tipo is None and emplea:

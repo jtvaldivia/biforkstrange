@@ -15,7 +15,8 @@ from app.sim.motor.partida import dudas_posibles, vista
 from app.sim.motor.perfil import Perfil
 
 N = "20"  # gemelos por opción: pocos, para que los tests sean rápidos
-JERGA = ("p10", "p50", "p90", "percentil", "Monte Carlo", "montecarlo", "cuantil", "mediana de los gemelos")
+JERGA = ("p10", "p50", "p90", "percentil", "Monte Carlo", "montecarlo", "cuantil", "mediana de los gemelos",
+         "mediana de las copias")
 PERFILES = [
     ["--duda", "unirse_a_startup", "--semilla", "7"],
     ["--duda", "emprender", "--semilla", "11", "--edad", "45", "--sexo", "h", "--edu", "postgrado", "--rubro",
@@ -71,8 +72,8 @@ def test_auto_muestra_lo_que_entrega_el_motor(capsys):
         assert o["nombre"] in primera
         for q in ("p10", "p50", "p90"):
             assert _plata(o["sueldo"][q]) in primera
-        assert o["cargo_mas_probable"] in primera
-    assert f"a {N} gemelos tuyos" in primera
+        assert "Terminan en un cargo más alto" in primera
+    assert f"a {N} copias tuyas" in primera
     assert "Calidad de estos números: mixto" in primera
     base = next(o for o in comp["opciones"] if o["es_base"])
     for o in comp["opciones"]:
@@ -171,8 +172,8 @@ def test_teclado_repite_la_pregunta_si_la_respuesta_no_sirve(capsys, monkeypatch
 def test_sin_gemelos_no_compara(capsys):
     code, out, _ = _run(capsys, "jugar", "--gemelos", "0", "--duda", "unirse_a_startup", "--semilla", "7", "--auto")
     assert code == 0
-    assert "gemelos tuyos" not in out
-    assert "(Para esta decisión no se simulan gemelos.)" in out
+    assert "copias tuyas" not in out
+    assert "(Para esta decisión no se simulan copias.)" in out
     assert "EL CIERRE" in out
 
 
@@ -276,7 +277,7 @@ def test_comparar_muestra_la_tabla_sin_jugar(capsys):
 
 def test_comparar_dice_que_eligen_los_gemelos_dentro_de_la_opcion(capsys):
     _, out, _ = _run(capsys, "comparar", "--duda", "cambiar_de_rubro", "--gemelos", N)
-    assert "Los gemelos de «Cambiarte» responden «¿A qué rubro?» con «" in out
+    assert "Las copias de «Cambiarte» responden «¿A qué rubro?» con «" in out
 
 
 def test_dudas_lista_las_del_motor(capsys):

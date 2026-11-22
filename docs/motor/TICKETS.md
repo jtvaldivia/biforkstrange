@@ -4,7 +4,7 @@ Rama: `feat/trayectoria-ultimo-trabajo`. Reemplaza al esqueleto (`sim/engine.py`
 
 **Qué ve la persona.** Llena su perfil, elige la duda que la trajo y ve cómo les fue a 500 gemelos suyos con cada opción. Elige, un dado decide qué le pasa a ella, avanza un año y el mundo le reparte otra carta. A los 10 años ve su vida frente a la de sus gemelos.
 
-**De dónde salen las reglas.** Del paquete de datos, copiado en `backend/simulador/`: 43 decisiones, 16 eventos, 67 parámetros, 90 variables y 49 tablas. El motor no reescribe esas reglas: las ejecuta.
+**De dónde salen las reglas.** Del paquete de datos, copiado en `backend/simulador/`: 36 decisiones, 10 eventos, 64 parámetros, 85 variables y 50 tablas. El motor no reescribe esas reglas: las ejecuta.
 
 ## Piezas (`backend/app/sim/motor/`)
 
@@ -49,9 +49,9 @@ El paquete dice qué pasa con cada decisión y evento. Esto lo decide el motor y
 - **Empleo sin tipo de empresa o con rubro incoherente:** se sortea el tipo de empresa; el rubro "Administración pública" queda solo para el Estado.
 - **La partida dura 10 años de edad**, no 10 rondas: un doctorado ocupa 5.
 - **Dentro de una opción** (a qué rubro, a qué región), si la persona no elige, los gemelos van al rubro que mejor paga y a la región con más gente.
-- **Valores iniciales que la persona no declara:** contactos 30, oficio 50, ahorro de dos sueldos, sin pareja ni hijos.
+- **Valores iniciales que la persona no declara:** contactos 30, oficio 50, ahorro de dos sueldos.
 - **Cómo deciden los gemelos:** no buscan cambios; cuando la vida los obliga (cesantía, una oferta) responden con pesos fijos (`politicas.py`).
 - **El alza anual descuenta el ascenso promedio, no el tuyo** (`ASCENSO_POBLACION`, supuesto). El perfil por edad de la ESI ya trae los ascensos promedio, así que se resta la probabilidad de ascenso promedio de la población de tu tramo de edad por el alza media de un ascenso (7,5%). Quien asciende más que el promedio gana más. El número sale de la cohorte de validación; si cambian el ascenso o los pesos, hay que medirlo de nuevo.
 - **El fundador que ya tenía empresa parte de su sueldo declarado** (variable `base_empresa`). Su empresa gana, cada año, `base_empresa × (1 + años de empresa / 4) × su suerte` (la regla del paquete), con `base_empresa = sueldo declarado / (1 + años de empresa / 4)`: el primer año gana, en la mediana, lo que declaró. Quien recién emprende parte de `MICRO_MEDIANA` (400 mil, EME). Supuesto a revisar: la suerte del año (lognormal 0,3 a 4) es la misma que la de quien recién emprende, aunque de una empresa ya andando se sabe más, y el crecimiento por años de empresa no tiene tope.
 - **El ingreso por cuenta propia crece con la edad como en la ESI** (evento `alza_independiente`, variable derivada `crecimiento_cuenta_propia`). Cada año se multiplica por la razón entre la mediana de cuenta propia de la banda de edad siguiente y la de la actual (`esi_ingreso_categoria_formalidad`, formal o informal según `formal`), anualizada y acotada a ±6%. Supuestos a revisar: es un corte transversal leído como trayectoria (como `crecimiento_esi`), las medianas por banda tienen ruido de muestra (por eso el formal sube y baja por tramos) y no hay ruido individual ni efecto de la recesión.
-- **Solo lo laboral:** fuera las 6 decisiones de vida personal y los eventos de salud, duelo y pareja.
+- **Solo lo laboral:** lo de familia, pareja, vivienda y herencia no está en el paquete; el cáncer está, pero el juego no lo sortea.

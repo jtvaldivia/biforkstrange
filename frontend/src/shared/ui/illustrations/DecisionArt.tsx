@@ -16,7 +16,15 @@ export type DecisionArtKind =
   | "lupa"
   | "subir"
   | "laptop"
-  | "pausa";
+  | "pausa"
+  | "libros"
+  | "ia"
+  | "caja"
+  | "rubros"
+  | "oficio"
+  | "maletin"
+  | "mapa"
+  | "avion";
 
 const T = { stroke: "var(--tinta)", strokeWidth: 2, strokeLinejoin: "round" as const };
 
@@ -212,6 +220,121 @@ const arts: Record<DecisionArtKind, { fondo: string; dibujo: ReactNode }> = {
         <path d="M30 20 H42 C40 26 37 28 36 30 C35 28 32 26 30 20Z" fill="var(--sol)" />
         <path d="M28 58 C30 51 34 48 36 46 C38 48 42 51 44 58Z" fill="var(--sol)" stroke="var(--tinta)" strokeWidth="1.5" strokeLinejoin="round" />
         <path d="M20 10 H52 M20 62 H52" stroke="var(--tinta)" strokeWidth="3" strokeLinecap="round" />
+      </>
+    ),
+  },
+  /** Doctorado: una pila de libros y una medalla. */
+  libros: {
+    fondo: "var(--acento-suave)",
+    dibujo: (
+      <>
+        <rect x="10" y="50" width="52" height="12" fill="var(--control)" {...T} />
+        <rect x="14" y="38" width="44" height="12" fill="var(--papel)" {...T} />
+        <rect x="8" y="26" width="46" height="12" fill="var(--acento)" {...T} />
+        <path d="M20 50 V62 M48 38 V50 M18 26 V38" stroke="var(--tinta)" strokeWidth="2" />
+        <path d="M51 21 L47 30 M59 21 L63 30" stroke="var(--tinta)" strokeWidth="2.5" strokeLinecap="round" />
+        <circle cx="55" cy="16" r="7" fill="var(--sol)" {...T} />
+      </>
+    ),
+  },
+  /** Aprender a trabajar con IA: un chip con un destello. */
+  ia: {
+    fondo: "var(--niebla)",
+    dibujo: (
+      <>
+        <path d="M28 12 V20 M36 12 V20 M44 12 V20 M28 52 V60 M36 52 V60 M44 52 V60 M12 28 H20 M12 36 H20 M12 44 H20 M52 28 H60 M52 36 H60 M52 44 H60" stroke="var(--tinta)" strokeWidth="2.5" strokeLinecap="round" />
+        <rect x="20" y="20" width="32" height="32" rx="4" fill="var(--papel)" {...T} />
+        <rect x="28" y="28" width="16" height="16" rx="2" fill="var(--acento)" />
+        <path d="M60 3 L62 9 L68 11 L62 13 L60 19 L58 13 L52 11 L58 9Z" fill="var(--sol)" stroke="var(--tinta)" strokeWidth="1.5" strokeLinejoin="round" />
+      </>
+    ),
+  },
+  /** Renunciar: la caja con tus cosas. */
+  caja: {
+    fondo: "var(--acento-suave)",
+    dibujo: (
+      <>
+        <rect x="22" y="16" width="14" height="20" fill="var(--papel)" {...T} />
+        <path d="M46 36 V18" stroke="var(--dinero)" strokeWidth="3" strokeLinecap="round" />
+        <path d="M46 26 C40 24 38 18 40 13 C46 15 48 21 46 26Z" fill="var(--dinero)" stroke="var(--tinta)" strokeWidth="1.5" />
+        <path d="M46 22 C52 20 54 14 52 9 C46 11 44 17 46 22Z" fill="var(--dinero)" stroke="var(--tinta)" strokeWidth="1.5" />
+        <rect x="12" y="34" width="48" height="30" fill="var(--control)" {...T} />
+        <path d="M12 34 L5 25 H21 L26 34" fill="var(--papel)" {...T} />
+        <path d="M60 34 L67 25 H51 L46 34" fill="var(--papel)" {...T} />
+        <rect x="28" y="44" width="16" height="8" fill="var(--papel)" stroke="var(--tinta)" strokeWidth="1.5" />
+      </>
+    ),
+  },
+  /** Cambiar de rubro: de un edificio a otro. */
+  rubros: {
+    fondo: "var(--papel)",
+    dibujo: (
+      <>
+        <rect x="6" y="38" width="20" height="28" fill="var(--control)" {...T} />
+        <path d="M11 45 H15 M17 45 H21 M11 53 H15 M17 53 H21" stroke="var(--papel)" strokeWidth="3" />
+        <rect x="44" y="24" width="22" height="42" fill="var(--papel)" {...T} />
+        {[31, 40, 49].flatMap((y) => [49, 57].map((x) => (
+          <rect key={`${x}-${y}`} x={x} y={y} width="5" height="5" fill={x === 57 && y === 40 ? "var(--sol)" : "var(--tinta)"} />
+        )))}
+        <path d="M16 32 C20 14 34 10 42 14" fill="none" stroke="var(--acento)" strokeWidth="4" strokeLinecap="round" />
+        <path d="M35 8 L43 14 L36 21" fill="none" stroke="var(--acento)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M2 66 H70" stroke="var(--tinta)" strokeWidth="2" strokeLinecap="round" />
+      </>
+    ),
+  },
+  /** Cambiar de oficio: dos herramientas cruzadas. */
+  oficio: {
+    fondo: "var(--niebla)",
+    dibujo: (
+      <>
+        <g transform="rotate(-45 36 36)">
+          <rect x="32" y="22" width="8" height="40" rx="4" fill="var(--control)" {...T} />
+          <circle cx="36" cy="16" r="10" fill="var(--control)" {...T} />
+          <rect x="32" y="4" width="8" height="11" fill="var(--niebla)" />
+        </g>
+        <g transform="rotate(45 36 36)">
+          <rect x="30" y="8" width="12" height="44" fill="var(--sol)" {...T} />
+          <rect x="30" y="8" width="12" height="7" fill="var(--vida)" {...T} />
+          <path d="M30 52 L36 65 L42 52Z" fill="var(--papel)" {...T} />
+        </g>
+      </>
+    ),
+  },
+  /** Trabajar por tu cuenta: un maletín propio. */
+  maletin: {
+    fondo: "var(--acento-suave)",
+    dibujo: (
+      <>
+        <path d="M27 24 V17 C27 15 28 14 30 14 H42 C44 14 45 15 45 17 V24" fill="none" stroke="var(--tinta)" strokeWidth="3" />
+        <rect x="10" y="24" width="52" height="36" rx="4" fill="var(--control)" {...T} />
+        <path d="M10 38 H62" stroke="var(--tinta)" strokeWidth="2" />
+        <rect x="31" y="34" width="10" height="8" rx="1.5" fill="var(--sol)" stroke="var(--tinta)" strokeWidth="1.5" />
+      </>
+    ),
+  },
+  /** Mudarte de región: un mapa y un pin. */
+  mapa: {
+    fondo: "var(--papel)",
+    dibujo: (
+      <>
+        <path d="M8 20 L26 14 L46 20 L64 14 V56 L46 62 L26 56 L8 62Z" fill="var(--acento-suave)" {...T} />
+        <path d="M26 14 V56 M46 20 V62" stroke="var(--tinta)" strokeWidth="2" />
+        <path d="M14 52 C24 46 30 50 36 42 S46 34 50 32" fill="none" stroke="var(--acento)" strokeWidth="3" strokeLinecap="round" strokeDasharray="1 6" />
+        <path d="M54 36 C48 28 46 24 46 20 A8 8 0 0 1 62 20 C62 24 60 28 54 36Z" fill="var(--vida)" {...T} />
+        <circle cx="54" cy="20" r="3" fill="var(--papel)" />
+      </>
+    ),
+  },
+  /** Irte a otro país: un avión que despega. */
+  avion: {
+    fondo: "var(--acento-suave)",
+    dibujo: (
+      <>
+        <path d="M4 62 C10 60 14 58 18 56" fill="none" stroke="var(--acento)" strokeWidth="3" strokeLinecap="round" strokeDasharray="1 6" />
+        <path d="M16 47 L11 34 H18 L25 43Z" fill="var(--control)" {...T} />
+        <path d="M14 48 L58 28 C63 26 67 28 65 31 L24 52 H16Z" fill="var(--papel)" {...T} />
+        <path d="M34 41 L29 58 H37 L46 36Z" fill="var(--control)" {...T} />
+        <circle cx="58" cy="12" r="7" fill="var(--sol)" {...T} />
       </>
     ),
   },

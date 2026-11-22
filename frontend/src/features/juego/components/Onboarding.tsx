@@ -1,5 +1,5 @@
 import "./onboarding.css";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import {
   Button, ChevronLeftIcon, Chip, Heading, IconButton, Meta, Pill, Row, Screen, ScreenFooter, ScreenHeader, Segmented, Slider, Stack, Tag, Text,
 } from "@/shared/ui";
@@ -274,7 +274,6 @@ export function Onboarding({
             min={SLIDER_MIN}
             max={SLIDER_MAX}
             step={50_000}
-            color="var(--dinero)"
             onChange={(n) => set("sueldo", n)}
             display={pesos(p.sueldo)}
           />
@@ -289,7 +288,6 @@ export function Onboarding({
             min={p.edad + 1}
             max={60}
             step={1}
-            color="var(--carrera)"
             onChange={(n) => set("edad_final", n)}
             display={`${p.edad_final ?? p.edad + 10} años`}
           />
@@ -523,30 +521,54 @@ function Ficha({
     ["anos_por_empleo", p.anos_por_empleo ? `Se cambia cada ${p.anos_por_empleo.toLocaleString("es-CL")} años` : undefined],
   ];
   const visibles = datos.filter(([k, v]) => v && sabidos.has(k));
+  const cosas = [
+    ...visibles.map(([k, v]) => ({ clave: k, texto: v!, tuyo: false })),
+    ...(proyecto ? [{ clave: "proyecto", texto: `Proyecto: ${proyecto.length > 40 ? `${proyecto.slice(0, 40)}…` : proyecto}`, tuyo: true }] : []),
+    ...intereses.map((x) => ({ clave: `interes:${x}`, texto: x, tuyo: true })),
+  ];
+  // si caben en una fila quedan quietas; si no, pasan en una cinta. Nunca bajan a otra fila: la ficha no
+  // cambia de alto mientras respondes, y lo que está debajo no se mueve justo cuando vas a tocarlo
+  const caja = useRef<HTMLDivElement>(null);
+  const [cinta, setCinta] = useState(false);
+  const firma = cosas.map((c) => c.texto).join("|");
+  useLayoutEffect(() => {
+    const el = caja.current;
+    if (!el) return;
+    const medir = () => {
+      const tags = [...el.querySelectorAll<HTMLElement>(".ob-tag:not(.ob-cinta-copia)")];
+      const ancho = tags.reduce((s, t) => s + t.offsetWidth, 0) + Math.max(0, tags.length - 1) * 6;
+      setCinta(ancho > el.clientWidth - 14);
+    };
+    medir();
+    const ro = new ResizeObserver(medir);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [firma]);
   return (
     <div className="ob-ficha">
       <Silueta lleno={Math.min(visibles.length + intereses.length, 7) / 7} />
-      <Stack gap={6}>
-        <Meta>Tu copia</Meta>
-        {retrato && <Text size="sm">«{retrato}»</Text>}
-        <div className="ob-tags">
-          {visibles.length === 0 && <span className="ob-chico">Se va armando con cada respuesta.</span>}
-          {visibles.map(([k, v]) => (
-            <Tag key={`${k}:${v}`} className="ob-tag">
-              {v}
-            </Tag>
-          ))}
-          {proyecto && (
-            <Tag key={`proyecto:${proyecto}`} className="ob-tag ob-tag--tuyo">
-              Proyecto: {proyecto.length > 40 ? `${proyecto.slice(0, 40)}…` : proyecto}
-            </Tag>
-          )}
-          {intereses.map((x) => (
-            <Tag key={`interes:${x}`} className="ob-tag ob-tag--tuyo">
-              {x}
-            </Tag>
-          ))}
-        </div>
+      <Stack gap={6} style={{ minWidth: 0, flex: 1 }}>
+        <Meta>{cosas.length > 0 ? `Tu copia sabe ${cosas.length} ${cosas.length === 1 ? "cosa" : "cosas"} de ti` : "Tu copia"}</Meta>
+        {retrato && <Text size="sm" className="ob-retrato">«{retrato}»</Text>}
+        {cosas.length === 0 && <span className="ob-chico">Se va armando con cada respuesta.</span>}
+        {cosas.length > 0 && (
+          <div className="ob-cinta" ref={caja} data-mueve={cinta || undefined}>
+            <ul className="vd-sr">
+              {cosas.map((c) => (
+                <li key={c.clave}>{c.texto}</li>
+              ))}
+            </ul>
+            <div className="ob-cinta-pista" aria-hidden="true" style={cinta ? { animationDuration: `${cosas.length * 2.6}s` } : undefined}>
+              {(cinta ? [0, 1] : [0]).flatMap((vuelta) =>
+                cosas.map((c) => (
+                  <Tag key={`${vuelta}:${c.clave}:${c.texto}`} className={`ob-tag${c.tuyo ? " ob-tag--tuyo" : ""}${vuelta ? " ob-cinta-copia" : ""}`}>
+                    {c.texto}
+                  </Tag>
+                )),
+              )}
+            </div>
+          </div>
+        )}
       </Stack>
     </div>
   );

@@ -109,7 +109,9 @@ def _cierre(perfil: Perfil, semilla: int, duda: str | None, elecciones: list[dic
         for o in comparacion["opciones"]:
             sueldos = o.pop("sueldos")
             if o["opcion"] == elegida:
-                cierre["mejor_que_gemelos"] = sum(1 for x in sueldos if x < cierre["sueldo_final"]) / len(sueldos)
+                # se compara lo que ganas al final (0 si terminas sin trabajo), igual que entre los gemelos
+                hoy = partida.vida.sueldo_al_final()
+                cierre["mejor_que_gemelos"] = sum(1 for x in sueldos if x < hoy) / len(sueldos)
         cierre["primera_decision"] = {"decision": comparacion["decision"], "pregunta": comparacion["pregunta"],
                                       "elegida": elegida, "comparacion": comparacion}
     return cierre
@@ -147,7 +149,7 @@ def vista(perfil: Perfil, semilla: int = 0, duda: str | None = None, elecciones:
         }
         return salida
     ocurrencia = sum(1 for x in vida.registro["decisiones"] if x["decision"] == d["id"]) if vida.registro else 0
-    contexto = {k: vida.e[k] for k in ("edad", "rubro", "tipo_empleador", "nivel", "region", "ocupacion", "estado", "antiguedad")}
+    contexto = {k: vida.e[k] for k in ("edad", "rubro", "tipo_empleador", "nivel", "region", "ocupacion", "estado", "antiguedad", "validado", "edu", "sexo", "recesion")}
     contexto.update(vida.contexto_empleo())
     ofertas = {o.id: empresas.oferta(vida, d["id"], o.id, ocurrencia) for o in falta.opciones}
     primera = next((f for f in ofertas.values() if f is not None), None)

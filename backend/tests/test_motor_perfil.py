@@ -25,14 +25,13 @@ def test_lo_declarado_pasa_tal_cual():
 
 
 def test_supuestos_de_lo_que_la_persona_no_declara():
-    """TICKETS.md: contactos 30, oficio 50, ahorro de dos sueldos, sin pareja ni hijos."""
+    """TICKETS.md: contactos 30, oficio 50, ahorro de dos sueldos."""
     e = _e(sueldo=1_400_000)
-    assert (e["red"], e["skill"], e["pareja"], e["hijos"], e["edad_hijo_menor"]) == (30, 50, "no", 0, -1)
+    assert (e["red"], e["skill"]) == (30, 50)
     assert e["ahorro"] == 2 * 1_400_000
     assert _e(ahorro=123.0)["ahorro"] == 123.0
     assert (e["animo"], e["energia"], e["horas"], e["formal"], e["pais"], e["salud"]) == (64, 70, 44, 1, "chile", "bien")
     assert (e["p_encontrar"], e["p_renuncia"], e["aprendizaje"], e["deja_de_trabajar"], e["recesion"]) == (1, 1, 1, 0, 0)
-    assert e["madre_edad"] in (30 + 28, 30 + 29) and e["padre_edad"] > e["madre_edad"]
     assert set(pq().variables) - set(e) == {v for v, d in pq().variables.items() if d["inicio"] == "deriva"}
 
 

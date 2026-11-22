@@ -3,8 +3,10 @@ import { aniosDe, cargoYSueldo, deCien, plata, sinSueldo, situacion } from "../t
 import type { Anio, Rango, Vista } from "../types";
 import { GEMELOS } from "../api";
 import { Abanico, Info } from "./graficos";
+import { coloresDe } from "./Carta";
 import { CompartirResultado } from "./Compartir";
 import { Logo } from "./Logo";
+import { Salir } from "./piezas";
 
 type Tramo = { titulo: string; empresa: string | null; empresaId: number | null; rubro: string; desde: number; hasta: number; sueldo: number };
 
@@ -76,12 +78,13 @@ function resumenDelAnio(a: Anio): string {
 
 /** El cierre: tu vida frente a los gemelos de tu primera decisión. Viene de "8 · Fin de la partida" del kit. */
 export function CierrePantalla({
-  vista, sueldoInicial, onOtraVida, onCambiarPerfil, retrato = null,
+  vista, sueldoInicial, onOtraVida, onCambiarPerfil, onSalir, retrato = null,
 }: {
   vista: Vista;
   sueldoInicial: number;
   onOtraVida: () => void;
   onCambiarPerfil: () => void;
+  onSalir?: () => void;
   /** "Lo que tu gemelo sabe de ti", si Claude leyó tu CV o tu Claude: va en la tarjeta que se comparte. */
   retrato?: string | null;
 }) {
@@ -95,6 +98,9 @@ export function CierrePantalla({
   const pos = (n: number) => Math.min(100, Math.max(0, (n / tope) * 100));
   const aRango = (r: Rango): Range => ({ low: pos(r.p10), high: pos(r.p90), median: pos(r.p50) });
   const letra = (i: number) => String.fromCharCode(66 + i);
+  // los mismos colores de opción que en la carta: «Irte» es verde allá y aquí
+  const colores = coloresDe(opciones);
+  const punto = (opcion: string) => <i className="jg-color" style={{ background: colores[opcion] }} aria-hidden="true" />;
   const edadInicial = vista.edad_final - vista.anios;
   const recorrido = [
     { edad: edadInicial, sueldo: sueldoInicial },
@@ -104,13 +110,13 @@ export function CierrePantalla({
   return (
     <Screen gap={28}>
       <Stack gap={12}>
-        <ScreenHeader left={<Pill tone="sol">Fin de la partida</Pill>} right={<Meta>{vista.anios} años · {e.edad} años</Meta>} />
+        <ScreenHeader left={<Pill tone="sol">Fin de la partida</Pill>} right={onSalir && <Salir onSalir={onSalir} />} />
         <Heading level={1}>Así terminó tu mundo {GEMELOS + 1}.</Heading>
       </Stack>
 
       <SunCard>
         <Meta>{sinSueldo(e) ? "Tu último sueldo" : "Tu sueldo final"}</Meta>
-        <BigNumber value={plata(cierre.sueldo_final)} unit="al mes" animate />
+        <BigNumber value={plata(cierre.sueldo_final)} unit="al mes, en pesos de hoy" animate />
         <Text>{sinSueldo(e) ? situacion(e.estado) : e.cargo}</Text>
         <Text size="sm">
           {cierre.anios_sin_trabajo > 0
@@ -148,12 +154,14 @@ export function CierrePantalla({
               {plata(cierre.sueldo_final)}
             </span>
             <span className="vd-camino">
-              <Tag tone="accent">A</Tag>
+              <Tag>A</Tag>
+              {punto(elegida.opcion)}
               {elegida.nombre} (elegiste) · {plata(elegida.sueldo.p10)} a {plata(elegida.sueldo.p90)}
             </span>
             {otras.map((o, i) => (
               <span className="vd-camino" key={o.opcion}>
                 <Tag>{letra(i)}</Tag>
+                {punto(o.opcion)}
                 {o.nombre} · {plata(o.sueldo.p10)} a {plata(o.sueldo.p90)}
               </span>
             ))}
@@ -161,7 +169,7 @@ export function CierrePantalla({
           <Stack gap={12}>
             {otras.map((o, i) => (
               <Stack gap={5} key={o.opcion}>
-                <RangeCompare indicator="dinero" label={`A · ${elegida.nombre} contra ${letra(i)} · ${o.nombre}`} a={aRango(elegida.sueldo)} b={aRango(o.sueldo)} />
+                <RangeCompare indicator="dinero" label={`A · ${elegida.nombre} contra ${letra(i)} · ${o.nombre}`} a={aRango(elegida.sueldo)} b={aRango(o.sueldo)} colorA={colores[elegida.opcion]} colorB={colores[o.opcion]} />
                 <div className="vd-rangos" aria-hidden="true">
                   <em>Tú</em>
                   <span className="vd-rango-pista jg-pista-tu">

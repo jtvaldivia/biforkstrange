@@ -64,9 +64,18 @@ def tramo(texto: str) -> float | None:
     return (monto(m.group(1)) + monto(m.group(2))) / 2
 
 
+# UAI, UDD y Los Andes (y un par de IP y CFT) publican su arancel en UF ("UF 214"), no en pesos. Se pasan con
+# la UF del 1 de enero de 2026, el año de los aranceles: $39.731,79 (Banco Central).
+UF_2026 = 39_731.79
+
+
 def pesos(texto) -> float | None:
-    s = re.sub(r"[^\d]", "", str(texto or ""))
-    return float(s) if s else None
+    txt = str(texto or "")
+    en_uf = txt.strip().upper().startswith("UF")
+    s = re.sub(r"[^\d,]", "", txt).replace(",", ".") if en_uf else re.sub(r"[^\d]", "", txt)
+    if not s:
+        return None
+    return round(float(s) * UF_2026) if en_uf else float(s)
 
 
 def leer_xlsx(ruta: Path, fila_cabecera: int) -> list[tuple]:

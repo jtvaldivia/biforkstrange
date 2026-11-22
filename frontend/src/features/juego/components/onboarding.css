@@ -69,9 +69,22 @@
 /* La ficha del gemelo */
 .ob-ficha {
   display: flex; gap: 14px; align-items: flex-start; padding: 14px; border-radius: 18px;
-  background: var(--sol); color: var(--sobre-sol); border: 2px solid var(--tinta); animation: vd-entrar .4s ease-out both;
-  /* superficie amarilla: tinta oscura y blanco adentro también en modo oscuro */
-  --tinta: #1D1E22; --media: #2A2B30; --suave: #3A3B40; --papel: #FFFFFF; --niebla: #F2F2EF; --acento: #2447F9; --sombra: #1D1E22;
+  background: var(--acento-suave); color: var(--tinta); border: 2px solid var(--tinta); animation: vd-entrar .4s ease-out both;
+}
+.ob-retrato { font-style: italic; }
+/* Lo que sabe tu gemelo: una cinta que pasa sola; se detiene al pasar el mouse */
+.ob-cinta { overflow: hidden; margin-right: -14px; }
+.ob-cinta[data-mueve] { mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 32px), transparent); }
+.ob-cinta-pista { display: flex; flex-wrap: nowrap; gap: 6px; padding-right: 14px; }
+.ob-ficha .ob-cinta .ob-tag { white-space: nowrap; flex: none; }
+.ob-cinta[data-mueve] .ob-cinta-pista { flex-wrap: nowrap; width: max-content; animation: ob-cinta linear infinite; }
+.ob-cinta[data-mueve]:hover .ob-cinta-pista { animation-play-state: paused; }
+.ob-cinta[data-mueve] .ob-tag { white-space: nowrap; flex: none; }
+@keyframes ob-cinta { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 3px)); } }
+@media (prefers-reduced-motion: reduce) {
+  .ob-cinta[data-mueve] { mask-image: none; }
+  .ob-cinta[data-mueve] .ob-cinta-pista { animation: none; flex-wrap: wrap; width: auto; }
+  .ob-cinta-copia { display: none; }
 }
 .ob-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .ob-tag { animation: vd-pop .35s cubic-bezier(.3, 1.6, .5, 1) both; background: var(--papel); }
@@ -96,7 +109,7 @@
 @keyframes ob-girar { to { transform: rotate(360deg); } }
 .ob-claude { padding: 14px; border: 1.5px solid var(--acento); border-radius: 16px; background: var(--acento-suave); animation: vd-subir .35s ease-out both; }
 .ob-claude-texto { min-height: 96px; font: 400 13px/18px ui-monospace, Menlo, monospace; }
-.ob-tag--tuyo { background: var(--acento-suave); }
+.ob-tag--tuyo { background: var(--papel); color: var(--acento); border-color: var(--acento); }
 @media (prefers-reduced-motion: reduce) { .ob-claude-chispa, .ob-claude { animation: none; } }
 .ob-ficha > * { min-width: 0; }
 .ob-ficha .ob-tag { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }

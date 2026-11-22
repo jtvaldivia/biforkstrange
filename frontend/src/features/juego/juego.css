@@ -184,16 +184,17 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-ruleta-tramo { display: flex; align-items: center; justify-content: center; min-width: 4px; border-left: 2px solid var(--tinta); background: var(--niebla); color: var(--tinta); font: 600 12px/1 var(--mono); }
 .jg-ruleta-tramo:first-child { border-left: 0; border-radius: 10px 0 0 10px; }
 .jg-ruleta-tramo:nth-last-child(2) { border-radius: 0 10px 10px 0; }
-.jg-ruleta-tramo[data-tono="bueno"] { background: color-mix(in srgb, var(--jg-mas) 28%, var(--papel)); }
-.jg-ruleta-tramo[data-tono="malo"] { background: color-mix(in srgb, var(--jg-menos) 34%, var(--papel)); }
+/* bueno y malo con el tono del juego (amarillo y tinta), no con colores de opción: verde y naranjo son «Irte» y «Quedarte» */
+.jg-ruleta-tramo[data-tono="bueno"] { background: color-mix(in srgb, var(--sol) 45%, var(--papel)); }
+.jg-ruleta-tramo[data-tono="malo"] { background: color-mix(in srgb, var(--tinta) 22%, var(--papel)); }
 /* Quieta: el sorteo ya se vio en la espera; acá solo queda el resultado */
-.jg-ruleta-tramo--tuyo { box-shadow: inset 0 0 0 4px var(--sol); }
+.jg-ruleta-tramo--tuyo { box-shadow: inset 0 0 0 3px var(--tinta); }
 .jg-ruleta-ficha { position: absolute; top: -9px; left: var(--jg-meta); width: 22px; height: 50px; margin-left: -11px; border: 2px solid var(--tinta); border-radius: 8px; background: var(--sol); box-shadow: 0 3px 0 var(--sombra); }
 .jg-ruleta-leyenda { display: flex; flex-direction: column; gap: 3px; font: 400 13px/18px var(--font); color: var(--suave); }
 .jg-ruleta-leyenda span { display: flex; align-items: baseline; gap: 6px; }
 .jg-ruleta-leyenda i { flex: none; align-self: center; width: 9px; height: 9px; border-radius: 2px; border: 1.5px solid var(--tinta); background: var(--niebla); }
-.jg-ruleta-leyenda i[data-tono="bueno"] { background: var(--jg-mas); }
-.jg-ruleta-leyenda i[data-tono="malo"] { background: var(--jg-menos); }
+.jg-ruleta-leyenda i[data-tono="bueno"] { background: var(--sol); }
+.jg-ruleta-leyenda i[data-tono="malo"] { background: var(--tinta); }
 .jg-ruleta-leyenda b { margin-left: auto; white-space: nowrap; font: 600 12px/18px var(--mono); }
 .jg-ruleta-tuyo { color: var(--tinta); font-weight: 600; }
 /* Después del sorteo, tu sueldo ya dibujado: nada más se simula en pantalla */
@@ -358,7 +359,6 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-empresa-cabeza { display: flex; gap: 10px; align-items: center; }
 .jg-empresa-texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .jg-empresa-cifras { display: flex; flex-wrap: wrap; gap: 4px 10px; font: 500 12px/16px var(--font); }
-.jg-chip-ia { padding: 2px 10px; border: 1.5px solid var(--linea); border-radius: 999px; font: 500 12px/18px var(--font); }
 .jg-con-logo { display: flex; gap: 8px; align-items: flex-start; }
 .jg-mundo-historia { margin: 6px 0 0; font: 400 13px/19px var(--font); }
 
@@ -454,14 +454,14 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 /* Año tranquilo: lo que puedes buscar por tu cuenta */
 .jg-tranquilo { display: grid; gap: 10px; }
 .jg-tranquilo-op {
-  display: flex; flex-direction: column; gap: 4px; text-align: left; font: inherit; color: var(--tinta);
+  display: flex; align-items: center; gap: 12px; text-align: left; font: inherit; color: var(--tinta);
   padding: 14px 16px; border: 1px solid var(--linea); border-radius: 14px; background: var(--papel); cursor: pointer;
   transition: border-color .15s var(--ease), background .15s var(--ease);
 }
 .jg-tranquilo-op:hover:not(:disabled) { border-color: var(--acento); }
 .jg-tranquilo-op:disabled { opacity: .5; cursor: default; }
 .jg-tranquilo-op b { font-weight: 600; }
-.jg-tranquilo-op span { color: var(--suave); font-size: .9em; }
+.jg-tranquilo-texto > span { color: var(--suave); font-size: .9em; }
 .jg-tranquilo-op em { font-style: normal; font-size: .8em; color: var(--acento); }
 .jg-tranquilo-op[data-sugerida="true"] { border-color: var(--acento); background: var(--acento-suave); }
 
@@ -517,3 +517,25 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-leyenda-boton { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1.5px solid transparent; border-radius: 999px; background: transparent; color: var(--suave); font: 500 13px/18px var(--font); cursor: pointer; }
 .jg-leyenda-boton[aria-pressed="true"] { border-color: var(--linea); color: var(--tinta); }
 .jg-leyenda-boton:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+.jg-sin-duda { min-height: 64px; font-size: 18px; }
+
+/* El gráfico de un mundo se abre a pedido: las líneas se trazan rápido para que no parezca vacío */
+.jg-duelo-mundo .jg-abanico-medio { animation-duration: .5s; animation-delay: 0s; }
+
+/* Un año que pasó sin nada: una franja arriba del año siguiente, en vez de una pantalla entera */
+.jg-sin-novedad { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; border-radius: 12px; background: var(--niebla); font: 400 13px/18px var(--font); color: var(--tinta); animation: vd-subir .4s var(--ease) both; }
+
+/* Carta: lo típico de cada opción a la vista, y elegir desde el pie */
+.jg-tipico { font: 400 13px/18px var(--font); color: var(--suave); }
+.jg-tipico b { color: var(--tinta); font-weight: 700; }
+.jg-pie-opciones { display: flex; gap: 8px; }
+.jg-pie-opcion { flex: 1 1 0; min-width: 0; justify-content: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* "Ver más cosas que podrías hacer": cada una con su dibujo, como en la lista de dudas */
+.jg-tranquilo-arte { flex: none; width: 48px; height: 48px; border: 1.5px solid var(--tinta); border-radius: 10px; overflow: hidden; }
+.jg-tranquilo-texto { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+/* Filtro de dudas por tema: una fila que se desliza si no cabe */
+.jg-filtro-dudas { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 2px 16px; scrollbar-width: none; }
+.jg-filtro-dudas::-webkit-scrollbar { display: none; }
+.jg-filtro-dudas .vd-chip { flex: none; min-height: 36px; padding: 0 14px; font-size: 14px; }

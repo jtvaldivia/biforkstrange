@@ -18,7 +18,7 @@ Las decisiones de carrera se toman una sola vez y nunca sabes cómo te habría i
 
 ## Datos de Chile, no opiniones de una IA
 
-Ningún modelo inventa los números. El motor ejecuta un paquete de reglas con **43 decisiones, 16 eventos, 67 parámetros y 50 tablas** sacadas de encuestas y registros chilenos (ESI y ENE del INE, EPS, entre otras). El texto que narra cada decisión no toca ninguna cifra.
+Ningún modelo inventa los números. El motor ejecuta un paquete de reglas con **37 decisiones, 10 eventos, 65 parámetros y 50 tablas** sacadas de encuestas y registros chilenos (ESI y ENE del INE, EPS, entre otras). El texto que narra cada decisión no toca ninguna cifra.
 
 Cada parámetro dice si es **dato** medido, **mixto** o **supuesto** nuestro, con su fuente. Y lo probamos contra la realidad: simulamos 5.000 vidas de los 18 a los 50 y las comparamos con 37 metas de Chile. **Cuadran 25.** La desocupación por edad cuadra en los seis tramos sin que el motor use ese número. Los sueldos simulados quedan 12% a 32% bajo los reales, y lo decimos. El detalle está en [`docs/motor/VALIDACION.md`](docs/motor/VALIDACION.md).
 

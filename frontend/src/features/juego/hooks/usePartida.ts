@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { sinMovimiento } from "../components/graficos";
+import { loNuevo } from "../components/QuePaso";
+import { sinSueldo } from "../textos";
 import { comoErrorApi, getDudas, getMundo, getNarracion, getVista, textoError } from "../api";
-import type { Duda, DudaSugerida, Eleccion, ParametrosComparar, Partida, Perfil, Vista } from "../types";
+import type { Duda, DudaSugerida, Eleccion, ParametrosComparar, Partida, Perfil, SinNovedad, Vista } from "../types";
 import { borradorInicial, useBorrador, type Borrador, type Fuente } from "./useBorrador";
 
 export type Fase = "inicio" | "perfil" | "duda" | "carta" | "paso" | "cierre";
@@ -65,6 +67,25 @@ function guardar(g: Guardado) {
 const mensaje = textoError;
 
 /**
+ * Si al seguir igual el año pasó sin nada que contar (solo el ajuste normal del sueldo), lo que cambió;
+ * si no, null. Una oferta que llega no cuenta: la muestra la pantalla siguiente.
+ */
+function anioSinNovedad(antes: Vista, v: Vista): SinNovedad | null {
+  const tramos = loNuevo(antes, v);
+  const cerrados = tramos.filter((a) => a.fin);
+  if (cerrados.length !== 1 || sinSueldo(v.estado) !== sinSueldo(antes.estado)) return null;
+  // lo que trae el año que empieza ya lo muestra la pantalla siguiente si es un año tranquilo (o la oferta)
+  const loMuestraLaSiguiente = v.pendiente?.decision === "anio_tranquilo";
+  const noticia = tramos.some(
+    (a, i) =>
+      (!(loMuestraLaSiguiente && !a.fin) && a.eventos.some((e) => !e.rutina && e.evento !== "oferta_llega")) ||
+      a.decisiones.slice(i === 0 ? 1 : 0).some((d) => d.opcion !== "sorteo"),
+  );
+  if (noticia) return null;
+  return { anio: cerrados[0].edad - (v.edad_final - v.anios) + 1, sueldo: v.estado.sueldo, delta: v.estado.sueldo - antes.estado.sueldo };
+}
+
+/**
  * La partida de la persona. El servidor no guarda nada: aquí vive (perfil, semilla, duda, elecciones)
  * y se manda completa en cada llamada. Se guarda en localStorage para no perderla al recargar.
  */
@@ -76,6 +97,8 @@ export function usePartida() {
   const [vista, setVista] = useState<Vista | null>(null);
   /** La vista de antes de la última elección: con ella se arma "qué te pasó". */
   const [previa, setPrevia] = useState<Vista | null>(null);
+  /** El año que acaba de pasar sin novedades, para la franja del año siguiente. */
+  const [sinNovedad, setSinNovedad] = useState<SinNovedad | null>(null);
   const [dudas, setDudas] = useState<Duda[] | null>(null);
   const [cargando, setCargando] = useState(false);
   const [recalculando, setRecalculando] = useState(false);
@@ -145,6 +168,7 @@ export function usePartida() {
     turno.current++;
     setCargando(false);
     setError(null);
+    setSinNovedad(null);
     setFase("inicio");
   }, []);
 
@@ -255,13 +279,17 @@ export function usePartida() {
       const antes = vista;
       // en un año tranquilo, buscar algo abre esa decisión de inmediato: no hay dado que tirar todavía
       const busca = eleccion.decision === "anio_tranquilo" && eleccion.opcion !== "seguir";
+      // seguir igual no tiene dado: si el año no trajo nada, se pasa directo al siguiente (sin "qué te pasó")
+      const seguirIgual = eleccion.decision === "anio_tranquilo" && eleccion.opcion === "seguir";
       setCargando(true);
       void pedir(siguiente, (v) => {
+        const quieto = seguirIgual ? anioSinNovedad(antes, v) : null;
         setPartida(siguiente);
         setPrevia(antes);
         setVista(v);
-        setFase(busca && v.pendiente ? "carta" : "paso");
-      }, undefined, busca || sinMovimiento() ? 0 : 2400); // buscando o sin animaciones, no se espera al dado
+        setSinNovedad(quieto);
+        setFase(quieto ? (v.terminada ? "cierre" : "carta") : busca && v.pendiente ? "carta" : "paso");
+      }, undefined, busca || seguirIgual || sinMovimiento() ? 0 : 2400); // sin dado o sin animaciones, no se espera
     },
     [partida, vista, pedir],
   );
@@ -331,7 +359,7 @@ export function usePartida() {
 
   return {
     aviso, fuentes, retrato, origenSugeridas, empezarDeCero, reintentarDudas, reintentar,
-    fase, perfil, partida, vista, previa, dudas, dudasSugeridas, cargando, recalculando, error, onboarding,
+    fase, perfil, partida, vista, previa, sinNovedad, dudas, dudasSugeridas, cargando, recalculando, error, onboarding,
     irAInicio, irAPerfil, verDudas, empezar, empezarAlAzar, continuar, elegir, compararCon, verMundo, narrar, seguir, jugarDeNuevo, descartar,
   };
 }

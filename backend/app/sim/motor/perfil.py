@@ -17,9 +17,10 @@ TRABAJA = ("empleado", "independiente", "fundador")
 EDAD_INGRESO_CARRERA = 18  # supuesto: sin dato del CV, entró a la carrera al salir del colegio
 # Rasgos de su historia que pasan tal cual al estado, solo si el CV los trae. No son del paquete: los leen
 # `politicas.pesos_personales` (cómo deciden sus gemelos), `motor.p_independiente_busca_empleo` y
-# `politicas.elecciones_internas` (rubro_sonado: a qué rubro iría si se cambia).
+# `politicas.elecciones_internas` (rubro_sonado: a qué rubro iría si se cambia; rubro_proyecto: de qué rubro es
+# su proyecto, si emprende).
 HISTORIA = ("anos_por_empleo", "volvio_a_su_nivel", "freelance_entre_pegas", "emprendio_antes", "anos_independiente",
-            "empresas_cerradas", "rubro_sonado")
+            "empresas_cerradas", "rubro_sonado", "rubro_proyecto")
 
 
 def skill_por_experiencia(anios: int) -> int:
@@ -59,6 +60,8 @@ class Perfil:
     anos_por_empleo: float | None = None
     # Lo que contó su Claude: el rubro al que se cambiaría ("¿a qué rubro?" parte ahí)
     rubro_sonado: str | None = None
+    # Lo que contó su Claude: el rubro de su proyecto o idea de negocio ("¿de qué rubro es tu empresa?" parte ahí)
+    rubro_proyecto: str | None = None
     # Si estudia: cuánto le falta ("egreso esperado 2028") y cuántos años lleva ("cursando 3er año").
     # Sin dato, se suponen por su edad y la duración real de la carrera (ver `avance_en_carrera`).
     semestres_restantes: int | None = None
@@ -217,6 +220,19 @@ def prima_universidad(pq: Paquete, universidad_id: str) -> float:
         return 1.0
 
 
+def ocupacion_por_omision(perfil: "Perfil", pq: Paquete) -> int:
+    """Sin oficio en el perfil: jefaturas y gerencias son directivos (CIUO 1); si no, el oficio típico de su rubro con
+    su educación y su nivel (catálogo de cargos), y solo si nada calza, el de su educación. Antes era solo por
+    educación: quien trabaja en construcción con educación media quedaba como vendedor (CIUO 5)."""
+    if perfil.nivel >= 3:
+        return 1
+    from app.sim.motor.empresas import ocupacion_tipica
+
+    area = pq.tabla("mifuturo_carreras", "area", "carrera_id", perfil.carrera_id) if perfil.carrera_id >= 0 else ""
+    tipica = ocupacion_tipica(pq, perfil.rubro, perfil.edu, perfil.nivel, area) if perfil.rubro else None
+    return tipica if tipica is not None else OCUPACION_POR_EDU[perfil.edu]
+
+
 def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
     p = asdict(perfil)
     e: dict = {}
@@ -242,21 +258,18 @@ def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
         empresa_fondos=perfil.empresa_fondos if perfil.estado == "fundador" else 0,
         primer_empleo=1 if busca_primer_empleo(perfil) else 0,
         anos_titulado=max(0, min(40, perfil.edad - EDAD_TITULO[perfil.edu])),
-        ocupacion=perfil.ocupacion if perfil.ocupacion is not None
-        else (1 if perfil.nivel >= 3 else OCUPACION_POR_EDU[perfil.edu]),
+        ocupacion=perfil.ocupacion if perfil.ocupacion is not None else ocupacion_por_omision(perfil, pq),
         # supuestos neutros: las fórmulas del paquete están centradas en estos valores
         red=30 if perfil.red is None else perfil.red,
         # sin dato del CV: la experiencia se estima como los años desde que se tituló (supuesto)
         skill=perfil.skill if perfil.skill is not None
         else skill_por_experiencia(max(0, perfil.edad - EDAD_TITULO[perfil.edu])) if trabaja else 50,
         ambicion=50, ingles=perfil.ingles,
-        pareja="no", hijos=0, edad_hijo_menor=-1, isapre=0, propietario=0,
-        madre_edad=perfil.edad + round(pq.k("EDAD_MADRE")),
-        padre_edad=perfil.edad + round(pq.k("EDAD_MADRE")) + 2,
+        isapre=0,
         area="", tipo_institucion="", semestres_restantes=0,
         # variables que elige el jugador dentro de una opción
-        rubro_destino=perfil.rubro or RUBROS_DESTINO, region_destino="Valparaíso",
-        ocupacion_destino=2, quien_enferma="madre",
+        rubro_destino=perfil.rubro or RUBROS_DESTINO, rubro_emprendimiento=perfil.rubro or RUBROS_DESTINO, region_destino="Valparaíso",
+        ocupacion_destino=2,
         universidad_destino=pq.filas("sies_magister_2026")[0]["universidad_id"],  # la con más programas
         institucion_destino=_institucion_por_defecto(pq), universidad_id=perfil.universidad_id or "",
         # nombres de su empleo de hoy (no son variables del paquete: el motor los borra al dejar ese empleo)
@@ -301,7 +314,6 @@ def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
     d = pq.derivar(e)
     tramo = "p80+" if d["percentil"] >= 80 else "p50-79" if d["percentil"] >= 50 else "p0-49"
     e["tasa_ahorro"] = pq.k("TASA_AHORRO", tramo)
-    e["gasto_mensual"] = pq.tabla("epf_quintiles", "gasto_hogar", "quintil", d["quintil"])
     e["ahorro"] = float(perfil.ahorro) if perfil.ahorro is not None else 2.0 * e["sueldo"]  # supuesto: dos sueldos
     faltan = [n for n, v in pq.variables.items() if v["inicio"] != "deriva" and n not in e]
     if faltan:

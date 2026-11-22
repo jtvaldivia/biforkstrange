@@ -11,7 +11,7 @@ universidad_id,nombre,sigla,pais,tipo_institucion,selectiva,matricula,peso_magis
 87,Universidad de Concepción,UDEC,Chile,U,1,19192,0.052197,6698812,0.9971,derivado,4378000,,2,udec.cl,1
 3,Universidad Diego Portales,UDP,Chile,U,1,17359,0.023199,7397578,1.0366,derivado,3491666,,2,udp.cl,1
 90,Universidad Austral de Chile,UACH,Chile,U,0,16607,0.030448,5996598,0.9787,derivado,3011000,,2,uach.cl,1
-45,Universidad del Desarrollo,UDD,Chile,U,1,15903,0.023924,225,1.0864,derivado,4883446,,2,udd.cl,1
+45,Universidad del Desarrollo,UDD,Chile,U,1,15903,0.023924,8941017,1.0864,derivado,4883446,,2,udd.cl,1
 72,Universidad de Valparaíso,UV,Chile,U,0,14079,0.034798,5558016,1.0095,derivado,3000000,,2,uv.cl,1
 93,Universidad Católica de la Santisima Concepción,UCSC,Chile,U,0,13773,0.018849,5065788,0.8929,derivado,3535000,,2,ucsc.cl,1
 4,Universidad Central de Chile,UCENTRAL,Chile,U,0,13707,0.022474,5268985,0.9853,derivado,2965200,,2,ucentral.cl,1
@@ -32,14 +32,14 @@ universidad_id,nombre,sigla,pais,tipo_institucion,selectiva,matricula,peso_magis
 69,Universidad Alberto Hurtado,UAH,Chile,U,0,7747,0.021749,5628843,0.9682,derivado,2540000,,2,uahurtado.cl,1
 22,Universidad de Viña del Mar,UVM,Chile,U,0,7573,0.009425,4637611,0.9271,derivado,5454649,,2,uvm.cl,1
 50,Universidad Bernardo O'Higgins,UBO,Chile,U,0,7125,0.005075,5957266,0.9421,derivado,2750000,,2,ubo.cl,1
-34,Universidad de los Andes,UANDES,Chile,U,1,6787,0.026099,204,1.1516,derivado,4598578,,2,uandes.cl,1
+34,Universidad de los Andes,UANDES,Chile,U,1,6787,0.026099,8100977,1.1516,derivado,4598578,,2,uandes.cl,1
 85,Universidad Tecnológica Metropolitana,UTEM,Chile,U,0,6457,0.010149,4636157,0.9899,derivado,3325000,,2,utem.cl,1
 79,Universidad de Atacama,UDA,Chile,U,0,6328,0.007975,4017700,0.9934,derivado,3240000,,2,uda.cl,1
 74,Universidad de la Serena,ULS,Chile,U,0,6118,0.005075,4316438,0.8911,derivado,2528500,,2,userena.cl,1
 73,Universidad de Antofagasta,UANT,Chile,U,0,6056,0.004350,5163880,1.0929,derivado,2600000,,2,uantof.cl,1
 42,Universidad Católica Cardenal Raul Silva Henriquez,UCSH,Chile,U,0,5506,0.000725,4408339,0.9770,derivado,2135250,,2,ucsh.cl,1
 26,"Universidad de Artes, Ciencias y Comunicacion - Uniacc",UNIACC,Chile,U,0,5463,0.002175,4156824,1.1005,derivado,4500000,,2,uniacc.cl,1
-23,Universidad Adolfo Ibáñez,UAI,Chile,U,1,5413,0.054372,214,1.1500,derivado,8546030,,2,uai.cl,1
+23,Universidad Adolfo Ibáñez,UAI,Chile,U,1,5413,0.054372,8519544,1.1500,derivado,8546030,,2,uai.cl,1
 83,Universidad de Playa Ancha de Ciencias de la Educacion,UPA,Chile,U,0,5265,0.007250,4100961,0.9786,derivado,2500000,,2,upla.cl,1
 77,Universidad de Magallanes,UMAG,Chile,U,0,4282,0.005075,4677608,1.0475,derivado,3535000,,2,umag.cl,1
 82,Universidad Metropolitana de Ciencias de la Educación,UMCE,Chile,U,0,3947,0.008700,3882848,1.0971,derivado,3216000,,2,umce.cl,1

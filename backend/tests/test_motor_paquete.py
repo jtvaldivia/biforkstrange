@@ -74,8 +74,8 @@ def test_el_catalogo_trae_todas_las_clases_de_expresion():
     exprs = expresiones_del_paquete()
     por_clase = {c: sum(1 for x in exprs if x[0] == c) for c in {x[0] for x in exprs}}
     assert set(por_clase) == {"cuando", "peso", "requisito", "prob", "valor", "efecto_cuando", "prob_anual", "filtro"}
-    assert len({x[2] for x in exprs if isinstance(x[2], str)}) >= 200
-    assert por_clase["cuando"] == 43 + 17 and por_clase["prob_anual"] == 17 and por_clase["peso"] == 43
+    assert len({x[2] for x in exprs if isinstance(x[2], str)}) >= 150
+    assert por_clase["cuando"] == 37 + 10 and por_clase["prob_anual"] == 10 and por_clase["peso"] == 37
 
 
 def test_paridad_con_el_evaluador_de_referencia():
@@ -87,7 +87,7 @@ def test_paridad_con_el_evaluador_de_referencia():
     for _, donde, expr, fila in expresiones_del_paquete():
         unicas.setdefault((expr, fila), donde)
     con_azar = {expr for (expr, _f) in unicas if isinstance(expr, str) and p.compilar(expr)[1]}
-    assert len(con_azar) >= 15  # alza anual, ascensos, herencia, cesantía...
+    assert len(con_azar) >= 15  # alza anual, ascensos, cesantía...
     sin_dados = random.Random(0)
     diferencias, comparadas, ambos_fallan, distintos_de_cero = [], 0, 0, 0
     for i in range(n(2000)):
@@ -164,8 +164,8 @@ A_MANO = [
     ("o(0, 0)", 0), ("no(vacio)", 1), ("no(sexo)", 0), ("no(0)", 1),
     ("en(edu, 'media', 'universitaria')", 1), ("en(edu, 'media')", 0), ("en(edad, '30')", 0), ("en(edad, 30.0)", 1),
     ("falso()", 0), ("si(falso(), 1, 2)", 2),
-    ("k('P_RECESION')", 0.12), ("k('P_SEPARACION', '30-44')", 0.066), ("k('ALZA_ASCENSO', 1)", 0.1),
-    ("k('ASCENSO', 2)", 0.05), ("k('ASCENSO', 2.0)", 0.05), ("k('MULT_DESPIDO_RUBRO', 'Pesca submarina', 1)", 1),
+    ("k('P_RECESION')", 0.08), ("k('P_SEPARACION', '30-44')", 0.066), ("k('ALZA_ASCENSO', 1)", 0.1),
+    ("k('ASCENSO', 2)", 0.04), ("k('ASCENSO', 2.0)", 0.04), ("k('MULT_DESPIDO_RUBRO', 'Pesca submarina', 1)", 1),
     ("k('MULT_DESPIDO_RUBRO', 'Minería', 1)", 0.57),
     ("tabla('esi_perfil_edad_edu', 'p50', 'educacion', 'media', 'banda', '18-24')", 493073.0),
     ("tabla('esi_perfil_edad_edu', 'p90', 'banda', '50-54', 'educacion', edu)", 4101730.0),

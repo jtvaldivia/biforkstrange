@@ -65,7 +65,7 @@ Las dependencias van en una sola dirección: `api → services → (sim, reposit
 
 ### Motor del juego (`backend/app/sim/motor`)
 
-El juego corre sobre el paquete de datos de `backend/simulador/` (43 decisiones, 16 eventos, 67 parámetros, 50 tablas). El motor no reescribe esas reglas: las ejecuta. Para cambiar una probabilidad o un efecto se edita el paquete, no el código.
+El juego corre sobre el paquete de datos de `backend/simulador/` (37 decisiones, 10 eventos, 65 parámetros, 50 tablas). El motor no reescribe esas reglas: las ejecuta. Para cambiar una probabilidad o un efecto se edita el paquete, no el código.
 
 | Archivo | Qué hace |
 |---|---|

@@ -113,3 +113,4 @@
 @media (prefers-reduced-motion: reduce) {
   .ap-espera, .ap-espera * { animation: none !important; }
 }
+.ap-salir { position: fixed; top: 14px; right: 56px; z-index: 11; }

@@ -40,6 +40,16 @@ def items_pendiente(vista: dict) -> list[Item]:
     return items
 
 
+def _sin_empresa_si_es_malo(item: Item) -> Item:
+    """Un despido o un cierre no se cuenta con el nombre de una empresa real (docs/DECISIONES.md, 11): el modelo
+    no recibe el nombre y, si igual lo escribe, el texto se descarta."""
+    if item.contexto.get("tono") != "malo":
+        return item
+    nombres = [n for n in (item.contexto.get("empresa"), item.contexto.get("oferta")) if n]
+    contexto = {k: v for k, v in item.contexto.items() if k not in ("empresa", "oferta")}
+    return item.model_copy(update={"contexto": contexto, "sin_nombrar": nombres})
+
+
 def items_historia(vista: dict) -> list[Item]:
     """Lo que te pasó cada año (decisiones y eventos que no son rutina), del más reciente al más antiguo."""
     items = []
@@ -51,14 +61,14 @@ def items_historia(vista: dict) -> list[Item]:
         for j, d in enumerate(a.get("decisiones", [])):
             if d.get("texto"):
                 ctx = d.get("contexto", {})
-                items.append(Item(id=f"anio:{a['anio']}:decision:{j}", tipo="evento", plantilla=d["texto"],
-                                  contexto={**base, "decision": d["nombre"], "opcion": d["opcion_nombre"], "tono": d["tono"],
-                                            "empresa": ctx.get("empresa") or base["empresa"],
-                                            "oferta": (ctx.get("oferta") or {}).get("nombre")}))
+                contexto = {**base, "decision": d["nombre"], "opcion": d["opcion_nombre"], "tono": d["tono"],
+                            "empresa": ctx.get("empresa") or base["empresa"], "oferta": (ctx.get("oferta") or {}).get("nombre")}
+                items.append(_sin_empresa_si_es_malo(Item(id=f"anio:{a['anio']}:decision:{j}", tipo="evento",
+                                                          plantilla=d["texto"], contexto=contexto)))
         for j, ev in enumerate(a.get("eventos", [])):
             if not ev.get("rutina") and ev.get("texto"):
-                items.append(Item(id=f"anio:{a['anio']}:evento:{j}", tipo="evento", plantilla=ev["texto"],
-                                  contexto={**base, "evento": ev["nombre"], "tono": ev["tono"]}))
+                items.append(_sin_empresa_si_es_malo(Item(id=f"anio:{a['anio']}:evento:{j}", tipo="evento", plantilla=ev["texto"],
+                                                          contexto={**base, "evento": ev["nombre"], "tono": ev["tono"]})))
     return items[:MAX_ITEMS]
 
 

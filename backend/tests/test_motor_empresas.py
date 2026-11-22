@@ -214,7 +214,9 @@ def test_primera_pega_asigna_empresa_y_rubro_coherentes():
         e = p.vida.e
         if e["estado"] == "empleado" and e["empresa_id"] >= 0:
             emp = empresas.empresa(pq(), e["empresa_id"])
-            assert emp["rubro"] == e["rubro"] and emp["tipo"] == e["tipo_empleador"]
+            assert emp["tipo"] == e["tipo_empleador"]
+            # el Estado te deja en Administración pública aunque el organismo sea de otro sector (Sernac: Comercio)
+            assert emp["rubro"] == e["rubro"] or e["tipo_empleador"] == "publico"
             vistos += 1
     assert vistos > 0
 
@@ -324,3 +326,51 @@ def test_la_empresa_del_cv_se_encuentra_en_el_catalogo_para_mostrar_su_logo(nomb
     emp = empresas.buscar(pq(), nombre)
     assert emp is not None and emp["logo"]
     assert empresas.buscar(pq(), "Empresa que no existe SpA") is None
+
+
+def _rubro_por_defecto(perfil: Perfil) -> tuple[str, list[str]]:
+    from app.sim.motor.politicas import elecciones_internas, parametros_por_defecto
+
+    vida = _vida(perfil, 5, "tu")
+    opcion = next(o for o in vida.opciones("emprender") if o.id == "emprender")
+    internas = {el["variable"]: el for el in elecciones_internas(vida, opcion)}
+    return parametros_por_defecto(vida, opcion)["rubro_emprendimiento"], [a["valor"] for a in internas["rubro_emprendimiento"]["alternativas"]]
+
+
+def test_emprender_parte_en_el_rubro_de_tu_proyecto_el_que_sonaste_o_el_tuyo():
+    base = dict(edad=32, rubro="Comercio", tipo_empleador="pyme", nivel=2)
+    defecto, alternativas = _rubro_por_defecto(Perfil(**base))
+    assert defecto == "Comercio" and "Comercio" in alternativas  # tu rubro de hoy también se puede elegir
+    assert _rubro_por_defecto(Perfil(**base, rubro_sonado="Salud"))[0] == "Salud"
+    assert _rubro_por_defecto(Perfil(**base, rubro_sonado="Salud", rubro_proyecto="Hoteles y restaurantes"))[0] == "Hoteles y restaurantes"
+
+
+def test_al_emprender_la_empresa_queda_en_el_rubro_elegido():
+    vida = _vida(Perfil(edad=32, rubro="Comercio", tipo_empleador="pyme", nivel=2), 5, "tu")
+    vida.e["rubro_emprendimiento"] = "Salud"
+    vida._aplicar([{"var": "estado", "op": "fija", "valor": "'fundador'"},
+                   {"var": "rubro", "op": "fija", "valor": "rubro_emprendimiento"}], "prueba")
+    assert vida.e["estado"] == "fundador" and vida.e["rubro"] == "Salud"
+
+
+def test_emprender_no_trae_una_oferta_de_empresa():
+    """Emprender fija el rubro de tu empresa: eso no es cambiarte de rubro con otro empleador."""
+    v = partida.vista(Perfil(edad=32, rubro="Comercio", tipo_empleador="pyme", nivel=2), 5, "emprender", [], 0)
+    assert v["pendiente"]["decision"] == "emprender"
+    assert all(o["empresa"] is None for o in v["pendiente"]["opciones"])
+
+
+def test_los_aranceles_de_pregrado_estan_en_pesos():
+    """UAI, UDD y Los Andes publican su arancel en UF ("UF 214"): leído como pesos daba $214 al año."""
+    chilenas = [f for f in UNIVERSIDADES if f["tipo_institucion"] != "EXT" and f["arancel_anual_pregrado"]]
+    assert chilenas
+    assert all(500_000 < float(f["arancel_anual_pregrado"]) < 20_000_000 for f in chilenas), [
+        (f["nombre"], f["arancel_anual_pregrado"]) for f in chilenas if not 500_000 < float(f["arancel_anual_pregrado"]) < 20_000_000]
+
+
+def test_la_universidad_del_magister_dice_que_su_numero_es_el_arancel():
+    """Al lado de los sueldos, "$8.546.030 al año" se leía como sueldo: el selector dice arancel y en millones."""
+    v = partida.vista(Perfil(edad=30), 2, "magister", [], 0)
+    opcion = next(o for o in v["pendiente"]["opciones"] if o["opcion"] == "vespertino")
+    nombres = {a["valor"]: a["nombre"] for i in opcion["elecciones_internas"] for a in i["alternativas"]}
+    assert nombres["23"] == "UAI · arancel $8,5 millones al año · selectiva"

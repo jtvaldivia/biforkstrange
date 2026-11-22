@@ -8,8 +8,9 @@ Reglas que se validan en código, no solo en el prompt:
 
 - Ningún número: dígitos, `$`, `%`, USD, UF, "millones" o "pesos" hacen caer el item.
 - Largo máximo por tipo (`LARGO_MAX`).
-- Un evento malo (despido, cierre) que nombra a una empresa real lleva la marca de que
-  ocurre en una simulación ("en este mundo simulado"); sin ella, plantilla.
+- Un evento malo (despido, cierre) no nombra a la empresa: su contexto llega sin ella, y si el
+  texto igual trae su nombre (`sin_nombrar`), sale la plantilla. Si algún contexto malo trajera
+  una empresa, el texto debe decir que ocurre en una simulación ("en este mundo simulado").
 
 Variables de entorno:
 
@@ -62,6 +63,9 @@ class Item(BaseModel):
     contexto: dict = Field(default_factory=dict, description=(
         "empresa, rubro, cargo, tipo_empleador, decision, opcion, evento, tono ('bueno'|'malo'|'neutro'), "
         "anio, edad, escenario_ia ('lento'|'medio'|'rapido'). Sin sueldo ni datos personales."))
+    # empresas reales que este texto no puede nombrar (un cierre o un despido no se le atribuye a una empresa
+    # real); no se manda al modelo: se revisa en código
+    sin_nombrar: list[str] = Field(default_factory=list, exclude=True)
 
 
 class Narrado(BaseModel):
@@ -115,8 +119,8 @@ verificables sobre ellas: cifras, fundadores, fechas, premios, sedes, productos 
 escándalos ni noticias. Si no estás seguro de algo de la empresa, habla del rubro y del rol.
 
 Eventos malos: cuando el tono es "malo" (un despido, un cierre, una quiebra, una reestructuración) \
-y el contexto nombra una empresa, el texto tiene que decir de forma explícita que ocurre en este \
-mundo simulado. Usa la frase "en este mundo simulado". Sin esa marca, el texto se descarta.
+no nombres ninguna empresa, aunque aparezca en otro item: di "tu empresa", "tu pega" o "la startup \
+donde trabajas". Un texto malo que nombra una empresa real se descarta.
 
 El contexto puede traer escenario_ia (lento, medio o rápido): qué tan rápido entra la \
 inteligencia artificial al trabajo en ese mundo. Úsalo como trasfondo cuando venga al caso.
@@ -183,6 +187,9 @@ def _sin_tildes(texto: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFD", texto.lower()) if unicodedata.category(c) != "Mn")
 
 
+_MALO = re.compile(r"cierr|quieb|despid|reestructur|bancarrota")
+
+
 def tiene_marca_simulacion(texto: str) -> bool:
     """True si el texto dice que ocurre en una simulación ("mundo simulado", "simulación", ...)."""
     return bool(_MARCA.search(_sin_tildes(texto)))
@@ -198,6 +205,15 @@ def _motivo_rechazo(item: Item, texto: str) -> str | None:
         return "largo"
     if item.contexto.get("tono") == "malo" and item.contexto.get("empresa") and not tiene_marca_simulacion(texto):
         return "sin_marca"
+    plano = _sin_tildes(texto).lower()
+    if any(n and _sin_tildes(n).lower() in plano for n in item.sin_nombrar):
+        return "nombra_empresa"
+    # en cualquier texto (también la historia de un mundo): una empresa real no aparece en la misma frase que un
+    # cierre, un despido o una quiebra
+    nombres = [n for n in (item.contexto.get("empresa"), item.contexto.get("oferta")) if isinstance(n, str) and n]
+    for frase in re.split(r"[.!?;]", plano):
+        if _MALO.search(frase) and any(_sin_tildes(n).lower() in frase for n in nombres):
+            return "hecho_malo_con_nombre"
     # un hecho de otro item que se coló (la recesión de un año contada en todos los años)
     for hecho in ("recesi", "despid", "quiebr"):
         if hecho in texto.lower() and hecho not in item.plantilla.lower():

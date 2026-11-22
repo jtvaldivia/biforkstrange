@@ -144,27 +144,6 @@
    "filas": 172
   },
   {
-   "tabla": "enut_cuidados_por_hijos",
-   "archivo": "tablas/enut_cuidados_por_hijos.csv",
-   "descripcion": "Cuántas horas de cuidado y trabajo doméstico suma un hijo, para hombres y mujeres.",
-   "columnas": {
-    "sexo": "h o m",
-    "hijos": "presencia y edad de hijos en el hogar",
-    "n": "personas",
-    "domestico_h_dia": "trabajo doméstico, horas por día tipo",
-    "cuidados_h_dia": "cuidados, horas por día tipo",
-    "remunerado_h_dia": "trabajo remunerado, horas por día tipo",
-    "carga_total_h_dia": "carga global de trabajo, horas por día tipo",
-    "ocio_h_dia": "vida social y ocio"
-   },
-   "poblacion": "Personas 18-50",
-   "ponderador": "fe_cut",
-   "fuente_id": "ine_enut_2023",
-   "script": "scripts/simulador/tablas_base.py",
-   "advertencia": "",
-   "filas": 8
-  },
-  {
    "tabla": "enut_tiempo_por_horas",
    "archivo": "tablas/enut_tiempo_por_horas.csv",
    "descripcion": "Cuánto tiempo con tu gente queda según las horas que trabajas.",
@@ -182,25 +161,6 @@
    "script": "scripts/simulador/tablas_base.py",
    "advertencia": "",
    "filas": 4
-  },
-  {
-   "tabla": "epf_quintiles",
-   "archivo": "tablas/epf_quintiles.csv",
-   "descripcion": "Ingreso, gasto y ahorro de los hogares por quintil.",
-   "columnas": {
-    "quintil": "quintil de ingreso disponible del hogar (I a V) o Total",
-    "personas_por_hogar": "personas",
-    "ingreso_disponible_hogar": "ingreso disponible mensual, CLP",
-    "gasto_hogar": "gasto mensual, CLP",
-    "tasa_ahorro_aparente": "(ingreso - gasto) / ingreso",
-    "arriendo_promedio": "arriendo de la vivienda principal promediado sobre todos los hogares, CLP"
-   },
-   "poblacion": "Hogares del Gran Santiago y capitales regionales, 2021-2022",
-   "ponderador": "",
-   "fuente_id": "ine_epf",
-   "script": "scripts/simulador/tablas_base.py",
-   "advertencia": "Solo el quintil más alto ahorra; en los demás el gasto declarado supera al ingreso (subdeclaración de ingresos).",
-   "filas": 6
   },
   {
    "tabla": "eps_cesantia_duracion",
@@ -223,25 +183,6 @@
    "script": "scripts/simulador/tablas_base.py",
    "advertencia": "",
    "filas": 4
-  },
-  {
-   "tabla": "eps_hijo_empleo",
-   "archivo": "tablas/eps_hijo_empleo.csv",
-   "descripcion": "Cuántos dejan de trabajar después del primer hijo.",
-   "columnas": {
-    "sexo": "h o m",
-    "nacimientos": "primeros nacimientos con historia laboral",
-    "ocupados_antes": "ocupados 12 meses antes del parto",
-    "no_ocupado_12m": "proporción de quienes trabajaban que no trabaja 12 meses después",
-    "no_ocupado_24m": "idem 24 meses después",
-    "alguna_salida": "proporción con alguna salida del empleo entre 9 meses antes y 24 después"
-   },
-   "poblacion": "Padres y madres con primer hijo en 2016-2024",
-   "ponderador": "factor_XS",
-   "fuente_id": "eps_2024",
-   "script": "scripts/simulador/tablas_base.py",
-   "advertencia": "",
-   "filas": 2
   },
   {
    "tabla": "eps_motivos_termino",
@@ -705,24 +646,6 @@
    "filas": 27
   },
   {
-   "tabla": "ine_fecundidad_2023",
-   "archivo": "tablas/ine_fecundidad_2023.csv",
-   "descripcion": "Fecundidad por edad: base para la probabilidad de un hijo no planificado y para el calendario.",
-   "columnas": {
-    "banda": "edad de la mujer",
-    "nacimientos_por_mil": "nacidos vivos por mil mujeres",
-    "primeros_hijos_por_mil": "primeros hijos por mil mujeres",
-    "p_hijo_anual": "probabilidad anual de tener un hijo",
-    "p_primer_hijo_anual": "probabilidad anual de tener el primer hijo (sobre todas las mujeres)"
-   },
-   "poblacion": "Mujeres en Chile, 2023",
-   "ponderador": "",
-   "fuente_id": "ine_vitales",
-   "script": "scripts/simulador/tablas_base.py",
-   "advertencia": "La tasa global cayó a 1,03 en 2024; la de primer hijo está sobre todas las mujeres, no sobre las que aún no tienen hijos.",
-   "filas": 7
-  },
-  {
    "tabla": "ine_flujos_laborales_2025",
    "archivo": "tablas/ine_flujos_laborales_2025.csv",
    "descripcion": "Rotación por rubro y tamaño de empresa: multiplica el riesgo de despido.",
@@ -756,23 +679,6 @@
    "script": "scripts/simulador/tablas_base.py",
    "advertencia": "La curva se ajustó entre 50 y 95 años; bajo 50 sobreestima algo la mortalidad.",
    "filas": 166
-  },
-  {
-   "tabla": "ine_nupcialidad_2023",
-   "archivo": "tablas/ine_nupcialidad_2023.csv",
-   "descripcion": "Probabilidad anual de casarse o firmar un acuerdo de unión civil por edad.",
-   "columnas": {
-    "sexo": "h o m",
-    "banda": "edad",
-    "matrimonios_por_mil": "matrimonios por mil personas de esa edad y sexo",
-    "auc_por_mil": "acuerdos de unión civil por mil personas (ambos sexos)"
-   },
-   "poblacion": "Población de Chile, 2023",
-   "ponderador": "",
-   "fuente_id": "ine_vitales",
-   "script": "scripts/simulador/tablas_base.py",
-   "advertencia": "La convivencia sin papeles no aparece aquí; es la forma más común de pareja joven.",
-   "filas": 26
   },
   {
    "tabla": "j2j_eeuu",

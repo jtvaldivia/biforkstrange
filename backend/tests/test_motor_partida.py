@@ -70,7 +70,7 @@ def test_elecciones_de_mas_dan_un_error_claro():
 
 def test_eleccion_para_otra_decision_da_un_error_claro():
     pendiente = partida.jugar(Perfil(), 3, []).pendiente.decision["id"]
-    otra = "renunciar" if pendiente != "renunciar" else "ahorro"
+    otra = "renunciar" if pendiente != "renunciar" else "pedir_aumento"
     with pytest.raises(ValueError, match=f"{otra}.*{pendiente}"):
         partida.jugar(Perfil(), 3, [{"decision": otra, "opcion": "no"}])
 
@@ -91,7 +91,7 @@ def test_la_duda_inicial_es_la_primera_decision_y_solo_del_primer_anio():
     assert elecciones[0]["decision"] == "pedir_aumento"
     de_carta = [d["decision"] for r in completa.vida.historia for d in r["decisiones"] if d["origen"] == "carta"]
     assert de_carta[0] == "pedir_aumento" and len(de_carta) <= 10
-    assert len(set(de_carta)) >= 3  # la duda es solo la carta del primer año; después se sortea
+    assert "pedir_aumento" not in de_carta[1:]  # la duda es solo la carta del primer año; después se sortea
     with pytest.raises(ValueError, match="no aplica"):
         partida.jugar(Perfil(nivel=1), 3, [], duda="jefatura")  # pide nivel 2
     with pytest.raises(ValueError, match="no aplica"):
@@ -121,7 +121,7 @@ CLAVES_VISTA = {"terminada", "anio", "anios", "edad_final", "semilla", "duda", "
 CLAVES_ESTADO = {"edad", "estado", "sueldo", "sueldo_ref", "nivel", "cargo", "tipo_empleador", "rubro", "edu",
                  "ocupacion", "antiguedad", "ahorro", "percentil", "exposicion_ia"}
 CLAVES_OPCION_COMPARADA = {"opcion", "nombre", "detalle", "calidad", "es_base", "sueldo", "ingreso_total",
-                           "paso_por_cesantia", "meses_sin_trabajo", "sin_trabajo_al_final", "cargo_mas_probable",
+                           "paso_por_cesantia", "meses_sin_trabajo", "sin_trabajo_al_final", "cargo_mas_probable", "sube_de_cargo",
                            "cargos", "gana_mas_que_base", "igual_que_base", "gana_menos_que_base",
                            "diferencia_tipica", "parametros", "por_resultado", "trayectoria"}
 
@@ -138,9 +138,9 @@ def test_vista_con_decision_pendiente():
         30, "empleado", 1_400_000, "Semi senior")
     p = v["pendiente"]
     assert set(p) == {"decision", "nombre", "pregunta", "categoria", "calidad", "creencia_vs_dato", "evidencia", "narrativa",
-                      "opciones", "comparacion", "por_que"}
+                      "opciones", "comparacion", "por_que", "oferta_sueldo"}
     assert p["decision"] == "unirse_a_startup" and [o["opcion"] for o in p["opciones"]] == ["ir", "quedarse"]
-    assert all(set(o) == {"opcion", "nombre", "detalle", "calidad", "elecciones_internas", "empresa"} for o in p["opciones"])
+    assert all(set(o) == {"opcion", "nombre", "detalle", "calidad", "respaldo", "elecciones_internas", "empresa"} for o in p["opciones"])
     c = p["comparacion"]
     assert c["decision"] == "unirse_a_startup" and c["gemelos"] == n(40) and c["anios"] == 10 and c["base"] == "quedarse"
     assert [o["opcion"] for o in c["opciones"]] == ["ir", "quedarse"]
@@ -189,11 +189,12 @@ def test_vista_al_cierre():
     comparacion = primera["comparacion"]
     assert comparacion["gemelos"] == n(60) and all("sueldos" not in o for o in comparacion["opciones"])
     assert 0.0 <= c["mejor_que_gemelos"] <= 1.0
-    # mejor_que_gemelos: parte de los gemelos que eligieron lo mismo y terminaron con menos sueldo
+    # mejor_que_gemelos: parte de los gemelos que eligieron lo mismo y terminaron con menos sueldo. Se compara lo
+    # que ganas al final (0 si terminas sin trabajo), no el último sueldo que muestra el cierre
     detenida = partida.jugar(Perfil(), 3, [], duda="unirse_a_startup").vida  # el punto en que se decidió
     cruda = gemelos.comparar(detenida, "unirse_a_startup", n=n(60), semilla=3, crudo=True)
     sueldos = next(o["sueldos"] for o in cruda["opciones"] if o["opcion"] == "ir")
-    assert c["mejor_que_gemelos"] == pytest.approx(sum(1 for s in sueldos if s < c["sueldo_final"]) / n(60))
+    assert c["mejor_que_gemelos"] == pytest.approx(sum(1 for s in sueldos if s < c["estado"]["sueldo"]) / n(60))
 
 
 def test_vista_al_cierre_sin_elecciones_no_inventa_comparacion():
@@ -253,6 +254,7 @@ def test_comparar_forma_y_coherencia_interna():
         assert sum(r["prob"] for r in o["por_resultado"]) == pytest.approx(1)
         assert sum(x["prob"] for x in o["cargos"]) == pytest.approx(1)
         assert o["cargo_mas_probable"] == max(o["cargos"], key=lambda x: x["prob"])["cargo"]
+        assert 0 <= o["sube_de_cargo"] <= 1
         assert len(o["trayectoria"]) == anios
         assert [t["edad"] for t in o["trayectoria"]] == [36 + i for i in range(anios)]
         assert all(set(t) == {"edad", "p10", "p50", "p90", "sin_trabajo"} for t in o["trayectoria"])
@@ -283,24 +285,11 @@ def test_comparar_reparte_los_resultados_segun_las_probabilidades_del_paquete():
         assert por[resultado]["texto"] and por[resultado]["tono"] in ("bueno", "malo", "neutro")
 
 
-def test_gana_mas_que_base_es_pareado_por_gemelo():
-    """Ahorrar más o menos no cambia el sueldo: cada gemelo termina con el mismo sueldo en las
-    tres opciones, así que ninguno le gana a su propia versión base. Si la comparación no fuera
-    gemelo a gemelo (contra otro gemelo, o contra la lista ordenada), cerca de la mitad ganaría."""
-    c = gemelos.comparar(_al_inicio(), "ahorro", n=n(80), anios=6, semilla=3, crudo=True)
-    assert len(c["opciones"]) == 3
-    assert len(set(c["opciones"][0]["sueldos"])) > n(80) * 0.9  # los gemelos sí difieren entre ellos
-    for o in c["opciones"]:
-        if not o["es_base"]:
-            assert (o["gana_mas_que_base"], o["igual_que_base"], o["gana_menos_que_base"]) == (0.0, 1.0, 0.0)
-            assert o["diferencia_tipica"] == 0
-            assert [r["gana_mas_que_base"] for r in o["por_resultado"]] == [0.0]
-        assert o["sueldos"] == c["opciones"][0]["sueldos"]
-
-
 def test_gana_mas_que_base_sigue_al_resultado_de_cada_gemelo():
     """Pedir aumento: a quien le dicen que no, termina igual que su versión que no pidió; a quien
-    le dicen que sí, casi siempre termina arriba (mismos dados después, sueldo 4% a 10% mayor)."""
+    le dicen que sí, casi siempre termina arriba (mismos dados después, sueldo 4% a 10% mayor).
+    Que los del no queden todos iguales prueba que la comparación es gemelo a gemelo: contra otro
+    gemelo, o contra la lista ordenada, cerca de la mitad ganaría."""
     m = n(200)
     c = gemelos.comparar(_al_inicio(Perfil(edad=35, sexo="m")), "pedir_aumento", n=m, anios=5, semilla=4)
     pedir, esperar = c["opciones"]
@@ -380,7 +369,6 @@ def test_la_base_de_comparacion():
     assert gemelos.comparar(_al_inicio(), "oferta_externa", n=3, anios=1)["base"] == "quedarse"
     assert gemelos.comparar(_al_inicio(), "magister", n=3, anios=1)["base"] == "no"
     assert gemelos.comparar(_al_inicio(), "pedir_aumento", n=3, anios=1)["base"] == "esperar"
-    assert gemelos.comparar(_al_inicio(), "ahorro", n=3, anios=1)["base"] == "normal"  # no la última (gastar)
     cesante = gemelos.comparar(vida(CESANTE, Dados(0, "tu"), tipo_empleador="pyme"), "cesantia", n=3, anios=1)
     assert [o["es_base"] for o in cesante["opciones"]].count(True) == 1
     assert cesante["base"] != "emprender"  # en una forzada la base no es la última opción de la lista
@@ -442,3 +430,12 @@ def test_la_historia_no_mueve_los_numeros():
         for d in a["decisiones"]:
             d.pop("narrativa", None)
     assert [a["fin"] for a in con["historia"]] == [a["fin"] for a in sin["historia"]]
+
+
+def test_terminar_sin_trabajo_cuenta_cero_en_la_comparacion():
+    """Antes, una copia que terminaba cesante contaba con su último sueldo y empataba con una que seguía
+    empleada. Ahora cuenta lo que gana al final: 0."""
+    c = gemelos.comparar(_al_inicio(), "unirse_a_startup", n=n(60), anios=5, semilla=2, crudo=True)
+    for o in c["opciones"]:
+        sin_trabajo = round(o["sin_trabajo_al_final"] * len(o["sueldos"]))
+        assert sum(1 for s in o["sueldos"] if s == 0) >= sin_trabajo

@@ -3,8 +3,8 @@
 Simula `n` personas desde los 18 años (mitad hombres, mitad mujeres) que deciden
 como la población (`politicas.Poblacion`) hasta los 50, solo lo laboral, y mide:
 
-- las 37 metas laborales de `simulador/objetivos_validacion.json` (las 3 del grupo
-  "Vida" quedan fuera: el juego no modela pareja, hijos ni cáncer);
+- las 37 metas laborales de `simulador/objetivos_validacion.json` (la del grupo
+  "Vida", el cáncer, queda fuera: el juego no lo sortea);
 - la matriz anual ocupado / desocupado / inactivo de ELSOC, que el motor no usa
   como insumo.
 

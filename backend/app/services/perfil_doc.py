@@ -14,7 +14,6 @@ import re
 import unicodedata
 from functools import lru_cache
 
-from app.sim.motor.motor import DECISIONES_PERSONALES
 from app.sim.motor.paquete import Paquete, paquete
 from app.sim.motor.perfil import NIVELES
 
@@ -38,8 +37,7 @@ def _normal(texto: str) -> str:
 
 
 def _dudas_laborales(pq: Paquete) -> list[dict]:
-    return [d for id_, d in pq.decisiones.items()
-            if d["aparicion"]["tipo"] == "carta" and id_ not in DECISIONES_PERSONALES]
+    return [d for d in pq.decisiones.values() if d["aparicion"]["tipo"] == "carta"]
 
 
 SITUACIONES = {"empleado": "empleado", "empleada": "empleado", "independiente": "independiente", "freelance": "independiente",
@@ -79,6 +77,7 @@ def prompt(pq: Paquete | None = None) -> str:
         "ingles: <si o no: ¿podría trabajar en inglés?>",
         "ia: <no uso, a veces o todos los dias: cuánto uso IA en mi trabajo>",
         "proyecto: <mi proyecto paralelo o idea de negocio, en una línea, o ?>",
+        "rubro_proyecto: <el rubro de la lista donde cae ese proyecto, o ?>",
         "afuera: <si o no: ¿me gustaría trabajar o vivir fuera de Chile?>",
         "rubro_sonado: <un rubro de la lista al que me cambiaría, o ?>",
         "intereses: <3 a 5 temas que me apasionan, separados por coma>",
@@ -113,7 +112,7 @@ def _campos(bloque: str) -> dict[str, str]:
 
 
 # Los campos que puede traer el bloque (los del prompt y los que acepta además)
-CAMPOS_DEL_BLOQUE = {"sueldo_liquido", "duda", "situacion", "riesgo", "ingles", "ia", "proyecto", "afuera", "rubro_sonado",
+CAMPOS_DEL_BLOQUE = {"sueldo_liquido", "duda", "situacion", "riesgo", "ingles", "ia", "proyecto", "rubro_proyecto", "afuera", "rubro_sonado",
                      "intereses", "retrato", "edad", "sexo", "estudios", "carrera", "institucion", "rubro", "tipo_empresa",
                      "cargo", "nivel", "ocupacion", "antiguedad", "region", "experiencia", "empleadores", "empresa",
                      "pegas_anteriores"}
@@ -264,6 +263,10 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
         (r for k, r in rubros_validos.items() if c.get("rubro_sonado") and _normal(c["rubro_sonado"]) in k), None)
     if sonado and sonado != resultado["perfil"]["rubro"]:
         resultado["perfil"]["rubro_sonado"] = sonado
+    del_proyecto = rubros_validos.get(_normal(c.get("rubro_proyecto", ""))) or next(
+        (r for k, r in rubros_validos.items() if c.get("rubro_proyecto") and _normal(c["rubro_proyecto"]) in k), None)
+    if del_proyecto and c.get("proyecto"):
+        resultado["perfil"]["rubro_proyecto"] = del_proyecto
 
     from app.sim.motor.partida import dudas_posibles
     from app.sim.motor.perfil import Perfil
@@ -296,7 +299,8 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
     # Qué campos del perfil dijo de verdad (para sumarlos a lo del CV sin pisarlo con valores por defecto):
     # los que `completar` llenó desde el bloque, más el rubro soñado
     dados = sorted(set(resultado["dados"]) | ({"rubro_sonado"} if resultado["perfil"].get("rubro_sonado") else set())
-                   | ({"anos_por_empleo"} if resultado["perfil"].get("anos_por_empleo") else set()))
+                   | ({"anos_por_empleo"} if resultado["perfil"].get("anos_por_empleo") else set())
+                   | ({"rubro_proyecto"} if resultado["perfil"].get("rubro_proyecto") else set()))
     return {**resultado, "duda": sugeridas[0]["decision"] if sugeridas else None, "dudas_sugeridas": sugeridas[:3],
             "retrato": c.get("retrato") or resultado.get("retrato"), "intereses": intereses,
             "proyecto": c.get("proyecto"), "dados": dados, "avisos": avisos}

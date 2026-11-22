@@ -91,7 +91,7 @@ No copies estos conteos a otros documentos: cambian cuando alguien agrega un dat
 
 Claude se usa en un solo lugar: **leer tu texto para llenar el perfil** (`services/perfil_ia.py`). No inventa: lo que tu texto no dice queda vacío y se completa con un valor por defecto marcado como supuesto.
 
-Claude **no** calcula probabilidades, no decide qué decisión sale y no escribe resultados. La historia de cada decisión ("te escribe por LinkedIn la jefa de producto de Pagosur") sale de plantillas en `narrativa.py`, con empresas ficticias y sin cifras.
+Claude **no** calcula probabilidades, no decide qué decisión sale y no escribe resultados. La historia de cada decisión ("te escribe por LinkedIn la jefa de producto de Pagosur") sale de plantillas en `narrativa.py`, sin cifras. Las ofertas nombran empresas reales del catálogo como ejemplo, con el aviso de que sus cifras y lo que les pasa son simulados; un cierre o un despido nunca se cuenta con el nombre de una empresa real (ni en la plantilla ni cuando narra Claude, que lo valida `narrador_ia.py`).
 
 Regla del producto: **los números salen de los datos; la IA hace todo lo demás.** Puede personalizar cómo se cuenta una decisión, preguntarte lo que te importa o buscar fuentes nuevas, pero no poner una probabilidad ni un efecto.
 
@@ -103,7 +103,7 @@ Regla del producto: **los números salen de los datos; la IA hace todo lo demás
 | Algo que pasa solo (despido, recesión) | `backend/simulador/eventos.json` |
 | Un número y su fuente | `backend/simulador/parametros.json` y `fuentes.json` |
 | Cómo responde la población a una decisión | `backend/app/sim/motor/politicas.py` |
-| Qué decisiones y eventos entran al juego (solo trabajo) | `DECISIONES_PERSONALES` y `EVENTOS_PERSONALES` en `motor.py` |
+| Qué eventos quedan fuera del juego (solo trabajo: hoy, el cáncer) | `EVENTOS_PERSONALES` en `motor.py` |
 | Del perfil a las variables de la copia | `backend/app/sim/motor/perfil.py` |
 | Leer el perfil desde un texto o con tu Claude | `services/perfil_ia.py` y `services/perfil_doc.py` |
 | La historia que cuenta cada decisión | `backend/app/sim/motor/narrativa.py` |

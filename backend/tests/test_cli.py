@@ -73,7 +73,7 @@ def test_simular_muestra_una_fila_por_anio(capsys):
     lineas = out.splitlines()
     filas = lineas[lineas.index("-" * 100) + 1 :]
     assert [f.split()[0] for f in filas[:3]] == ["25", "26", "27"]
-    assert "terminan tus gemelos a los 27 años" in out
+    assert "terminan tus copias a los 27 años" in out
     assert "EPS 2024" in out and "Flandes" in out
     assert max(len(linea) for linea in lineas) <= 100
     for jerga in ("p10", "p50", "p90", "ISCO"):

@@ -49,12 +49,12 @@ PESOS_CARTAS: dict[str, dict[str, float]] = {
     "invertir_en_red": {"si": 0.35},
     "unirse_a_startup": {"ir": 0.25},
     "independizarse": {"formal": 0.30},
+    "volver_a_contrato": {"buscar": 0.40},  # supuesto: más que buscar estando empleado (0,30), por el ingreso flojo
     "emprender": {"emprender": 0.08, "lado": 0.12},
     "emigrar": {"irse": 0.04},
     "mudarse_de_region": {"a_santiago": 0.08, "a_region": 0.05},
     "volver_a_chile": {"volver": 0.15},
     "sabatico": {"irse": 0.05},
-    "ahorro": {"mucho": 0.20, "gastar": 0.20},
 }
 # Cuántos años dura una pega en Chile, en la mediana (supuesto del equipo, en línea con la EPS)
 ANOS_POR_EMPLEO_TIPICO = 3.0
@@ -115,7 +115,7 @@ def pesos_personales(e: dict) -> dict[str, dict[str, float]]:
 
 
 # Opción que equivale a no hacer nada, donde no es la última de la lista
-STATU_QUO = {"oferta_externa": "quedarse", "ahorro": "normal"}
+STATU_QUO = {"oferta_externa": "quedarse"}
 # Respuesta a una decisión que llega encadenada (`luego`) desde una opción que ya la eligió: quien,
 # cesante, elige "reconvertirte con un bootcamp" se inscribe ("Te inscribes"); no vuelve a dudar. Sin esto
 # los gemelos respondían la carta bootcamp con su peso de carta (Inercia: siempre "no").
@@ -152,7 +152,7 @@ def elecciones_internas(vida: Vida, opcion: Opcion) -> list[dict]:
     """Lo que hay que elegir dentro de una opción (a qué rubro, a qué ocupación), con sus alternativas."""
     pq, e = vida.pq, vida.e
     usadas = _variables_usadas(opcion)
-    if not usadas & {"rubro_destino", "ocupacion_destino", "region_destino", "universidad_destino", "institucion_destino"}:
+    if not usadas & {"rubro_destino", "rubro_emprendimiento", "ocupacion_destino", "region_destino", "universidad_destino", "institucion_destino"}:
         return []
     salida = []
     if "rubro_destino" in usadas:
@@ -165,6 +165,15 @@ def elecciones_internas(vida: Vida, opcion: Opcion) -> list[dict]:
              "preferencia": (1e12 if r == e.get("rubro_sonado") else
                              float(filas[r]["p50"] or 0) if r in filas else 0.0)}
             for r in pq.variables["rubro"]["dominio"] if r and r != e["rubro"]]})
+    if "rubro_emprendimiento" in usadas:
+        # peso: cuánta gente ocupada hay en cada rubro (ESI). Por defecto, el rubro de su proyecto según su
+        # Claude; si no, el que soñó; si no, el suyo de hoy
+        filas = {f["rubro"]: f for f in pq.filas("esi_ingreso_rubro_edad") if f["banda_edad"] == "18-54"}
+        orden = [r for r in (e.get("rubro_proyecto"), e.get("rubro_sonado"), e["rubro"]) if r]
+        salida.append({"variable": "rubro_emprendimiento", "pregunta": "¿De qué rubro es tu empresa?", "alternativas": [
+            {"valor": r, "nombre": r, "prob": float(filas[r]["share_ocupados_banda"] or 0) if r in filas else 0.0,
+             "preferencia": 1e12 * (len(orden) - orden.index(r)) if r in orden else 0.0}
+            for r in pq.variables["rubro"]["dominio"] if r]})
     if "ocupacion_destino" in usadas:
         nombres = {int(f["origen"]): f["origen_nombre"] for f in pq.filas("jobhop_transiciones")}
         salida.append({"variable": "ocupacion_destino", "pregunta": "¿A qué tipo de trabajo?", "alternativas": [
@@ -224,10 +233,13 @@ def _tipo_institucion(opcion: Opcion) -> str | None:
 
 
 def _universidad(f: dict) -> str:
-    """Nombre corto para el selector: sigla o nombre, arancel y si es selectiva."""
+    """Nombre corto para el selector: sigla o nombre, arancel y si es selectiva.
+
+    El arancel dice que es arancel y va en millones, escrito como los textos del paquete ("$9 millones"): al lado de los sueldos de la carta, "$8.546.030 al año"
+    se leía como lo que ibas a ganar."""
     nombre = f["sigla"] or f["universidad"].replace("Universidad ", "U. ")
-    arancel = f"{float(f['arancel_anual']):,.0f}".replace(",", ".")
-    return f"{nombre} · ${arancel} al año" + (" · selectiva" if f["selectiva"] == "1" else "")
+    millones = f"{float(f['arancel_anual']) / 1e6:.1f}".replace(".", ",")
+    return f"{nombre} · arancel ${millones} millones al año" + (" · selectiva" if f["selectiva"] == "1" else "")
 
 
 _USADAS: dict[int, frozenset[str]] = {}

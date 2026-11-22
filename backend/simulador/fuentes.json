@@ -36,14 +36,6 @@
    "verificacion": "descargado"
   },
   {
-   "id": "ine_vitales",
-   "cita": "INE, Anuario de estadísticas vitales 2023 y 2024p",
-   "url": "https://www.ine.gob.cl/estadisticas/sociales/demografia-y-vitales/nacimientos-matrimonios-y-defunciones",
-   "pais": "Chile",
-   "tipo": "registro",
-   "verificacion": "descargado"
-  },
-  {
    "id": "ine_mortalidad",
    "cita": "INE, Tablas de mortalidad de Chile 1992-2070, base 2024",
    "url": "https://www.ine.gob.cl/estadisticas/sociales/demografia-y-vitales/proyecciones-de-poblacion",
@@ -124,14 +116,6 @@
    "verificacion": "descargado"
   },
   {
-   "id": "coes_2024",
-   "cita": "Contreras, Muñoz y Otero 2024, penalidad por maternidad con registros de AFC y Registro Civil (COES)",
-   "url": "https://bidat.gob.cl/contenido-web/recurso/solicitudes-de-colaboracion/ID62_informe_final_v1.pdf/si",
-   "pais": "Chile",
-   "tipo": "paper",
-   "verificacion": "leído en la fuente"
-  },
-  {
    "id": "dipres_2026",
    "cita": "DIPRES, evaluación de becas de magíster y doctorado, marzo 2026",
    "url": "https://www.dipres.gob.cl/598/articles-406754_doc_pdf.pdf",
@@ -169,14 +153,6 @@
    "url": "https://www.bcentral.cl/documents/33528/133297/mercado_laboraldic2018.pdf",
    "pais": "Chile",
    "tipo": "paper",
-   "verificacion": "por confirmar"
-  },
-  {
-   "id": "cep_casen_pareja",
-   "cita": "CEP con CASEN 2022, proporción en pareja por edad",
-   "url": "https://www.cepchile.cl",
-   "pais": "Chile",
-   "tipo": "resumen",
    "verificacion": "por confirmar"
   },
   {
@@ -649,14 +625,6 @@
    "url": "https://www.spensiones.cl/apps/rentabilidad/getRentabilidad.php",
    "pais": "Chile",
    "tipo": "serie oficial",
-   "verificacion": "descargado"
-  },
-  {
-   "id": "minsal_sobrevida_cancer_2023",
-   "cita": "Navarro y Bralic, Depto. de Epidemiología MINSAL, Sobrevivencia relativa de cáncer en Chile 1998-2020 (registros poblacionales, diagnósticos 2010-2014)",
-   "url": "https://congreso2023.ufro.cl/images/presentaciones/orales/viernes11/202/8.-%20ov1203_656_SOBREVIVENCIA%20DE%20CANCER%20EN%20CHILE%201998-2020%20APROXIMACION.pdf",
-   "pais": "Chile",
-   "tipo": "estudio",
    "verificacion": "descargado"
   },
   {

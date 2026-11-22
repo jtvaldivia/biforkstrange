@@ -23,9 +23,9 @@ const queTanProbable = (prob: number) => (prob >= 0.995 ? "Seguro" : deCien(prob
 function porQueBajo(antes: Estado, ahora: Estado, despido: boolean): string {
   const otroEmpleador = (antes.empresa_id ?? -1) !== (ahora.empresa_id ?? -1) || antes.tipo_empleador !== ahora.tipo_empleador;
   if (despido && otroEmpleador)
-    return "No es el mismo trabajo: perdiste el anterior y encontraste otro el mismo año. Quien encuentra trabajo después de un despido entra ganando, típicamente, entre 85% y 102% de lo que ganaba (Couch y Placzek 2010). Y cada empleador paga distinto: una pyme, por ejemplo, paga menos que una empresa grande.";
+    return "No es el mismo trabajo: perdiste el anterior y encontraste otro el mismo año. Quien vuelve a trabajar después de un despido suele entrar ganando menos que antes (Couch y Placzek 2010).";
   if (otroEmpleador)
-    return "Cambiaste de empleador, y cada uno paga distinto según su tipo, su rubro y el cargo. En el mismo trabajo, en cambio, el sueldo no baja.";
+    return "Cambiaste de empleador, y no todos los cambios mejoran el sueldo: en Chile, casi la mitad no lo mejora (Banco Central). En el mismo trabajo, en cambio, el sueldo no baja.";
   return "En el mismo trabajo el alza anual nunca es negativa. Si bajó, es por algo que elegiste o te pasó este año, como menos horas o un cambio de cargo.";
 }
 
@@ -47,7 +47,7 @@ function Quedaste({ antes, ahora, recorrido, espera, despido }: { antes: Estado 
           </span>
         )}
         <span className="jg-cambio-antes">
-          {sinSueldo(ahora) ? `El último fue ${pesos(ahora.sueldo_ref)}` : comparable && delta !== 0 ? `Antes: ${pesos(antes!.sueldo)}` : "al mes"}
+          {sinSueldo(ahora) ? `El último fue ${plata(ahora.sueldo_ref)}` : comparable && delta !== 0 ? `Antes: ${plata(antes!.sueldo)}` : "al mes"}
         </span>
       </div>
       {comparable && delta < -1000 && <Info pregunta="¿Por qué bajó?">{porQueBajo(antes!, ahora, despido)}</Info>}
@@ -119,10 +119,15 @@ export function QuePaso({
   const edades: number[] = [];
   for (const a of cerrados) for (let ed = a.edad; ed < a.fin!.edad; ed++) edades.push(ed);
   const mismoAnio = !vista.terminada && cerrados.length === 0;
-  const boton = vista.terminada ? "Ver cómo terminaste" : mismoAnio ? "Otra decisión este año" : `Seguir al año ${proximo}`;
+  // en el mismo año viene otra decisión: el botón dice cuál, no "Otra decisión este año"
+  const siguiente = vista.pendiente;
+  const queSigue = siguiente?.decision === "oferta_externa" && siguiente.por_que?.tipo === "llega"
+    ? "Ver la oferta que te llegó"
+    : siguiente ? `Siguiente: ${siguiente.nombre}` : "Seguir";
+  const boton = vista.terminada ? "Ver cómo terminaste" : mismoAnio ? queSigue : `Seguir al año ${proximo}`;
 
   // el dado sigue girando hasta que Claude cuenta el año: las noticias se muestran una vez y no cambian
-  if (!listo) return <Pensando titulo={`Mundo ${GEMELOS + 1} · ${primero ? `${primero.edad} años` : `año ${proximo}`}`} />;
+  if (!listo) return <Pensando titulo={`Mundo ${GEMELOS + 1} · ${primero ? `${primero.edad} años` : `año ${proximo}`}`} onSalir={onSalir} />;
 
   return (
     <Screen tone={noche ? "noche" : "dia"} gap={16} className="jg-quepaso" key={`${vista.historia.length}:${vista.anio_en_curso?.decisiones.length ?? 0}`}>
@@ -151,15 +156,12 @@ export function QuePaso({
           <SlowReveal delay={espera}>
             <Narrative strong>{dado.texto}</Narrative>
           </SlowReveal>
-          <SlowReveal delay={espera + 0.1}>
-            <Text size="sm">
-              {hayRuleta
-                ? `Pasó en ${deCien(tocada!.prob)} mundos.`
-                : dado.prob >= 0.995
-                  ? "Con esta opción, era seguro."
-                  : `Pasa en ${deCien(dado.prob)} mundos.`}
-            </Text>
-          </SlowReveal>
+          {/* sin dado (el resultado era seguro) no hay nada que contar: "era seguro" se leía como "esta opción es segura" */}
+          {(hayRuleta || dado.prob < 0.995) && (
+            <SlowReveal delay={espera + 0.1}>
+              <Text size="sm">{hayRuleta ? `Pasó en ${deCien(tocada!.prob)} mundos.` : `Pasa en ${deCien(dado.prob)} mundos.`}</Text>
+            </SlowReveal>
+          )}
         </Stack>
       )}
 
@@ -184,7 +186,9 @@ export function QuePaso({
               <Noticia
                 key={`d${j}`}
                 titulo={d.nombre}
-                texto={narrados[`anio:${a.anio}:decision:${a.decisiones.indexOf(d)}`] ?? (d.narrativa ? `${d.narrativa.situacion} ${d.texto}` : d.texto)}
+                texto={narrados[`anio:${a.anio}:decision:${a.decisiones.indexOf(d)}`] ??
+                  // la historia nombra a la empresa real: un resultado malo (la startup cierra) va sin ella
+                  (d.narrativa && d.tono !== "malo" ? `${d.narrativa.situacion} ${d.texto}` : d.texto)}
                 lado={queTanProbable(d.prob)}
               />
             ))}

@@ -8,7 +8,7 @@ import "../demo.css";
 
 /** Los colores de la pantalla, fijos: la imagen se ve igual con tema claro u oscuro. La base va naranja, como en la carta. */
 const BASE = "#F08A1C";
-const COLORES = ["#17794B", "#2447F9", "#D6336C", "#7C5CD6", "#0E9AA7"];
+const COLORES = ["#17794B", "#D6336C", "#7C5CD6", "#0E9AA7"];
 const EMPATE = "#B9BAC0";
 const NOMBRE = "bifurca-mi-resultado.png";
 
@@ -175,7 +175,7 @@ export function CompartirResultado({
                 {cuenta(null) > 0 && (
                   <span>
                     <i style={{ background: EMPATE }} />
-                    Da lo mismo: {cuenta(null)}
+                    Empate: {cuenta(null)}
                   </span>
                 )}
               </div>

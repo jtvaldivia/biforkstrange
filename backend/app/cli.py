@@ -369,8 +369,8 @@ def _tabla_gemelos(comp: dict) -> list[str]:
             ("La copia del medio gana", [_plata(o["sueldo"]["p50"]) for o in opciones]),
             ("1 de cada 10 gana menos de", [_plata(o["sueldo"]["p10"]) for o in opciones]),
             ("1 de cada 10 gana más de", [_plata(o["sueldo"]["p90"]) for o in opciones]),
-            ("Pasaron por cesantía", [_de_cada_cien(o["paso_por_cesantia"]) for o in opciones]),
-            ("Cargo más probable", [o["cargo_mas_probable"] for o in opciones]),
+            ("Algún año buscando pega", [_de_cada_cien(o["paso_por_cesantia"]) for o in opciones]),
+            ("Terminan en un cargo más alto", [_de_cada_cien(o["sube_de_cargo"]) for o in opciones]),
         ]
         if desde:
             lineas.append("")
@@ -387,8 +387,8 @@ def _texto_comparacion(comp: dict, supuestos: list[str] | None = None) -> list[s
         "con otra suerte):"
     )
     lineas += ["", *_tabla_gemelos(comp), ""]
-    lineas += _envolver("Sueldos líquidos al mes; la copia que termina sin trabajo cuenta con el sueldo al que "
-                        "apunta al volver.", "  ")
+    lineas += _envolver("Sueldos líquidos al mes, en pesos de hoy (sin inflación); la copia que termina sin trabajo o "
+                        "estudiando cuenta con $0.", "  ")
     for s in supuestos or []:
         lineas += _envolver(s, "  ")
     con_dado = [o for o in comp["opciones"] if len(o["por_resultado"]) > 1]
@@ -459,7 +459,8 @@ def _texto_resultado_decision(d: dict, elegida: bool) -> list[str]:
         lineas += _envolver(f"Elegiste: {d['opcion_nombre']}.", "  ")
     if d["texto"]:
         marca = TONO.get(d["tono"], "•")
-        prob = f" (pasaba en {_de_cada_cien(d['prob'])} mundos)" if d["prob"] < 1 else ""
+        # tu probabilidad en tu mundo (con su recesión y tu situación), no la frecuencia entre las copias de la tabla
+        prob = f" (para ti, este año: {_de_cada_cien(d['prob'])})" if d["prob"] < 1 else ""
         lineas += _envolver(f"{marca} El dado: {d['texto']}{prob}", "    ", "  ")
     return lineas
 
