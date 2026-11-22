@@ -13,7 +13,11 @@ services:
     region: virginia
     branch: produccion
     rootDir: backend
-    buildCommand: pip install uv && uv sync --frozen --no-dev
+    # La validación contra Chile (/api/juego/validacion) se calcula aquí, con la CPU del build:
+    # en el servidor de 0,1 CPU la primera llamada pasaba del minuto. Si falla, el endpoint simula como antes.
+    buildCommand: >-
+      pip install uv && uv sync --frozen --no-dev &&
+      (.venv/bin/python -m app.sim.motor.validacion --precalcular || echo "sin validación precalculada")
     startCommand: .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     autoDeployTrigger: "off"
