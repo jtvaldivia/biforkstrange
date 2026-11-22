@@ -1,0 +1,28 @@
+# Blueprint de Render para la rama `produccion`. Solo el front: la API corre en un computador y sale a
+# internet con un túnel de Cloudflare (`make tunel`, ver DEV.md "API local con túnel").
+# Render no despliega solo (autoDeployTrigger: off): lo hace el job `deploy` de .github/workflows/ci.yml,
+# que después de pasar los tests llama al deploy hook con el commit exacto.
+services:
+  # Front: Vite + React como sitio estático
+  - type: web
+    name: bifurca
+    runtime: static
+    branch: produccion
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: frontend/dist
+    autoDeployTrigger: "off"
+    buildFilter:
+      paths:
+        - frontend/**
+    # App.tsx elige la pantalla por la ruta (/ui, /simulacion), sin router
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # URL pública del túnel de la API. Vite la mete en el build: si cambia, hay que redesplegar el front.
+      # sync: false para que el Blueprint no la pise; se cambia en el dashboard o la cambia `make tunel`.
+      - key: VITE_API_URL
+        sync: false

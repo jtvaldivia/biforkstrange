@@ -1,0 +1,72 @@
+# Tests del backend y build del front. En un push a `produccion`, si los dos pasan, el job `deploy`
+# despliega el front en Render. La API no se despliega: corre en local con un túnel (make tunel).
+name: CI
+
+on:
+  push:
+    branches: [main, produccion]
+  pull_request:
+    branches: [main, produccion]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: uv run pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  # CD: solo con push a produccion y con los tests en verde. Despliega el front; la API corre en local
+  # con un túnel de Cloudflare (make tunel). Necesita el secret RENDER_DEPLOY_HOOK_WEB
+  # (Render > servicio > Settings > Deploy Hook).
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/produccion'
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    environment:
+      name: produccion
+      url: https://bifurca.onrender.com
+    concurrency:
+      group: deploy-produccion
+      cancel-in-progress: false
+    env:
+      HOOK_WEB: ${{ secrets.RENDER_DEPLOY_HOOK_WEB }}
+      WEB_URL: https://bifurca.onrender.com
+    steps:
+      - name: Revisa el deploy hook
+        run: |
+          if [ -z "$HOOK_WEB" ]; then
+            echo "::error::Falta el secret RENDER_DEPLOY_HOOK_WEB (Render > servicio > Settings > Deploy Hook)."
+            exit 1
+          fi
+
+      - name: Despliega el front con este commit
+        run: curl -fsS -X POST -o /dev/null "${HOOK_WEB}&ref=${GITHUB_SHA}"
+
+      - name: Revisa que el front responda
+        run: |
+          for i in $(seq 1 40); do
+            if curl -fsS -m 30 -o /dev/null "$WEB_URL"; then echo "Front arriba"; exit 0; fi
+            sleep 15
+          done
+          echo "::error::El front no respondió en 10 minutos."
+          exit 1

@@ -13,32 +13,54 @@ make test
 
 No hay base de datos: el juego no guarda estado en el servidor.
 
-## Producción (Render)
+## Producción: front en Render, API en local con túnel
 
-`make back` es para desarrollo: un solo proceso con `--reload`, que atiende las partidas en fila (diez
-`/partida` a la vez esperan ~2 s cada una). En producción corre `backend/scripts/prod.sh` (o `make prod`
-en local): uvicorn con `--workers`, sin `--reload`, en `0.0.0.0:$PORT`.
-
-**Comando de arranque del servicio de la API** (Render → Settings → Start Command), con *Root Directory*
-`backend`:
+El front es un sitio estático en Render (`bifurca.onrender.com`). La API no está en Render: corre en un
+computador con `make tunel` y sale a internet por un túnel de Cloudflare. El front la llama directo a la URL
+del túnel (`VITE_API_URL`), y la API acepta ese origen por CORS.
 
 ```bash
-sh scripts/prod.sh
+brew install cloudflared
+cp backend/.env.example backend/.env              # ANTHROPIC_API_KEY, si se quiere leer CVs y narrar
+cp backend/.env.tunel.example backend/.env.tunel  # opcional, ver abajo
+make tunel
 ```
 
-Si el servicio no usa `backend` como raíz, `sh backend/scripts/prod.sh`. El script usa `uv run` si `uv` está
-instalado y si no `python -m uvicorn` con las dependencias ya instaladas en el build.
+`make tunel` (`backend/scripts/tunel.sh`) levanta `prod.sh` con 4 procesos, abre el túnel, espera a que
+`<url>/health` responda e imprime la URL pública. Con `CORS_ORIGINS` deja pasar a `FRONT_URL`
+(`https://bifurca.onrender.com`) y a `localhost:5173`. En macOS usa `caffeinate` para que el equipo no se
+duerma. Ctrl+C cierra la API y el túnel; si uno de los dos se cae, el script cierra el otro y sale.
+
+**Túnel rápido (por defecto).** No pide cuenta de Cloudflare, pero la URL `*.trycloudflare.com` cambia cada
+vez que se reinicia. Como Vite mete `VITE_API_URL` en el build, hay que cambiarla en el front de Render y
+redesplegar. Con `RENDER_API_KEY` y `RENDER_FRONT_ID` en `backend/.env.tunel`, el script lo hace solo:
+compara la URL guardada en Render, y si cambió la actualiza y redespliega el front (1 a 2 minutos).
+Cloudflare no garantiza uptime de los túneles rápidos: sirven para la demo, no para dejar algo semanas.
+
+**Túnel con nombre (URL fija).** Pide un dominio en Cloudflare. Se configura una vez:
+
+```bash
+cloudflared tunnel login
+cloudflared tunnel create bifurca
+cloudflared tunnel route dns bifurca api.tudominio.cl
+```
+
+y en `backend/.env.tunel`: `TUNEL_NOMBRE=bifurca` y `TUNEL_URL=https://api.tudominio.cl`. `VITE_API_URL`
+se pone una sola vez en Render y no cambia más.
+
+`backend/scripts/prod.sh` sigue siendo el arranque de producción (uvicorn con `--workers`, sin
+`--reload`); `make back` es para desarrollo.
 
 Variables de entorno:
 
 | Servicio | Variable | Ejemplo | Para qué |
 |---|---|---|---|
 | API | `ANTHROPIC_API_KEY` | `sk-ant-...` | Leer el CV con Claude y narrar. Sin ella, el perfil se llena a mano y los textos salen de plantillas |
-| API | `CORS_ORIGINS` | `["https://bifurca.onrender.com"]` | Orígenes que pueden llamar a la API. Va en **formato JSON** (una lista entre corchetes con comillas dobles); una URL suelta no se lee |
-| API | `WEB_CONCURRENCY` | `2` | Procesos de uvicorn. Cada uno usa ~170 MB después de jugar: 2 caben en 512 MB. Más procesos solo ayudan si el plan tiene más CPUs |
-| Front | `VITE_API_URL` | `https://bifurca-api.onrender.com` | URL de la API. Vite la mete en el build: si cambia, hay que volver a construir el front |
+| API | `CORS_ORIGINS` | `["https://bifurca.onrender.com"]` | Orígenes que pueden llamar a la API (`make tunel` la arma desde `FRONT_URL`). Va en **formato JSON** (una lista entre corchetes con comillas dobles); una URL suelta no se lee |
+| API | `WEB_CONCURRENCY` | `4` | Procesos de uvicorn (`prod.sh` usa 2, `make tunel` 4). Cada uno usa ~170 MB después de jugar. Más procesos solo ayudan si hay CPUs para ellos |
+| Front | `VITE_API_URL` | `https://xxx.trycloudflare.com` | URL pública del túnel. Vite la mete en el build: si cambia, hay que volver a construir el front |
 
-`PORT` lo pone Render. En local, el backend lee estas mismas variables de `backend/.env` (incluida
+`PORT` es 8000 por defecto. En local, el backend lee estas mismas variables de `backend/.env` (incluida
 `ANTHROPIC_API_KEY`); una variable de entorno pesa más que el `.env`.
 
 El juego no guarda estado entre llamadas, así que cualquier proceso puede atender cualquier request. Lo
@@ -110,6 +132,12 @@ Componentes del Claude Design "Gemelo Laboral · simulador de vida". Todo se imp
 - Escenas: `LifePathHero`, `TravelScene`, `OfficeScene`
 
 Las escenas animadas usan un reloj CSS (`--vd-t`): pon `scene="once"` en el `Screen` y usa `revealAt` en indicadores y notificaciones para que entren en su momento (ver `shared/ui/scene.ts`).
+
+## Deploy (Render)
+
+La rama `produccion` es lo que está en línea. Para publicar, abre un PR de `main` a `produccion` y mergéalo. El CI (`.github/workflows/ci.yml`) corre los tests y el build, y si pasan llama al deploy hook del front (secret `RENDER_DEPLOY_HOOK_WEB`).
+
+`render.yaml` define solo el front (`bifurca`, sitio estático con rewrite a `index.html`). `VITE_API_URL` va con `sync: false`: el Blueprint no la pisa y se cambia en el dashboard o con `make tunel`. La API se actualiza haciendo `git pull` en el computador que la corre y reiniciando `make tunel`.
 
 ## Plantilla
 
