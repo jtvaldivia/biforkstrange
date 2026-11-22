@@ -7,9 +7,10 @@ import { ErrorApi, getPrompt, leerPerfil } from "../api";
 import { EDUCACION, TIPO_EMPLEADOR, pesos } from "../textos";
 import type { Catalogo, DudaSugerida, Perfil, PerfilLeido } from "../types";
 import { ErrorCaja } from "./piezas";
-import { PerfilForm, RUBROS_TOP, SLIDER_MAX, SLIDER_MIN, banda } from "./PerfilForm";
+import { Prueba } from "./Prueba";
+import { PerfilForm, RUBROS_TOP, SLIDER_MAX, SLIDER_MIN, TuPega, banda } from "./PerfilForm";
 
-type Paso = "entrada" | "leyendo" | "tu" | "pega" | "plata";
+type Paso = "entrada" | "leyendo" | "tu" | "pega" | "plata" | "prueba";
 /** Los pasos de cada camino: con CV se salta lo que el CV ya contestó. */
 const MANUAL: Paso[] = ["tu", "pega", "plata"];
 /** Las elecciones de cada tarjeta: parten vacías y hay que tocarlas para seguir. */
@@ -17,9 +18,9 @@ const ELEGIR: Record<string, (keyof Perfil)[]> = { tu: ["edu"], pega: ["tipo_emp
 /** Los sliders siempre tienen un valor: cuentan como respuesta al pasar de tarjeta. */
 const DESLIZAR: Record<string, (keyof Perfil)[]> = { tu: ["edad"], plata: ["sueldo"] };
 const SITUACION: Record<string, string> = {
-  independiente: "Independiente", fundador: "Fundador", buscando: "Buscando pega", estudiando: "Estudiando",
+  independiente: "Independiente", fundador: "Fundador", buscando: "Buscando trabajo", estudiando: "Estudiando",
 };
-const FRASES = ["Leyendo tu experiencia…", "Buscando tu empresa en el SII…", "Contando tus años de pega…", "Eligiendo tus dudas…"];
+const FRASES = ["Leyendo tu experiencia…", "Buscando tu empresa en el SII…", "Contando tus años de trabajo…", "Eligiendo tus dudas…"];
 
 /**
  * Onboarding en 3 pantallas: subes tu CV (o el PDF de LinkedIn) o contestas unas pocas preguntas, después solo
@@ -66,6 +67,10 @@ export function Onboarding({
   const [errorClaude, setErrorClaude] = useState<string | null>(null);
   const pedido = useRef(0);
   useEffect(() => () => void pedido.current++, []);
+  useEffect(() => {
+    const id = gemeloGuardado();
+    if (id && inicial.gemelo_id === undefined) setP((x) => ({ ...x, gemelo_id: id }));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = <K extends keyof Perfil>(k: K, v: Perfil[K]) => {
     setP((x) => ({ ...x, [k]: v }));
@@ -100,9 +105,10 @@ export function Onboarding({
     try {
       const r = await leerPerfil(texto);
       const supuestos = new Set(r.supuestos.map((x) => x.campo));
-      const dados = r.dados ?? Object.keys(r.perfil).filter((k) => !supuestos.has(k));
+      // un nombre vacío (el texto no traía empresa o cargo) no borra el que ya sabíamos
+      const dados = (r.dados ?? Object.keys(r.perfil).filter((k) => !supuestos.has(k))).filter((k) => r.perfil[k as keyof Perfil] !== "");
       const nuevos = Object.fromEntries(dados.map((k) => [k, r.perfil[k as keyof Perfil]])) as Partial<Perfil>;
-      const perfil = { ...p, ...nuevos };
+      const perfil = { ...p, ...nuevos, relato: texto }; // lo que pegaste también es tu relato: el narrador lo usa
       const ahora = new Set([...sabidos, ...dados]);
       const sugeridas = [...(r.dudas_sugeridas ?? []), ...(leido?.dudas_sugeridas ?? [])]
         .filter((d, k, todas) => todas.findIndex((x) => x.decision === d.decision) === k)
@@ -123,10 +129,12 @@ export function Onboarding({
   const seguir = () => {
     pedido.current++;
     const usoFuentes = cv === "listo" || claudeListo;
-    const pasos = usoFuentes
-      ? MANUAL.filter((x) => [...(ELEGIR[x] ?? []), ...(DESLIZAR[x] ?? [])].some((k) => !sabidos.has(k)))
-      : MANUAL;
-    if (pasos.length === 0) return onElegirDuda(p, sugeridas);
+    const pasos: Paso[] = [
+      ...(usoFuentes
+        ? MANUAL.filter((x) => [...(ELEGIR[x] ?? []), ...(DESLIZAR[x] ?? [])].some((k) => !sabidos.has(k)))
+        : MANUAL),
+      "prueba", // al final, tu gemelo apuesta cómo vas a responder y comparan
+    ];
     setFaltan(pasos);
     setPaso(pasos[0]);
   };
@@ -205,6 +213,7 @@ export function Onboarding({
           claude={<TuClaude leyendo={leyendoClaude} error={errorClaude} onTexto={(t) => void leerTuClaude(t)} />}
           onSeguir={seguir}
           onSaltar={saltarTodo}
+          gemelo={<UsarGemelo gemeloId={p.gemelo_id ?? null} onGemelo={(id) => setP((x) => ({ ...x, gemelo_id: id }))} />}
           cargando={cargando}
         />
       )}
@@ -227,6 +236,7 @@ export function Onboarding({
 
       {catalogo && paso === "pega" && (
         <Tarjeta key="pega" titulo="¿Dónde trabajas hoy?">
+          <TuPega p={p} set={set} />
           <Row>
             {catalogo.tipos_empleador.map((t) => (
               <Chip key={t} pressed={elegido("tipo_empleador") && p.tipo_empleador === t} onToggle={() => set("tipo_empleador", t)}>
@@ -235,7 +245,7 @@ export function Onboarding({
             ))}
           </Row>
           <Stack gap={8}>
-            <span className="jg-etiqueta">Tu cargo</span>
+            <span className="jg-etiqueta">Nivel de tu cargo</span>
             <Row>
               {catalogo.niveles.map((n) => (
                 <Chip key={n.nivel} pressed={elegido("nivel") && p.nivel === n.nivel} onToggle={() => set("nivel", n.nivel)}>
@@ -289,7 +299,7 @@ export function Onboarding({
       {catalogo && paso === "plata" && (
         <Tarjeta key="plata" titulo={leido ? "Lo que un CV no dice." : "Lo último."}>
           <Slider
-            label="Te llega al mes (líquido)"
+            label="Sueldo líquido al mes"
             value={Math.min(SLIDER_MAX, Math.max(SLIDER_MIN, p.sueldo))}
             min={SLIDER_MIN}
             max={SLIDER_MAX}
@@ -300,7 +310,7 @@ export function Onboarding({
           />
           {ref && (
             <Text size="sm">
-              La mitad de la gente como tú gana menos de <strong>{pesos(ref.p50)}</strong>.
+              Mediana para tu edad y estudios: <strong>{pesos(ref.p50)}</strong>
             </Text>
           )}
           <Stack gap={8}>
@@ -317,6 +327,8 @@ export function Onboarding({
           </Stack>
         </Tarjeta>
       )}
+
+      {paso === "prueba" && <Prueba perfil={p} onGemelo={(id) => setP((x) => ({ ...x, gemelo_id: id }))} />}
 
       {i >= 0 && (
         <ScreenFooter>
@@ -343,8 +355,9 @@ export function Onboarding({
  * después Seguir pregunta solo lo que falta. O juegas sin datos.
  */
 function Entrada({
-  cv, error, onPdf, claudeListo, claudeAbierto, onAbrirClaude, claude, onSeguir, onSaltar, cargando,
+  cv, error, onPdf, claudeListo, claudeAbierto, onAbrirClaude, claude, onSeguir, onSaltar, cargando, gemelo,
 }: {
+  gemelo: React.ReactNode;
   cv: "nada" | "leyendo" | "listo";
   error: string | null;
   onPdf: (pdf: string) => void;
@@ -448,11 +461,13 @@ function Entrada({
           <span className="ob-icono ob-icono--tu" aria-hidden="true">✎</span>
           <span className="ob-fuente-texto">
             <strong>{algo ? "Completar lo que falta" : "Contesto yo unas preguntas"}</strong>
-            <span className="ob-chico">{algo ? "Solo lo que tus fuentes no dijeron." : "Edad, estudios, tu pega y tu sueldo. Un toque cada una."}</span>
+            <span className="ob-chico">{algo ? "Solo lo que tus fuentes no dijeron." : "Edad, estudios, tu trabajo y tu sueldo. Un toque cada una."}</span>
           </span>
           <Marca listo={false} accion="Empezar" />
         </button>
       </Stack>
+
+      {gemelo}
 
       <ScreenFooter>
         {algo && (
@@ -501,6 +516,8 @@ function Ficha({
   const datos: [string, string | undefined][] = [
     ["edad", `${p.edad} años`],
     ["edu", EDUCACION[p.edu] ?? p.edu],
+    ["cargo_nombre", p.cargo_nombre?.trim() || undefined],
+    ["empresa_nombre", p.empresa_nombre?.trim() ? `En ${p.empresa_nombre.trim()}` : undefined],
     ["nivel", nivel],
     ["tipo_empleador", TIPO_EMPLEADOR[p.tipo_empleador] ?? p.tipo_empleador],
     ["rubro", p.rubro],
@@ -564,7 +581,7 @@ function TuClaude({ leyendo, error, onTexto }: { leyendo: boolean; error: string
     if (prompt) return;
     let vivo = true;
     getPrompt()
-      .then((r) => vivo && setPrompt(r.prompt))
+      .then((r) => vivo && setPrompt(r.prompt + PROMPT_RELATO))
       .catch(() => vivo && setPrompt(null));
     return () => {
       vivo = false;
@@ -604,7 +621,7 @@ function TuClaude({ leyendo, error, onTexto }: { leyendo: boolean; error: string
         id="ob-claude-texto"
         className="jg-campo ob-claude-texto"
         rows={5}
-        placeholder={"```gemelo-laboral\nsueldo_liquido: …"}
+        placeholder="Pega lo que te respondió, o cuéntanos de ti con tus palabras: qué haces, qué te cansa, cómo decides, qué te importa…"
         value={texto}
         onChange={(e) => setTexto(e.target.value)}
       />
@@ -638,5 +655,43 @@ function Silueta({ lleno }: { lleno: number }) {
         <path d={cuerpo} className="ob-silueta-llena" />
       </g>
     </svg>
+  );
+}
+
+/** Lo que se suma al prompt del equipo: el relato libre que usa el narrador para contar tus cartas. */
+const PROMPT_RELATO = `
+
+4. Después del bloque, agrega una sección "## Sobre mí, en mis palabras" escrita en primera persona, como si yo me presentara (150–300 palabras): qué hago y qué me cansa de mi pega, cómo decido frente al riesgo y los cambios, cómo soy trabajando con otras personas, lo que me importa fuera del trabajo y las dudas o planes que tengo hoy. Solo lo que sabes de verdad.`;
+
+const CLAVE_GEMELO = "biforkstrange.twinProfileId"; // la misma que usa /gemelo
+
+function gemeloGuardado(): string | null {
+  try {
+    return localStorage.getItem(CLAVE_GEMELO);
+  } catch {
+    return null;
+  }
+}
+
+/** Usar tu gemelo digital: sus rasgos afinados deciden qué cartas te salen (nada más). */
+function UsarGemelo({ gemeloId, onGemelo }: { gemeloId: string | null; onGemelo: (id: string | null) => void }) {
+  const guardado = gemeloGuardado();
+  return (
+    <div className="ob-usar-gemelo ob-entra">
+      {guardado ? (
+        <label>
+          <input type="checkbox" checked={gemeloId === guardado} onChange={(e) => onGemelo(e.target.checked ? guardado : null)} />
+          <span>
+            <strong>Usar mi gemelo digital.</strong> Sus rasgos afinados deciden qué cartas te salen.{" "}
+            <a href="/gemelo" target="_blank" rel="noreferrer">Afinarlo</a>
+          </span>
+        </label>
+      ) : (
+        <span className="ob-chico">
+          ¿Quieres que las cartas sigan tu personalidad? Al final tu gemelo se pone a prueba, o{" "}
+          <a href="/gemelo" target="_blank" rel="noreferrer">ármalo con más preguntas</a>.
+        </span>
+      )}
+    </div>
   );
 }

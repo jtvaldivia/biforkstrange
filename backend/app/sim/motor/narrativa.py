@@ -6,10 +6,11 @@ personas"). Reglas:
 
 - Solo texto. Ningún número del juego sale de aquí, y el texto no promete cifras: las cifras
   las pone el motor y se muestran aparte.
-- Si la persona trabaja en una empresa del catálogo, o la oferta trae una (`contexto["empresa"]`,
-  `contexto["oferta"]`), se usa su nombre real: es la misma que muestra la carta. Lo que le pasa a la
-  empresa en la historia es de este mundo simulado, no un hecho sobre la empresa real. Sin empresa del
-  catálogo, quedan las ficticias de abajo.
+- Si la persona trabaja en una empresa del catálogo o en la que contó en su perfil, o la oferta trae
+  una (`contexto["empresa"]`, `contexto["oferta"]`), se usa su nombre real: es la misma que muestra la
+  carta. Lo que le pasa a la empresa en la historia es de este mundo simulado, no un hecho sobre la
+  empresa real. Su empresa de hoy nunca se inventa: sin nombre, es "tu empresa". Las ofertas de otras
+  empresas sin nombre del catálogo usan las ficticias de abajo.
 - Determinista: la misma partida (semilla) cuenta la misma historia. Usa dados propios, que no
   tocan los de la simulación.
 """
@@ -111,10 +112,8 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
     tipo = contexto.get("tipo_empleador") or "pyme"
     nivel = int(contexto.get("nivel") or 0)
     quien, canal, cercano = s.uno("quien", QUIENES), s.uno("canal", CANALES), s.uno("cercano", CERCANOS)
-    # tu propia empresa no cambia mientras sigas ahí: se sortea por el año en que entraste, no por el año de la carta
-    entrada = int(contexto.get("edad", 0)) - int(contexto.get("antiguedad") or 0)
-    propia = _Sorteo(semilla, 0, f"propia:{rubro}:{tipo}:{entrada}", 0)
-    aqui = contexto.get("empresa") or _empresa(propia, rubro, tipo, "propia")
+    # tu empresa de hoy es un dato tuyo: la real si se sabe, y si no, sin inventarle nombre
+    aqui = contexto.get("empresa") or "tu empresa"
     oferta = contexto.get("oferta") or {}
     puesto = f"ser {oferta['cargo']}" if oferta.get("cargo") else CARGOS[min(nivel, 4)]
 
@@ -131,11 +130,11 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
         texto = (f"{canal}, te contacta {quien} de {otra}. Buscan a alguien con tu experiencia "
                  f"en {rubro.lower()} para {CARGOS[min(nivel, 4)]}. Quieren una respuesta esta semana.")
     elif decision == "unirse_a_startup" and oferta:
-        texto = (f"{oferta['nombre']} te ofrece {puesto} en su equipo. Pagan menos que tu pega actual, "
+        texto = (f"{oferta['nombre']} te ofrece {puesto} en su equipo. Pagan menos que tu trabajo actual, "
                  f"pero te dan acciones. {canal}, te lo propone {quien}.")
     elif decision == "unirse_a_startup":
         nombre, desc = s.uno("startup", STARTUPS_RUBRO.get(rubro) or STARTUPS)
-        texto = (f"{nombre}, {desc}, te ofrece entrar al equipo fundador. Pagan menos que tu pega actual, "
+        texto = (f"{nombre}, {desc}, te ofrece entrar al equipo fundador. Pagan menos que tu trabajo actual, "
                  f"pero te dan acciones. {canal}, te lo propone {quien}.")
     elif decision == "buscar_estando_empleado":
         texto = (f"Llevas un tiempo en {aqui.split(',')[0]} y te preguntas si afuera te valorarían más. "
@@ -162,7 +161,7 @@ def narrar(decision: str, contexto: dict, semilla: int, anio: int, ocurrencia: i
         texto = (f"Te invitan a {s.uno('evento', ['un meetup de la industria', 'un after de exalumnos', 'una conferencia del rubro'])} "
                  f"este jueves. Podrías ir, o quedarte en la casa como siempre.")
     elif decision == "emprender":
-        texto = (f"Tienes una idea dándote vueltas hace meses: {s.uno('idea', ['un servicio para pymes de tu rubro', 'una app que resuelve algo que ves todos los días en la pega', 'una consultora propia'])}. "
+        texto = (f"Tienes una idea dándote vueltas hace meses: {s.uno('idea', ['un servicio para pymes de tu rubro', 'una app que resuelve algo que ves todos los días en el trabajo', 'una consultora propia'])}. "
                  f"{cercano.capitalize()} te anima a lanzarte.")
     elif decision == "independizarse":
         texto = (f"Un cliente de {aqui.split(',')[0]} te dice que te contrataría directo, a honorarios. "

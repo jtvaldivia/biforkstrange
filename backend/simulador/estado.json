@@ -705,6 +705,17 @@
    "inicio": "deriva"
   },
   {
+   "nombre": "prima_personal",
+   "tipo": "numero",
+   "dominio": [
+    0.6,
+    3
+   ],
+   "unidad": "veces",
+   "descripcion": "Deriva: cuánto gana la persona sobre la mediana de su edad y educación (sueldo_ref / p50 de esi_perfil_edad_edu). Supuesto del equipo: lo que la persona ya demostró viaja con ella a una pega nueva.",
+   "inicio": "deriva"
+  },
+  {
    "nombre": "anos_en_carrera",
    "tipo": "entero",
    "dominio": [

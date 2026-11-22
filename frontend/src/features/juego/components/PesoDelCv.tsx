@@ -24,7 +24,7 @@ function etiqueta(d: PesoDato): { con: string; sin: string } {
     case "remoto":
       return { con: "Que ya trabajes remoto", sin: "sin eso" };
     case "anos_por_empleo":
-      return { con: `Tu ritmo de cambiarte de pega (cada ${String(d.tuyo).replace(".", ",")} años)`, sin: "al ritmo típico" };
+      return { con: `Tu ritmo de cambiarte de trabajo (cada ${String(d.tuyo).replace(".", ",")} años)`, sin: "al ritmo típico" };
     case "nivel":
       return { con: `Tu cargo de ${NIVEL[Number(d.tuyo)] ?? d.tuyo}`, sin: `como ${NIVEL[Number(d.neutro)] ?? d.neutro}` };
     case "edu":
@@ -65,7 +65,7 @@ function Linea({ d, i }: { d: PesoDato; i: number }) {
   const valorSin = gana ? o.gana_sin : o.sueldo_sin;
   const tope = gana ? 1 : Math.max(o.sueldo_con, o.sueldo_sin, 1);
   const frase = gana
-    ? `«${o.nombre}» gana en ${deCien(o.gana_con)} de cada 100 mundos; ${sin}, en ${deCien(o.gana_sin)}.`
+    ? `«${o.nombre}» gana en ${deCien(o.gana_con)} de 100 mundos; ${sin}, en ${deCien(o.gana_sin)}.`
     : `con «${o.nombre}» tu sueldo típico llega a ${plata(o.sueldo_con)} al mes; ${sin}, a ${plata(o.sueldo_sin)}.`;
   const texto = (v: number) => (gana ? `${deCien(v)} de 100` : plata(v));
   return (

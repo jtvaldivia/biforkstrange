@@ -108,6 +108,14 @@
    "verificacion": "descargado"
   },
   {
+   "id": "eps_2009",
+   "cita": "Subsecretaría de Previsión Social, Encuesta de Protección Social 2009, historia laboral 2006-2009 (con tamaño de empresa por episodio)",
+   "url": "https://www.previsionsocial.gob.cl/sps/biblioteca/encuesta-de-proteccion-social/",
+   "pais": "Chile",
+   "tipo": "microdatos",
+   "verificacion": "descargado"
+  },
+  {
    "id": "elsoc",
    "cita": "COES, Estudio Longitudinal Social de Chile 2016-2022",
    "url": "https://coes.cl/encuesta-panel/",

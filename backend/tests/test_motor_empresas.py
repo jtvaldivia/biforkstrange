@@ -157,11 +157,46 @@ def test_la_oferta_externa_trae_la_misma_empresa_al_cambiarse_o_pedir_contraofer
         assert ofertas["cambiar"]["empresa_id"] == ofertas["contraoferta"]["empresa_id"]
 
 
-def test_al_quedar_sin_trabajo_se_suelta_la_empresa():
+def test_al_quedar_sin_trabajo_se_suelta_la_empresa_y_se_recuerda_el_cargo():
     vida = _vida(Perfil(edad=40, rubro="Construcción", tipo_empleador="pyme"), 11)
     vida.e.update(empresa_id=0, cargo_id=0)
     vida._aplicar([{"var": "estado", "op": "fija", "valor": "'buscando'"}], "prueba")
-    assert vida.e["empresa_id"] == -1 and vida.e["cargo_id"] == -1
+    # la empresa se suelta; el cargo queda como su última línea de trabajo, pero ya no se muestra
+    assert vida.e["empresa_id"] == -1 and vida.e["cargo_id"] == 0 and vida.resumen()["rol"] is None
+
+
+PROPIA = Perfil(edad=32, rubro="Finanzas y seguros", tipo_empleador="grande", nivel=2,
+                empresa_nombre="Banco del Estado de Chile", cargo_nombre="Analista de riesgo")
+
+
+def test_la_empresa_y_el_cargo_que_contaste_se_muestran_mientras_sigas_ahi():
+    vida = _vida(PROPIA, 11)
+    assert (vida.resumen()["empresa"], vida.resumen()["rol"]) == ("Banco del Estado de Chile", "Analista de riesgo")
+    assert vida.contexto_empleo()["empresa"] == "Banco del Estado de Chile"
+    # quien no está empleado no arrastra el nombre de una empresa
+    assert _vida(Perfil(estado="buscando", empresa_nombre="X", cargo_nombre="Y")).resumen()["empresa"] is None
+
+
+def test_al_ascender_se_suelta_el_nombre_del_cargo_y_al_irte_el_de_la_empresa():
+    vida = _vida(PROPIA, 11)
+    vida._aplicar([{"var": "nivel", "op": "suma", "valor": "1"}], "prueba")
+    assert (vida.resumen()["empresa"], vida.resumen()["rol"]) == ("Banco del Estado de Chile", None)
+    vida._aplicar([{"var": "estado", "op": "fija", "valor": "'buscando'"}], "prueba")
+    assert vida.resumen()["empresa"] is None
+    otra = _vida(PROPIA, 11)
+    otra._nuevo_empleador = True  # se cambia a otra empresa del mismo tipo
+    otra._aplicar([{"var": "antiguedad", "op": "fija", "valor": "0"}], "prueba")
+    assert otra.resumen()["empresa"] != "Banco del Estado de Chile"
+
+
+def test_la_carta_nombra_tu_empresa_real_o_ninguna():
+    """La historia de la carta no le inventa nombre a tu empresa de hoy."""
+    from app.sim.motor import narrativa
+
+    sin = narrativa.narrar("pedir_aumento", {"rubro": "Comercio", "tipo_empleador": "pyme", "edad": 30}, 1, 1)
+    assert "en tu empresa" in sin["situacion"]
+    con = narrativa.narrar("pedir_aumento", {"rubro": "Comercio", "empresa": "Falabella", "edad": 30}, 1, 1)
+    assert "en Falabella" in con["situacion"]
 
 
 def test_quien_trabaja_en_una_empresa_toma_la_exposicion_de_su_cargo():
@@ -226,3 +261,66 @@ def test_api_narrar_sin_credenciales_devuelve_plantillas(client, monkeypatch):
     r = client.post("/api/juego/narrar", json={"duda": "unirse_a_startup", "que": "mundo", "mundo": 3})
     assert r.status_code == 200 and {i["id"] for i in r.json()["items"]} == {"mundo:ir", "mundo:quedarse"}
     assert client.post("/api/juego/narrar", json={"duda": "unirse_a_startup", "que": "mundo"}).status_code == 422
+
+
+# ---------------------------------------------------------------------- escalera y familias
+TRANSICIONES = _csv("transiciones_tipo.csv")
+
+
+def test_las_transiciones_suman_uno_por_origen():
+    por_origen = defaultdict(float)
+    for f in TRANSICIONES:
+        por_origen[f["origen"]] += float(f["prob"])
+    assert set(por_origen) >= {"grande", "pyme", "startup", "publico", "ninguno"}
+    for origen, total in por_origen.items():
+        assert total == pytest.approx(1, abs=1e-6), origen
+
+
+@pytest.mark.parametrize("origen", ["grande", "pyme", "startup", "publico"])
+def test_el_tipo_nuevo_depende_de_donde_vienes(origen):
+    """La decisión interna tipo_de_empleador lee la fila de su tipo de origen (oráculo: el CSV)."""
+    tabla = {f["destino"]: float(f["prob"]) for f in TRANSICIONES if f["origen"] == origen}
+    e = {**_vida(Perfil(tipo_empleador=origen if origen != "publico" else "pyme")).e, "tipo_empleador": origen}
+    for o in pq().decisiones["tipo_de_empleador"]["opciones"]:
+        for r in o["resultados"]:
+            if r["prob"] != "resto":
+                assert pq().evaluar(r["prob"], e) == pytest.approx(tabla[r["id"]]), (origen, r["id"])
+
+
+def test_la_oferta_sigue_tu_linea_de_trabajo():
+    """Con carrera de tecnología, el cargo que te ofrecen es de una familia afín a tecnología casi siempre."""
+    carrera = next(int(f["carrera_id"]) for f in _csv("mifuturo_carreras.csv")
+                   if f["area"] == "Tecnología" and f["tipo_institucion"] == "U")
+    afines = set(empresas.familias_de(pq(), {"area": "Tecnología", "cargo_id": -1}))
+    assert afines
+    perfil = Perfil(edad=29, carrera_id=carrera, rubro="Información y comunicaciones", tipo_empleador="grande",
+                    nivel=1, skill=60)
+    dentro = total = 0
+    for semilla in range(40):
+        v = partida.vista(perfil, semilla, "oferta_externa", [], 0)
+        emp = next((o["empresa"] for o in v["pendiente"]["opciones"] if o["empresa"]), None)
+        if emp and emp["cargo_id"] >= 0:
+            total += 1
+            dentro += empresas.cargo(pq(), emp["cargo_id"])["familia"] in afines
+    assert total >= 30 and dentro / total >= 0.8
+
+
+def test_quien_trabaja_en_salud_publica_recibe_ofertas_del_estado_de_su_sector():
+    """El rubro de un empleo público sigue siendo Administración pública, pero el empleador sale de su sector."""
+    carrera = next(int(f["carrera_id"]) for f in _csv("mifuturo_carreras.csv")
+                   if f["area"] == "Salud" and f["tipo_institucion"] == "U")
+    perfil = Perfil(edad=40, carrera_id=carrera, rubro="Salud", tipo_empleador="publico", nivel=2)
+    publicas = []
+    for semilla in range(30):
+        v = partida.vista(perfil, semilla, "oferta_externa", [], 0)
+        emp = next((o["empresa"] for o in v["pendiente"]["opciones"] if o["empresa"]), None)
+        if emp and emp["tipo"] == "publico":
+            publicas.append(emp["rubro"])
+    assert publicas and sum(r == "Salud" for r in publicas) / len(publicas) >= 0.8
+
+
+@pytest.mark.parametrize("nombre", ["WOM", "wom", "Lider", "Banco de Chile", "banco de chile"])
+def test_la_empresa_del_cv_se_encuentra_en_el_catalogo_para_mostrar_su_logo(nombre):
+    emp = empresas.buscar(pq(), nombre)
+    assert emp is not None and emp["logo"]
+    assert empresas.buscar(pq(), "Empresa que no existe SpA") is None

@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { cssVars, cx } from "@/shared/ui";
 import { GEMELOS } from "../api";
-import { plata } from "../textos";
+import { minuscula, plata } from "../textos";
 import type { Tono } from "../types";
 
 const sinMovimiento = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -112,9 +112,9 @@ export function Abanico({
   const fin = serie[serie.length - 1];
   // etiquetas del final: se separan si quedan encima
   const etiquetas = [
-    { k: "p90", v: fin.p90, t: `${plata(fin.p90)}`, s: "buena suerte" },
-    { k: "p50", v: fin.p50, t: `${plata(fin.p50)}`, s: "lo típico" },
-    { k: "p10", v: fin.p10, t: `${plata(fin.p10)}`, s: "mala suerte" },
+    { k: "p90", v: fin.p90, t: `${plata(fin.p90)}`, s: "90%" },
+    { k: "p50", v: fin.p50, t: `${plata(fin.p50)}`, s: "mediana" },
+    { k: "p10", v: fin.p10, t: `${plata(fin.p10)}`, s: "10%" },
   ].map((e) => ({ ...e, y: y(e.v) }));
   for (let i = 1; i < etiquetas.length; i++) if (etiquetas[i].y - etiquetas[i - 1].y < 27) etiquetas[i].y = etiquetas[i - 1].y + 27;
   const exceso = etiquetas[2].y - (Y1 + 4);
@@ -125,7 +125,7 @@ export function Abanico({
       className="jg-abanico"
       viewBox={`0 0 ${W} ${alto}`}
       role="img"
-      aria-label={`Sueldo año a año, de los ${e0} a los ${e1} años. A los ${e1}: con mala suerte ${plata(fin.p10)}, lo típico ${plata(fin.p50)}, con buena suerte ${plata(fin.p90)}.`}
+      aria-label={`Sueldo año a año, de los ${e0} a los ${e1} años. A los ${e1}: 10% ${plata(fin.p10)}, mediana ${plata(fin.p50)}, 90% ${plata(fin.p90)}.`}
     >
       <line className="jg-abanico-eje" x1={X0} x2={X1} y1={Y1} y2={Y1} />
       <path className="jg-abanico-franja" style={color ? { fill: `color-mix(in srgb, ${color} 16%, transparent)` } : undefined} d={franja} />
@@ -151,7 +151,7 @@ export function Abanico({
       <text x={X0} y={alto - 6} className="jg-abanico-sub">hoy · {e0} años</text>
       <text x={X1} y={alto - 6} textAnchor="end" className="jg-abanico-sub">{e1} años</text>
       {ref && nombreReferencia && (
-        <text x={X0} y={10} className="jg-abanico-sub">- - - lo típico con «{nombreReferencia}»</text>
+        <text x={X0} y={10} className="jg-abanico-sub">- - - si eligieras {minuscula(nombreReferencia)}</text>
       )}
     </svg>
   );
@@ -218,7 +218,7 @@ export type Casilla = { id: string; texto: string; prob: number; tono: Tono };
 
 /**
  * El dado, a la vista: la barra es todo lo que podía pasar con la opción elegida (cada tramo, su probabilidad)
- * y la ficha recorre la barra hasta caer en lo que te tocó a ti.
+ * y la ficha queda quieta en lo que te tocó a ti (el sorteo ya se vio en la espera).
  */
 export function Ruleta({ casillas, salio }: { casillas: Casilla[]; salio: string }) {
   const total = casillas.reduce((a, c) => a + c.prob, 0) || 1;
@@ -253,7 +253,7 @@ export function Ruleta({ casillas, salio }: { casillas: Casilla[]; salio: string
   );
 }
 
-/** Tu sueldo año a año hasta ahora: una línea que se dibuja, con el último punto marcado. */
+/** Tu sueldo año a año hasta ahora: una línea con el último punto marcado. */
 export function LineaSueldo({ puntos }: { puntos: { edad: number; sueldo: number }[] }) {
   if (puntos.length < 2) return null;
   const W = 320;

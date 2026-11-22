@@ -3,14 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>Agarrar la pala</title>
+    <script>
+      // Tema elegido (claro / oscuro) antes del primer pintado, para que no parpadee.
+      // Misma clave que THEME_STORAGE_KEY en src/shared/ui/theme.ts.
+      try {
+        var tema = localStorage.getItem("vd-tema");
+        if (tema === "dark" || tema === "light") document.documentElement.setAttribute("data-theme", tema);
+      } catch (e) {}
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
     />
-    <style>body { margin: 0; }</style>
+    <style>
+      body { margin: 0; }
+      html { color-scheme: light dark; }
+      html[data-theme="light"] { color-scheme: light; }
+      html[data-theme="dark"] { color-scheme: dark; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

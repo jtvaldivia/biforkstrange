@@ -3,7 +3,7 @@ import { sceneClass, type SceneMode } from "../scene";
 import { cssVars, cx } from "../tokens";
 
 type ScreenProps = HTMLAttributes<HTMLDivElement> & {
-  /** `noche` para oficina, túnel y momentos duros. */
+  /** `noche` para oficina, túnel y momentos duros: un tinte frío del mismo tema, no un fondo invertido. */
   tone?: "dia" | "noche";
   /**
    * Activa el reloj de escena (ver scene.ts) para pantallas con <TravelScene>, <OfficeScene>
@@ -64,7 +64,7 @@ export function SunCard({ className, ...rest }: HTMLAttributes<HTMLElement>) {
   return <section className={cx("vd-sol", "vd-tarjeta-sol", className)} {...rest} />;
 }
 
-/** Banda oscura dentro de una pantalla clara (p. ej. "Lo que te perdiste"). */
+/** Banda con el tinte de noche del tema (p. ej. "Lo que te perdiste"): se distingue del fondo sin invertirlo. */
 export function NightBand({ className, ...rest }: HTMLAttributes<HTMLElement>) {
   return <section className={cx("vd-banda-noche", className)} {...rest} />;
 }

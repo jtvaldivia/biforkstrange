@@ -1,10 +1,8 @@
 import { BigNumber, Button, Heading, Meta, Pill, RangeCompare, Screen, ScreenHeader, Stack, StationTimeline, SunCard, Tag, Text, type Range } from "@/shared/ui";
-import { aniosDe, cargoYSueldo, deCada10, plata, sinSueldo, situacion } from "../textos";
+import { aniosDe, cargoYSueldo, deCien, plata, sinSueldo, situacion } from "../textos";
 import type { Anio, Perfil, Rango, Vista } from "../types";
 import { GEMELOS } from "../api";
 import { Abanico, Info } from "./graficos";
-import { LeyendaCalidad } from "./piezas";
-import { IntuicionResumen } from "./Apuesta";
 import { CompartirResultado } from "./Compartir";
 
 /** Lo más importante del año, en una línea, para la línea de tiempo. */
@@ -48,51 +46,43 @@ export function CierrePantalla({
     <Screen gap={28}>
       <Stack gap={12}>
         <ScreenHeader left={<Pill tone="sol">Fin de la partida</Pill>} right={<Meta>{vista.anios} años · {e.edad} años</Meta>} />
-        <Heading level={1}>Diez años en el mundo {GEMELOS + 1}: el que viviste tú.</Heading>
+        <Heading level={1}>Así terminó tu mundo {GEMELOS + 1}.</Heading>
       </Stack>
 
       <SunCard>
         <Meta>{sinSueldo(e) ? "Tu último sueldo" : "Tu sueldo final"}</Meta>
         <BigNumber value={plata(cierre.sueldo_final)} unit="al mes" animate />
-        <Text>
-          Terminas a los {e.edad} años: {sinSueldo(e) ? situacion(e.estado).toLowerCase() : e.cargo}.{" "}
+        <Text>{sinSueldo(e) ? situacion(e.estado) : e.cargo}</Text>
+        <Text size="sm">
           {cierre.anios_sin_trabajo > 0
-            ? `Pasaste ${cierre.anios_sin_trabajo} ${cierre.anios_sin_trabajo === 1 ? "año" : "años"} sin trabajo.`
-            : "No pasaste ningún año sin trabajo."}
+            ? `${cierre.anios_sin_trabajo} ${cierre.anios_sin_trabajo === 1 ? "año" : "años"} sin trabajo.`
+            : "Ningún año sin trabajo."}
         </Text>
         {cierre.mejor_que_gemelos !== undefined && elegida && (
           <Text>
             <strong>
-              {cierre.mejor_que_gemelos >= 0.95
-                ? `Te fue mejor que en casi todos los mundos donde también elegiste «${elegida.nombre}».`
-                : cierre.mejor_que_gemelos < 0.05
-                  ? `En casi todos los mundos donde también elegiste «${elegida.nombre}» te fue mejor que aquí.`
-                  : `Te fue mejor que en ${deCada10(cierre.mejor_que_gemelos)} mundos donde también elegiste «${elegida.nombre}».`}
+              Te fue mejor que en {deCien(cierre.mejor_que_gemelos)} mundos con «{elegida.nombre}».
             </strong>
           </Text>
         )}
       </SunCard>
 
-      <IntuicionResumen />
 
       {primera && elegida && (
         <Stack as="section" gap={12}>
           <Stack gap={4}>
             <Heading level={3} as="h2">
-              Tu mundo, el {GEMELOS + 1}, contra los otros {GEMELOS}
+              Tú contra tus {GEMELOS} gemelos
             </Heading>
-            <Text size="sm">
-              Tu primera decisión: {primera.pregunta} Aquí va tu sueldo año a año contra el de tus gemelos en los {primera.comparacion.gemelos} mundos donde
-              elegiste lo mismo.
-            </Text>
+            <Text size="sm">{primera.pregunta}</Text>
           </Stack>
           <Abanico puntos={elegida.trayectoria} hoy={{ edad: edadInicial, sueldo: sueldoInicial }} tu={recorrido} alto={190} />
           <Info pregunta="¿Cómo leo este gráfico?">
-            La línea amarilla es tu sueldo en el mundo {GEMELOS + 1}, el que jugaste. La franja celeste contiene 8 de cada 10 mundos donde elegiste «{elegida.nombre}» y
-            la línea azul es el mundo del medio. Si tu línea sale de la franja, tuviste más (o menos) suerte que casi todos, o tus decisiones de
-            después te llevaron por otro lado.
+            La línea amarilla es tu sueldo. La franja celeste va del 10% al 90% de los {primera.comparacion.gemelos} mundos donde elegiste «{elegida.nombre}», y
+            la línea azul es la mediana. Si tu línea sale de la franja, te fue mejor (o peor) que a casi todos tus gemelos, por tu dado o por tus
+            decisiones de después.
           </Info>
-          <Text size="sm">Y el sueldo final de cada opción, lado a lado. Cada barra va de la mala suerte a la buena suerte; la raya es el sueldo típico.</Text>
+          <Meta>Sueldo final por opción · 10% a 90%</Meta>
           <Stack gap={6}>
             <span className="vd-camino">
               <Tag tone="sol">Tú · {GEMELOS + 1}</Tag>
@@ -100,12 +90,12 @@ export function CierrePantalla({
             </span>
             <span className="vd-camino">
               <Tag tone="accent">A</Tag>
-              {elegida.nombre} (la que elegiste) · {plata(elegida.sueldo.p10)} a {plata(elegida.sueldo.p90)}
+              {elegida.nombre} (elegiste) · {plata(elegida.sueldo.p10)} a {plata(elegida.sueldo.p90)}
             </span>
             {otras.map((o, i) => (
               <span className="vd-camino" key={o.opcion}>
                 <Tag>{letra(i)}</Tag>
-                {o.nombre} (la que no tomaste) · {plata(o.sueldo.p10)} a {plata(o.sueldo.p90)}
+                {o.nombre} · {plata(o.sueldo.p10)} a {plata(o.sueldo.p90)}
               </span>
             ))}
           </Stack>
@@ -122,13 +112,13 @@ export function CierrePantalla({
               </Stack>
             ))}
           </Stack>
-          <Text>
-            Ojo con la comparación: tú tomaste más decisiones en estos 10 años. En esos mundos tus gemelos solo tomaron la primera y después dejaron que la vida
-            siguiera sin buscar más cambios.
-          </Text>
+          <Info pregunta="¿Es justa la comparación?">
+            No del todo: tú tomaste más decisiones en estos 10 años. Tus gemelos solo tomaron la primera y después dejaron que la vida siguiera sin
+            buscar más cambios.
+          </Info>
         </Stack>
       )}
-      {!primera && <Text size="sm">Tu primera decisión tenía demasiadas opciones para simular los mundos, así que aquí no hay con quién compararte.</Text>}
+      {!primera && <Text size="sm">Tu primera decisión no se pudo simular: no hay con quién compararte.</Text>}
 
 
       <Stack as="section" gap={10}>
@@ -148,7 +138,10 @@ export function CierrePantalla({
           Cambiar mi perfil
         </Button>
       </Stack>
-      <LeyendaCalidad />
+      <Info pregunta="¿De dónde salen los números?">
+        Qué tan seguido pasa cada cosa sale de encuestas a trabajadores chilenos (ESI y ENE del INE, entre otras). Donde no hay medición, usamos
+        un supuesto nuestro. No es una predicción: es el abanico de lo que le pasa a gente como tú.
+      </Info>
     </Screen>
   );
 }

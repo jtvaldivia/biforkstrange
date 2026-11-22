@@ -6,8 +6,8 @@ from functools import lru_cache
 
 from fastapi import APIRouter, HTTPException, Query
 
-from app.schemas.juego import DudasIn, EnJuegoIn, MundoIn, NarrarIn, PartidaIn, PesoCvIn, TextoPerfilIn
-from app.services import narracion, perfil_ia
+from app.schemas.juego import AfinidadIn, DudasIn, EnJuegoIn, MundoIn, NarrarIn, PartidaIn, PerfilIn, PesoCvIn, TextoPerfilIn
+from app.services import juego_personal, narracion, perfil_ia
 from app.sim.motor import empresas, partida, peso, supuestos, validacion
 from app.sim.motor.paquete import paquete
 from app.sim.motor.perfil import NIVELES
@@ -64,32 +64,72 @@ def validacion_contra_chile(n: int = Query(1000, ge=200, le=5000), semilla: int 
     return _validacion(n, semilla)
 
 
+def _gemelo(gemelo_id: str | None):
+    if not gemelo_id:
+        return None
+    from app.api.deps import get_twin_repo
+
+    return get_twin_repo().get(gemelo_id)
+
+
+def _personal(perfil: PerfilIn):
+    """Tu relato (lo usa el narrador) y tu gemelo (solo decide qué cartas te salen).
+
+    La afinidad congelada al empezar la partida (`perfil.afinidad`) manda sobre el gemelo vivo: si
+    el gemelo cambia o se pierde a mitad de partida, rejugar con otra afinidad cambiaría las cartas."""
+    gemelo = None if perfil.afinidad is not None else _gemelo(perfil.gemelo_id)
+    personal = juego_personal.desde(perfil.relato, gemelo, perfil.afinidad)
+    return perfil.a_perfil(), personal
+
+
+def _afinidad(personal) -> dict[str, float]:
+    return personal.afinidad if personal else {}
+
+
+@router.post("/afinidad")
+def afinidad(body: AfinidadIn):
+    """La afinidad de tu gemelo para congelarla al empezar la partida (se manda de vuelta en `perfil.afinidad`)."""
+    gemelo = _gemelo(body.gemelo_id)
+    if gemelo is None:
+        raise HTTPException(404, "Gemelo no encontrado")
+    return {"afinidad": juego_personal.afinidad(gemelo)}
+
+
 @router.post("/dudas")
 def dudas(body: DudasIn):
     """Decisiones del banco que esta persona puede elegir como su duda inicial."""
-    return partida.dudas_posibles(body.perfil.a_perfil())
+    p, personal = _personal(body.perfil)
+    with partida.con_afinidad(_afinidad(personal)):
+        return partida.dudas_posibles(p)
 
 
 @router.post("/partida")
 def jugar(body: PartidaIn):
-    """Estado de la partida: historia, decisión pendiente con lo que vivieron los gemelos, o el cierre."""
+    """Estado de la partida: historia, decisión pendiente con lo que vivieron los gemelos, o el cierre.
+
+    Con gemelo, las cartas pesan según tus rasgos. El relato lo usa `/narrar` para contarlas a tu medida."""
+    p, personal = _personal(body.perfil)
     try:
-        return partida.vista(
-            body.perfil.a_perfil(), body.semilla, body.duda,
-            [e.model_dump() for e in body.elecciones], body.gemelos, body.parametros,
-        )
+        with partida.con_afinidad(_afinidad(personal)):
+            salida = partida.vista(
+                p, body.semilla, body.duda,
+                [e.model_dump() for e in body.elecciones], body.gemelos, body.parametros,
+            )
     except (ValueError, KeyError) as error:
         raise HTTPException(422, str(error)) from error
+    return salida
 
 
 @router.post("/mundo")
 def ver_mundo(body: MundoIn):
     """Un mundo de la comparación de la decisión pendiente: lo que te pasa en él con cada opción, año por año."""
+    p, personal = _personal(body.perfil)
     try:
-        return partida.mundo_pendiente(
-            body.perfil.a_perfil(), body.semilla, body.duda,
-            [e.model_dump() for e in body.elecciones], body.mundo, body.parametros,
-        )
+        with partida.con_afinidad(_afinidad(personal)):
+            return partida.mundo_pendiente(
+                p, body.semilla, body.duda,
+                [e.model_dump() for e in body.elecciones], body.mundo, body.parametros,
+            )
     except (ValueError, KeyError) as error:
         raise HTTPException(422, str(error)) from error
 
@@ -99,11 +139,15 @@ def narrar(body: NarrarIn):
     """Los textos de la partida contados por Sonnet: la carta pendiente, la historia o un mundo.
 
     Solo texto: ningún número. Si Sonnet no está o falla, cada texto vuelve con su plantilla
-    (`via: "plantilla"`), siempre con 200 si la partida es válida.
+    (`via: "plantilla"`), siempre con 200 si la partida es válida. Se rejuega con la misma afinidad
+    que `/partida` (si no, la carta pendiente podría ser otra) y con tu relato como trasfondo.
     """
+    p, personal = _personal(body.perfil)
     try:
-        return narracion.narrar(body.perfil.a_perfil(), body.semilla, body.duda,
-                                [e.model_dump() for e in body.elecciones], body.que, body.mundo, body.parametros)
+        with partida.con_afinidad(_afinidad(personal)):
+            return narracion.narrar(p, body.semilla, body.duda, [e.model_dump() for e in body.elecciones],
+                                    body.que, body.mundo, body.parametros,
+                                    relato=personal.relato if personal else "")
     except (ValueError, KeyError) as error:
         raise HTTPException(422, str(error)) from error
 

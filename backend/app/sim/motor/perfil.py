@@ -74,6 +74,10 @@ class Perfil:
     empresas_cerradas: int = 0            # empresas propias que ya cerró
     # Dónde estudió (universidades.universidad_id); vacío si no lo dice
     universidad_id: str = ""
+    # Su empresa y su cargo de hoy, con el nombre que dio. Solo para contar la historia: no mueven ningún
+    # número. Valen mientras siga en ese empleo (ver `Vida._nombre_empresa`).
+    empresa_nombre: str = ""
+    cargo_nombre: str = ""
 
     @classmethod
     def a_los_18(cls, sexo: str = "m", riesgo: int = 5) -> "Perfil":
@@ -92,13 +96,11 @@ STARTUP_SI_SIEMPRE_STARTUP = 0.20
 
 def parametros_propios(perfil: "Perfil", pq: Paquete) -> dict:
     """Parámetros del paquete que esta vida tiene distintos por su historia (ver paquete.K_PROPIOS)."""
+    # pisos sobre la escalera de transiciones_tipo (EPS): el resto se reparte entre grande y pyme como en su fila
     if perfil.toda_su_carrera_en == "publico":
-        return {"P_REEMPLEO_PUBLICO": REEMPLEO_PUBLICO_SI_SIEMPRE_ESTADO}
+        return {"PISO_REEMPLEO_PUBLICO": REEMPLEO_PUBLICO_SI_SIEMPRE_ESTADO}
     if perfil.toda_su_carrera_en == "startup":
-        mix = pq.k("MIX_EMPLEADOR")
-        escala = (1 - STARTUP_SI_SIEMPRE_STARTUP) / (1 - mix["startup"])
-        return {"MIX_EMPLEADOR": {"grande": mix["grande"] * escala, "pyme": mix["pyme"] * escala,
-                                  "startup": STARTUP_SI_SIEMPRE_STARTUP}}
+        return {"PISO_STARTUP": STARTUP_SI_SIEMPRE_STARTUP * (1 - pq.k("P_REEMPLEO_PUBLICO"))}
     return {}
 
 
@@ -213,6 +215,9 @@ def estado_inicial(perfil: Perfil, pq: Paquete) -> dict:
         ocupacion_destino=2, quien_enferma="madre",
         universidad_destino=pq.filas("sies_magister_2026")[0]["universidad_id"],  # la con más programas
         institucion_destino=_institucion_por_defecto(pq), universidad_id=perfil.universidad_id or "",
+        # nombres de su empleo de hoy (no son variables del paquete: el motor los borra al dejar ese empleo)
+        empresa_inicial=perfil.empresa_nombre.strip() if perfil.estado == "empleado" else "",
+        cargo_inicial=perfil.cargo_nombre.strip() if perfil.estado == "empleado" else "",
     )
     # su historia no es del paquete: la lee la política de los gemelos, y solo si el CV la trae
     for rasgo in HISTORIA:

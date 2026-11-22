@@ -32,13 +32,16 @@ import {
   Narrative,
 } from "@/shared/ui";
 import { SCREENS, SCREEN_COMPONENTS, type ScreenId } from "./screens";
+import { Espera, type Variante } from "@/features/juego/components/Apuesta";
+
+const VARIANTES_ESPERA: Variante[] = ["ruleta", "tragamonedas", "caballos", "dado", "naipes"];
 
 /** Catálogo vivo del kit de UI: componentes sueltos y las 8 pantallas del diseño. */
 export function UiKitPage() {
   const [tab, setTab] = useState<"pantallas" | "componentes">("pantallas");
   return (
     <div className="vd" style={{ minHeight: "100dvh", background: "var(--niebla)" }}>
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "32px 20px", display: "flex", flexDirection: "column", gap: 24 }}>
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: "56px 20px 32px", display: "flex", flexDirection: "column", gap: 24 }}>
         <Stack gap={12}>
           <Row gap={12} style={{ alignItems: "center", justifyContent: "space-between" }}>
             <Pill>Agarrar la pala · UI kit</Pill>
@@ -92,11 +95,11 @@ function ScreensGallery() {
         style={{
           width: 390,
           maxWidth: "100%",
-          border: "2px solid #1D1E22",
+          border: "2px solid var(--tinta)",
           borderRadius: 28,
           overflow: "hidden",
-          boxShadow: "0 6px 0 #1D1E22",
-          background: "#fff",
+          boxShadow: "0 6px 0 var(--sombra)",
+          background: "var(--papel)",
         }}
       >
         <Current key={`${id}-${run}`} go={go} />
@@ -128,6 +131,7 @@ function ComponentsGallery() {
   const [seg, setSeg] = useState<"a" | "b">("a");
   const [slider, setSlider] = useState(6);
   const [card, setCard] = useState(true);
+  const [tirada, setTirada] = useState(0);
   return (
     <div style={grid}>
       <Section title="Tipografía" note="Heading 1/2/3, Text, Meta, Pill, BigNumber, Narrative">
@@ -210,6 +214,17 @@ function ComponentsGallery() {
             </span>
           ))}
         </Row>
+      </Section>
+
+      <Section title="Esperas" note="Espera (features/juego): un juego por sorteo; gira, se frena y queda en su resultado">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 16 }}>
+          {VARIANTES_ESPERA.map((v) => (
+            <Espera key={`${v}-${tirada}`} variante={v} texto={v} />
+          ))}
+        </div>
+        <Button variant="quiet" onClick={() => setTirada((t) => t + 1)}>
+          Sortear otra vez
+        </Button>
       </Section>
 
       <Section title="Superficies" note="Panel, SunCard, NightBand">

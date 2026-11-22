@@ -12,7 +12,7 @@ export const INDICATORS: { key: IndicatorKey; label: string }[] = [
 
 export const indicatorLabel = (k: IndicatorKey) => INDICATORS.find((i) => i.key === k)!.label;
 
-/** Color de un indicador como variable CSS (cambia solo en modo noche). */
+/** Color de un indicador como variable CSS (cambia con el tema). */
 export const indicatorColor = (k: IndicatorKey) => `var(--${k})`;
 
 /** Valores de los cuatro indicadores, 0 a 100. */

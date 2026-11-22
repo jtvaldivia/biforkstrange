@@ -125,6 +125,20 @@ def test_la_suerte_de_cada_anio_es_distinta():
     assert len(alzas) >= 4
 
 
+@pytest.mark.parametrize("semilla", range(40))
+def test_quien_sigue_en_su_pega_no_ve_bajar_su_sueldo(semilla):
+    """El alza anual puede ser cero, pero nunca negativa: ni la mala suerte ni una recesión bajan el sueldo
+    de quien se queda en el mismo empleo. Con el alza que podía ser negativa, 37 de estas 40 vidas fallaban."""
+    v = vida(A_LOS_35, Dados(semilla, 0))
+    for _ in range(8):
+        antes = v.resumen()
+        v.vivir_anio(Inercia())
+        despues = v.resumen()
+        mismo = all(antes[k] == despues[k] for k in ("estado", "empresa_id", "nivel", "rol", "tipo_empleador", "rubro"))
+        if mismo and antes["estado"] == "empleado" and not v.e.get("jornada_parcial"):
+            assert despues["sueldo"] >= antes["sueldo"], (antes, despues)
+
+
 def test_fija_responde_una_sola_vez_y_despues_delega():
     v = vida(A_LOS_35, DadosGuion({"evento:oferta_llega": 0.0}))
     delegado = Guion({"oferta_externa": "quedarse"})
@@ -432,9 +446,10 @@ def test_cierre_alza_extra_anual_se_suma_al_alza_de_la_empleada():
     gemela.vivir_anio(Guion(QUIETA))
     assert "titularse_en_recesion" in [x["evento"] for x in reg["eventos"]]
     assert v.e["alza_extra_anual"] == pytest.approx(0.009)
-    # mismo dado del alza anual; en recesión el alza del año baja 1,5 puntos; después -9% y +0,9%
+    # mismo dado del alza anual; en recesión el alza del año baja 1,5 puntos, sin bajar de cero;
+    # después -9% y +0,9%
     alza_gemela = gemela.e["sueldo"] / 1_000_000
-    assert v.e["sueldo"] == pytest.approx(1_000_000 * (alza_gemela - 0.015) * 0.91 * 1.009)
+    assert v.e["sueldo"] == pytest.approx(1_000_000 * max(alza_gemela - 0.015, 1) * 0.91 * 1.009)
     for _ in range(9):
         v.vivir_anio(Guion(QUIETA))
     assert v.e["alza_extra_anual"] == pytest.approx(0.0, abs=1e-12)

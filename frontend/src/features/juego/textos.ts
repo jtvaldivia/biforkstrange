@@ -34,6 +34,9 @@ export function deCada(p: number): string {
 /** Siempre sobre 10, para comparar opciones entre sí: "7 de cada 10". */
 export const deCada10 = (p: number) => `${Math.round(p * 10)} de cada 10`;
 
+/** Sobre 100, como se cuentan los mundos: "63 de 100". Lo que pasa muy rara vez no se redondea a cero. */
+export const deCien = (p: number) => (p > 0 && p < 0.005 ? "menos de 1 de 100" : `${Math.round(p * 100)} de 100`);
+
 export const minuscula = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 
 export const CALIDAD: Record<Calidad, { nombre: string; explica: string }> = {
@@ -72,8 +75,11 @@ export const situacion = (estado: string) => SITUACION[estado] ?? estado;
 export const sinSueldo = (e: Estado) => e.sueldo <= 0;
 
 /** "Semi senior · $1.688.202" o, sin sueldo, "Sin trabajo, buscando". */
+/** "Analista de riesgo en BancoEstado · $1.400.000": el nombre del cargo y la empresa si se saben; si no, el nivel. */
 export const cargoYSueldo = (e: Estado, corto = false) =>
-  sinSueldo(e) ? situacion(e.estado) : `${e.cargo} · ${corto ? plata(e.sueldo) : pesos(e.sueldo)}`;
+  sinSueldo(e)
+    ? situacion(e.estado)
+    : `${e.rol || e.cargo}${!corto && e.empresa ? ` en ${e.empresa}` : ""} · ${corto ? plata(e.sueldo) : pesos(e.sueldo)}`;
 
 export function riesgoEnPalabras(r: number): string {
   if (r <= 3) return "prefiero lo seguro";
@@ -81,17 +87,168 @@ export function riesgoEnPalabras(r: number): string {
   return "depende";
 }
 
-const ARTE: Record<string, DecisionArtKind> = {
+const ARTE_CATEGORIA: Record<string, DecisionArtKind> = {
   estudios: "magister",
   trabajo: "consultora",
-  emprender: "invertir",
-  dinero: "invertir",
+  emprender: "cohete",
+  dinero: "chanchito",
   lugar: "viaje",
-  salud: "viaje",
+  salud: "corazon",
+  familia: "casa",
 };
 
-/** El kit trae cuatro dibujos: se elige por la categoría de la decisión. */
-export const arte = (categoria: string): DecisionArtKind => ARTE[categoria] ?? "consultora";
+const ARTE_DUDA: Record<string, DecisionArtKind> = {
+  oferta_externa: "puerta",
+  renunciar: "puerta",
+  independizarse: "puerta",
+  cambiar_de_rubro: "puerta",
+  cambiar_de_ocupacion: "puerta",
+  unirse_a_startup: "cohete",
+  emprender: "invertir",
+  seguir_con_tu_empresa: "invertir",
+  pedir_aumento: "subir",
+  jefatura: "subir",
+  aprender_ia: "laptop",
+  bootcamp: "laptop",
+  remoto_para_afuera: "laptop",
+  buscar_estando_empleado: "lupa",
+  cesantia: "lupa",
+  invertir_en_red: "negociar",
+  pedir_hibrido: "casa",
+  media_jornada: "pausa",
+  trabajar_mas_horas: "consultora",
+  sabatico: "viaje",
+  emigrar: "viaje",
+  mudarse_de_region: "viaje",
+  volver_a_chile: "viaje",
+  intercambio: "viaje",
+  ahorro: "chanchito",
+  financiar_estudios: "chanchito",
+  comprar_vivienda: "casa",
+  cuidar_familiar: "casa",
+  tener_hijo: "casa",
+  formalizar_pareja: "corazon",
+  buscar_pareja: "corazon",
+  separarse: "corazon",
+  licencia_salud_mental: "corazon",
+};
+
+/** Ids que significan lo mismo en cualquier decisión. Los que cambian de sentido ("si", "ir") van en ARTE_PAR. */
+const ARTE_OPCION: Record<string, DecisionArtKind> = {
+  cambiar: "puerta",
+  cambiarse: "puerta",
+  renunciar: "puerta",
+  dejar: "puerta",
+  formal: "puerta",
+  independiente: "puerta",
+  contraoferta: "negociar",
+  pedir: "negociar",
+  levantar: "negociar",
+  quedarse: "quedarte",
+  aguantar: "quedarte",
+  seguir: "quedarte",
+  seguir_igual: "quedarte",
+  rechazar: "quedarte",
+  arrendar: "quedarte",
+  no: "pausa",
+  esperar: "pausa",
+  ignorar: "pausa",
+  pasar: "pausa",
+  pausa: "pausa",
+  emprender: "cohete",
+  lado: "cohete",
+  startup: "cohete",
+  irse: "viaje",
+  a_santiago: "viaje",
+  a_region: "viaje",
+  volver: "viaje",
+  beca: "magister",
+  vespertino: "magister",
+  estudiar: "magister",
+  universidad: "magister",
+  instituto: "magister",
+  cft: "magister",
+  aprender: "laptop",
+  postular: "laptop",
+  bootcamp: "laptop",
+  buscar: "lupa",
+  rapido: "lupa",
+  nivel: "lupa",
+  aceptar: "subir",
+  mucho: "chanchito",
+  normal: "chanchito",
+  gratuidad: "chanchito",
+  cae: "chanchito",
+  informal: "chanchito",
+  gastar: "invertir",
+  vender: "invertir",
+  comprar: "casa",
+  convivir: "casa",
+  familia: "casa",
+  casarse: "corazon",
+  grande: "consultora",
+  pyme: "consultora",
+  estado: "consultora",
+  trabajar: "consultora",
+  tomar: "consultora",
+};
+
+const ARTE_PAR: Record<string, DecisionArtKind> = {
+  "unirse_a_startup:ir": "cohete",
+  "doctorado:ir": "magister",
+  "intercambio:ir": "viaje",
+  "seguir_con_tu_empresa:seguir": "cohete",
+  "seguir_con_tu_empresa:cerrar": "puerta",
+  "licencia_salud_mental:pedir": "corazon",
+  "licencia_salud_mental:seguir": "consultora",
+  "pedir_aumento:pedir": "subir",
+  "pedir_hibrido:pedir": "casa",
+  "media_jornada:pedir": "pausa",
+  "cuidar_familiar:pagar": "chanchito",
+  "cuidar_familiar:reducir": "pausa",
+  "cuidar_familiar:dejar_pega": "casa",
+  "separarse:intentar": "corazon",
+  "separarse:terminar": "puerta",
+  // para que dos opciones de la misma carta no compartan dibujo
+  "salir_del_colegio:instituto": "laptop",
+  "salir_del_colegio:cft": "chanchito",
+  "financiar_estudios:cae": "invertir",
+  "seguir_o_desertar:dejar": "consultora",
+  "magister:vespertino": "laptop",
+  "primera_pega:pyme": "quedarte",
+  "primera_pega:estado": "lupa",
+  "primera_pega:emprender": "invertir",
+  "cesantia:nivel": "pausa",
+  "media_jornada:no": "consultora",
+  "emprender:lado": "laptop",
+  "mudarse_de_region:a_santiago": "consultora",
+  "ahorro:normal": "quedarte",
+  "ahorro:gastar": "viaje",
+};
+
+/** El dibujo de una duda: el suyo propio o, si no tiene, el de su categoría. */
+export const arteDuda = (decision: string, categoria: string): DecisionArtKind =>
+  ARTE_DUDA[decision] ?? ARTE_CATEGORIA[categoria] ?? "consultora";
+
+/** El dibujo de una opción, para que cada camino de la carta se vea distinto. "Sí" y "Hacerlo" usan el de la duda. */
+export const arteOpcion = (decision: string, opcion: string, categoria: string): DecisionArtKind =>
+  ARTE_PAR[`${decision}:${opcion}`] ?? ARTE_OPCION[opcion] ?? arteDuda(decision, categoria);
+
+/** "Otra empresa te ofrece trabajo. ¿Te cambias?" → "¿Te cambias?". Sin pregunta, queda entera. */
+export function preguntaCorta(pregunta: string): string {
+  const i = pregunta.lastIndexOf("¿");
+  return i > 0 ? pregunta.slice(i) : pregunta;
+}
+
+/** La primera oración: "Cuatro a cinco años con beca. Retorno mediano…" → "Cuatro a cinco años con beca." */
+export function primeraFrase(texto: string): string {
+  const m = texto.match(/^(.+?[.!?])(\s|$)/);
+  return (m ? m[1] : texto).trim();
+}
+
+export const sinPunto = (s: string) => s.replace(/[.\s]+$/, "");
+
+export const mayuscula = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** Diferencia con signo: +$88 mil, −$329 mil. */
 export const conSigno = (n: number) => `${n < 0 ? "−" : "+"}${plata(Math.abs(n))}`;

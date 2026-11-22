@@ -1,7 +1,8 @@
 import logging
 """Lo que comparten los servicios que llaman a Claude: credenciales, cliente y errores.
 
-Lo usan `perfil_ia` (leer el CV) y `narrador_ia` (narrar ofertas, eventos y mundos).
+Lo usan `perfil_ia` (leer el CV), `narrador_ia` (narrar ofertas, eventos y mundos) y el gemelo
+(`app.core.llm`).
 """
 
 import os
@@ -18,15 +19,22 @@ class ClaudeNoDisponible(RuntimeError):
     """No se pudo llamar a Claude o no devolvió una respuesta usable."""
 
 
+def _llave() -> str | None:
+    """La llave de `backend/.env`: la config la lee aunque no esté exportada en el entorno."""
+    from app.core.config import get_settings
+
+    return get_settings().anthropic_api_key or None
+
+
 def hay_credenciales() -> bool:
-    """Las mismas fuentes que resuelve el SDK: variables de entorno o un perfil de `ant auth login`."""
-    return bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")
+    """`backend/.env` más las fuentes que resuelve el SDK: variables de entorno o un perfil de `ant auth login`."""
+    return bool(_llave() or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")
                 or (Path.home() / ".config" / "anthropic").is_dir())
 
 
 def cliente(timeout: float, max_retries: int) -> anthropic.Anthropic:
-    """Un cliente con las credenciales del entorno. `timeout` es por intento, en segundos."""
-    return anthropic.Anthropic(timeout=timeout, max_retries=max_retries)
+    """Un cliente con la llave de `.env` o, si no hay, las credenciales del entorno. `timeout` es por intento, en segundos."""
+    return anthropic.Anthropic(api_key=_llave(), timeout=timeout, max_retries=max_retries)
 
 
 def traducir_error(error: Exception, clase: type[ClaudeNoDisponible] = ClaudeNoDisponible) -> ClaudeNoDisponible:

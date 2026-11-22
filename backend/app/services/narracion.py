@@ -80,7 +80,7 @@ def items_mundo(m: dict) -> list[Item]:
 
 
 def narrar(perfil: Perfil, semilla: int, duda: str | None, elecciones: list[dict], que: str,
-           mundo: int | None = None, parametros: dict | None = None) -> dict:
+           mundo: int | None = None, parametros: dict | None = None, relato: str = "") -> dict:
     if que == "mundo":
         if mundo is None:
             raise ValueError("falta el número de mundo")
@@ -88,4 +88,4 @@ def narrar(perfil: Perfil, semilla: int, duda: str | None, elecciones: list[dict
     else:
         vista = partida.vista(perfil, semilla, duda, elecciones, n_gemelos=0)
         items = items_pendiente(vista) if que == "pendiente" else items_historia(vista)
-    return {"items": [n.model_dump() for n in narrador_ia.narrar(items)]}
+    return {"items": [n.model_dump() for n in narrador_ia.narrar(items, relato)]}

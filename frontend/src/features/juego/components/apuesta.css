@@ -1,0 +1,115 @@
+/* Esperas con apuestas: ruleta, tragamonedas, caballos, dado y naipes. Solo transform y opacity.
+   Cada escena gira una sola vez (~2,5 s) y se queda en su resultado. El estilo quieto de cada pieza
+   ES el resultado: la animación solo va desde el giro hasta ahí. Así, sin movimiento se ve el resultado
+   directo, y una espera encadenada que entra tarde (--ap-ya negativo) aparece donde iba o ya quieta. */
+.ap-espera { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 8px 0; }
+.ap-escena { --ap-ya: 0ms; display: block; width: 176px; max-width: 100%; height: auto; overflow: hidden; }
+.ap-texto { margin: 0; max-width: 320px; font: 500 15px/22px var(--font); color: var(--media); text-align: center; text-wrap: balance; animation: vd-subir .35s var(--ease) both; }
+.ap-titulo { font: 500 13px/16px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--suave); }
+
+/* A pantalla completa: con el fondo y la tinta del tema activo */
+.ap-espera[data-modo="pantalla"] { position: fixed; inset: 0; z-index: 10; justify-content: center; gap: 22px; padding: 24px 16px; background: var(--papel); color: var(--tinta); animation: vd-aparecer .25s ease both; }
+.ap-espera[data-modo="pantalla"] .ap-escena { width: min(260px, 72vw); }
+.ap-espera[data-modo="pantalla"] .ap-texto { min-height: 56px; font: 500 20px/28px var(--font); color: var(--tinta); }
+.ap-espera[data-modo="pantalla"] .ap-titulo { color: var(--suave); }
+
+/* Chica, al lado del texto: cuando puedes seguir haciendo otra cosa mientras esperas */
+.ap-espera[data-modo="compacto"] { flex-direction: row; justify-content: flex-start; gap: 12px; padding: 4px 0; }
+.ap-espera[data-modo="compacto"] .ap-escena { flex: none; width: 64px; }
+.ap-espera[data-modo="compacto"] .ap-texto { font: 500 14px/20px var(--font); text-align: left; }
+
+/* Ruleta: la rueda va a su giro final (en línea), la bola a la flecha y cae hacia adentro */
+.ap-ruleta-rueda { transform-origin: 80px 61px; animation: ap-rueda 2.5s cubic-bezier(.15, .55, .2, 1) var(--ap-ya) both; }
+@keyframes ap-rueda { from { transform: rotate(-720deg); } }
+.ap-ruleta-bola { transform-origin: 80px 61px; animation: ap-bola 2.3s cubic-bezier(.2, .5, .25, 1) var(--ap-ya) both; }
+@keyframes ap-bola { from { transform: rotate(1080deg); } }
+.ap-ruleta-cae { transform: translateY(12.5px); animation: ap-cae .4s cubic-bezier(.5, 0, .7, 1.4) calc(var(--ap-ya) + 2s) both; }
+@keyframes ap-cae { from { transform: none; } }
+.ap-ruleta-realce { transform-origin: 80px 61px; transform: scale(1.14); animation: ap-realce .35s var(--rebote) calc(var(--ap-ya) + 2.45s) both; }
+@keyframes ap-realce { from { transform: none; } }
+.ap-ruleta-otras { opacity: .35; animation: ap-apagar .35s ease calc(var(--ap-ya) + 2.45s) both; }
+@keyframes ap-apagar { from { opacity: 1; } }
+
+/* Tragamonedas: cada rodillo dura distinto (en línea), así se detienen uno por uno */
+.ap-rodillo { animation: ap-rodar 1.3s cubic-bezier(.3, .6, .3, 1.03) var(--ap-ya) both; }
+@keyframes ap-rodar { from { transform: translateY(0); } }
+/* Las luces parpadean mientras giran y quedan prendidas (una sola vuelta: con varias, Chrome redondea
+   el final a 0,9999 y alguna quedaba apagada) */
+.ap-luz { animation: ap-parpadeo 2.2s steps(1, end) calc(var(--ap-ya) + var(--d, 0s)) both; }
+@keyframes ap-parpadeo { 0%, 14%, 28%, 42%, 56%, 70%, 84%, 100% { opacity: 1; } 7%, 21%, 35%, 49%, 63%, 77% { opacity: .25; } }
+/* La palanca baja una vez: se aplasta hasta quedar bajo el eje, como vista de lado */
+.ap-palanca { transform-origin: 134px 70px; animation: ap-tirar .7s var(--ease) var(--ap-ya) both; }
+@keyframes ap-tirar { 0%, 100% { transform: none; } 25%, 50% { transform: scaleY(-.5); } }
+.ap-premio { animation: ap-premio 2.6s steps(1, end) var(--ap-ya) both; }
+@keyframes ap-premio { 0% { opacity: 0; } 87% { opacity: 1; } 91% { opacity: 0; } 95% { opacity: 1; } }
+
+/* Carrera: la pista corre mientras llega la meta; después solo avanzan los caballos */
+.ap-pasto { fill: color-mix(in srgb, var(--dinero) 30%, var(--papel)); }
+.ap-avanza { animation: ap-avanzar .45s linear var(--ap-ya) 4 both; }
+@keyframes ap-avanzar { to { transform: translateX(-16px); } }
+.ap-meta { animation: ap-meta 1.8s linear var(--ap-ya) both; }
+@keyframes ap-meta { from { transform: translateX(72px); } }
+.ap-bandera { transform-box: fill-box; transform-origin: left center; animation: ap-bandera .4s var(--rebote) calc(var(--ap-ya) + 2.15s) both; }
+@keyframes ap-bandera { from { transform: scaleX(0); } }
+.ap-corre { animation: 2.4s linear var(--ap-ya) both; }
+.ap-gana { transform: translateX(36px); animation-name: ap-gana; }
+.ap-segundo { transform: translateX(18px); animation-name: ap-segundo; }
+.ap-tercero { transform: translateX(4px); animation-name: ap-tercero; }
+@keyframes ap-gana { 0% { transform: translateX(-50px); } 35% { transform: translateX(-22px); } 65% { transform: translateX(6px); } 88% { transform: translateX(34px); animation-timing-function: ease-out; } }
+@keyframes ap-segundo { 0% { transform: translateX(-50px); } 35% { transform: translateX(-16px); } 65% { transform: translateX(11px); } 88% { transform: translateX(17px); animation-timing-function: ease-out; } }
+@keyframes ap-tercero { 0% { transform: translateX(-50px); } 35% { transform: translateX(-27px); } 65% { transform: translateX(-6px); } 88% { transform: translateX(3px); animation-timing-function: ease-out; } }
+.ap-trote { animation: ap-trotar .3s ease-in-out var(--ap-ya) 8 alternate both; }
+@keyframes ap-trotar { from { transform: translateY(0); } to { transform: translateY(-2.5px); } }
+.ap-pata-b { opacity: 0; }
+.ap-pata-a, .ap-pata-b { animation: ap-paso .3s steps(1, end) var(--ap-ya) 8 both; }
+.ap-pata-b { animation-delay: calc(var(--ap-ya) - .15s); }
+@keyframes ap-paso { 0% { opacity: 1; } 50% { opacity: 0; } }
+
+/* Dado: cuatro saltos cada vez más bajos, un cuarto de vuelta en cada uno (una vuelta entera en total);
+   cambia de cara en lo más alto de cada salto y la quinta cara es la que queda */
+.ap-dado { transform-origin: 80px 64px; animation: ap-saltar 2.2s ease-in-out var(--ap-ya) both; }
+@keyframes ap-saltar {
+  0% { transform: translateY(0) rotate(0deg); }
+  12% { transform: translateY(-24px) rotate(45deg); }
+  24% { transform: translateY(0) rotate(90deg); }
+  35% { transform: translateY(-17px) rotate(135deg); }
+  46% { transform: translateY(0) rotate(180deg); }
+  56% { transform: translateY(-11px) rotate(225deg); }
+  66% { transform: translateY(0) rotate(270deg); }
+  75% { transform: translateY(-5px) rotate(315deg); }
+  84%, 100% { transform: translateY(0) rotate(360deg); }
+}
+.ap-sombra { transform-origin: 80px 96px; animation: ap-sombra 2.2s ease-in-out var(--ap-ya) both; }
+@keyframes ap-sombra {
+  0%, 24%, 46%, 66%, 84%, 100% { transform: none; opacity: .3; }
+  12% { transform: scaleX(.55); opacity: .12; }
+  35% { transform: scaleX(.65); opacity: .16; }
+  56% { transform: scaleX(.78); opacity: .2; }
+  75% { transform: scaleX(.9); opacity: .26; }
+}
+.ap-cara { opacity: 0; animation: 2.2s linear var(--ap-ya) both; }
+.ap-cara-0 { animation-name: ap-cara-0; }
+.ap-cara-1 { animation-name: ap-cara-1; }
+.ap-cara-2 { animation-name: ap-cara-2; }
+.ap-cara-3 { animation-name: ap-cara-3; }
+.ap-cara-4 { opacity: 1; animation-name: ap-cara-4; }
+@keyframes ap-cara-0 { 0%, 11.9% { opacity: 1; } 12%, 100% { opacity: 0; } }
+@keyframes ap-cara-1 { 0%, 11.9% { opacity: 0; } 12%, 34.9% { opacity: 1; } 35%, 100% { opacity: 0; } }
+@keyframes ap-cara-2 { 0%, 34.9% { opacity: 0; } 35%, 55.9% { opacity: 1; } 56%, 100% { opacity: 0; } }
+@keyframes ap-cara-3 { 0%, 55.9% { opacity: 0; } 56%, 74.9% { opacity: 1; } 75%, 100% { opacity: 0; } }
+@keyframes ap-cara-4 { 0%, 74.9% { opacity: 0; } 75%, 100% { opacity: 1; } }
+
+/* Naipes: se reparten, una se levanta, se aplasta, se da vuelta y queda a la vista */
+.ap-reparte { animation: ap-repartir .45s var(--ease) calc(var(--ap-ya) + var(--d, 0s)) both; }
+@keyframes ap-repartir { from { transform: translateY(-30px); opacity: 0; } }
+.ap-alza { transform: translateY(-8px); animation: ap-alzar 2.2s var(--ease) var(--ap-ya) both; }
+@keyframes ap-alzar { 0%, 45% { transform: none; } 62%, 100% { transform: translateY(-8px); } }
+.ap-naipe { transform-box: fill-box; transform-origin: center; animation: ap-voltear 2.2s ease-in-out var(--ap-ya) both; }
+@keyframes ap-voltear { 0%, 62% { transform: none; } 78% { transform: scaleX(0); } 94%, 100% { transform: none; } }
+.ap-frente { animation: ap-frente 2.2s steps(1, end) var(--ap-ya) both; }
+@keyframes ap-frente { 0% { opacity: 0; } 78% { opacity: 1; } }
+
+/* Sin movimiento: cada pieza queda en su estilo quieto, que es el resultado */
+@media (prefers-reduced-motion: reduce) {
+  .ap-espera, .ap-espera * { animation: none !important; }
+}

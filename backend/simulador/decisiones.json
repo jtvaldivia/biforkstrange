@@ -114,7 +114,7 @@
       {
        "id": "busca",
        "prob": 1,
-       "texto": "Sales a buscar pega.",
+       "texto": "Sales a buscar trabajo.",
        "tono": "neutro",
        "efectos": [
         {
@@ -503,7 +503,7 @@
    "id": "trabajar_mientras_estudias",
    "nombre": "Trabajar mientras estudias",
    "categoria": "estudios",
-   "pregunta": "¿Tomas una pega de media jornada?",
+   "pregunta": "¿Tomas un trabajo de media jornada?",
    "cuando": "estado == 'estudiando'",
    "aparicion": {
     "tipo": "carta",
@@ -843,7 +843,7 @@
     },
     {
      "id": "vespertino",
-     "nombre": "Estudiar de noche sin dejar la pega",
+     "nombre": "Estudiar de noche sin dejar el trabajo",
      "detalle": "Pagas el arancel de la universidad que elijas (SIES 2026) y duermes menos dos años.",
      "resultados": [
       {
@@ -1104,7 +1104,7 @@
       {
        "id": "sin_pega",
        "prob": "resto",
-       "texto": "Terminas, pero no encuentras pega todavía.",
+       "texto": "Terminas, pero no encuentras trabajo todavía.",
        "tono": "malo",
        "efectos": [
         {
@@ -1261,7 +1261,7 @@
   },
   {
    "id": "primera_pega",
-   "nombre": "Tu primera pega",
+   "nombre": "Tu primer trabajo",
    "categoria": "trabajo",
    "pregunta": "¿Dónde postulas a tu primer trabajo estable?",
    "cuando": "y(estado == 'buscando', primer_empleo == 1)",
@@ -1791,7 +1791,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "tabla_o(tabla('esi_ingreso_categoria_formalidad', 'p50', 'categoria', 'cuenta_propia', 'banda_edad', '18-54', 'formalidad', 'informal'), 'esi_ingreso_categoria_formalidad', 'p50', 'categoria', 'cuenta_propia', 'banda_edad', banda7, 'formalidad', 'informal')"
+         "valor": "(tabla_o(tabla('esi_ingreso_categoria_formalidad', 'p50', 'categoria', 'cuenta_propia', 'banda_edad', '18-54', 'formalidad', 'informal'), 'esi_ingreso_categoria_formalidad', 'p50', 'categoria', 'cuenta_propia', 'banda_edad', banda7, 'formalidad', 'informal')) * prima_personal"
         }
        ]
       }
@@ -2042,9 +2042,9 @@
   },
   {
    "id": "buscar_estando_empleado",
-   "nombre": "Buscar pega sin renunciar",
+   "nombre": "Buscar trabajo sin renunciar",
    "categoria": "trabajo",
-   "pregunta": "¿Sales a buscar otra pega mientras trabajas?",
+   "pregunta": "¿Sales a buscar otro trabajo mientras trabajas?",
    "cuando": "estado == 'empleado'",
    "aparicion": {
     "tipo": "carta",
@@ -2122,7 +2122,7 @@
   },
   {
    "id": "renunciar",
-   "nombre": "Renunciar sin tener otra pega",
+   "nombre": "Renunciar sin tener otro trabajo",
    "categoria": "trabajo",
    "pregunta": "¿Renuncias?",
    "cuando": "estado == 'empleado'",
@@ -2571,7 +2571,7 @@
       {
        "id": "no",
        "prob": 1,
-       "texto": "Sigues en tu pega.",
+       "texto": "Sigues en tu trabajo.",
        "tono": "neutro",
        "efectos": []
       }
@@ -2923,7 +2923,7 @@
         {
          "var": "sueldo",
          "op": "fija",
-         "valor": "tabla_o(tabla('esi_ingreso_ocupacion', 'p50', 'ciuo08_1d', si(ocupacion_destino == 0, 10, ocupacion_destino), 'banda_edad', '18-54'), 'esi_ingreso_ocupacion', 'p50', 'ciuo08_1d', si(ocupacion_destino == 0, 10, ocupacion_destino), 'banda_edad', banda7) * 0.9"
+         "valor": "(tabla_o(tabla('esi_ingreso_ocupacion', 'p50', 'ciuo08_1d', si(ocupacion_destino == 0, 10, ocupacion_destino), 'banda_edad', '18-54'), 'esi_ingreso_ocupacion', 'p50', 'ciuo08_1d', si(ocupacion_destino == 0, 10, ocupacion_destino), 'banda_edad', banda7) * 0.9) * prima_personal"
         },
         {
          "var": "nivel",
@@ -3411,7 +3411,7 @@
    "id": "emprender",
    "nombre": "Emprender",
    "categoria": "emprender",
-   "pregunta": "¿Dejas tu pega para armar tu empresa?",
+   "pregunta": "¿Dejas tu trabajo para armar tu empresa?",
    "cuando": "y(en(estado, 'empleado', 'buscando'), edad >= 20)",
    "aparicion": {
     "tipo": "carta",
@@ -3708,7 +3708,7 @@
       {
        "id": "cierra",
        "prob": 1,
-       "texto": "Cierras y sales a buscar pega.",
+       "texto": "Cierras y sales a buscar trabajo.",
        "tono": "neutro",
        "efectos": [
         {
@@ -5146,7 +5146,7 @@
      "resultados": [
       {
        "id": "publico",
-       "prob": "k('P_REEMPLEO_PUBLICO')",
+       "prob": "max(tabla_o(k('P_REEMPLEO_PUBLICO'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'publico'), k('PISO_REEMPLEO_PUBLICO'))",
        "texto": "Entras al Estado.",
        "tono": "neutro",
        "efectos": [
@@ -5164,7 +5164,7 @@
       },
       {
        "id": "grande",
-       "prob": "(1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande')",
+       "prob": "tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'grande') * (1 - max(tabla_o(k('P_REEMPLEO_PUBLICO'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'publico'), k('PISO_REEMPLEO_PUBLICO')) - max((1 - tabla_o(k('P_REEMPLEO_PUBLICO'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'publico') - tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'grande') - tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'pyme')), k('PISO_STARTUP'))) / (tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'grande') + tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'pyme'))",
        "texto": "Entras a una empresa grande.",
        "tono": "neutro",
        "efectos": [
@@ -5177,7 +5177,7 @@
       },
       {
        "id": "pyme",
-       "prob": "(1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme')",
+       "prob": "tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'pyme') * (1 - max(tabla_o(k('P_REEMPLEO_PUBLICO'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'publico'), k('PISO_REEMPLEO_PUBLICO')) - max((1 - tabla_o(k('P_REEMPLEO_PUBLICO'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'publico') - tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'grande') - tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'pyme')), k('PISO_STARTUP'))) / (tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'grande'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'grande') + tabla_o((1 - k('P_REEMPLEO_PUBLICO')) * k('MIX_EMPLEADOR', 'pyme'), 'transiciones_tipo', 'prob', 'origen', si(tipo_empleador == '', 'ninguno', tipo_empleador), 'destino', 'pyme'))",
        "texto": "Entras a una pyme.",
        "tono": "neutro",
        "efectos": [

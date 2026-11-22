@@ -68,7 +68,7 @@ def test_simular_muestra_una_fila_por_anio(capsys):
     assert code == 0
     assert "$800.000" in out
     assert "Personal de apoyo administrativo" in out
-    for etiqueta in ("Seguir igual", "Cambiar de pega", "Estudiar"):
+    for etiqueta in ("Seguir igual", "Cambiar de trabajo", "Estudiar"):
         assert etiqueta in out
     lineas = out.splitlines()
     filas = lineas[lineas.index("-" * 100) + 1 :]

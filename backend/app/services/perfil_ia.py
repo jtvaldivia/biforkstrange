@@ -30,6 +30,7 @@ from pydantic import BaseModel, Field, ValidationError, create_model
 from app.services.claude_comun import ERRORES_API, ClaudeNoDisponible, cliente, traducir_error
 from app.services.claude_comun import hay_credenciales as _hay_credenciales
 from app.sim.motor.paquete import Paquete, paquete
+from app.sim.motor import empresas
 from app.sim.motor.empresas import universidades
 from app.sim.motor.perfil import NIVELES, prima_universidad
 
@@ -99,7 +100,7 @@ class PerfilLeido(BaseModel):
     anios_experiencia: int | None = Field(None, description="Años de experiencia laboral desde su primer trabajo formal.")
     empleadores: int | None = Field(None, description="Cuántos empleadores distintos ha tenido, contando el actual.")
     situacion: Literal["empleado", "independiente", "fundador", "buscando", "estudiando"] | None = Field(
-        None, description="Su situación HOY: empleado, independiente (freelance o boletas), fundador de su empresa, buscando pega o estudiando.")
+        None, description="Su situación HOY: empleado, independiente (freelance o boletas), fundador de su empresa, buscando trabajo o estudiando.")
     meses_sin_trabajo: int | None = Field(None, description="Si hoy está buscando: meses desde que terminó su último trabajo.")
     jornada_parcial: bool | None = Field(None, description="true si su trabajo actual es part-time o media jornada.")
     remoto: bool | None = Field(None, description="true si su trabajo actual es remoto o mayormente remoto.")
@@ -107,6 +108,8 @@ class PerfilLeido(BaseModel):
     empresa_propia_anos: int | None = Field(None, description="Si es fundador: años que tiene su empresa.")
     levanto_inversion: bool | None = Field(None, description="Si es fundador: true si su empresa levantó inversión externa.")
     empresa_actual: str | None = Field(None, description="Su empleador de hoy: el nombre legal en Chile si lo conoces.")
+    cargo_actual: str | None = Field(
+        None, description="El nombre de su cargo de hoy, como lo escribe el texto (\"Analista de riesgo\"), sin la empresa.")
     anio_egreso_esperado: int | None = Field(
         None, description="Si hoy estudia: el año en que espera titularse, solo si el texto lo dice (\"egreso esperado 2028\").")
     anio_que_cursa: int | None = Field(
@@ -148,6 +151,9 @@ Cómo llenar cada campo:
 saber, déjalo en null. El simulador pone un valor por defecto y se lo muestra a la persona como \
 supuesto; un valor inventado por ti se vería como un dato suyo y ella no sabría que revisarlo.
 - Los campos describen su situación ACTUAL: el trabajo que tiene hoy, no los anteriores.
+- No inventes trabajos. Un trabajo anterior existe solo si el texto lo nombra; si el texto trae un \
+solo trabajo, es su único trabajo conocido. Lo mismo en por_que y en retrato: no menciones pegas, \
+empresas ni cargos que el texto no trae.
 - edad: si no la dice pero hay año de nacimiento o de egreso del colegio, calcúlala con la fecha \
 de hoy que viene en el mensaje. No la deduzcas de los años de experiencia.
 - edu: el nivel más alto terminado. Un magíster o doctorado terminado es "postgrado"; una carrera \
@@ -203,10 +209,12 @@ lista un solo cargo por empresa, 0; si no trae experiencia, null.
 no prosperó"). Vendidos o adquiridos no cuentan. Si tuvo empresas y no dice cómo terminaron, null.
 - universidad_id: copia el universidad_id del CATÁLOGO DE INSTITUCIONES donde estudió su pregrado \
 (universidad, instituto o CFT, en Chile o afuera). Solo si el texto la nombra; si no, null.
+- cargo_actual: el nombre de su cargo de hoy tal como aparece ("Analista de riesgo", "Product Manager"), \
+sin la empresa ni las fechas. Es distinto de nivel: nivel es la escala; cargo_actual, el nombre.
 - empresa_actual: su empleador de hoy, sin cargo ni fechas. Si conoces su nombre legal en Chile, usa \
 ese (BancoEstado → "Banco del Estado de Chile"); si no, el nombre tal como aparece.
 - dudas_sugeridas: hasta 3 decisiones de carrera de la lista DUDAS que esta persona probablemente se \
-está haciendo, según su momento (años en la pega, cargo, estudios, idiomas, rubro). Cada una con un \
+está haciendo, según su momento (años en el trabajo, cargo, estudios, idiomas, rubro). Cada una con un \
 por_que corto que cite algo concreto del texto ("Llevas 4 años en BancoEstado y ya eres senior"). Si \
 el texto dice qué duda tiene, esa va primera.
 - retrato: lo que su gemelo sabe de ella, en segunda persona y en máximo 25 palabras, solo con hechos \
@@ -325,7 +333,7 @@ def _por_comando(texto: str, hoy: str, pq: Paquete) -> PerfilLeido:
         salida = subprocess.run(
             ["claude", "-p", "--model", MODELO, "--effort", "low", "--output-format", "json",
              "--json-schema", json.dumps(esquema_api().model_json_schema())],
-            input=prompt, capture_output=True, text=True, timeout=90, check=True,
+            input=prompt, capture_output=True, text=True, encoding="utf-8", timeout=90, check=True,
         )
         cuerpo = json.loads(salida.stdout)
         datos = cuerpo.get("structured_output")
@@ -370,7 +378,7 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
     base = PerfilIn().model_dump()
     rubros = [r for r in pq.variables["rubro"]["dominio"] if r]
     perfil, supuestos = dict(base), []
-    extras = {"ingles", "anios_experiencia", "empleadores", "empresa_actual", "situacion", "meses_sin_trabajo",
+    extras = {"ingles", "anios_experiencia", "empleadores", "empresa_actual", "cargo_actual", "situacion", "meses_sin_trabajo",
               "jornada_parcial", "remoto", "usa_ia", "empresa_propia_anos", "levanto_inversion",
               "anio_egreso_esperado", "anio_que_cursa", "anos_independiente", "practica", "toda_su_carrera_en",
               "ascensos_internos", "empresas_cerradas", *HISTORIA_LEIDA}
@@ -431,7 +439,7 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
 
         perfil["anos_por_empleo"] = max(0.1, min(40.0, round(leido.anios_experiencia / leido.empleadores, 1)))
         cambiar = pesos_personales({"anos_por_empleo": perfil["anos_por_empleo"]})["oferta_externa"]["cambiar"]
-        inferido.append(f"Te cambias de pega cada {str(perfil['anos_por_empleo']).replace('.', ',')} años: tus gemelos aceptan una oferta "
+        inferido.append(f"Te cambias de trabajo cada {str(perfil['anos_por_empleo']).replace('.', ',')} años: tus gemelos aceptan una oferta "
                         f"{round(cambiar * 100)}% de las veces (la gente, {round(PESOS_FORZADAS['oferta_externa']['cambiar'] * 100)}%).")
     inferido += _avance_en_carrera(leido, perfil, pq, hoy)
     inferido += _historia(leido, perfil)
@@ -440,6 +448,9 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
     inferido += _toda_su_carrera(leido, perfil, pq)
     inferido += _ritmo_de_ascensos(leido, perfil, pq)
     inferido += _empresas_cerradas(leido, perfil)
+    # los nombres de su empleo de hoy: solo para contar la historia con su empresa y su cargo reales
+    perfil["empresa_nombre"] = (leido.empresa_actual or "").strip()[:120]
+    perfil["cargo_nombre"] = (leido.cargo_actual or "").strip()[:120]
     empresa = _empresa_sii(leido.empresa_actual)
     if empresa:
         if datos["tipo_empleador"] in (None, "grande", "pyme"):
@@ -452,12 +463,15 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
         inferido.append(f"{empresa['nombre']}: {empresa['tamano']}, {empresa['rubro']}, "
                         f"{empresa['trabajadores']} trabajadores según el SII.")
     final = PerfilIn(**perfil).model_dump()
+    # para mostrar su logo: la empresa del CV en el catálogo, si está (no mueve números: su empleo actual es neutro)
+    catalogo = empresas.buscar(pq, leido.empresa_actual) or (empresas.buscar(pq, empresa["nombre"]) if empresa else None)
     return {
         "perfil": final,
         "leido": leido.model_dump(),
         "supuestos": [{"campo": c, "nombre": nombres[c]} for c in supuestos],
         "inferido": inferido,
         "empresa": empresa,
+        "empresa_catalogo": {k: catalogo[k] for k in ("empresa_id", "nombre", "rubro", "logo")} if catalogo else None,
         "dudas_sugeridas": _sugeridas_posibles(leido.dudas_sugeridas, final, pq),
         "retrato": (leido.retrato or "").strip() or None,
     }
@@ -468,7 +482,7 @@ def completar(leido: PerfilLeido, pq: Paquete | None = None, hoy: str | None = N
 HISTORIA_LEIDA = {
     "volvio_a_su_nivel": ("cesantia", "nivel", "Ya pasaste por una cesantía larga y volviste a tu nivel: si quedan "
                           "cesantes, tus gemelos esperan un cargo como el tuyo"),
-    "freelance_entre_pegas": ("cesantia", "informal", "Entre una pega y otra trabajaste por tu cuenta: si quedan "
+    "freelance_entre_pegas": ("cesantia", "informal", "Entre un trabajo y otro trabajaste por tu cuenta: si quedan "
                               "cesantes, tus gemelos hacen boletas"),
     "emprendio_antes": ("cesantia", "emprender", "Ya tuviste una empresa propia: si quedan cesantes, tus gemelos "
                         "emprenden"),
@@ -521,7 +535,7 @@ def _practica(leido: PerfilLeido, perfil: dict) -> list[str]:
     opcion = PRIMERA_PEGA_POR_PRACTICA[leido.practica][0]
     suyo = pesos_personales({"practica": leido.practica})["primera_pega"][opcion]
     donde = "una empresa grande" if leido.practica == "grande" else "el Estado"
-    return [f"Hiciste tu práctica en {donde}: al buscar su primera pega, tus gemelos postulan ahí {round(suyo * 100)}% "
+    return [f"Hiciste tu práctica en {donde}: al buscar su primer trabajo, tus gemelos postulan ahí {round(suyo * 100)}% "
             f"de las veces (la gente, {round(PESOS_FORZADAS['primera_pega'][opcion] * 100)}%; supuesto del equipo)."]
 
 
@@ -534,11 +548,12 @@ def _toda_su_carrera(leido: PerfilLeido, perfil: dict, pq: Paquete) -> list[str]
     perfil["toda_su_carrera_en"] = leido.toda_su_carrera_en
     propios = parametros_propios(Perfil(toda_su_carrera_en=leido.toda_su_carrera_en), pq)
     if leido.toda_su_carrera_en == "publico":
-        return [f"Toda tu carrera ha sido en el Estado: cuando tus gemelos cambian de pega, vuelven al Estado "
-                f"{round(propios['P_REEMPLEO_PUBLICO'] * 100)}% de las veces (la gente, "
+        return [f"Toda tu carrera ha sido en el Estado: cuando tus gemelos cambian de trabajo, vuelven al Estado "
+                f"al menos {round(propios['PISO_REEMPLEO_PUBLICO'] * 100)}% de las veces (la gente, "
                 f"{round(pq.k('P_REEMPLEO_PUBLICO') * 100)}%; supuesto del equipo)."]
-    return [f"Toda tu carrera ha sido en startups: cuando tus gemelos cambian de pega en el sector privado, "
-            f"{round(propios['MIX_EMPLEADOR']['startup'] * 100)}% de las veces es otra startup (la gente, "
+    privado = 1 - pq.k("P_REEMPLEO_PUBLICO")
+    return [f"Toda tu carrera ha sido en startups: cuando tus gemelos cambian de trabajo en el sector privado, "
+            f"al menos {round(propios['PISO_STARTUP'] / privado * 100)}% de las veces es otra startup (la gente, "
             f"{round(pq.k('MIX_EMPLEADOR', 'startup') * 100)}%; supuesto del equipo)."]
 
 
@@ -591,7 +606,7 @@ def _avance_en_carrera(leido: PerfilLeido, perfil: dict, pq: Paquete, hoy: str |
     anios_que_faltan = (restantes + 1) // 2
     plazo = "un año más" if anios_que_faltan == 1 else f"{anios_que_faltan} años más"
     if leido.anio_egreso_esperado is not None:
-        return [f"Esperas titularte en {leido.anio_egreso_esperado}: tus gemelos estudian {plazo} antes de buscar su primera pega."]
+        return [f"Esperas titularte en {leido.anio_egreso_esperado}: tus gemelos estudian {plazo} antes de buscar su primer trabajo."]
     if leido.anio_que_cursa is not None:
         return [f"Vas en {leido.anio_que_cursa}° año: según la duración real de tu carrera, tus gemelos estudian {plazo}."]
     return [f"No sabemos cuánto te falta para titularte: suponemos que entraste a los 18 y vas al día, así que "

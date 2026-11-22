@@ -52,6 +52,8 @@ class PerfilIn(BaseModel):
     ascensos_por_ano: float | None = Field(None, ge=0, le=2)
     empresas_cerradas: int = Field(0, ge=0, le=10)
     universidad_id: str = Field("", max_length=40)
+    empresa_nombre: str = Field("", max_length=120)
+    cargo_nombre: str = Field("", max_length=120)
 
     @field_validator("universidad_id")
     @classmethod
@@ -59,6 +61,21 @@ class PerfilIn(BaseModel):
         if v and v not in _ids_universidades():
             raise ValueError(f"universidad desconocida: {v!r}")
         return v
+
+    # lo abierto: cómo te describes con tus palabras y tu gemelo digital. Fuera de model_dump: no son campos del motor
+    relato: str = Field("", max_length=20000, exclude=True)
+    gemelo_id: str | None = Field(None, max_length=64, exclude=True)
+    # la afinidad del gemelo congelada al empezar la partida (de POST /juego/afinidad); manda sobre gemelo_id
+    afinidad: dict[str, float] | None = Field(None, exclude=True)
+
+    @field_validator("afinidad")
+    @classmethod
+    def _afinidad_acotada(cls, v: dict[str, float] | None) -> dict[str, float] | None:
+        if v is None:
+            return None
+        from app.services.juego_personal import acotar_afinidad
+
+        return acotar_afinidad(v)
 
     def a_perfil(self) -> Perfil:
         return Perfil(**self.model_dump())
@@ -85,6 +102,10 @@ class NarrarIn(PartidaIn):
 
     que: Literal["pendiente", "historia", "mundo"] = "pendiente"
     mundo: int | None = Field(None, ge=0, le=1999)
+
+
+class AfinidadIn(BaseModel):
+    gemelo_id: str = Field(min_length=1, max_length=64)
 
 
 class MundoIn(PartidaIn):

@@ -61,6 +61,7 @@ def prompt(pq: Paquete | None = None) -> str:
         "",
         "Reglas:",
         "- Solo lo que sabes o lo que yo te diga. Si no sabes algo, pon ?. No inventes.",
+        "- Mis pegas anteriores solo si sabes que las tuve. Si no sabes si hubo otras, pon ?; no las supongas.",
         "- Nada de salud, pareja, familia ni nada que yo no quiera compartir.",
         "- Si te falta mi sueldo o mi duda, pregúntamelo en un mensaje corto antes de escribir.",
         "- Responde solo con el bloque, tal cual:",
@@ -69,6 +70,11 @@ def prompt(pq: Paquete | None = None) -> str:
         "sueldo_liquido: <pesos líquidos al mes, solo números>",
         "duda: <el código de la lista de dudas que más me da vueltas hoy>",
         "situacion: <empleado, independiente, fundador, buscando o estudiando>",
+        "empresa: <dónde trabajo hoy, o ?>",
+        "cargo: <cómo se llama mi cargo hoy, ej. Analista de riesgo, o ?>",
+        "nivel: <Junior, Semi senior, Senior, Jefatura o Gerencia>",
+        "antiguedad: <años en mi pega de hoy>",
+        "pegas_anteriores: <empresa y cargo de cada pega anterior, separadas por ;, o ninguna si la de hoy es la primera>",
         "riesgo: <0 a 10: cuánto riesgo tomo en mi carrera>",
         "ingles: <si o no: ¿podría trabajar en inglés?>",
         "ia: <no uso, a veces o todos los dias: cuánto uso IA en mi trabajo>",
@@ -80,14 +86,16 @@ def prompt(pq: Paquete | None = None) -> str:
         "```",
         "",
         "Si los sabes, puedes agregar en el mismo bloque: edad, estudios (media, tecnica, universitaria o "
-        "postgrado), cargo (Junior, Semi senior, Senior, Jefatura o Gerencia), rubro y tipo_empresa (grande, "
-        "pyme, startup, publico o extranjero).",
+        "postgrado), rubro y tipo_empresa (grande, pyme, startup, publico o extranjero).",
         "",
         "Rubros: " + "; ".join(rubros) + ".",
         "",
         "Dudas: " + "; ".join(f"{d['id']} ({d['nombre']})" for d in dudas) + ".",
     ]
     return "\n".join(lineas)
+
+
+_NINGUNA = {"ninguna", "ninguno", "ningun", "0", "no"}
 
 
 def _campos(bloque: str) -> dict[str, str]:
@@ -97,16 +105,18 @@ def _campos(bloque: str) -> dict[str, str]:
         if ":" not in linea:
             continue
         clave, valor = (x.strip() for x in linea.split(":", 1))
-        valor = valor.strip("<>\"' ")
-        if _normal(valor) not in _VACIO:
-            salida[_normal(clave).replace(" ", "_")] = valor
+        clave, valor = _normal(clave).replace(" ", "_"), valor.strip("<>\"' ")
+        # "ninguna" en pegas_anteriores es un dato (la de hoy es la primera), no un vacío
+        if _normal(valor) not in _VACIO or (clave == "pegas_anteriores" and _normal(valor) in _NINGUNA):
+            salida[clave] = valor
     return salida
 
 
 # Los campos que puede traer el bloque (los del prompt y los que acepta además)
 CAMPOS_DEL_BLOQUE = {"sueldo_liquido", "duda", "situacion", "riesgo", "ingles", "ia", "proyecto", "afuera", "rubro_sonado",
                      "intereses", "retrato", "edad", "sexo", "estudios", "carrera", "institucion", "rubro", "tipo_empresa",
-                     "cargo", "ocupacion", "antiguedad", "region", "experiencia", "empleadores", "empresa"}
+                     "cargo", "nivel", "ocupacion", "antiguedad", "region", "experiencia", "empleadores", "empresa",
+                     "pegas_anteriores"}
 
 
 def _entero(valor: str) -> int | None:
@@ -203,17 +213,32 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
 
         leido["anios_experiencia"] = max(0, date.today().year - leido["anios_experiencia"])
     numero("empleadores", "empleadores", "empleadores")
+    if "pegas_anteriores" in c and leido.get("empleadores") is None:
+        # la de hoy más las anteriores que nombró; "ninguna" es que la de hoy es la única
+        anteriores = [] if _normal(c["pegas_anteriores"]) in _NINGUNA else \
+            [x for x in re.split(r"[;\n]", c["pegas_anteriores"]) if x.strip()]
+        leido["empleadores"] = len(anteriores) + 1
     if c.get("empresa") and _normal(c["empresa"]) not in _VACIO:
         leido["empresa_actual"] = c["empresa"]
-    for campo, destino, nombre in (("cargo", "nivel", "cargo"), ("sueldo_liquido", "sueldo", "sueldo"),
-                                   ("riesgo", "riesgo", "riesgo"), ("ocupacion", "ocupacion", "tipo de trabajo"),
-                                   ("antiguedad", "antiguedad", "antigüedad")):
+    for campo, destino, nombre in (("sueldo_liquido", "sueldo", "sueldo"), ("riesgo", "riesgo", "riesgo"),
+                                   ("ocupacion", "ocupacion", "tipo de trabajo"), ("antiguedad", "antiguedad", "antigüedad")):
         numero(campo, destino, nombre)
-    if "cargo" in c and leido.get("nivel") is None:  # también acepta el nombre del cargo
-        por_nombre = {_normal(n): i for i, n in enumerate(NIVELES)}
-        leido["nivel"] = por_nombre.get(_normal(c["cargo"]))
-        if leido["nivel"] is not None:  # el aviso de "no es un número" ya no aplica
-            avisos[:] = [a for a in avisos if not a.startswith("cargo:")]
+    # nivel: el nombre de la escala o su número. Los documentos viejos lo traen en "cargo"; los nuevos traen ahí
+    # el nombre de su cargo (Analista de riesgo), que no mueve números y sirve para contar su historia.
+    por_nombre = {_normal(n): i for i, n in enumerate(NIVELES)}
+
+    def a_nivel(valor: str) -> int | None:
+        return por_nombre.get(_normal(valor), int(valor) if re.fullmatch(r"\s*\d\s*", valor) else None)
+
+    if "nivel" in c:
+        leido["nivel"] = a_nivel(c["nivel"])
+        if leido["nivel"] is None:
+            avisos.append(f"nivel: «{c['nivel']}» no es un nivel de la escala.")
+    if "cargo" in c:
+        if a_nivel(c["cargo"]) is None:
+            leido["cargo_actual"] = c["cargo"][:120]
+        elif leido.get("nivel") is None:
+            leido["nivel"] = a_nivel(c["cargo"])
     if "rubro" in c:
         rubros = {_normal(r): r for r in pq.variables["rubro"]["dominio"] if r}
         leido["rubro"] = rubros.get(_normal(c["rubro"])) or next(
@@ -270,7 +295,8 @@ def leer_documento(texto: str, pq: Paquete | None = None) -> dict | None:
     intereses = [x.strip() for x in re.split(r"[,;]", c.get("intereses", "")) if x.strip()][:5]
     # Qué campos del perfil dijo de verdad (para sumarlos a lo del CV sin pisarlo con valores por defecto)
     a_perfil = {"situacion": ["estado"], "anios_experiencia": ["skill"], "empleadores": ["red"],
-                "empresa_actual": ["tipo_empleador", "rubro"] if resultado.get("empresa") else []}
+                "empresa_actual": ["empresa_nombre", *(["tipo_empleador", "rubro"] if resultado.get("empresa") else [])],
+                "cargo_actual": ["cargo_nombre"]}
     fuera_de_rango = {a.split(":", 1)[0] for a in avisos if "fuera de rango" in a}
     dados = sorted({k for campo, v in leido.items() if v is not None and campo not in fuera_de_rango
                     for k in a_perfil.get(campo, [campo]) if k in resultado["perfil"]} | ({"rubro_sonado"} if resultado["perfil"].get("rubro_sonado") else set())

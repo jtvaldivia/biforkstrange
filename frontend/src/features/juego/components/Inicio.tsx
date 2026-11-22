@@ -21,13 +21,10 @@ export function Inicio({
   return (
     <Screen>
       <ScreenHeader left={<Pill>Gemelo laboral</Pill>} right={<Meta>10 años</Meta>} />
-      <LifePathHero past={["Estudios", "Tu pega"]} today="Tú, hoy" chosen="Lo que eliges" alternatives={["Otra opción", "Seguir igual"]} />
+      <LifePathHero past={["Estudios", "Tu trabajo"]} today="Tú, hoy" chosen="Lo que eliges" alternatives={["Otra opción", "Seguir igual"]} />
       <Stack gap={12}>
         <Heading level={1}>Vive tu decisión antes de tomarla.</Heading>
-        <Text>
-          Cada año la vida te pone una decisión de trabajo: ¿me cambio?, ¿pido aumento?, ¿emprendo? Simulamos {GEMELOS} mundos posibles. En cada uno vive un gemelo tuyo, que prueba cada opción durante 10 años con la suerte de ese mundo.
-          Así ves qué pasa casi siempre y qué pasa a veces, antes de jugártela tú.
-        </Text>
+        <Text>Un gemelo tuyo prueba cada opción en {GEMELOS} mundos.</Text>
       </Stack>
       <div className="jg-mini" aria-hidden="true">
         {Array.from({ length: 100 }, (_, i) => (
@@ -35,9 +32,9 @@ export function Inicio({
         ))}
       </div>
       <Row gap={6}>
-        <Tag>1 · Cuentas quién eres</Tag>
-        <Tag>2 · {GEMELOS} mundos prueban cada opción</Tag>
-        <Tag>3 · Eliges y vives el mundo {GEMELOS + 1}</Tag>
+        <Tag>1 · Tu perfil</Tag>
+        <Tag>2 · Tu duda</Tag>
+        <Tag>3 · Vives el mundo {GEMELOS + 1}</Tag>
       </Row>
       <ScreenFooter>
         {error && <ErrorCaja error={error} />}

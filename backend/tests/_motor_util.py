@@ -216,6 +216,7 @@ def estado_al_azar(R: random.Random) -> dict:
             e[v["nombre"]] = neutro if R.random() < 0.5 else R.uniform(lo, hi)
     e = p.ref.derivar(e)
     e["prob_ascenso"] = R.choice([0.0, 0.05, R.uniform(0, 0.4)])
+    e["prima_personal"] = R.choice([1.0, R.uniform(0.6, 3.0)])  # la calcula el motor, no el paquete de referencia
     faltan = set(p.variables) - set(e)
     assert not faltan, f"el generador no cubre {faltan}"
     return e

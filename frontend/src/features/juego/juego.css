@@ -19,7 +19,7 @@ select.jg-campo { appearance: none; background-image: linear-gradient(45deg, tra
 
 /* Opciones lado a lado */
 .jg-opciones { display: grid; grid-template-columns: repeat(var(--jg-n, 2), minmax(0, 1fr)); gap: 12px; align-items: stretch; padding: 10px 8px 6px 0; }
-.jg-opciones[data-cargando="true"] { opacity: .55; transition: opacity .2s ease; }
+.jg-opciones[data-cargando="true"], .jg-opciones-cortas[data-cargando="true"] { opacity: .55; transition: opacity .2s ease; }
 @media (max-width: 759px) {
   /* En teléfono caben dos; con tres o cuatro se desliza hacia el lado */
   .jg-opciones[data-muchas="true"] { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(148px, 42%); overflow-x: auto; scroll-snap-type: x proximity; margin-right: -20px; padding-right: 20px; }
@@ -90,7 +90,7 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-situacion { font-size: 17px; line-height: 25px; color: var(--tinta, inherit); border-left: 3px solid var(--acento); padding-left: 12px; }
 
 /* ───────── Gráficos y animaciones del juego ───────── */
-.jg-fondo { --jg-mas: var(--dinero); --jg-igual: #B9BAC0; --jg-menos: var(--bienestar); }
+.jg-fondo { --jg-mas: var(--dinero); --jg-igual: var(--apagado); --jg-menos: var(--bienestar); }
 
 /* Información extra que se abre al tocar */
 .jg-info { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
@@ -183,17 +183,19 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-ruleta-tramo:nth-last-child(2) { border-radius: 0 10px 10px 0; }
 .jg-ruleta-tramo[data-tono="bueno"] { background: color-mix(in srgb, var(--jg-mas) 28%, var(--papel)); }
 .jg-ruleta-tramo[data-tono="malo"] { background: color-mix(in srgb, var(--jg-menos) 34%, var(--papel)); }
-.jg-ruleta-tramo--tuyo { animation: jg-tuyo .5s ease 1.9s both; }
-@keyframes jg-tuyo { from { box-shadow: inset 0 0 0 0 var(--sol); } to { box-shadow: inset 0 0 0 4px var(--sol); } }
-.jg-ruleta-ficha { position: absolute; top: -9px; left: var(--jg-meta); width: 22px; height: 50px; margin-left: -11px; border: 2px solid var(--tinta); border-radius: 8px; background: var(--sol); box-shadow: 0 3px 0 var(--tinta); animation: jg-ficha 1.9s cubic-bezier(.3, 0, .2, 1) both; }
-@keyframes jg-ficha { 0% { left: 2%; } 28% { left: 98%; } 52% { left: 6%; } 74% { left: 90%; } 90% { left: calc(var(--jg-meta) - 5%); } 100% { left: var(--jg-meta); } }
+/* Quieta: el sorteo ya se vio en la espera; acá solo queda el resultado */
+.jg-ruleta-tramo--tuyo { box-shadow: inset 0 0 0 4px var(--sol); }
+.jg-ruleta-ficha { position: absolute; top: -9px; left: var(--jg-meta); width: 22px; height: 50px; margin-left: -11px; border: 2px solid var(--tinta); border-radius: 8px; background: var(--sol); box-shadow: 0 3px 0 var(--sombra); }
 .jg-ruleta-leyenda { display: flex; flex-direction: column; gap: 3px; font: 400 13px/18px var(--font); color: var(--suave); }
 .jg-ruleta-leyenda span { display: flex; align-items: baseline; gap: 6px; }
 .jg-ruleta-leyenda i { flex: none; align-self: center; width: 9px; height: 9px; border-radius: 2px; border: 1.5px solid var(--tinta); background: var(--niebla); }
 .jg-ruleta-leyenda i[data-tono="bueno"] { background: var(--jg-mas); }
 .jg-ruleta-leyenda i[data-tono="malo"] { background: var(--jg-menos); }
 .jg-ruleta-leyenda b { margin-left: auto; white-space: nowrap; font: 600 12px/18px var(--mono); }
-.jg-ruleta-tuyo { color: var(--tinta); font-weight: 600; animation: vd-aparecer .01s linear 1.9s both; }
+.jg-ruleta-tuyo { color: var(--tinta); font-weight: 600; }
+/* Después del sorteo, tu sueldo ya dibujado: nada más se simula en pantalla */
+.jg-quepaso .jg-abanico-medio { animation: none; stroke-dashoffset: 0; }
+.jg-quepaso .jg-abanico-tu-punto { animation: none; }
 .jg-despues { animation: vd-subir .7s var(--ease) var(--jg-espera, 2s) both; }
 
 /* Cómo quedaste: el cambio de sueldo en grande */
@@ -217,7 +219,7 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-como[data-paso="2"] .jg-como-gemelos i { animation: jg-vivir 1.6s ease-in-out calc(var(--jg-i) * 34ms) 2; }
 @keyframes jg-vivir { 0%, 100% { transform: none; } 50% { transform: scale(.55); } }
 .jg-como[data-paso="4"] .jg-como-gemelos i { opacity: .28; }
-.jg-como-dado { position: absolute; left: 50%; top: 50%; display: flex; align-items: center; justify-content: center; width: 84px; height: 84px; margin: -42px 0 0 -42px; border: 3px solid var(--tinta); border-radius: 20px; background: var(--sol); box-shadow: 0 5px 0 var(--tinta); font: 400 64px/1 var(--font); color: var(--tinta); opacity: 0; transform: scale(.3) rotate(-40deg); transition: opacity .4s ease, transform .7s var(--rebote); }
+.jg-como-dado { position: absolute; left: 50%; top: 50%; display: flex; align-items: center; justify-content: center; width: 84px; height: 84px; margin: -42px 0 0 -42px; border: 3px solid var(--tinta); border-radius: 20px; background: var(--sol); box-shadow: 0 5px 0 var(--sombra); font: 400 64px/1 var(--font); color: var(--sobre-sol); opacity: 0; transform: scale(.3) rotate(-40deg); transition: opacity .4s ease, transform .7s var(--rebote); }
 .jg-como-dado span { margin-top: -8px; }
 .jg-como[data-paso="4"] .jg-como-dado { opacity: 1; transform: none; animation: jg-dado 2.4s ease-in-out .8s infinite; }
 @keyframes jg-dado { 0%, 70%, 100% { transform: none; } 80% { transform: rotate(-12deg) translateY(-6px); } 90% { transform: rotate(10deg); } }
@@ -354,6 +356,9 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 .jg-empresa-cifras { display: flex; flex-wrap: wrap; gap: 4px 10px; font: 500 12px/16px var(--font); }
 .jg-empresa-nota { font-style: italic; }
 .jg-chip-ia { padding: 2px 10px; border: 1.5px solid var(--linea); border-radius: 999px; font: 500 12px/18px var(--font); }
+.jg-mensaje[data-logo] { display: flex; gap: 10px; align-items: flex-start; }
+.jg-mensaje[data-logo] .jg-mensaje-escribiendo { left: 62px; }
+.jg-con-logo { display: flex; gap: 8px; align-items: flex-start; }
 .jg-mundo-historia { margin: 6px 0 0; font: 400 13px/19px var(--font); }
 
 /* Mundos explorables: un punto por mundo, del color de la opción que gana en él */
@@ -419,3 +424,17 @@ textarea.jg-texto { min-height: 132px; padding: 12px 14px; resize: vertical; fon
 /* La duda que tu CV esconde: encabezado sobre la lista de dudas */
 .jg-en-juego { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 14px; border: 1.5px solid var(--acento); border-radius: 14px; background: var(--acento-suave); animation: jg-peso-entra .5s var(--ease) both; }
 @media (prefers-reduced-motion: reduce) { .jg-en-juego { animation: none; } }
+
+/* Lo que se elige dentro de una opción: una hoja que sube desde abajo, una pregunta a la vez */
+.jg-hoja-fondo { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center; background: var(--velo); animation: vd-aparecer .2s ease both; }
+.jg-hoja { width: 100%; max-width: 430px; max-height: 85dvh; display: flex; flex-direction: column; gap: 12px; padding: 16px 20px 24px; border: 2px solid var(--tinta); border-bottom: 0; border-radius: 22px 22px 0 0; background: var(--papel); color: var(--tinta); font-family: var(--font); animation: vd-subir .3s var(--ease) both; }
+.jg-hoja:focus { outline: none; }
+.jg-hoja-cabeza { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.jg-hoja-lista { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 2px; }
+.jg-hoja-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; padding: 10px 14px; border: 1.5px solid var(--control); border-radius: 14px; background: var(--papel); color: var(--tinta); font: 500 15px/20px var(--font); text-align: left; cursor: pointer; }
+.jg-hoja-item[aria-pressed="true"] { background: var(--sol); color: var(--sobre-sol); --suave: #3A3B40; border-color: var(--tinta); font-weight: 600; }
+.jg-hoja-item:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+.jg-hoja-item small { flex: none; font: 600 11px/1 var(--mono); letter-spacing: .02em; color: var(--suave); }
+
+/* La carta mientras Sonnet la escribe: tapa la plantilla con una espera simple */
+.jg-preparando { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: var(--papel); animation: vd-aparecer .2s ease both; }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, ChevronLeftIcon, Heading, IconButton, Meta, Pill, Screen, ScreenFooter, ScreenHeader, Stack, Text, cssVars } from "@/shared/ui";
 import { GEMELOS } from "../api";
+import { Info } from "./graficos";
 
 const COLUMNAS = 10;
 
@@ -15,23 +16,23 @@ const ORDENADOS = [...FINALES].sort((a, b) => "mas igual menos".indexOf(a) - "ma
 const PASOS = [
   {
     titulo: "Este eres tú, hoy.",
-    texto: "Cada año te toca una decisión de trabajo: ¿me cambio?, ¿pido aumento?, ¿emprendo? Nadie puede decirte cómo va a salir, porque depende de la decisión y también de la suerte.",
+    texto: "Cómo te va depende de lo que elijas y de la suerte.",
   },
   {
-    titulo: `Imaginamos ${GEMELOS} mundos posibles.`,
-    texto: `En cada mundo vive una copia tuya, tu gemelo: misma edad, mismo sueldo, misma pega. Lo que cambia de un mundo a otro es la suerte: en uno hay recesión el año 3, en otro te despiden, en otro no pasa nada. También cambia qué tan rápido llega la IA, dentro del rango que han medido los estudios.`,
+    titulo: "Un gemelo tuyo en cada mundo.",
+    texto: `Son ${GEMELOS} mundos. De uno a otro solo cambia la suerte.`,
   },
   {
-    titulo: "En cada mundo, tu gemelo vive todas las opciones.",
-    texto: "Una vida cambiándose y otra quedándose, en el mismo mundo: la misma recesión, el mismo despido. Así, si en un mundo termina ganando más con una opción, es por la decisión y no por la suerte.",
+    titulo: "Cada gemelo vive todas las opciones.",
+    texto: "Con la misma suerte. Así, lo que cambia es por la decisión.",
   },
   {
     titulo: `Contamos los ${GEMELOS} mundos.`,
-    texto: "¿En cuántos te va mejor con una opción, en cuántos con la otra y en cuántos da lo mismo? Qué tan seguido pasa cada cosa sale de encuestas a trabajadores chilenos (ESI y ENE del INE, entre otras). No es una predicción: es el abanico de lo que le pasa a gente como tú. Las empresas son reales, pero sus cifras se simulan a partir de su rubro y tamaño.",
+    texto: "¿En cuántos ganas más con cada opción?",
   },
   {
-    titulo: `Y tú eres el mundo ${GEMELOS + 1}.`,
-    texto: `Los ${GEMELOS} mundos son para mirar antes de decidir. El tuyo es uno más, con su propio dado, y es el único que se vive de verdad. Cada año te sale una carta al azar, entre las decisiones que calzan con tu situación. Cada opción tiene sus probabilidades: eliges una, tiramos tu dado y avanzas, durante 10 años. Al final comparas tu mundo con los otros ${GEMELOS}.`,
+    titulo: `Tú eres el mundo ${GEMELOS + 1}.`,
+    texto: "El único de verdad. Eliges, tiramos tu dado y avanzas 10 años.",
   },
 ];
 
@@ -165,32 +166,35 @@ export function ComoFunciona({ onListo, onVolver, textoListo = "Armar mi perfil"
       <div className="jg-como-leyenda" data-visible={paso === 2 || paso === 3}>
         {paso === 2 ? (
           <>
-            <span><i data-suceso="malo" />mala suerte</span>
-            <span><i data-suceso="bueno" />buena suerte</span>
-            <span><i data-suceso="dado" />le pasa al mundo: cae en las dos vidas</span>
+            <span><i data-suceso="malo" />algo malo</span>
+            <span><i data-suceso="bueno" />algo bueno</span>
+            <span><i data-suceso="dado" />cae en las dos vidas</span>
           </>
         ) : (
           <>
-            <span><i data-final="mas" /><b>{CUENTA.mas}</b> mundos: ganas más con una</span>
+            <span><i data-final="mas" /><b>{CUENTA.mas}</b> de {GEMELOS}: mejor con una</span>
             <span><i data-final="igual" /><b>{CUENTA.igual}</b> igual</span>
-            <span><i data-final="menos" /><b>{CUENTA.menos}</b> ganas más con la otra</span>
+            <span><i data-final="menos" /><b>{CUENTA.menos}</b> mejor con la otra</span>
           </>
         )}
       </div>
 
       <Stack gap={8} key={paso} className="vd-subir" aria-live="polite">
-        <Meta>
-          Paso {paso + 1} de {PASOS.length}
-        </Meta>
         <Heading level={2} as="h1">
           {PASOS[paso].titulo}
         </Heading>
         <Text>{PASOS[paso].texto}</Text>
-        {(paso === 2 || paso === 3) && <Text size="sm">Los mundos y los números de este dibujo son un ejemplo. Los tuyos salen de tu perfil.</Text>}
+        {(paso === 2 || paso === 3) && <Meta>Dibujo de ejemplo</Meta>}
+        {paso === 3 && (
+          <Info pregunta="¿De dónde salen los números?">
+            Qué tan seguido pasa cada cosa sale de encuestas a trabajadores chilenos (ESI y ENE del INE, entre otras). No es una predicción: es el
+            abanico de lo que le pasa a gente como tú. Los tuyos salen de tu perfil.
+          </Info>
+        )}
       </Stack>
 
       <ScreenFooter>
-        <div className="jg-como-pasos" aria-hidden="true">
+        <div className="jg-como-pasos" role="img" aria-label={`Paso ${paso + 1} de ${PASOS.length}`}>
           {PASOS.map((_, i) => (
             <i key={i} data-activo={i === paso} />
           ))}
@@ -198,7 +202,7 @@ export function ComoFunciona({ onListo, onVolver, textoListo = "Armar mi perfil"
         <Button onClick={() => (ultimo ? onListo() : setPaso(paso + 1))}>{ultimo ? textoListo : "Siguiente"}</Button>
         {!ultimo && (
           <Button variant="quiet" onClick={onListo}>
-            Saltar la explicación
+            Saltar
           </Button>
         )}
       </ScreenFooter>

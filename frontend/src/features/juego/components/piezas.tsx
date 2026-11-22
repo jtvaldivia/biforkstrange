@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Avatar, Button, Tag, cx } from "@/shared/ui";
 import { CALIDAD, plata } from "../textos";
 import type { Calidad, Rango } from "../types";
+import { Espera } from "./Apuesta";
 
 /** Calidad del dato, discreta: dato / mixto / supuesto. */
 export function CalidadTag({ calidad }: { calidad: Calidad }) {
@@ -34,25 +35,37 @@ export function RangoSueldo({ rango, tope, color = "var(--dinero)" }: { rango: R
       className="vd-pila"
       style={{ gap: 4 }}
       role="img"
-      aria-label={`Del 10% peor, ${plata(rango.p10)}, al 10% mejor, ${plata(rango.p90)}. El gemelo del medio: ${plata(rango.p50)}`}
+      aria-label={`10%: ${plata(rango.p10)}. Mediana: ${plata(rango.p50)}. 90%: ${plata(rango.p90)}.`}
     >
       <span className="vd-rango-pista">
         <i style={{ left: `${pos(rango.p10)}%`, width: `${Math.max(pos(rango.p90) - pos(rango.p10), 2)}%`, background: color }} />
         <b style={{ left: `${pos(rango.p50)}%` }} />
       </span>
       <span className="jg-extremos">
-        <span>{plata(rango.p10)}</span>
-        <span>{plata(rango.p90)}</span>
+        <span>10% · {plata(rango.p10)}</span>
+        <span>90% · {plata(rango.p90)}</span>
       </span>
     </span>
   );
 }
 
-export function Cargando({ children }: { children: ReactNode }) {
+/**
+ * Espera sin juego: un punto que late y una frase. Para todo lo que no es un sorteo (simular opciones,
+ * leer el CV); la apuesta queda solo para cuando confirmas y se tira tu año. Con `frases`, van rotando.
+ */
+export function Cargando({ children, texto, frases, cada = 2400 }: { children?: ReactNode; texto?: string; frases?: string[]; cada?: number }) {
+  const [n, setN] = useState(0);
+  const total = frases?.length ?? 0;
+  useEffect(() => {
+    if (total < 2) return;
+    const id = window.setInterval(() => setN((x) => x + 1), cada);
+    return () => window.clearInterval(id);
+  }, [total, cada]);
+  const linea = total ? frases![n % total] : (texto ?? children);
   return (
-    <div className="jg-cargando" role="status">
+    <div className="jg-cargando" role="status" aria-live="polite">
       <i aria-hidden="true" />
-      <span>{children}</span>
+      <span key={total ? n % total : undefined}>{linea}</span>
     </div>
   );
 }
@@ -84,36 +97,19 @@ export function Noticia({ titulo, texto, lado, className }: { titulo: string; te
   );
 }
 
-const CARAS = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 /** Lo que el motor sortea de verdad en un año, y un par de cosas que no (dichas como lo que son: bromas). */
 const FRASES = [
   "Tirando tu dado…",
-  "Viendo si hay recesión este año…",
+  "¿Habrá recesión este año?",
   "Revisando si te ascienden…",
-  "Mirando si te llega una oferta…",
-  "Los robots todavía no se toman el mundo…",
+  "¿Te llegará una oferta?",
+  "Los robots aún no llegan…",
   "Preguntando por los despidos…",
-  "Aún no sabemos quién gana el Mundial…",
+  "Nadie sabe quién gana el Mundial…",
   "Calculando tu sueldo nuevo…",
 ];
 
-/** Pantalla de espera mientras se vive tu año: el dado rodando y lo que se está viendo en tu mundo. */
+/** Pantalla de espera mientras se vive tu año: una apuesta que va girando y lo que se está viendo en tu mundo. */
 export function Pensando({ titulo }: { titulo: string }) {
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setN((x) => x + 1), 150);
-    return () => clearInterval(id);
-  }, []);
-  const frase = FRASES[Math.floor(n / 5) % FRASES.length];
-  return (
-    <div className="jg-pensando" role="status" aria-live="polite">
-      <span className="jg-pensando-mundo">{titulo}</span>
-      <span className="jg-pensando-dado" aria-hidden="true">
-        {CARAS[(n * 5) % CARAS.length]}
-      </span>
-      <span className="jg-pensando-frase" key={frase}>
-        {frase}
-      </span>
-    </div>
-  );
+  return <Espera pantalla titulo={titulo} frases={FRASES} cada={900} />;
 }

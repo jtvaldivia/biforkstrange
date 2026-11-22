@@ -6,6 +6,7 @@ import { ErrorApi, leerPerfil } from "../api";
 import { EDUCACION, TIPO_EMPLEADOR, pesos } from "../textos";
 import type { Catalogo, DudaSugerida, Perfil, PerfilLeido, Sexo } from "../types";
 import { Logo } from "./Logo";
+import { Info } from "./graficos";
 import { Cargando, ErrorCaja } from "./piezas";
 import { Trayectoria, type EstadoLectura } from "./Trayectoria";
 
@@ -37,7 +38,49 @@ function Revisa({ si }: { si: boolean }) {
 }
 
 /** El atajo: subes tu CV o el PDF de tu LinkedIn y Claude llena el formulario. */
-function SubirCv({ estado, empresa, onPdf }: { estado: EstadoLectura; empresa: PerfilLeido["empresa"]; onPdf: (pdfBase64: string) => void }) {
+/** Tu empresa y tu cargo de hoy, con su nombre. Opcionales: solo sirven para contar tu historia, no mueven números. */
+export function TuPega({ p, set }: { p: Perfil; set: (k: "empresa_nombre" | "cargo_nombre", v: string) => void }) {
+  const idEmpresa = useId();
+  const idCargo = useId();
+  return (
+    <Stack gap={8}>
+      <label htmlFor={idEmpresa} className="jg-etiqueta">
+        Tu empresa
+      </label>
+      <input
+        id={idEmpresa}
+        className="jg-campo"
+        autoComplete="organization"
+        maxLength={120}
+        placeholder="Ej. BancoEstado"
+        value={p.empresa_nombre ?? ""}
+        onChange={(e) => set("empresa_nombre", e.target.value)}
+      />
+      <label htmlFor={idCargo} className="jg-etiqueta">
+        Cómo se llama tu cargo
+      </label>
+      <input
+        id={idCargo}
+        className="jg-campo"
+        autoComplete="organization-title"
+        maxLength={120}
+        placeholder="Ej. Analista de riesgo"
+        value={p.cargo_nombre ?? ""}
+        onChange={(e) => set("cargo_nombre", e.target.value)}
+      />
+      <Text size="sm">Opcional. Solo sirve para contar tu historia con nombres reales: no cambia tus números.</Text>
+    </Stack>
+  );
+}
+
+function SubirCv({
+  estado, empresa, catalogo, onPdf,
+}: {
+  estado: EstadoLectura;
+  empresa: PerfilLeido["empresa"];
+  catalogo?: PerfilLeido["empresa_catalogo"];
+  onPdf: (pdfBase64: string) => void;
+}) {
   const entrada = useRef<HTMLInputElement>(null);
   const [errorArchivo, setErrorArchivo] = useState<string | null>(null);
   const leyendo = estado.fase === "leyendo";
@@ -64,9 +107,9 @@ function SubirCv({ estado, empresa, onPdf }: { estado: EstadoLectura; empresa: P
     >
       <Stack gap={4}>
         <Heading level={3} as="h2">
-          Sube tu CV y nos saltamos el formulario
+          Llénalo con tu CV
         </Heading>
-        <Text size="sm">O el PDF de tu LinkedIn: desde el computador, tu perfil → Recursos → Guardar como PDF.</Text>
+        <Text size="sm">O tu LinkedIn: perfil → Recursos → Guardar como PDF.</Text>
       </Stack>
       <input
         ref={entrada}
@@ -81,7 +124,7 @@ function SubirCv({ estado, empresa, onPdf }: { estado: EstadoLectura; empresa: P
       <Button onClick={() => entrada.current?.click()} disabled={leyendo}>
         {leyendo ? "Leyendo tu CV…" : "Subir PDF"}
       </Button>
-      {leyendo && <Cargando>Claude está leyendo tu CV. Mientras, puedes ir revisando abajo.</Cargando>}
+      {leyendo && <Cargando frases={["Claude está leyendo tu CV…", "Mientras, revisa abajo."]} cada={3000} />}
       {errorArchivo && (
         <div className="jg-error" role="alert">
           {errorArchivo}
@@ -89,15 +132,22 @@ function SubirCv({ estado, empresa, onPdf }: { estado: EstadoLectura; empresa: P
       )}
       {estado.fase === "error" && (
         <div className="jg-error" role="alert">
-          No pudimos leer tu CV. {estado.detalle} Llena el formulario a mano; toma un minuto.
+          No pudimos leer tu CV. {estado.detalle} Llénalo a mano abajo.
         </div>
       )}
       {estado.fase === "listo" && (
-        <Text size="sm" role="status">
-          <strong>Listo, llenamos lo que decía tu CV.</strong>{" "}
-          {empresa && `Encontramos ${empresa.nombre} en el SII: ${empresa.tamano === "grande" ? "empresa grande" : "pyme"} de ${empresa.trabajadores.toLocaleString("es-CL")} personas. `}
-          {estado.supuestos.length > 0 ? `Falta lo que un CV no dice: ${estado.supuestos.join(", ")}. Lo marcamos abajo.` : "Revisa que calce."}
-        </Text>
+        <Stack gap={2} role="status">
+          <Text size="sm" className={catalogo ? "jg-con-logo" : undefined}>
+            {catalogo && <Logo carpeta="empresas" id={catalogo.empresa_id} nombre={catalogo.nombre} grupo={catalogo.rubro} hay={catalogo.logo} tamano={28} />}
+            <strong>Listo, llenamos lo que decía tu CV.</strong>
+          </Text>
+          {empresa && (
+            <Text size="sm">
+              {empresa.nombre}: {empresa.tamano === "grande" ? "empresa grande" : "pyme"}, {empresa.trabajadores.toLocaleString("es-CL")} personas (SII).
+            </Text>
+          )}
+          <Text size="sm">{estado.supuestos.length > 0 ? "Revisa lo marcado abajo." : "Revisa que calce."}</Text>
+        </Stack>
       )}
     </Panel>
   );
@@ -145,6 +195,7 @@ export function PerfilForm({
   /** "Lo que tu gemelo sabe de ti": una línea que arma Claude con hechos del CV. */
   const [retrato, setRetrato] = useState<string | null>(null);
   const [empresa, setEmpresa] = useState<PerfilLeido["empresa"]>(null);
+  const [empresaCatalogo, setEmpresaCatalogo] = useState<PerfilLeido["empresa_catalogo"]>(null);
   /** De dónde vino lo que se está leyendo: el PDF de arriba o el texto del panel de Claude. */
   const [origen, setOrigen] = useState<"pdf" | "texto">("pdf");
   useEffect(() => () => void pedido.current++, []);
@@ -173,6 +224,7 @@ export function PerfilForm({
       setSugeridas(r.dudas_sugeridas?.length ? r.dudas_sugeridas : r.duda ? [{ decision: r.duda, por_que: "La trajo tu Claude." }] : []);
       setRetrato(r.retrato ?? null);
       setEmpresa(r.empresa ?? null);
+      setEmpresaCatalogo(r.empresa_catalogo ?? null);
       setLectura({
         fase: "listo", inferido: r.inferido, supuestos: pendientes.map((x) => x.nombre), avisos: r.avisos ?? [],
         documento: r.via === "documento", duda: r.duda,
@@ -215,25 +267,22 @@ export function PerfilForm({
         }
         right={<Pill>Tu perfil</Pill>}
       />
-      <Stack>
-        <Heading level={1}>Cuéntanos de ti.</Heading>
-        <Text>Con esto armamos a tus gemelos. Toma un minuto.</Text>
-      </Stack>
+      <Heading level={1}>Cuéntanos de ti.</Heading>
 
       {errorCatalogo && <ErrorCaja error={errorCatalogo} />}
-      {!catalogo && !errorCatalogo && <Cargando>Cargando alternativas…</Cargando>}
+      {!catalogo && !errorCatalogo && <Cargando>Cargando opciones…</Cargando>}
 
       {retrato && (
         <SunCard className="jg-retrato">
-          <Meta>Lo que tu gemelo sabe de ti</Meta>
+          <Meta>Tu gemelo</Meta>
           <Text>«{retrato}»</Text>
         </SunCard>
       )}
 
-      <SubirCv estado={origen === "pdf" ? lectura : { fase: "nada" }} empresa={empresa} onPdf={(pdf) => void llenarConClaude({ pdf })} />
+      <SubirCv estado={origen === "pdf" ? lectura : { fase: "nada" }} empresa={empresa} catalogo={empresaCatalogo} onPdf={(pdf) => void llenarConClaude({ pdf })} />
 
       <details className="jg-plegable" open={origen === "texto" && lectura.fase !== "nada"}>
-        <summary>¿Usas Claude o tienes tu CV en texto? Pégalo aquí</summary>
+        <summary>Pegar tu CV en texto o armarlo con Claude</summary>
         <Trayectoria estado={origen === "texto" ? lectura : { fase: "nada" }} onLlenar={(t) => void llenarConClaude(t)} />
       </details>
 
@@ -275,7 +324,7 @@ export function PerfilForm({
               <label htmlFor={idCarrera} className="vd-h3">
                 Tu carrera <span className="jg-chico">(opcional)</span>
               </label>
-              <Text size="sm">Si la encuentras, usamos lo que ganan sus titulados.</Text>
+              <Info pregunta="¿Para qué?">Si la encuentras, usamos lo que ganan sus titulados.</Info>
             </Stack>
             {carrera ? (
               <Row style={{ alignItems: "center" }}>
@@ -289,7 +338,7 @@ export function PerfilForm({
                   id={idCarrera}
                   className="jg-campo"
                   type="search"
-                  placeholder="Busca entre las 252: enfermería, ingeniería civil…"
+                  placeholder="Ej.: enfermería, ingeniería civil…"
                   value={busca}
                   onChange={(e) => setBusca(e.target.value)}
                 />
@@ -312,7 +361,7 @@ export function PerfilForm({
                     ))}
                   </div>
                 )}
-                {busca.trim().length >= 2 && encontradas.length === 0 && <Text size="sm">No está en la lista. Puedes seguir sin carrera.</Text>}
+                {busca.trim().length >= 2 && encontradas.length === 0 && <Text size="sm">No está. Puedes seguir sin carrera.</Text>}
               </>
             )}
           </Panel>
@@ -323,7 +372,7 @@ export function PerfilForm({
                 <label htmlFor={idUniversidad} className="vd-h3">
                   Dónde estudiaste <span className="jg-chico">(opcional)</span>
                 </label>
-                <Text size="sm">Universidad, instituto o CFT, en Chile o afuera. Cuenta para tu primera pega y para un magíster.</Text>
+                <Text size="sm">Universidad, instituto o CFT, en Chile o afuera. Cuenta para tu primer trabajo y para un magíster.</Text>
               </Stack>
               {universidad ? (
                 <Row style={{ alignItems: "center" }}>
@@ -408,6 +457,10 @@ export function PerfilForm({
             )}
           </Stack>
 
+          <Stack as="section">
+            <TuPega p={p} set={set} />
+          </Stack>
+
           <Stack as="section" className={marca("tipo_empleador")}>
             <span className="jg-etiqueta">Tipo de empresa</span>
             <Revisa si={marcados.has("tipo_empleador")} />
@@ -421,7 +474,7 @@ export function PerfilForm({
           </Stack>
 
           <Stack as="section" className={marca("nivel")}>
-            <span className="jg-etiqueta">Cargo</span>
+            <span className="jg-etiqueta">Nivel de tu cargo</span>
             <Revisa si={marcados.has("nivel")} />
             <Row>
               {catalogo.niveles.map((n) => (
@@ -447,9 +500,7 @@ export function PerfilForm({
             {ref && (
               <Row gap={8} style={{ alignItems: "center", flexWrap: "wrap" }}>
                 <Text size="sm">
-                  La mitad de la gente de tu edad y estudios gana menos de <strong>{pesos(ref.p50)}</strong>
-                  {sueldoValido && ` · tú estás ${p.sueldo >= ref.p75 ? "entre los que más ganan" : p.sueldo >= ref.p50 ? "sobre la mitad" : p.sueldo >= ref.p25 ? "bajo la mitad" : "entre los que menos ganan"}`}
-                  .
+                  Mediana para tu edad y estudios: <strong>{pesos(ref.p50)}</strong>
                 </Text>
                 {p.sueldo !== ref.p50 && (
                   <Chip pressed={false} onToggle={() => set("sueldo", ref.p50)}>
@@ -483,9 +534,9 @@ export function PerfilForm({
 
       <ScreenFooter>
         {error && <ErrorCaja error={error} />}
-        {cargando && <Cargando>Simulando tus mundos y sorteando tu primera carta…</Cargando>}
+        {cargando && <Cargando frases={["Simulando tus mundos…", "Sorteando tu primera carta…"]} />}
         <Button onClick={() => onElegirDuda(p, sugeridas)} disabled={!catalogo || !sueldoValido || cargando}>
-          {sugeridas.length ? "Ver las dudas que te sugerimos" : "Elegir mi duda"}
+          {sugeridas.length ? "Ver mis dudas" : "Elegir mi duda"}
         </Button>
         <Button variant="quiet" onClick={() => onListo(p)} disabled={!catalogo || !sueldoValido || cargando}>
           Que me toque una al azar

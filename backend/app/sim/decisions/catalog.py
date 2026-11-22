@@ -41,7 +41,7 @@ class Sabatico(ParametricDecision):
 
 
 class CambiarPega(ParametricDecision):
-    key, label = "cambiar_pega", "Cambiar de pega"
+    key, label = "cambiar_pega", "Cambiar de trabajo"
     growth, riesgo_rel, wear = 0.08, 1.6, 0.05
     cambio_forzado = True
 

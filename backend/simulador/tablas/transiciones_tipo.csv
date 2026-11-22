@@ -1,0 +1,25 @@
+origen,destino,prob,n,calidad,fuente
+grande,grande,0.6933,441,derivado,"eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"
+grande,pyme,0.2571,176,derivado,"eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"
+grande,startup,0.0084,,supuesto,"MIX_EMPLEADOR (ine_esi_2025); startup no se observa con origen y destino (EPS, J2JOD)"
+grande,publico,0.0412,22,derivado,"eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"
+pyme,grande,0.1859,192,derivado,"eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"
+pyme,pyme,0.7588,1335,derivado,"eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"
+pyme,startup,0.0091,,supuesto,"MIX_EMPLEADOR (ine_esi_2025); startup no se observa con origen y destino (EPS, J2JOD)"
+pyme,publico,0.0462,60,derivado,"eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"
+startup,grande,0.1859,,supuesto,"fila pyme de eps_2009; startup no se observa con origen y destino (EPS, J2JOD)"
+startup,pyme,0.7588,,supuesto,"fila pyme de eps_2009; startup no se observa con origen y destino (EPS, J2JOD)"
+startup,startup,0.0091,,supuesto,"MIX_EMPLEADOR (ine_esi_2025); startup no se observa con origen y destino (EPS, J2JOD)"
+startup,publico,0.0462,,supuesto,"fila pyme de eps_2009; startup no se observa con origen y destino (EPS, J2JOD)"
+publico,grande,0.0816,19,derivado,"eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"
+publico,pyme,0.2336,49,derivado,"eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"
+publico,startup,0.0089,,supuesto,"MIX_EMPLEADOR (ine_esi_2025); startup no se observa con origen y destino (EPS, J2JOD)"
+publico,publico,0.6759,164,derivado,"eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"
+extranjero,grande,0.2593,,supuesto,copia de la fila ninguno (sin dato de quien llega del extranjero)
+extranjero,pyme,0.5875,,supuesto,copia de la fila ninguno (sin dato de quien llega del extranjero)
+extranjero,startup,0.0089,,supuesto,copia de la fila ninguno (sin dato de quien llega del extranjero)
+extranjero,publico,0.1443,,supuesto,copia de la fila ninguno (sin dato de quien llega del extranjero)
+ninguno,grande,0.2593,212,derivado,"eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"
+ninguno,pyme,0.5875,592,derivado,"eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"
+ninguno,startup,0.0089,,supuesto,"MIX_EMPLEADOR (ine_esi_2025); startup no se observa con origen y destino (EPS, J2JOD)"
+ninguno,publico,0.1443,150,derivado,"eps_2009 historia laboral 2006-2009, ponderada; raking a la mezcla ine_esi_2025"

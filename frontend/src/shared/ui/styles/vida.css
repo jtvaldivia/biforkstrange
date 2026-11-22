@@ -1,7 +1,11 @@
 /* Agarrar la pala · estilos del kit de UI (portados desde el Claude Design "Gemelo Laboral")
    LA PALETA VIVE AQUI: cambia estas variables y todas las pantallas siguen.
-   Los componentes de React en shared/ui envuelven estas clases vd-*. */
-:root {
+   Los componentes de React en shared/ui envuelven estas clases vd-*.
+   Esta es la paleta clara. La oscura redefine las mismas variables en "Modo oscuro", más abajo;
+   el tema lo elige <ThemeToggle> poniendo data-theme en <html>.
+   .vd-sol también toma la paleta clara: las tarjetas amarillas se ven igual en los dos temas. */
+:root, .vd-sol {
+  color-scheme: light;
   /* Superficies claras */
   --papel: #FFFFFF;
   --niebla: #F2F2EF;
@@ -18,12 +22,14 @@
   --sol: #FFC83D;
   --sobre-sol: #1D1E22;
 
-  /* Noche: oficina, tunel, momentos duros */
-  --noche: #14151A;
-  --noche-2: #22232B;
-  --noche-linea: #3A3B45;
-  --sobre-noche: #F2F2EF;
-  --noche-suave: #A9AAB2;
+  /* Noche: oficina, tunel, momentos duros. Siguen el tema: en claro son un tinte frío apenas
+     más oscuro que el papel (no una pantalla negra), en oscuro un azul profundo. Así un año
+     malo se distingue sin que la app salte de blanco a negro y de vuelta. */
+  --noche: #EEF0F6;
+  --noche-2: #E1E4EF;
+  --noche-linea: #C9CDDC;
+  --sobre-noche: #1D1E22;
+  --noche-suave: #55576A;
 
   /* Los cuatro indicadores */
   --dinero: #17794B;
@@ -31,20 +37,70 @@
   --bienestar: #F08A1C;
   --vida: #D6336C;
 
+  /* Más colores de serie (opciones del juego) y el gris de "igual" en los gráficos */
+  --violeta: #7C5CD6;
+  --turquesa: #0E9AA7;
+  --apagado: #B9BAC0;
+
+  /* Sombra dura de teclas y tarjetas; en superficies noche va la suya */
+  --sombra: #1D1E22;
+  --sombra-noche: #1D1E22;
+  /* Contorno de las bandas noche: solo hace falta en modo oscuro */
+  --borde-noche: transparent;
+  /* Velo detrás de la hoja que sube desde abajo */
+  --velo: rgb(20 21 26 / .45);
+}
+
+:root {
   --font: "Sora", "Segoe UI", system-ui, sans-serif;
   --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
   --ease: cubic-bezier(.23, 1, .32, 1);
   --rebote: cubic-bezier(.2, 1.5, .4, 1);
 }
 
+/* ───────── Modo oscuro ─────────
+   Sigue al sistema salvo que la persona elija claro, o se fuerza con data-theme="dark".
+   Los dos bloques tienen que quedar iguales. Tinta clara sobre fondo oscuro; el acento azul
+   aclarado (con texto oscuro encima) para que se lea sobre el fondo; la noche, azul profundo,
+   para que se siga distinguiendo del fondo. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --papel: #1A1B21; --niebla: #25262E; --linea: #3A3B46; --control: #8C8D96;
+    --tinta: #F2F2EF; --media: #D2D3D9; --suave: #ABACB6;
+    --acento: #8FA2FF; --sobre-acento: #14151A; --acento-suave: #262B4D;
+    --sol: #FFC83D; --sobre-sol: #1D1E22;
+    --noche: #0F1228; --noche-2: #1C2040; --noche-linea: #363C66; --sobre-noche: #F2F2EF; --noche-suave: #A9AAB2;
+    --dinero: #4CC38A; --carrera: #8FA2FF; --bienestar: #F08A1C; --vida: #FF7FA8;
+    --violeta: #A98CFF; --turquesa: #2FC4CE; --apagado: #6B6D78;
+    --sombra: #5B5D69; --sombra-noche: #5B5D69; --borde-noche: #363C66;
+    --velo: rgb(0 0 0 / .62);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --papel: #1A1B21; --niebla: #25262E; --linea: #3A3B46; --control: #8C8D96;
+  --tinta: #F2F2EF; --media: #D2D3D9; --suave: #ABACB6;
+  --acento: #8FA2FF; --sobre-acento: #14151A; --acento-suave: #262B4D;
+  --sol: #FFC83D; --sobre-sol: #1D1E22;
+  --noche: #0F1228; --noche-2: #1C2040; --noche-linea: #363C66; --sobre-noche: #F2F2EF; --noche-suave: #A9AAB2;
+  --dinero: #4CC38A; --carrera: #8FA2FF; --bienestar: #F08A1C; --vida: #FF7FA8;
+  --violeta: #A98CFF; --turquesa: #2FC4CE; --apagado: #6B6D78;
+  --sombra: #5B5D69; --sombra-noche: #5B5D69; --borde-noche: #363C66;
+  --velo: rgb(0 0 0 / .62);
+}
+
+/* Fuera de las pantallas (márgenes en escritorio, /simulacion) también va el fondo del tema */
+html { background: var(--papel); color: var(--tinta); }
+
 /* ───────── Base ───────── */
 .vd { position: relative; box-sizing: border-box; font-family: var(--font); color: var(--tinta); background: var(--papel); -webkit-font-smoothing: antialiased; }
 .vd *, .vd *::before, .vd *::after { box-sizing: border-box; }
+/* Pantalla noche: solo cambia las superficies por las de noche del tema activo. Acento,
+   indicadores y --media vienen del tema, que ya da buen contraste sobre ese fondo. */
 .vd-noche {
-  --papel: #14151A; --niebla: #22232B; --linea: #3A3B45; --control: #8C8D96;
-  --tinta: #F2F2EF; --media: #D0D1D6; --suave: #A9AAB2;
-  --acento: #8FA2FF; --sobre-acento: #14151A; --acento-suave: #262B4D;
-  --dinero: #4CC38A; --carrera: #8FA2FF; --vida: #FF7FA8;
+  --papel: var(--noche); --niebla: var(--noche-2); --linea: var(--noche-linea);
+  --tinta: var(--sobre-noche); --suave: var(--noche-suave); --sombra: var(--sombra-noche);
 }
 
 /* Pantalla de la app: columna de teléfono centrada */
@@ -84,9 +140,9 @@
 .vd-pildora--sol { background: var(--sol); color: var(--sobre-sol); border-color: var(--sobre-sol); }
 
 /* ───────── Botones: teclas que se hunden ───────── */
-.vd-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 56px; padding: 0 20px; border: 2px solid var(--tinta); border-radius: 16px; background: var(--acento); font: 600 17px/22px var(--font); text-decoration: none; text-align: center; cursor: pointer; box-shadow: 0 4px 0 var(--tinta); transition: transform 120ms var(--ease), box-shadow 120ms var(--ease), background-color 160ms ease; }
+.vd-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 56px; padding: 0 20px; border: 2px solid var(--tinta); border-radius: 16px; background: var(--acento); font: 600 17px/22px var(--font); text-decoration: none; text-align: center; cursor: pointer; box-shadow: 0 4px 0 var(--sombra); transition: transform 120ms var(--ease), box-shadow 120ms var(--ease), background-color 160ms ease; }
 .vd-btn, .vd-btn:hover { color: var(--sobre-acento); }
-.vd-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--tinta); }
+.vd-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--sombra); }
 .vd-btn--blanco { background: var(--papel); }
 .vd-btn--blanco, .vd-btn--blanco:hover { color: var(--tinta); }
 .vd-btn--sol { background: var(--sol); }
@@ -115,8 +171,8 @@
 .vd-rango { width: 100%; height: 28px; margin: 0; accent-color: var(--tinta); }
 
 /* Tarjeta de decision */
-.vd-opcion { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px 10px 10px; border: 2px solid var(--tinta); border-radius: 18px; background: var(--papel); color: var(--tinta); font-family: var(--font); text-align: left; cursor: pointer; box-shadow: 0 4px 0 var(--tinta); transition: transform 120ms var(--ease), box-shadow 120ms var(--ease), background-color 160ms ease; }
-.vd-opcion:active, .vd-opcion[aria-pressed="true"] { transform: translateY(3px); box-shadow: 0 1px 0 var(--tinta); }
+.vd-opcion { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px 10px 10px; border: 2px solid var(--tinta); border-radius: 18px; background: var(--papel); color: var(--tinta); font-family: var(--font); text-align: left; cursor: pointer; box-shadow: 0 4px 0 var(--sombra); transition: transform 120ms var(--ease), box-shadow 120ms var(--ease), background-color 160ms ease; }
+.vd-opcion:active, .vd-opcion[aria-pressed="true"] { transform: translateY(3px); box-shadow: 0 1px 0 var(--sombra); }
 .vd-opcion[aria-pressed="true"] { background: var(--acento-suave); }
 .vd-opcion-dibujo { flex: none; width: 72px; height: 72px; border: 2px solid var(--tinta); border-radius: 12px; overflow: hidden; display: block; }
 .vd-opcion-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
@@ -125,6 +181,15 @@
 .vd-opcion-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
 .vd-opcion-check { position: absolute; top: -10px; right: -8px; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 2px solid var(--tinta); border-radius: 50%; background: var(--acento); color: var(--sobre-acento); transform: scale(0); transition: transform 240ms var(--rebote); }
 .vd-opcion[aria-pressed="true"] .vd-opcion-check { transform: scale(1); }
+/* La elegida se abre: el detalle baja a su propia fila, bajo el dibujo y el texto */
+.vd-opcion--abre { flex-wrap: wrap; }
+.vd-opcion-detalle { flex-basis: 100%; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 10px 2px 2px; border-top: 1.5px dashed var(--control); animation: vd-subir .35s var(--ease) both; }
+/* Grilla de dos con el dibujo grande arriba (elegir tu duda) */
+.vd-rejilla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.vd-opcion--tile { flex-direction: column; align-items: stretch; gap: 6px; padding: 8px 8px 12px; }
+.vd-opcion--tile .vd-opcion-dibujo { width: 100%; height: 104px; }
+.vd-opcion--tile .vd-opcion-titulo { font-size: 15px; }
+.vd-opcion--tile .vd-opcion-tags { margin-top: auto; padding-top: 3px; }
 
 .vd-tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; background: var(--niebla); color: var(--tinta); font: 600 11px/1 var(--mono); letter-spacing: .02em; white-space: nowrap; }
 .vd-tag--menos { background: transparent; border: 1.5px dashed var(--control); }
@@ -284,7 +349,18 @@
 
 /* Superficies de momento */
 .vd-sol { background: var(--sol); color: var(--sobre-sol); --tinta: #1D1E22; --media: #2A2B30; --suave: #3A3B40; }
-.vd-banda-noche { background: #14151A; color: #F2F2EF; --tinta: #F2F2EF; --media: #D0D1D6; --suave: #A9AAB2; --papel: #14151A; --niebla: #22232B; }
+.vd-banda-noche { background: var(--noche); color: var(--sobre-noche); --tinta: var(--sobre-noche); --suave: var(--noche-suave); --papel: var(--noche); --niebla: var(--noche-2); --sombra: var(--sombra-noche); box-shadow: inset 0 0 0 1.5px var(--borde-noche); }
+/* Dentro de una pantalla noche la banda usa la otra superficie de noche, para no fundirse con el fondo */
+.vd-noche .vd-banda-noche { background: var(--noche-2); --papel: var(--noche-2); --niebla: var(--noche); }
+
+/* Botón de tema (claro / oscuro): arriba a la derecha de la página, sobre el margen de 48px
+   que deja cada pantalla arriba. Se va con el scroll para no tapar contenido. */
+.vd-tema { position: absolute; top: 2px; right: 4px; z-index: 5; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; background: transparent; color: var(--tinta); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.vd-tema span { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: 1.5px solid var(--control); border-radius: 50%; background: var(--papel); transition: transform 120ms var(--ease), border-color 160ms ease; }
+.vd-tema:hover span { border-color: var(--tinta); }
+.vd-tema:active span { transform: scale(.92); }
+.vd-tema:focus-visible { outline: none; }
+.vd-tema:focus-visible span { outline: 3px solid var(--acento); outline-offset: 2px; }
 
 /* Entradas en secuencia */
 .vd-subir { animation: vd-subir .7s var(--ease) both; }

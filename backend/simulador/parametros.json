@@ -205,6 +205,30 @@
    ]
   },
   {
+   "id": "PISO_STARTUP",
+   "valor": 0,
+   "unidad": "probabilidad",
+   "descripcion": "Piso de la chance de que el empleador nuevo sea una startup. 0 en la población (manda transiciones_tipo); una vida con toda su carrera en startups lo sube a 0,20 de sus ofertas privadas (perfil.parametros_propios, supuesto del equipo).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": [
+    0,
+    0.4
+   ]
+  },
+  {
+   "id": "PISO_REEMPLEO_PUBLICO",
+   "valor": 0,
+   "unidad": "probabilidad",
+   "descripcion": "Piso de la chance de volver al Estado al cambiarse de empleo. 0 en la población (manda transiciones_tipo); una vida con toda su carrera en el Estado lo sube a 0,40 (perfil.parametros_propios, supuesto del equipo).",
+   "fuente": "equipo",
+   "calidad": "supuesto",
+   "rango": [
+    0,
+    0.6
+   ]
+  },
+  {
    "id": "P_SUBE_CAMBIO",
    "valor": 0.54,
    "unidad": "probabilidad",
@@ -823,26 +847,26 @@
   },
   {
    "id": "EMPRESA_SIGMA_SUELDO",
-   "valor": 0.28,
+   "valor": 0.225,
    "unidad": "desviación log",
    "descripcion": "Dispersión del sueldo entre empresas del mismo tipo y rubro: mult_sueldo = R_tamano × exp(σ·z − σ²/2), z normal sorteada con semilla fija. σ es el mayor valor de una grilla de 0 a 1 (paso 0,005) con el que, en todos los rubros, el p25 y el p75 de mult_sueldo × p50 del rubro (grandes, pymes y startups del catálogo, tras normalizar a media geométrica 1 por tipo y rubro) quedan dentro del p25-p75 ESI 2025 del rubro (esi_ingreso_rubro, educación todas). Lo calcula scripts/empresas_catalogo.py.",
    "fuente": "equipo_sintetico",
    "calidad": "sintetico",
    "rango": [
     0.0,
-    0.42
+    0.3375
    ]
   },
   {
    "id": "EMPRESA_SIGMA_ASCENSO",
-   "valor": 0.28,
+   "valor": 0.225,
    "unidad": "desviación log",
    "descripcion": "Dispersión entre empresas de la probabilidad de ascenso: mult_ascenso = exp(σ·z − σ²/2), z normal con semilla fija. No hay en el paquete una medición de ascensos por empresa para calibrarlo, así que usa el mismo σ que EMPRESA_SIGMA_SUELDO.",
    "fuente": "equipo_sintetico",
    "calidad": "sintetico",
    "rango": [
     0.0,
-    0.42
+    0.3375
    ]
   },
   {
