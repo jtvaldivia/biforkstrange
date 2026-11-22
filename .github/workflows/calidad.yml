@@ -1,0 +1,23 @@
+# Lint y tests del backend en cada PR a `main`. Va aparte de ci.yml (que vive en `produccion` y
+# despliega), para que llevar `main` a `produccion` no choque con ese archivo.
+name: Calidad
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest -q -n auto
